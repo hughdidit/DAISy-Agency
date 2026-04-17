@@ -1,9 +1,10 @@
-import fs from "node:fs";
 import type { AuditLogger } from "../audit.js";
 import {
+  classifyCredentialSourceType,
   getActiveRouteAuthStatus,
   getAuthSourceStatus,
   getRouteImpersonationStatus,
+  isServiceAccountPolicyEnforced,
   resolveAuth,
 } from "../auth.js";
 import { discoverBinary } from "../binary.js";
@@ -65,26 +66,6 @@ function buildWriteReadiness(config: GwsToolkitConfig) {
   }));
 }
 
-function classifyCredentialsFileType(credentialsFile: string): string {
-  try {
-    const fileText = fs.readFileSync(credentialsFile, "utf8");
-    const parsed = JSON.parse(fileText) as Record<string, unknown>;
-    if (parsed.type === "service_account") {
-      return "service_account_json";
-    }
-    if (
-      typeof parsed.refresh_token === "string" ||
-      typeof parsed.client_id === "string" ||
-      typeof parsed.client_secret === "string"
-    ) {
-      return "headless_oauth_export";
-    }
-    return "credentials_file_unknown";
-  } catch {
-    return "credentials_file_unknown";
-  }
-}
-
 function parseAuthHealthResult(params: {
   mode: "token" | "credentials_file";
   credentialsFile?: string;
@@ -108,7 +89,7 @@ function parseAuthHealthResult(params: {
     params.mode === "token"
       ? "pre_obtained_token"
       : params.credentialsFile
-        ? classifyCredentialsFileType(params.credentialsFile)
+        ? classifyCredentialSourceType(params.credentialsFile)
         : "credentials_file_unknown";
 
   return {
@@ -477,6 +458,29 @@ export async function executeAuthHealth(params: {
       credentialsFile: auth.env.GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE,
       payload: normalized.payload,
     });
+    const impersonation = getRouteImpersonationStatus(auth.route);
+    const serviceAccountPolicyEnforced = isServiceAccountPolicyEnforced();
+    const serviceAccountPolicyCompliant =
+      auth.mode !== "credentials_file" ||
+      !impersonation.configured ||
+      !serviceAccountPolicyEnforced ||
+      health.credentialSourceType === "service_account_json";
+
+    if (!serviceAccountPolicyCompliant) {
+      throw new PluginError(
+        "AUTH_ERROR",
+        "Route auth health failed credential policy. Enforced environments require service-account JSON for impersonated routes.",
+        {
+          routeName: auth.route.name,
+          bindingSubject: auth.bindingSubject,
+          credentialSourceType: health.credentialSourceType,
+          serviceAccountPolicyEnforced,
+          failureCategory: "CREDENTIAL_POLICY",
+          impersonatedUser: impersonation.value,
+          impersonationSource: impersonation.source,
+        },
+      );
+    }
 
     if (!health.tokenValid || health.tokenError) {
       throw new PluginError(
@@ -488,11 +492,14 @@ export async function executeAuthHealth(params: {
           tokenValid: health.tokenValid,
           tokenError: health.tokenError,
           credentialSourceType: health.credentialSourceType,
+          failureCategory: "TOKEN_HEALTH",
+          serviceAccountPolicyEnforced,
+          impersonatedUser: impersonation.value,
+          impersonationSource: impersonation.source,
         },
       );
     }
 
-    const impersonation = getRouteImpersonationStatus(auth.route);
     const latencyMs = Date.now() - startedAt;
     params.audit.emit({
       ctx: {
@@ -530,6 +537,8 @@ export async function executeAuthHealth(params: {
           tokenValid: health.tokenValid,
           tokenError: health.tokenError,
           plainCredentialsExists: health.plainCredentialsExists,
+          serviceAccountPolicyEnforced,
+          serviceAccountPolicyCompliant,
           raw: normalized.payload,
         },
         ...(params.deprecatedAliasUsed

@@ -491,6 +491,16 @@ export function resolveConfig(
     }
   }
 
+  for (const [subject, routeName] of Object.entries(configBase.agentCredentialBindings)) {
+    const route = credentialRoutes[routeName];
+    if (route?.mode !== "token") {
+      continue;
+    }
+    warnings.push(
+      `agentCredentialBindings.${subject} points to token route ${routeName}. Treat token mode as break-glass only; prefer credentials_file routes for routine delegated operations.`,
+    );
+  }
+
   if (!configBase.safeMode) {
     warnings.push(
       "safeMode=false is unsupported for this hardened toolkit and requests will fail closed.",

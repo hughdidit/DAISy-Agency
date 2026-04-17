@@ -1,0 +1,158 @@
+name: GWS Auth Smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        type: choice
+        options: [staging, production]
+        default: staging
+  schedule:
+    - cron: "27 7 * * *"
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: gws-auth-smoke-${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'staging' }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'staging' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud (WIF)
+        uses: google-github-actions/auth@6fc4af4b145ae7821d527454aa9bd537d1f2dc5f # v2.1.7
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER || vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT || vars.GCP_SERVICE_ACCOUNT }}
+
+      - name: Install Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@6189d56e4096ee891640bb02ac264be376592d6a # v2.1.2
+
+      - name: Install NumPy for IAP tunnel performance
+        run: |
+          PYTHON_BIN="$(gcloud info --format='value(basic.python_location)')"
+          if [ -z "$PYTHON_BIN" ]; then
+            echo "ERROR: Failed to determine gcloud Python interpreter (basic.python_location is empty)" >&2
+            exit 1
+          fi
+          "$PYTHON_BIN" -m pip install numpy
+
+      - name: Pre-generate SSH key for gcloud
+        run: |
+          if [[ ! -f ~/.ssh/google_compute_engine ]]; then
+            ssh-keygen -t rsa -b 3072 -f ~/.ssh/google_compute_engine -N "" -q
+          fi
+
+      - name: Run route-bound GWS auth-health smoke
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID || vars.GCP_PROJECT_ID }}
+          GCP_ZONE: ${{ secrets.GCP_ZONE || vars.GCP_ZONE }}
+          GCE_INSTANCE_NAME: ${{ secrets.GCE_INSTANCE_NAME || vars.GCE_INSTANCE_NAME }}
+          VERIFY_GCE_CONTAINER: ${{ secrets.VERIFY_GCE_CONTAINER || vars.VERIFY_GCE_CONTAINER }}
+        run: |
+          set -euo pipefail
+
+          : "${GCP_PROJECT_ID:?GCP_PROJECT_ID is required}"
+          : "${GCP_ZONE:?GCP_ZONE is required}"
+          : "${GCE_INSTANCE_NAME:?GCE_INSTANCE_NAME is required}"
+
+          container="${VERIFY_GCE_CONTAINER:-openclaw-gateway}"
+          container_escaped="$(printf '%q' "${container}")"
+
+          gce_ssh() {
+            gcloud compute ssh "${GCE_INSTANCE_NAME}" \
+              --project "${GCP_PROJECT_ID}" \
+              --zone "${GCP_ZONE}" \
+              --tunnel-through-iap \
+              --quiet \
+              --command "$1"
+          }
+
+          gce_ssh_lastline() {
+            gce_ssh "$1" | tail -1
+          }
+
+          state="$(gce_ssh_lastline "sudo docker ps --filter 'name=^${container}\$' --format '{{.State}}'")"
+          state="$(echo "${state}" | tr -d '[:space:]')"
+          [[ "${state}" == "running" ]] || {
+            echo "Container ${container} is not running on ${GCE_INSTANCE_NAME}" >&2
+            exit 1
+          }
+
+          delegate_subject_js="$(cat <<'NODE'
+          import fs from "node:fs";
+          import JSON5 from "json5";
+
+          const snapshot = JSON5.parse(fs.readFileSync("/home/node/.openclaw/.runtime-openclaw.json", "utf8"));
+          function getActiveConfig(value) {
+            if (value?.resolved && typeof value.resolved === "object") {
+              return value.resolved;
+            }
+            if (value?.config && typeof value.config === "object") {
+              return value.config;
+            }
+            return value;
+          }
+
+          const activeConfig = getActiveConfig(snapshot);
+          const cfg = activeConfig?.plugins?.entries?.["gws-toolkit-phase1"]?.config;
+          const bindings = cfg?.agentCredentialBindings && typeof cfg.agentCredentialBindings === "object"
+            ? cfg.agentCredentialBindings
+            : {};
+          const subjects = Object.keys(bindings);
+          const delegateSubject =
+            subjects.find((subject) => subject.startsWith("subagent:")) ??
+            subjects.find((subject) => subject.startsWith("agent:") && subject !== "agent:main") ??
+            "";
+          if (!delegateSubject) {
+            process.exit(1);
+          }
+          process.stdout.write(delegateSubject);
+          NODE
+          )"
+          printf -v delegate_subject_js_escaped '%q' "${delegate_subject_js}"
+          delegate_subject="$(gce_ssh_lastline "sudo docker exec ${container_escaped} node --input-type=module -e ${delegate_subject_js_escaped}")" || {
+            echo "No delegated GWS binding subject found in ${container}" >&2
+            exit 1
+          }
+          delegate_subject="$(echo "${delegate_subject}" | tr -d '[:space:]')"
+          [[ "${delegate_subject}" =~ ^(agent|subagent):[A-Za-z0-9._-]+$ ]] || {
+            echo "Invalid delegated subject: ${delegate_subject:-<empty>}" >&2
+            exit 1
+          }
+
+          run_gate() {
+            local subject="${1:?subject required}"
+            local subject_escaped payload
+            [[ "${subject}" =~ ^(agent|subagent):[A-Za-z0-9._-]+$ ]] || {
+              echo "Invalid subject for auth-health gate: ${subject}" >&2
+              exit 1
+            }
+            printf -v subject_escaped '%q' "${subject}"
+            payload="$(
+              gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; node dist/index.js gws auth-health --subject ${subject_escaped} | jq -c .\""
+            )"
+            printf '%s\n' "${payload}"
+            jq -e '.ok == true' >/dev/null <<<"${payload}" \
+              || { echo "auth-health returned unhealthy payload for ${subject}" >&2; exit 1; }
+            jq -e --arg subject "${subject}" '.data.route.bindingSubject == $subject' >/dev/null <<<"${payload}" \
+              || { echo "auth-health route subject mismatch for ${subject}" >&2; exit 1; }
+            jq -e '.data.authHealth.tokenValid == true and ((.data.authHealth.tokenError // "") == "")' >/dev/null <<<"${payload}" \
+              || { echo "auth-health token health failed for ${subject}" >&2; exit 1; }
+            jq -e '.data.authHealth.credentialSourceType == "service_account_json"' >/dev/null <<<"${payload}" \
+              || { echo "auth-health credential source drifted for ${subject}" >&2; exit 1; }
+            jq -e '.data.authHealth.serviceAccountPolicyEnforced == true and .data.authHealth.serviceAccountPolicyCompliant == true' >/dev/null <<<"${payload}" \
+              || { echo "auth-health service-account policy check failed for ${subject}" >&2; exit 1; }
+          }
+
+          run_gate "agent:main"
+          run_gate "${delegate_subject}"
+          echo "GWS auth-health smoke passed for agent:main and ${delegate_subject}"

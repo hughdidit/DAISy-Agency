@@ -185,12 +185,12 @@
     },
     "credentialsFile": {
       "label": "Legacy Credentials File",
-      "help": "Phase 1 compatibility credential path reference only.",
+      "help": "Phase 1 compatibility credential path reference only; prefer explicit credentials_file routes.",
       "sensitive": true
     },
     "tokenEnvVar": {
       "label": "Token Environment Variable",
-      "help": "Environment variable name for pre-obtained access token."
+      "help": "Environment variable name for pre-obtained access token (break-glass only)."
     },
     "safeMode": {
       "label": "Safe Mode",

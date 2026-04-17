@@ -95,6 +95,10 @@ type ConfigResolution =
   | { ok: true; config: GwsToolkitConfig; posture: ConfigPosture }
   | { ok: false; posture: ConfigPosture; message: string; fallbackConfig: GwsToolkitConfig };
 
+type CliDiagnosticContextResult =
+  | { ok: true; ctx: InvocationContext }
+  | { ok: false; subject: string };
+
 function normalizeDiagnosticAgentId(value: string | undefined): string {
   const trimmed = value?.trim().toLowerCase();
   return trimmed || "main";
@@ -137,6 +141,70 @@ function createCliDiagnosticContext(configResolution: ConfigResolution): Invocat
   }
 
   return makeAgentContext("main");
+}
+
+function createCliDiagnosticContextForSubject(
+  configResolution: ConfigResolution,
+  subjectRaw: string | undefined,
+): CliDiagnosticContextResult {
+  const subject = subjectRaw?.trim();
+  if (!subject) {
+    return {
+      ok: true,
+      ctx: createCliDiagnosticContext(configResolution),
+    };
+  }
+
+  const match = /^(agent|subagent):([A-Za-z0-9._-]+)$/.exec(subject);
+  if (!match) {
+    return {
+      ok: false,
+      subject,
+    };
+  }
+  const kind = match[1];
+  const agentId = normalizeDiagnosticAgentId(match[2]);
+  if (kind === "agent") {
+    return {
+      ok: true,
+      ctx: createContext({
+        agentId,
+        sessionId: "cli-diagnostics",
+        sessionKey: `agent:${agentId}:main`,
+        bindingSubject: `agent:${agentId}`,
+      }),
+    };
+  }
+  return {
+    ok: true,
+    ctx: createContext({
+      agentId,
+      sessionId: "cli-diagnostics",
+      sessionKey: `subagent:${agentId}`,
+      bindingSubject: `subagent:${agentId}`,
+    }),
+  };
+}
+
+function emitInvalidSubjectError(action: string, subject: string) {
+  const payload: StructuredEnvelope = {
+    ok: false,
+    error: {
+      code: "VALIDATION_ERROR",
+      message: "Invalid --subject value. Use agent:<id> or subagent:<id>.",
+      details: {
+        subject,
+      },
+    },
+    meta: {
+      tool: "gws_status",
+      action,
+      service: "status",
+      latencyMs: 0,
+    },
+  };
+  console.log(JSON.stringify(payload, null, 2));
+  process.exitCode = 1;
 }
 
 type GwsRuntimeEnv = Record<string, string>;
@@ -537,15 +605,27 @@ const plugin = {
     api.registerCli(
       ({ program }) => {
         const gws = program.command("gws").description("GWS Toolkit diagnostics");
-        const diagnosticsCtx = createCliDiagnosticContext(configResolution);
 
         gws
           .command("doctor")
           .description(
             "Run toolkit posture checks; use --auth-health for real route-bound auth health",
           )
+          .option(
+            "--subject <bindingSubject>",
+            "Resolve diagnostics for a specific binding subject (agent:<id> or subagent:<id>)",
+          )
           .option("--auth-health", "Run real gws auth status under the resolved route environment")
-          .action(async (opts?: { authHealth?: boolean }) => {
+          .action(async (opts?: { authHealth?: boolean; subject?: string }) => {
+            const diagnosticsCtxResult = createCliDiagnosticContextForSubject(
+              configResolution,
+              opts?.subject,
+            );
+            if (!diagnosticsCtxResult.ok) {
+              emitInvalidSubjectError("doctor", diagnosticsCtxResult.subject);
+              return;
+            }
+            const diagnosticsCtx = diagnosticsCtxResult.ctx;
             const posturePayload = await executeStatus({
               ctx: diagnosticsCtx,
               audit,
@@ -583,9 +663,21 @@ const plugin = {
         gws
           .command("auth-posture")
           .description("Report route-bound auth posture without executing gws auth status")
-          .action(async () => {
+          .option(
+            "--subject <bindingSubject>",
+            "Resolve diagnostics for a specific binding subject (agent:<id> or subagent:<id>)",
+          )
+          .action(async (opts?: { subject?: string }) => {
+            const diagnosticsCtxResult = createCliDiagnosticContextForSubject(
+              configResolution,
+              opts?.subject,
+            );
+            if (!diagnosticsCtxResult.ok) {
+              emitInvalidSubjectError("auth-posture", diagnosticsCtxResult.subject);
+              return;
+            }
             const payload = await executeAuthPosture({
-              ctx: diagnosticsCtx,
+              ctx: diagnosticsCtxResult.ctx,
               audit,
               configResolution,
               resolveRuntimeEnv: configResolution.ok ? ensureRuntimeEnv : undefined,
@@ -599,9 +691,21 @@ const plugin = {
         gws
           .command("auth-health")
           .description("Report real gws auth status health under resolved route credentials")
-          .action(async () => {
+          .option(
+            "--subject <bindingSubject>",
+            "Resolve diagnostics for a specific binding subject (agent:<id> or subagent:<id>)",
+          )
+          .action(async (opts?: { subject?: string }) => {
+            const diagnosticsCtxResult = createCliDiagnosticContextForSubject(
+              configResolution,
+              opts?.subject,
+            );
+            if (!diagnosticsCtxResult.ok) {
+              emitInvalidSubjectError("auth-health", diagnosticsCtxResult.subject);
+              return;
+            }
             const payload = await executeAuthHealth({
-              ctx: diagnosticsCtx,
+              ctx: diagnosticsCtxResult.ctx,
               audit,
               configResolution,
               resolveRuntimeEnv: configResolution.ok ? ensureRuntimeEnv : undefined,
@@ -615,9 +719,21 @@ const plugin = {
         gws
           .command("auth-status")
           .description("Deprecated alias for auth-health")
-          .action(async () => {
+          .option(
+            "--subject <bindingSubject>",
+            "Resolve diagnostics for a specific binding subject (agent:<id> or subagent:<id>)",
+          )
+          .action(async (opts?: { subject?: string }) => {
+            const diagnosticsCtxResult = createCliDiagnosticContextForSubject(
+              configResolution,
+              opts?.subject,
+            );
+            if (!diagnosticsCtxResult.ok) {
+              emitInvalidSubjectError("auth-status", diagnosticsCtxResult.subject);
+              return;
+            }
             const payload = await executeAuthHealth({
-              ctx: diagnosticsCtx,
+              ctx: diagnosticsCtxResult.ctx,
               audit,
               configResolution,
               resolveRuntimeEnv: configResolution.ok ? ensureRuntimeEnv : undefined,
@@ -632,9 +748,21 @@ const plugin = {
         gws
           .command("routes")
           .description("Report credential-route bindings and posture")
-          .action(async () => {
+          .option(
+            "--subject <bindingSubject>",
+            "Resolve diagnostics for a specific binding subject (agent:<id> or subagent:<id>)",
+          )
+          .action(async (opts?: { subject?: string }) => {
+            const diagnosticsCtxResult = createCliDiagnosticContextForSubject(
+              configResolution,
+              opts?.subject,
+            );
+            if (!diagnosticsCtxResult.ok) {
+              emitInvalidSubjectError("routes", diagnosticsCtxResult.subject);
+              return;
+            }
             const payload = await executeAuthPosture({
-              ctx: diagnosticsCtx,
+              ctx: diagnosticsCtxResult.ctx,
               audit,
               configResolution,
               resolveRuntimeEnv: configResolution.ok ? ensureRuntimeEnv : undefined,
@@ -648,9 +776,21 @@ const plugin = {
         gws
           .command("write-readiness")
           .description("Report per-service write readiness without executing a write")
-          .action(async () => {
+          .option(
+            "--subject <bindingSubject>",
+            "Resolve diagnostics for a specific binding subject (agent:<id> or subagent:<id>)",
+          )
+          .action(async (opts?: { subject?: string }) => {
+            const diagnosticsCtxResult = createCliDiagnosticContextForSubject(
+              configResolution,
+              opts?.subject,
+            );
+            if (!diagnosticsCtxResult.ok) {
+              emitInvalidSubjectError("write-readiness", diagnosticsCtxResult.subject);
+              return;
+            }
             const payload = await executeStatus({
-              ctx: diagnosticsCtx,
+              ctx: diagnosticsCtxResult.ctx,
               audit,
               configResolution,
               rawParams: { includeVersion: false, includeAuthStatus: false },

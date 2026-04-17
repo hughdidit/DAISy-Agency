@@ -97,14 +97,21 @@ Repository posture for `gws-toolkit-phase1`:
 - `credentials_file`: first-class for service-account JSON
 - route-level impersonation: supported via `impersonatedUser` or
   `impersonatedUserEnvVar` on `credentials_file` routes
-- `token`: supported for transient pre-obtained token routes
+- `token`: supported for transient pre-obtained token break-glass routes
 - interactive OAuth2: upstream capability, not first-class in plugin runtime
+
+In enforced runtime environments (`staging`, `production`), impersonated
+`credentials_file` routes must resolve to service-account JSON. User OAuth
+export credentials (`authorized_user` / headless exports) are rejected for
+those impersonated routes.
 
 ## Diagnostics Commands
 
 - `openclaw gws auth-posture`: route posture and auth-source diagnostics
 - `openclaw gws auth-health`: real `gws auth status` health under resolved route
   environment
+- add `--subject agent:<id>` or `--subject subagent:<id>` to run diagnostics for
+  an explicit binding subject
 - `openclaw gws auth-status`: deprecated alias to `auth-health` for one release
   cycle
 - `openclaw gws doctor`: posture-first checks; pass `--auth-health` for live

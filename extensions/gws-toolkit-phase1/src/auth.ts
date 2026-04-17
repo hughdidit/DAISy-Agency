@@ -10,6 +10,66 @@ import type {
   ResolvedRoute,
 } from "./types.js";
 
+export type CredentialSourceType =
+  | "pre_obtained_token"
+  | "service_account_json"
+  | "authorized_user"
+  | "headless_oauth_export"
+  | "credentials_file_unknown";
+
+const ENFORCED_RUNTIME_ENVIRONMENTS = new Set(["staging", "production"]);
+const RUNTIME_ENVIRONMENT_KEYS = [
+  "DAISY_ENVIRONMENT",
+  "OPENCLAW_PROFILE",
+  "DEPLOY_ENV",
+  "VERIFY_ENV",
+] as const;
+
+function normalizeRuntimeEnvironmentMarker(value: string | undefined): string | null {
+  if (typeof value !== "string" || !value.trim()) {
+    return null;
+  }
+  return value.trim().toLowerCase();
+}
+
+export function getRuntimeEnvironmentMarker(): string | null {
+  for (const key of RUNTIME_ENVIRONMENT_KEYS) {
+    const normalized = normalizeRuntimeEnvironmentMarker(process.env[key]);
+    if (normalized) {
+      return normalized;
+    }
+  }
+  return null;
+}
+
+export function isServiceAccountPolicyEnforced(): boolean {
+  const marker = getRuntimeEnvironmentMarker();
+  return marker ? ENFORCED_RUNTIME_ENVIRONMENTS.has(marker) : false;
+}
+
+export function classifyCredentialSourceType(credentialsFile: string): CredentialSourceType {
+  try {
+    const fileText = fs.readFileSync(credentialsFile, "utf8");
+    const parsed = JSON.parse(fileText) as Record<string, unknown>;
+    if (parsed.type === "service_account") {
+      return "service_account_json";
+    }
+    if (parsed.type === "authorized_user") {
+      return "authorized_user";
+    }
+    if (
+      typeof parsed.refresh_token === "string" ||
+      typeof parsed.client_id === "string" ||
+      typeof parsed.client_secret === "string"
+    ) {
+      return "headless_oauth_export";
+    }
+    return "credentials_file_unknown";
+  } catch {
+    return "credentials_file_unknown";
+  }
+}
+
 function normalizePath(input: string): string {
   return path.resolve(input);
 }
@@ -324,22 +384,37 @@ export function getAuthSourceStatus(config: GwsToolkitConfig): {
     };
     const probe = probeCredentialFile(config, route.credentialsFile, routeWithName);
     const impersonation = getRouteImpersonationStatus(routeWithName);
+    const credentialSourceType =
+      probe.allowed && probe.resolvedPath
+        ? classifyCredentialSourceType(probe.resolvedPath)
+        : "credentials_file_unknown";
+    const serviceAccountPolicyEnforced = isServiceAccountPolicyEnforced();
+    const serviceAccountPolicyCompliant =
+      !impersonation.configured ||
+      !serviceAccountPolicyEnforced ||
+      credentialSourceType === "service_account_json";
     if (probe.allowed && probe.resolvedPath) {
       return {
         routeName,
         mode: route.mode,
         bindingSubjects: bindingSubjectsByRoute.get(routeName) ?? [],
-        available: modeAllowed && !impersonation.missing,
+        available:
+          modeAllowed &&
+          !impersonation.missing &&
+          (!serviceAccountPolicyEnforced || serviceAccountPolicyCompliant),
         details: {
           credentialsFile: path.basename(probe.resolvedPath),
           configuredCredentialsFile: probe.configuredPath,
           resolvedCredentialsFile: probe.resolvedPath,
+          credentialSourceType,
           modeAllowed,
           impersonationConfigured: impersonation.configured,
           impersonationSource: impersonation.source,
           impersonatedUserEnvVar: impersonation.envVar,
           impersonatedUser: impersonation.value,
           impersonatedUserMissing: impersonation.missing,
+          serviceAccountPolicyEnforced,
+          serviceAccountPolicyCompliant,
         },
       } satisfies RouteAuthStatus;
     }
@@ -351,12 +426,15 @@ export function getAuthSourceStatus(config: GwsToolkitConfig): {
       details: {
         configuredCredentialsFile: probe.configuredPath,
         error: probe.error ?? "Configured credentials file is unavailable",
+        credentialSourceType,
         modeAllowed,
         impersonationConfigured: impersonation.configured,
         impersonationSource: impersonation.source,
         impersonatedUserEnvVar: impersonation.envVar,
         impersonatedUser: impersonation.value,
         impersonatedUserMissing: impersonation.missing,
+        serviceAccountPolicyEnforced,
+        serviceAccountPolicyCompliant,
       },
     } satisfies RouteAuthStatus;
   });
@@ -399,16 +477,30 @@ export function getActiveRouteAuthStatus(
 
     const probe = probeCredentialFile(config, route.credentialsFile, route);
     const impersonation = getRouteImpersonationStatus(route);
+    const credentialSourceType =
+      probe.allowed && probe.resolvedPath
+        ? classifyCredentialSourceType(probe.resolvedPath)
+        : "credentials_file_unknown";
+    const serviceAccountPolicyEnforced = isServiceAccountPolicyEnforced();
+    const serviceAccountPolicyCompliant =
+      !impersonation.configured ||
+      !serviceAccountPolicyEnforced ||
+      credentialSourceType === "service_account_json";
     return {
       bindingSubject: resolved.bindingSubject,
       inherited: resolved.inherited,
       routeName: route.name,
       mode: route.mode,
-      available: modeAllowed && probe.allowed && !impersonation.missing,
+      available:
+        modeAllowed &&
+        probe.allowed &&
+        !impersonation.missing &&
+        (!serviceAccountPolicyEnforced || serviceAccountPolicyCompliant),
       details: {
         ...(probe.resolvedPath ? { credentialsFile: path.basename(probe.resolvedPath) } : {}),
         configuredCredentialsFile: probe.configuredPath,
         resolvedCredentialsFile: probe.resolvedPath,
+        credentialSourceType,
         modeAllowed,
         ...(probe.allowed
           ? {}
@@ -418,6 +510,8 @@ export function getActiveRouteAuthStatus(
         impersonatedUserEnvVar: impersonation.envVar,
         impersonatedUser: impersonation.value,
         impersonatedUserMissing: impersonation.missing,
+        serviceAccountPolicyEnforced,
+        serviceAccountPolicyCompliant,
       },
     };
   } catch (error) {
@@ -462,10 +556,41 @@ export function resolveAuth(config: GwsToolkitConfig, ctx: InvocationContext): A
   }
 
   const filePath = ensureCredentialFileAllowed(config, route.credentialsFile, route);
+  const impersonation = getRouteImpersonationStatus(route);
+  const credentialSourceType = classifyCredentialSourceType(filePath);
+  const serviceAccountPolicyEnforced = isServiceAccountPolicyEnforced();
+  if (impersonation.configured && serviceAccountPolicyEnforced) {
+    if (
+      credentialSourceType === "authorized_user" ||
+      credentialSourceType === "headless_oauth_export"
+    ) {
+      throw new PluginError(
+        "AUTH_ERROR",
+        "Impersonated credentials_file route resolved to user OAuth credentials in an enforced environment. Use service-account JSON with Domain-Wide Delegation and retry.",
+        {
+          routeName: route.name,
+          bindingSubject: resolved.bindingSubject,
+          runtimeEnvironment: getRuntimeEnvironmentMarker(),
+          credentialSourceType,
+        },
+      );
+    }
+    if (credentialSourceType !== "service_account_json") {
+      throw new PluginError(
+        "AUTH_ERROR",
+        "Impersonated credentials_file route could not be confirmed as service-account JSON in an enforced environment.",
+        {
+          routeName: route.name,
+          bindingSubject: resolved.bindingSubject,
+          runtimeEnvironment: getRuntimeEnvironmentMarker(),
+          credentialSourceType,
+        },
+      );
+    }
+  }
   const env: Record<string, string> = {
     GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE: filePath,
   };
-  const impersonation = getRouteImpersonationStatus(route);
   if (impersonation.configured) {
     if (!impersonation.value) {
       throw new PluginError(

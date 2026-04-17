@@ -172,13 +172,13 @@ For a brand-new staging VM, the real deploy requires the config file to exist at
    - `BRAVE_API_KEY` - Optional, for Brave search
    - `FIRECRAWL_API_KEY` - Optional, for firecrawl-enabled environments
    - `TRELLO_API_KEY` / `TRELLO_TOKEN` - Optional, for Trello integration
-   - `GWS_CREDENTIALS` - Optional, for `gws-toolkit-phase1` `credentials_file` mode (Headless OAuth2 export or service-account JSON)
+   - `GWS_CREDENTIALS` - Optional, for `gws-toolkit-phase1` `credentials_file` mode (service-account JSON recommended; headless OAuth2 export is not valid for impersonated enforced routes)
    - `GOOGLE_WORKSPACE_CLI_TOKEN` - Optional, only if staging switches to token mode
    - `GRAFANA_ADMIN_PASSWORD` - Required when monitoring `.env.monitoring` should be regenerated
    - `DISCORD_ALERTS_WEBHOOK_URL` - Sensitive Discord webhook for Alertmanager; store as a secret, not a variable
    - `ALERT_SMTP_USERNAME` / `ALERT_SMTP_PASSWORD` - Optional SMTP auth for email alerts
 
-   Staging currently runs `gws-toolkit-phase1` in `credentials_file` mode, so `GWS_CREDENTIALS` is the active path and `GOOGLE_WORKSPACE_CLI_TOKEN` is expected to stay empty unless the config changes. Verify now checks both file presence and route-bound `gws auth status` health inside the live gateway container (including impersonation env projection when configured), and it also fails if the configured sandbox image does not expose the `gws` binary on `PATH`, so a stale exported credential or a sandbox image missing the CLI will fail deploy verification. Delegated sandbox containers do not receive `/opt/DAISy/config`; they only receive explicit capability projections, so GWS availability in sandboxed delegated runs depends on both the route-authorized credential file being derived into the sandbox at container creation time and the sandbox image shipping the `gws` CLI itself. The sandbox capability-mount resolver is the delegated secret-delivery surface, and GWS is currently the only capability wired through it.
+   Staging currently runs `gws-toolkit-phase1` in `credentials_file` mode, so `GWS_CREDENTIALS` is the active path and `GOOGLE_WORKSPACE_CLI_TOKEN` is expected to stay empty unless the config changes. Verify now checks both file presence and route-bound auth health inside the live gateway container (including impersonation env projection when configured), and it also fails if the configured sandbox image does not expose the `gws` binary on `PATH`. For impersonated routes in enforced environments, credentials must be service-account JSON; exported user OAuth credentials are rejected. Delegated sandbox containers do not receive `/opt/DAISy/config`; they only receive explicit capability projections, so GWS availability in sandboxed delegated runs depends on both the route-authorized credential file being derived into the sandbox at container creation time and the sandbox image shipping the `gws` CLI itself. The sandbox capability-mount resolver is the delegated secret-delivery surface, and GWS is currently the only capability wired through it.
 
    After any GWS route, approved-directory, or credential-file change, recreate the affected sandbox containers before validating delegated runs. The projection is computed at sandbox container creation, so existing hot sandboxes keep their previous bind set until they are explicitly recreated.
 
@@ -242,8 +242,9 @@ sudo chown "$(whoami):$(whoami)" /opt/DAISy
 - [ ] API keys - Use staging keys or shared keys with tracking
 - [ ] `FIRECRAWL_API_KEY` - Optional; set only for firecrawl-enabled environments
 - [ ] `TRELLO_API_KEY` / `TRELLO_TOKEN` - Optional; set when Trello integration is enabled
-- [ ] `GWS_CREDENTIALS` - Required for the current staging `gws-toolkit-phase1` `credentials_file` path (Headless OAuth2 export or service-account JSON); must pass route-bound `gws auth status` after deploy
+- [ ] `GWS_CREDENTIALS` - Required for the current staging `gws-toolkit-phase1` `credentials_file` path (service-account JSON for impersonated routes); must pass route-bound `openclaw gws auth-health` after deploy
 - [ ] `GOOGLE_WORKSPACE_CLI_TOKEN` - Optional; leave unset unless staging explicitly switches to token mode
+- [ ] `GWS Auth Smoke` workflow passing (daily scheduled or manual dispatch) for `agent:main` plus one delegated subject
 - [ ] `GRAFANA_ADMIN_PASSWORD` - Required if monitoring `.env.monitoring` should be regenerated on deploy
 - [ ] `DISCORD_ALERTS_WEBHOOK_URL` - Optional but sensitive; store as a GitHub secret, never as a GitHub variable
 - [ ] `ALERT_SMTP_USERNAME` / `ALERT_SMTP_PASSWORD` - Optional SMTP auth for email alerts
