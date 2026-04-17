@@ -411,10 +411,7 @@ export function getAuthSourceStatus(config: GwsToolkitConfig): {
         routeName,
         mode: route.mode,
         bindingSubjects: bindingSubjectsByRoute.get(routeName) ?? [],
-        available:
-          modeAllowed &&
-          !impersonation.missing &&
-          serviceAccountPolicyCompliant,
+        available: modeAllowed && !impersonation.missing && serviceAccountPolicyCompliant,
         details: {
           credentialsFile: path.basename(probe.resolvedPath),
           configuredCredentialsFile: probe.configuredPath,
@@ -505,10 +502,7 @@ export function getActiveRouteAuthStatus(
       routeName: route.name,
       mode: route.mode,
       available:
-        modeAllowed &&
-        probe.allowed &&
-        !impersonation.missing &&
-        serviceAccountPolicyCompliant,
+        modeAllowed && probe.allowed && !impersonation.missing && serviceAccountPolicyCompliant,
       details: {
         ...(probe.resolvedPath ? { credentialsFile: path.basename(probe.resolvedPath) } : {}),
         configuredCredentialsFile: probe.configuredPath,

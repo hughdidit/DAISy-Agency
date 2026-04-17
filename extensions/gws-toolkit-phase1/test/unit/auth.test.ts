@@ -2,9 +2,9 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { PluginError } from "../../src/errors.js";
 import { getAuthSourceStatus, resolveAuth } from "../../src/auth.js";
 import { resolveConfig } from "../../src/config.js";
+import { PluginError } from "../../src/errors.js";
 import type { GwsToolkitConfig } from "../../src/types.js";
 
 const snapshot = { ...process.env };
@@ -409,7 +409,9 @@ describe("auth resolution", () => {
         agentId: "main",
         sessionKey: "agent:main:main",
       });
-      expect.unreachable("resolveAuth should fail for authorized_user in enforced impersonated route");
+      expect.unreachable(
+        "resolveAuth should fail for authorized_user in enforced impersonated route",
+      );
     } catch (error) {
       expect(error).toBeInstanceOf(PluginError);
       const pluginError = error as PluginError;
@@ -458,7 +460,9 @@ describe("auth resolution", () => {
         agentId: "main",
         sessionKey: "agent:main:main",
       });
-      expect.unreachable("resolveAuth should fail for headless export in enforced impersonated route");
+      expect.unreachable(
+        "resolveAuth should fail for headless export in enforced impersonated route",
+      );
     } catch (error) {
       expect(error).toBeInstanceOf(PluginError);
       const pluginError = error as PluginError;
@@ -507,7 +511,9 @@ describe("auth resolution", () => {
       sessionKey: "agent:main:main",
     });
     expect(resolved.mode).toBe("credentials_file");
-    expect(resolved.env.GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE).toBe(await fs.realpath(credentialsFile));
+    expect(resolved.env.GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE).toBe(
+      await fs.realpath(credentialsFile),
+    );
     expect(resolved.env.GOOGLE_WORKSPACE_CLI_IMPERSONATED_USER).toBeUndefined();
   });
 });
