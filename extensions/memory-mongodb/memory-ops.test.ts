@@ -79,7 +79,6 @@ describe("memory ops service", () => {
           confidence: 0.5,
         },
       ],
-      rejectSecrets: true,
     });
 
     expect(result.outcomes[0]?.status).toBe("rejected_secret");
@@ -102,7 +101,6 @@ describe("memory ops service", () => {
           sensitivity: "secret",
         },
       ],
-      rejectSecrets: true,
     });
 
     expect(result.outcomes[0]?.status).toBe("created");
