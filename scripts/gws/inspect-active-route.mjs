@@ -32,7 +32,8 @@ process.stdout.write(
     credentialsFile: typeof active.credentialsFile === "string" ? active.credentialsFile : null,
     impersonationConfigured:
       (typeof active.impersonatedUser === "string" && active.impersonatedUser.length > 0) ||
-      (typeof active.impersonatedUserEnvVar === "string" && active.impersonatedUserEnvVar.length > 0),
+      (typeof active.impersonatedUserEnvVar === "string" &&
+        active.impersonatedUserEnvVar.length > 0),
     impersonationSource:
       typeof active.impersonatedUser === "string" && active.impersonatedUser.trim().length > 0
         ? "literal"
@@ -54,7 +55,7 @@ process.stdout.write(
           ? process.env[active.impersonatedUserEnvVar].trim()
           : null,
     impersonationMissing:
-      (typeof active.impersonatedUser === "string" && active.impersonatedUser.length > 0
+      typeof active.impersonatedUser === "string" && active.impersonatedUser.length > 0
         ? active.impersonatedUser.trim().length === 0
         : typeof active.impersonatedUserEnvVar === "string" &&
             active.impersonatedUserEnvVar.length > 0
@@ -62,6 +63,6 @@ process.stdout.write(
               typeof process.env[active.impersonatedUserEnvVar] === "string" &&
               process.env[active.impersonatedUserEnvVar].trim().length > 0
             )
-          : false),
+          : false,
   }),
 );
