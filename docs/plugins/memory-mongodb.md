@@ -275,6 +275,7 @@ Preferred structured capture shape for `memory_capture.entries[]`:
 
 - `text`
 - `kind`
+- `importance`
 - `category`
 - `tags`
 - `confidence`

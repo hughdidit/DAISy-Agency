@@ -27,7 +27,7 @@ When memory is relevant, prefer these defaults:
 - Capture only durable non-actionable facts, decisions, recurring context, and important project state with `memory_capture`.
 - Keep capture sparse. Do not store one-off chat noise.
 - Do not store raw transcripts, temporary troubleshooting chatter, speculative guesses, duplicated rewrites of existing memory, or secrets that are not intentionally classified for later agent use.
-- If the agent decides a durable memory is secret, it must explicitly mark the tool call as secret. Secret-like content is rejected by default.
+- If the agent decides a durable memory is secret, it must explicitly set `sensitivity: "secret"` on the relevant tool call. Secret-like content is rejected by default.
 - Use `preference_miner` only when repeated evidence supports a stable non-secret preference.
 - Use `memory_hygiene` in `plan` mode when memory appears noisy, duplicated, conflicting, or stale. Apply only after reviewing the plan.
 - Summarize tool output briefly; do not dump raw records unless explicitly requested.
@@ -38,6 +38,7 @@ When capturing durable memory with `memory_capture`, prefer structured entries w
 
 - `text`
 - `kind`
+- `importance`
 - `category`
 - `tags`
 - `confidence`
@@ -51,7 +52,7 @@ Keep capture structured and sparse.
 
 Default shape:
 
-- `{ text, kind, category, tags, confidence, sourceMessageIds, status }`
+- `{ text, kind, importance, category, tags, confidence, sourceMessageIds, status }`
 
 ## Cleanup Strategies
 
