@@ -45,12 +45,16 @@ if (!subject) {
 }
 
 const runnerCwd = (process.env.OPENCLAW_APP_CWD ?? "").trim() || process.cwd();
-const child = spawnSync(process.execPath, ["dist/entry.js", "gws", "auth-health", "--subject", subject], {
-  cwd: runnerCwd,
-  encoding: "utf8",
-  env: process.env,
-  timeout: 30_000,
-});
+const child = spawnSync(
+  process.execPath,
+  ["dist/entry.js", "gws", "auth-health", "--subject", subject],
+  {
+    cwd: runnerCwd,
+    encoding: "utf8",
+    env: process.env,
+    timeout: 30_000,
+  },
+);
 
 if (child.error) {
   fail("Failed to execute openclaw gws auth-health.", {
