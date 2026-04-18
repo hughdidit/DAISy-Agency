@@ -2,13 +2,13 @@
 
 ## At a glance
 
-| Workflow file                           | Workflow name   | Triggers                                                     | Key jobs (job name strings)                                                                                               | Classification | Notes / risks                                                                                                                                                      |
-| --------------------------------------- | --------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `.github/workflows/ci.yml`              | CI              | `pull_request` (daisy/main, daisy/dev) + `workflow_dispatch` | `check`, `checks`, `skills-python`, `ios`, `android`, `CI / Linux Required`, `CI / iOS Required`, `CI / Android Required` | Active         | PR-only CI with docs/scope front door, iOS and Android as supported mobile lanes, and stable required-check names that do not depend on matrix labels.             |
-| `.github/workflows/codeql.yml`          | CodeQL Advanced | `push` + `pull_request` (daisy/main, daisy/dev), `schedule`  | `Analyze (<language>)`                                                                                                    | Needs refactor | Broad language matrix; macOS runners for Swift; scheduled load; actions not pinned to SHAs.                                                                        |
-| `.github/workflows/docker-release.yml`  | Docker Release  | `push` (daisy/main, daisy/dev, tags `v*`)                    | `build-amd64`, `build-arm64`, `build-sandbox`, `build-sandbox-browser`, `create-manifest`                                 | Needs refactor | Heavy build jobs now require dedicated self-hosted GCP runner pools; `create-manifest` stays GitHub-hosted; no `workflow_dispatch`; docker actions are SHA-pinned. |
-| `.github/workflows/auto-response.yml`   | Auto response   | `issues` + `pull_request_target` (labeled)                   | `auto-response`                                                                                                           | Useful         | Requires `GH_APP_PRIVATE_KEY`; closes issues/PRs based on labels; action versions not SHA-pinned.                                                                  |
-| `.github/workflows/workflow-sanity.yml` | Workflow Sanity | `push` + `pull_request` (daisy/main, daisy/dev)              | `no-tabs`                                                                                                                 | Useful         | Shares `ci-` concurrency group with other workflows (risk of cross-cancel).                                                                                        |
+| Workflow file                           | Workflow name   | Triggers                                                        | Key jobs (job name strings)                                                                                               | Classification  | Notes / risks                                                                                                                                                                                             |
+| --------------------------------------- | --------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.github/workflows/ci.yml`              | CI              | `pull_request` (daisy/main, daisy/dev) + `workflow_dispatch`    | `check`, `checks`, `skills-python`, `ios`, `android`, `CI / Linux Required`, `CI / iOS Required`, `CI / Android Required` | Active          | PR-only CI with docs/scope front door, iOS and Android as supported mobile lanes, and stable required-check names that do not depend on matrix labels.                                                    |
+| `.github/workflows/codeql.yml`          | CodeQL Advanced | `push` + `pull_request` (daisy/main, daisy/dev), `schedule`     | `Analyze (<language>)`                                                                                                    | Needs refactor  | Broad language matrix; macOS runners for Swift; scheduled load; actions not pinned to SHAs.                                                                                                               |
+| `.github/workflows/docker-release.yml`  | Docker Release  | `push` (daisy/main, daisy/dev, tags `v*`) + `workflow_dispatch` | `validate-ref`, `build-amd64`, `build-arm64`, `build-sandbox`, `build-sandbox-browser`, `create-manifest`                 | Needs hardening | Heavy build jobs now require dedicated self-hosted GCP runner pools; `create-manifest` stays GitHub-hosted; manual dispatch is available; extension-owned skill markdown is treated as runtime-affecting. |
+| `.github/workflows/auto-response.yml`   | Auto response   | `issues` + `pull_request_target` (labeled)                      | `auto-response`                                                                                                           | Useful          | Requires `GH_APP_PRIVATE_KEY`; closes issues/PRs based on labels; action versions not SHA-pinned.                                                                                                         |
+| `.github/workflows/workflow-sanity.yml` | Workflow Sanity | `push` + `pull_request` (daisy/main, daisy/dev)                 | `no-tabs`                                                                                                                 | Useful          | Shares `ci-` concurrency group with other workflows (risk of cross-cancel).                                                                                                                               |
 
 ## Per-workflow deep dive
 
@@ -93,15 +93,19 @@
 **When it runs**
 
 - `push` to `daisy/main`, `daisy/dev`, and tags `v*`.
+- `workflow_dispatch` for controlled rebuilds of the selected supported ref.
+- For `push` runs, markdown-only changes are excluded by default, except for runtime skill trees under top-level `skills/**` and `extensions/**/skills/**`; `workflow_dispatch` ignores those path filters and can still rebuild markdown-only commits when needed.
 
 **Permissions / secrets / environment**
 
 - Job-level permissions: `packages: write`, `contents: read`.
 - Uses `GITHUB_TOKEN` for registry auth.
+- `validate-ref` runs on GitHub-hosted runners to reject unsupported refs before self-hosted build jobs are allocated.
 - Build jobs require pre-provisioned self-hosted runner labels.
 
 **Jobs inventory**
 
+- `validate-ref` (ubuntu-latest): fail fast if the ref is not `daisy/main`, `daisy/dev`, or a `v*` tag.
 - `build-amd64` (self-hosted x64): build/push amd64 app image via Buildx.
 - `build-arm64` (self-hosted arm64): build/push arm64 app image via native Buildx, no QEMU.
 - `build-sandbox` (self-hosted x64): build/push amd64 sandbox image.
@@ -112,11 +116,11 @@
 
 - **Self-hosted prerequisite**: merge is unsafe until the `docker-release-amd64` and `docker-release-arm64` runner pools exist with the expected labels.
 - **Self-hosted runner trust**: these pools can publish release images to GHCR and must stay isolated from deploy secrets and the production VM.
-- **Missing manual trigger**: no `workflow_dispatch` for controlled releases.
+- **Trigger surface**: markdown-only edits outside the runtime-owned skill trees still skip release, which is intentional to avoid heavy image builds for ordinary docs churn.
 
 **Recommendation**
 
-- **Needs refactor.** Current branch triggers are correct for DAISy, and the heavy build work now sits on dedicated self-hosted GCP runners. A later pass can add `workflow_dispatch`, revisit whether `create-manifest` should also move, and further tighten self-hosted operations.
+- **Needs targeted hardening.** Current branch triggers now cover controlled rebuilds and runtime-owned skill markdown. A later pass can revisit whether `create-manifest` should also move and further tighten self-hosted operations.
 
 ### Auto response (`.github/workflows/auto-response.yml`)
 

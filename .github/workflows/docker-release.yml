@@ -1,6 +1,7 @@
 name: Docker Release
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - daisy/main
@@ -14,6 +15,7 @@ on:
       - "!**/*.md"
       - "!**/*.mdx"
       - "skills/**"
+      - "extensions/**/skills/**"
 
 concurrency:
   group: docker-release-${{ github.workflow }}-${{ github.ref }}
@@ -24,8 +26,26 @@ env:
   IMAGE_NAME: ${{ github.repository_owner }}/daisy-agency
 
 jobs:
+  validate-ref:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate supported release ref
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${GITHUB_REF}" in
+            refs/heads/daisy/main|refs/heads/daisy/dev|refs/tags/v*)
+              echo "Docker Release is allowed for ${GITHUB_REF}"
+              ;;
+            *)
+              echo "::error::Docker Release supports only daisy/main, daisy/dev, or v* tags. Manual dispatch on ${GITHUB_REF} is blocked before self-hosted runner allocation."
+              exit 1
+              ;;
+          esac
+
   # Build amd64 image
   build-amd64:
+    needs: validate-ref
     runs-on: [self-hosted, linux, x64, docker-release, docker-release-amd64]
     permissions:
       packages: write
@@ -115,6 +135,7 @@ jobs:
 
   # Build arm64 image
   build-arm64:
+    needs: validate-ref
     runs-on: [self-hosted, linux, arm64, docker-release, docker-release-arm64]
     permissions:
       packages: write
@@ -204,6 +225,7 @@ jobs:
 
   # Build sandbox image (amd64 only — VM target is always amd64)
   build-sandbox:
+    needs: validate-ref
     runs-on: [self-hosted, linux, x64, docker-release, docker-release-amd64]
     permissions:
       packages: write
@@ -264,6 +286,7 @@ jobs:
 
   # Build sandbox browser image (amd64 only — VM target is always amd64)
   build-sandbox-browser:
+    needs: validate-ref
     runs-on: [self-hosted, linux, x64, docker-release, docker-release-amd64]
     permissions:
       packages: write
