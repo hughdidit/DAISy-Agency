@@ -1,6 +1,7 @@
 import { spawnSync } from "node:child_process";
 
-const ANSI_ESCAPE_PATTERN = new RegExp("\\u001b\\[[0-9;?]*[ -/]*[@-~]", "g");
+const ANSI_ESCAPE = String.fromCharCode(0x1b);
+const ANSI_ESCAPE_PATTERN = new RegExp(`${ANSI_ESCAPE}\\[[0-9;?]*[ -/]*[@-~]`, "g");
 
 function stripAnsi(value) {
   return value.replace(ANSI_ESCAPE_PATTERN, "");
