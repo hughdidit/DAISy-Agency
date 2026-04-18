@@ -221,10 +221,10 @@ Each stored memory includes:
 - `memory_store({ parts, text?, importance, category, sensitivity? })` for multimodal embedding
 - `memory_forget({ memoryId })` or `memory_forget({ query })`
 - `memory_capture({ entries[], dedupeThreshold?, rejectSecrets? })` where `entries[]` may include `sensitivity: "secret"` for explicit secret storage; `rejectSecrets` is retained for compatibility and no longer bypasses secret classification
-- `memory_hygiene({ mode: "plan"|"apply", strategies?, maxCandidates?, planId? })`
+- `memory_hygiene({ mode: "plan"|"apply", strategies?, maxCandidates?, planId? })` where `strategies[]` may include `dedupe`, `stale-prune`, `conflict-review`, and `promote`
 - `commitment_tracker({ mode: "capture"|"list_open"|"resolve"|"cancel", ... })`
 - `preference_miner({ mode: "observe"|"plan_promotions"|"apply_promotions"|"list", ... })`
-- `memory_audit({ runId?, cleanupOnSuccess? })`
+- `memory_audit({ runId?, cleanupOnSuccess? })` to run probe capture/recall checks after memory config changes or when recall reliability is uncertain
 
 Migration note:
 
@@ -268,6 +268,41 @@ Examples:
 - Store a secret with `memory_store({ text: "API key: sk-...", category: "fact", sensitivity: "secret" })`
 - Store a secret with `memory_capture({ entries: [{ text: "Mongo URI: mongodb+srv://...", kind: "fact", importance: 0.9, sensitivity: "secret" }] })`
 - Recall secret memories with `memory_recallx({ query: "credentials", includeSecrets: true })`
+
+### Capture Guidance
+
+Preferred structured capture shape for `memory_capture.entries[]`:
+
+- `text`
+- `kind`
+- `category`
+- `tags`
+- `confidence`
+- `sourceMessageIds`
+- `status`
+- commitment metadata when applicable
+- `supersedesId` for replacements
+- `sensitivity` when the agent intentionally stores a secret
+
+Avoid storing:
+
+- one-off chat noise
+- raw transcript dumps
+- temporary troubleshooting chatter or transient errors
+- speculative inferences that are not established facts or decisions
+- duplicate rewrites of memory that already exists
+- secrets that are not intentionally classified for later agent use
+
+### Hygiene Guidance
+
+Use explicit hygiene strategies instead of vague cleanup requests:
+
+- `dedupe` for repeated records with the same meaning
+- `conflict-review` for records that disagree and need review
+- `stale-prune` for expired or obsolete records
+- `promote` only for repeated non-secret observations that should become durable preferences
+
+For noisy memory, start with `dedupe`, `conflict-review`, and `stale-prune`. Use `promote` only when stable repeated evidence supports it.
 
 ### Document MIME Matrix (Phased)
 
