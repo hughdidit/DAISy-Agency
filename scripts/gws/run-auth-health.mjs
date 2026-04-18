@@ -1,7 +1,9 @@
 import { spawnSync } from "node:child_process";
 
+const ANSI_ESCAPE_PATTERN = new RegExp("\\u001b\\[[0-9;?]*[ -/]*[@-~]", "g");
+
 function stripAnsi(value) {
-  return value.replace(/\u001b\[[0-9;?]*[ -/]*[@-~]/g, "");
+  return value.replace(ANSI_ESCAPE_PATTERN, "");
 }
 
 function extractLastJsonObject(value) {
