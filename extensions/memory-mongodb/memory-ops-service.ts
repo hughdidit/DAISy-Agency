@@ -787,12 +787,12 @@ export class MemoryOpsService {
   }
 
   private async listOpenCommitments(scopeSubject: string): Promise<Array<Record<string, unknown>>> {
-    const entries = await this.db.listByScope(scopeSubject, this.cfg.hygieneMaxCandidates * 4);
+    const entries = await this.db.listByScope(scopeSubject, this.cfg.hygieneMaxCandidates * 4, {
+      includeSecrets: true,
+    });
     const commitmentEntries = entries
       .map((entry) => ({ entry, ops: readOpsMetadata(entry) }))
-      .filter(
-        ({ ops }) => ops?.kind === "commitment" && !isSecretSensitivity(readSensitivity(ops)),
-      );
+      .filter(({ ops }) => ops?.kind === "commitment");
 
     const superseded = new Set<string>();
     for (const { ops } of commitmentEntries) {
@@ -802,7 +802,12 @@ export class MemoryOpsService {
     }
 
     return commitmentEntries
-      .filter(({ entry, ops }) => ops?.status === "open" && !superseded.has(entry.id))
+      .filter(
+        ({ entry, ops }) =>
+          ops?.status === "open" &&
+          !superseded.has(entry.id) &&
+          !isSecretSensitivity(readSensitivity(ops)),
+      )
       .map(({ entry, ops }) => ({
         id: entry.id,
         text: entry.text,

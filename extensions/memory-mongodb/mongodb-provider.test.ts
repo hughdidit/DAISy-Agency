@@ -565,6 +565,83 @@ describe("mongodb provider via MCP", () => {
     expect(included).toHaveLength(2);
   });
 
+  test("listByScope over-fetches to preserve non-secret results", async () => {
+    const now = Date.now();
+    const aggregate = vi.fn().mockImplementation(async (_db, _collection, pipeline) => {
+      const fetchLimit = pipeline.find((stage: any) => stage.$limit)?.$limit ?? 0;
+      const docs = [
+        {
+          _id: "ffffffff-ffff-4fff-8fff-ffffffffffff",
+          text: "apiKey=super-secret",
+          vector: [0.1, 0.2],
+          category: "fact",
+          type: "semantic",
+          metadata: {
+            source: "memory_store",
+            ops: {
+              scopeSubject: "agent:main",
+              kind: "fact",
+              sensitivity: "secret",
+            },
+          },
+          createdAt: now - 1000,
+          updatedAt: now,
+        },
+        {
+          _id: "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+          text: "safe 1",
+          vector: [0.1, 0.2],
+          category: "fact",
+          type: "semantic",
+          metadata: {
+            source: "memory_store",
+            ops: {
+              scopeSubject: "agent:main",
+              kind: "fact",
+            },
+          },
+          createdAt: now - 2000,
+          updatedAt: now - 500,
+        },
+        {
+          _id: "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+          text: "safe 2",
+          vector: [0.1, 0.2],
+          category: "fact",
+          type: "semantic",
+          metadata: {
+            source: "memory_store",
+            ops: {
+              scopeSubject: "agent:main",
+              kind: "fact",
+            },
+          },
+          createdAt: now - 3000,
+          updatedAt: now - 1000,
+        },
+      ];
+      return docs.slice(0, fetchLimit);
+    });
+    const provider = new MongoMemoryDB(
+      {
+        insertMany: vi.fn(),
+        aggregate,
+        deleteOne: vi.fn(),
+        countDocuments: vi.fn(),
+        close: vi.fn(),
+      } as any,
+      { embed: vi.fn() } as any,
+      "memdb",
+      "memories",
+      "vector_idx",
+      baseRetrieval,
+    );
+
+    const results = await provider.listByScope("agent:main", 2);
+    expect(results).toHaveLength(2);
+    expect(results.map((entry) => entry.text)).toEqual(["safe 1", "safe 2"]);
+  });
+
   test("getById returns null when no matching record exists", async () => {
     const provider = new MongoMemoryDB(
       {

@@ -262,6 +262,9 @@ export class MongoMemoryDB {
     }
     const boundedLimit = Math.max(1, Math.min(limit, 200));
 
+    const fetchLimit =
+      options.includeSecrets === true ? boundedLimit : Math.min(boundedLimit * 5, 200);
+
     const documents = await this.mcp.aggregate(this.databaseName, this.collectionName, [
       {
         $match: {
@@ -274,7 +277,7 @@ export class MongoMemoryDB {
         },
       },
       {
-        $limit: boundedLimit,
+        $limit: fetchLimit,
       },
       {
         $project: {
@@ -304,7 +307,7 @@ export class MongoMemoryDB {
       }
       entries.push(parsed.entry);
     }
-    return entries;
+    return entries.slice(0, boundedLimit);
   }
 
   async close(): Promise<void> {

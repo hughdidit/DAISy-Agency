@@ -251,6 +251,63 @@ describe("memory ops service", () => {
     expect(listed.count).toBe(1);
   });
 
+  test("commitment tracker hides superseded commitments even when resolution record is secret", async () => {
+    const now = Date.now();
+    const { service, db } = createService({
+      listByScope: vi.fn().mockResolvedValue([
+        {
+          id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+          text: "Follow up",
+          vector: [0.1],
+          importance: 0.9,
+          category: "decision",
+          type: "procedural",
+          metadata: {
+            source: "commitment_tracker",
+            ops: {
+              scopeSubject: "agent:main",
+              kind: "commitment",
+              status: "open",
+              owner: "agent",
+            },
+          },
+          createdAt: now - 1000,
+          updatedAt: now - 1000,
+        },
+        {
+          id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+          text: "Resolved with secret note",
+          vector: [0.1],
+          importance: 0.8,
+          category: "decision",
+          type: "procedural",
+          metadata: {
+            source: "commitment_tracker",
+            ops: {
+              scopeSubject: "agent:main",
+              kind: "commitment",
+              status: "resolved",
+              supersedesId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+              owner: "agent",
+              sensitivity: "secret",
+            },
+          },
+          createdAt: now,
+          updatedAt: now,
+        },
+      ]),
+    });
+
+    const listed = await service.commitmentTracker({
+      mode: "list_open",
+      scopeSubject: "agent:main",
+    });
+
+    expect(db.listByScope).toHaveBeenCalledWith("agent:main", 100, { includeSecrets: true });
+    expect(listed.count).toBe(0);
+    expect(listed.commitments).toEqual([]);
+  });
+
   test("preference miner plans promotions from repeated observations", async () => {
     const now = Date.now();
     const { service } = createService({
