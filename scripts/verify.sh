@@ -39,6 +39,24 @@ gce_ssh_lastline() {
   gce_ssh "$1" | tail -1
 }
 
+gce_ssh_last_json_line() {
+  local output json_line
+  output="$(gce_ssh "$1")" || return 1
+  json_line="$(printf '%s\n' "${output}" | grep -E '^[{]' | tail -1 || true)"
+  [[ -n "${json_line}" ]] || return 2
+  printf '%s\n' "${json_line}"
+}
+
+require_container_script() {
+  local container_escaped="${1:?container required}"
+  local script_path="${2:?script path required}"
+  local description="${3:?description required}"
+  local script_path_escaped
+  printf -v script_path_escaped '%q' "${script_path}"
+  gce_ssh "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; test -r ${script_path_escaped}\"" \
+    || fail "Deployed image is missing ${description} at ${script_path} in ${VERIFY_GCE_CONTAINER:-openclaw-gateway}"
+}
+
 docker_container_state() {
   local name="${1:?container name required}"
   local escaped_name
@@ -362,92 +380,15 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
     # and remain usable.
     checks_run=$((checks_run + 1))
     log "Checking Google Workspace active credential route materialization and auth health on ${GCE_INSTANCE_NAME}..."
-    gws_route_probe_js="$(cat <<'NODE'
-import fs from "node:fs";
-import JSON5 from "json5";
-
-const snapshot = JSON5.parse(fs.readFileSync("/home/node/.openclaw/.runtime-openclaw.json", "utf8"));
-function getActiveConfig(value) {
-  if (value?.resolved && typeof value.resolved === "object") {
-    return value.resolved;
-  }
-  if (value?.config && typeof value.config === "object") {
-    return value.config;
-  }
-  return value;
-}
-
-const activeConfig = getActiveConfig(snapshot);
-const cfg = activeConfig?.plugins?.entries?.["gws-toolkit-phase1"]?.config;
-const bindingSubject = "agent:main";
-const boundRoute =
-  typeof cfg?.agentCredentialBindings?.[bindingSubject] === "string" &&
-  cfg.agentCredentialBindings[bindingSubject].length > 0
-    ? cfg.agentCredentialBindings[bindingSubject]
-    : null;
-const route =
-  boundRoute ??
-  (cfg?.allowUnboundAgents === true &&
-  typeof cfg?.defaultCredentialRoute === "string" &&
-  cfg.defaultCredentialRoute.length > 0
-    ? cfg.defaultCredentialRoute
-    : null);
-const active =
-  route && cfg?.credentialRoutes && typeof cfg.credentialRoutes[route] === "object"
-    ? cfg.credentialRoutes[route]
-    : null;
-
-if (!route || !active || typeof active.mode !== "string" || active.mode.length === 0) {
-  process.exit(1);
-}
-
-process.stdout.write(
-  JSON.stringify({
-    bindingSubject,
-    route,
-    mode: active.mode,
-    credentialsFile: typeof active.credentialsFile === "string" ? active.credentialsFile : null,
-    impersonationConfigured:
-      (typeof active.impersonatedUser === "string" && active.impersonatedUser.length > 0) ||
-      (typeof active.impersonatedUserEnvVar === "string" && active.impersonatedUserEnvVar.length > 0),
-    impersonationSource:
-      typeof active.impersonatedUser === "string" && active.impersonatedUser.trim().length > 0
-        ? "literal"
-        : typeof active.impersonatedUserEnvVar === "string" &&
-            active.impersonatedUserEnvVar.length > 0
-          ? "env_var"
-          : null,
-    impersonatedUserEnvVar:
-      typeof active.impersonatedUserEnvVar === "string" && active.impersonatedUserEnvVar.length > 0
-        ? active.impersonatedUserEnvVar
-        : null,
-    impersonatedUser:
-      typeof active.impersonatedUser === "string" && active.impersonatedUser.trim().length > 0
-        ? active.impersonatedUser.trim()
-        : typeof active.impersonatedUserEnvVar === "string" &&
-            active.impersonatedUserEnvVar.length > 0 &&
-            typeof process.env[active.impersonatedUserEnvVar] === "string" &&
-            process.env[active.impersonatedUserEnvVar].trim().length > 0
-          ? process.env[active.impersonatedUserEnvVar].trim()
-          : null,
-    impersonationMissing:
-      (typeof active.impersonatedUser === "string" && active.impersonatedUser.length > 0
-        ? active.impersonatedUser.trim().length === 0
-        : typeof active.impersonatedUserEnvVar === "string" &&
-            active.impersonatedUserEnvVar.length > 0
-          ? !(
-              typeof process.env[active.impersonatedUserEnvVar] === "string" &&
-              process.env[active.impersonatedUserEnvVar].trim().length > 0
-            )
-          : false),
-  }),
-);
-NODE
-)"
-    gws_route_probe_js_b64="$(printf '%s' "${gws_route_probe_js}" | base64 | tr -d '\n')"
+    require_container_script "${container_escaped}" "scripts/gws/inspect-active-route.mjs" "GWS active route inspector"
     gws_active_route_json="$(
-      gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; printf '%s' '${gws_route_probe_js_b64}' | base64 -d | node --input-type=module\""
+      gce_ssh_last_json_line "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; node scripts/gws/inspect-active-route.mjs\""
     )" || fail "Failed to inspect active Google Workspace credential route mode in ${container}"
+    gws_active_config_path="$(jq -r '.configPath // empty' <<<"${gws_active_route_json}" | tr -d '[:space:]')" \
+      || fail "Failed to parse GWS active route JSON (configPath field) in ${container}"
+    if [[ -n "${gws_active_config_path}" ]]; then
+      log "Google Workspace verification is using active config ${gws_active_config_path} in ${container}."
+    fi
     gws_active_route_mode="$(jq -r '.mode' <<<"${gws_active_route_json}" | tr -d '[:space:]')" \
       || fail "Failed to parse GWS active route JSON (mode field) in ${container}"
     gws_impersonation_configured="$(jq -r '.impersonationConfigured // false' <<<"${gws_active_route_json}")" \
@@ -541,14 +482,15 @@ NODE
     # delegated subject. Both must stay healthy and service-account-backed.
     checks_run=$((checks_run + 1))
     log "Checking route-bound Google Workspace auth-health policy gates on ${GCE_INSTANCE_NAME}..."
-    gws_delegate_subject_selector_path="${repo_root}/scripts/gws/select-delegate-subject.mjs"
-    [[ -r "${gws_delegate_subject_selector_path}" ]] \
-      || fail "Missing delegate subject selector script at ${gws_delegate_subject_selector_path}"
-    gws_delegate_subject_js="$(cat "${gws_delegate_subject_selector_path}")"
-    gws_delegate_subject_js_b64="$(printf '%s' "${gws_delegate_subject_js}" | base64 | tr -d '\n')"
+    require_container_script "${container_escaped}" "scripts/gws/select-delegate-subject.mjs" "GWS delegated subject selector"
     gws_delegate_subjects_json="$(
-      gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; printf '%s' '${gws_delegate_subject_js_b64}' | base64 -d | node --input-type=module\""
+      gce_ssh_last_json_line "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; node scripts/gws/select-delegate-subject.mjs\""
     )" || fail "No delegated GWS binding subjects found for auth-health verification in ${container}."
+    gws_delegate_subject_config_path="$(jq -r '.configPath // empty' <<<"${gws_delegate_subjects_json}" | tr -d '[:space:]')" \
+      || fail "Failed to parse delegate subject selector configPath in ${container}"
+    if [[ -n "${gws_delegate_subject_config_path}" ]]; then
+      log "Delegated GWS subject selection is using active config ${gws_delegate_subject_config_path} in ${container}."
+    fi
     mapfile -t gws_delegate_subject_candidates < <(jq -r '.delegateSubjects[]?' <<<"${gws_delegate_subjects_json}")
     [[ "${#gws_delegate_subject_candidates[@]}" -gt 0 ]] \
       || fail "No delegated GWS binding subject candidates found for auth-health verification in ${container}."
