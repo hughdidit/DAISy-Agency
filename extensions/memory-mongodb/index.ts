@@ -25,6 +25,7 @@ import { MemoryOpsService, resolveScopeSubjectFromContext } from "./memory-ops-s
 import {
   MEMORY_OPS_KINDS,
   MEMORY_OPS_MODALITIES,
+  MEMORY_OPS_SENSITIVITIES,
   type CommitmentTrackerMode,
   type MemoryCaptureCandidate,
   type MemoryHygieneStrategy,
@@ -89,6 +90,16 @@ function detectSubCategory(text: string): string | undefined {
     return "decision";
   }
   return undefined;
+}
+
+function isSecretEntry(entry: MemoryEntry | null | undefined): boolean {
+  if (!entry || !entry.metadata || typeof entry.metadata !== "object") {
+    return false;
+  }
+  const ops = (entry.metadata as Record<string, unknown>).ops;
+  return Boolean(
+    ops && typeof ops === "object" && (ops as Record<string, unknown>).sensitivity === "secret",
+  );
 }
 
 function resolveScopeSubject(ctx: OpenClawPluginToolContext): string | null {
@@ -204,6 +215,7 @@ const memoryCaptureEntrySchema = Type.Object(
     text: Type.Optional(Type.String()),
     kind: stringEnum(MEMORY_OPS_KINDS),
     importance: Type.Number({ minimum: 0, maximum: 1 }),
+    sensitivity: Type.Optional(stringEnum(MEMORY_OPS_SENSITIVITIES)),
     parts: Type.Optional(Type.Array(multimodalPartSchema)),
     attachments: Type.Optional(
       Type.Array(
@@ -330,6 +342,7 @@ const memoryPlugin = {
         modalities?: string[];
         openCommitmentsOnly?: boolean;
         preferencesOnly?: boolean;
+        includeSecrets?: boolean;
       },
     ) {
       await ensureMcpRuntimeDirs();
@@ -339,6 +352,7 @@ const memoryPlugin = {
         modalities: filters?.modalities,
         openCommitmentsOnly: filters?.openCommitmentsOnly,
         preferencesOnly: filters?.preferencesOnly,
+        includeSecrets: filters?.includeSecrets,
       });
     }
 
@@ -445,6 +459,7 @@ const memoryPlugin = {
               openCommitmentsOnly: Type.Optional(Type.Boolean()),
               preferencesOnly: Type.Optional(Type.Boolean()),
               modalities: Type.Optional(Type.Array(stringEnum(MEMORY_OPS_MODALITIES))),
+              includeSecrets: Type.Optional(Type.Boolean()),
               includeMetadata: Type.Optional(Type.Boolean()),
             },
             { additionalProperties: false },
@@ -462,6 +477,7 @@ const memoryPlugin = {
               openCommitmentsOnly,
               preferencesOnly,
               modalities,
+              includeSecrets,
               includeMetadata,
             } = params as {
               query: string;
@@ -470,6 +486,7 @@ const memoryPlugin = {
               openCommitmentsOnly?: boolean;
               preferencesOnly?: boolean;
               modalities?: string[];
+              includeSecrets?: boolean;
               includeMetadata?: boolean;
             };
             const limit = clampPositiveInt(rawLimit, 5, cfg.retrieval.vectorLimit);
@@ -485,6 +502,7 @@ const memoryPlugin = {
                 openCommitmentsOnly,
                 preferencesOnly,
                 modalities: modalities as any,
+                includeSecrets,
                 includeMetadata,
               },
             });
@@ -499,7 +517,12 @@ const memoryPlugin = {
             const text = recalled.memories
               .map((memory, index) => {
                 const kind = typeof memory.kind === "string" ? memory.kind : "memory";
-                const label = typeof memory.text === "string" ? memory.text : "(empty)";
+                const label =
+                  memory.sensitivity === "secret"
+                    ? "[secret redacted]"
+                    : typeof memory.text === "string"
+                      ? memory.text
+                      : "(empty)";
                 const score =
                   typeof memory.score === "number" ? ` ${(memory.score * 100).toFixed(0)}%` : "";
                 return `${index + 1}. [${kind}] ${label}${score}`;
@@ -540,6 +563,7 @@ const memoryPlugin = {
               Type.Number({ description: "Importance 0-1 (default: 0.7)" }),
             ),
             category: Type.Optional(stringEnum(MEMORY_CATEGORIES)),
+            sensitivity: Type.Optional(stringEnum(MEMORY_OPS_SENSITIVITIES)),
           }),
           async execute(_toolCallId, params) {
             if (!scopeSubject) {
@@ -552,11 +576,13 @@ const memoryPlugin = {
               parts,
               importance = 0.7,
               category,
+              sensitivity,
             } = params as {
               text?: string;
               parts?: MultimodalPart[];
               importance?: number;
               category?: MemoryEntry["category"];
+              sensitivity?: "normal" | "secret";
             };
 
             const normalizedText = typeof text === "string" ? text.trim() : "";
@@ -593,13 +619,13 @@ const memoryPlugin = {
             const capture = await opsService.capture({
               scopeSubject,
               source: "memory_store",
-              rejectSecrets: false,
               entries: [
                 {
                   text: normalizedText.length > 0 ? normalizedText : undefined,
                   parts: normalizedParts,
                   kind: inferredKind,
                   importance,
+                  sensitivity,
                   confidence: 0.9,
                   category: inferredCategory,
                   subCategory: detectSubCategory(fallbackText),
@@ -614,22 +640,26 @@ const memoryPlugin = {
               };
             }
             if (outcome.status === "duplicate") {
-              const existingText =
-                outcome.existingId &&
-                (await db.getById(outcome.existingId).catch(() => null))?.text;
+              const existingEntry = outcome.existingId
+                ? await db.getById(outcome.existingId).catch(() => null)
+                : null;
+              const existingText = existingEntry?.text;
+              const duplicateIsSecret = sensitivity === "secret" || isSecretEntry(existingEntry);
               return {
                 content: [
                   {
                     type: "text",
-                    text: existingText
-                      ? `Similar memory already exists: "${existingText}"`
-                      : "Similar memory already exists.",
+                    text: duplicateIsSecret
+                      ? "Similar secret memory already exists."
+                      : existingText
+                        ? `Similar memory already exists: "${existingText}"`
+                        : "Similar memory already exists.",
                   },
                 ],
                 details: {
                   action: "duplicate",
                   existingId: outcome.existingId,
-                  existingText,
+                  existingText: duplicateIsSecret ? undefined : existingText,
                   reason: outcome.reason,
                   scopeSubject,
                 },
@@ -655,7 +685,15 @@ const memoryPlugin = {
             }
 
             return {
-              content: [{ type: "text", text: `Stored: "${fallbackText.slice(0, 100)}..."` }],
+              content: [
+                {
+                  type: "text",
+                  text:
+                    sensitivity === "secret"
+                      ? "Stored secret memory."
+                      : `Stored: "${fallbackText.slice(0, 100)}..."`,
+                },
+              ],
               details: {
                 action: "created",
                 id: outcome.id,
@@ -799,17 +837,21 @@ const memoryPlugin = {
           parameters: Type.Object({
             entries: Type.Array(memoryCaptureEntrySchema, { minItems: 1 }),
             dedupeThreshold: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
-            rejectSecrets: Type.Optional(Type.Boolean()),
+            rejectSecrets: Type.Optional(
+              Type.Boolean({
+                description:
+                  'Deprecated compatibility field. Secret handling is controlled by `entries[].sensitivity`; use `sensitivity: "secret"` for intentional secret storage.',
+              }),
+            ),
           }),
           async execute(_toolCallId, params) {
             if (!scopeSubject) {
               return scopeErrorResult();
             }
             await ensureMcpRuntimeDirs();
-            const { entries, dedupeThreshold, rejectSecrets } = params as {
+            const { entries, dedupeThreshold } = params as {
               entries: MemoryCaptureCandidate[];
               dedupeThreshold?: number;
-              rejectSecrets?: boolean;
             };
 
             const result = await opsService.capture({
@@ -817,7 +859,6 @@ const memoryPlugin = {
               entries,
               source: "memory_capture",
               dedupeThreshold,
-              rejectSecrets,
             });
 
             return {
@@ -904,7 +945,7 @@ const memoryPlugin = {
           name: "commitment_tracker",
           label: "Commitment Tracker",
           description:
-            "Capture, list, resolve, or cancel commitments with durable status metadata.",
+            "Capture, list, resolve, or cancel commitments with durable status metadata. Secret commitments remain hidden from list/resolve/cancel flows and can only be removed with memory_forget.",
           parameters: Type.Object({
             mode: stringEnum(["capture", "list_open", "resolve", "cancel"] as const),
             text: Type.Optional(Type.String()),
@@ -1176,7 +1217,6 @@ const memoryPlugin = {
             scopeSubject,
             entries,
             source: "auto_capture",
-            rejectSecrets: true,
           });
           const created = result.outcomes.filter((item) => item.status === "created").length;
           if (created > 0) {

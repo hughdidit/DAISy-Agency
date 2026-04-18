@@ -217,6 +217,7 @@ describe("memory-mongodb plugin", () => {
     expect(memoryRecallXProps).toContain("openCommitmentsOnly");
     expect(memoryRecallXProps).toContain("preferencesOnly");
     expect(memoryRecallXProps).toContain("modalities");
+    expect(memoryRecallXProps).toContain("includeSecrets");
     expect(memoryRecallXProps).toContain("includeMetadata");
 
     const memoryCapture = registeredTools.get("memory_capture");
@@ -241,6 +242,131 @@ describe("memory-mongodb plugin", () => {
       mode: "plan",
     });
     expect(hygieneResult.details?.mode).toBe("plan");
+  });
+
+  test("memory_store rejects secret-like content by default and allows explicit secret storage", async () => {
+    const { default: memoryPlugin } = await import("./index.js");
+    const registeredTools = new Map<string, any>();
+
+    mcpClientMocks.insertMany.mockResolvedValue(1);
+    mcpClientMocks.aggregate.mockResolvedValue([]);
+
+    memoryPlugin.register({
+      pluginConfig: {
+        mcp: {
+          transport: "stdio",
+          stdio: {
+            env: {
+              MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
+            },
+          },
+        },
+        gemini: { apiKey: "test-key" },
+      },
+      logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+      registerTool: (tool: unknown, opts?: { name?: string }) => {
+        const resolved = materializeTool(tool, opts) as { name: string };
+        registeredTools.set(resolved.name, resolved);
+      },
+      registerCli: vi.fn(),
+      registerService: vi.fn(),
+      on: vi.fn(),
+    } as unknown as import("openclaw/plugin-sdk").OpenClawPluginApi);
+
+    const memoryStore = registeredTools.get("memory_store");
+    expect(memoryStore).toBeDefined();
+
+    const rejected = await memoryStore.execute("tc_store_secret_default", {
+      text: "apiKey=super-secret",
+      importance: 0.9,
+      category: "fact",
+    });
+    expect(rejected.details?.action).toBe("rejected_secret");
+    expect(rejected.content[0]?.text).toContain("sensitivity=secret");
+
+    const stored = await memoryStore.execute("tc_store_secret_explicit", {
+      text: "apiKey=super-secret",
+      importance: 0.9,
+      category: "fact",
+      sensitivity: "secret",
+    });
+    expect(stored.details?.action).toBe("created");
+    expect(stored.content[0]?.text).toBe("Stored secret memory.");
+  });
+
+  test("memory_recallx excludes secrets by default and redacts summary text when included", async () => {
+    const { default: memoryPlugin } = await import("./index.js");
+    const registeredTools = new Map<string, any>();
+    const now = Date.now();
+    const secretDocument = {
+      _id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      text: "apiKey=super-secret",
+      vector: [0.1, 0.2],
+      importance: 0.9,
+      category: "fact",
+      type: "semantic",
+      metadata: {
+        source: "memory_capture",
+        ops: {
+          scopeSubject: "agent:main",
+          kind: "fact",
+          sensitivity: "secret",
+        },
+      },
+      createdAt: now,
+      updatedAt: now,
+      score: 0.95,
+    };
+
+    mcpClientMocks.insertMany.mockResolvedValue(1);
+    mcpClientMocks.aggregate.mockResolvedValue([secretDocument]);
+
+    memoryPlugin.register({
+      pluginConfig: {
+        mcp: {
+          transport: "stdio",
+          stdio: {
+            env: {
+              MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
+            },
+          },
+        },
+        gemini: { apiKey: "test-key" },
+      },
+      logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+      registerTool: (tool: unknown, opts?: { name?: string }) => {
+        const resolved = materializeTool(tool, opts) as { name: string };
+        registeredTools.set(resolved.name, resolved);
+      },
+      registerCli: vi.fn(),
+      registerService: vi.fn(),
+      on: vi.fn(),
+    } as unknown as import("openclaw/plugin-sdk").OpenClawPluginApi);
+
+    const memoryRecall = registeredTools.get("memory_recall");
+    const memoryRecallX = registeredTools.get("memory_recallx");
+
+    const basicRecall = await memoryRecall.execute("tc_recall_secret_filtered", {
+      query: "api key",
+      limit: 5,
+    });
+    expect(basicRecall.details?.count).toBe(0);
+
+    const excluded = await memoryRecallX.execute("tc_recallx_secret_filtered", {
+      query: "api key",
+      limit: 5,
+    });
+    expect(excluded.details?.count).toBe(0);
+
+    const included = await memoryRecallX.execute("tc_recallx_secret_included", {
+      query: "api key",
+      limit: 5,
+      includeSecrets: true,
+    });
+    expect(included.details?.count).toBe(1);
+    expect(included.content[0]?.text).toContain("[secret redacted]");
+    expect(included.content[0]?.text).not.toContain("apiKey=super-secret");
+    expect(included.details?.memories?.[0]?.text).toBe("apiKey=super-secret");
   });
 
   test("scoped tools fail closed when agent scope cannot be derived", async () => {

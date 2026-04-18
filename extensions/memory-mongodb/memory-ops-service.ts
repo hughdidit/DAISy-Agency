@@ -12,6 +12,7 @@ import type {
   MemoryRecallFilters,
   MemoryOpsAttachmentManifest,
   MemoryOpsMetadata,
+  MemorySensitivity,
   PreferenceMinerMode,
 } from "./memory-ops-types.js";
 import type { MemoryEntry, MongoMemoryDB } from "./mongodb-provider.js";
@@ -32,7 +33,6 @@ type CaptureInput = {
   entries: MemoryCaptureCandidate[];
   source: string;
   dedupeThreshold?: number;
-  rejectSecrets?: boolean;
 };
 
 type CommitmentTrackerInput = {
@@ -113,7 +113,6 @@ export class MemoryOpsService {
 
   async capture(input: CaptureInput): Promise<{ outcomes: MemoryCaptureOutcome[] }> {
     const dedupeThreshold = clampScore(input.dedupeThreshold ?? DEFAULT_DEDUPE_THRESHOLD);
-    const rejectSecrets = input.rejectSecrets !== false;
     const outcomes: MemoryCaptureOutcome[] = [];
 
     for (const candidate of input.entries) {
@@ -122,7 +121,6 @@ export class MemoryOpsService {
         scopeSubject: input.scopeSubject,
         source: input.source,
         dedupeThreshold,
-        rejectSecrets,
       });
       outcomes.push(result);
     }
@@ -145,6 +143,7 @@ export class MemoryOpsService {
       modalities: input.filters?.modalities,
       openCommitmentsOnly: input.filters?.openCommitmentsOnly,
       preferencesOnly: input.filters?.preferencesOnly,
+      includeSecrets: input.filters?.includeSecrets,
     });
 
     const memories = results.slice(0, limit).map((result) => {
@@ -161,6 +160,7 @@ export class MemoryOpsService {
         importance: result.entry.importance,
         kind: ops?.kind,
         status: ops?.status,
+        sensitivity: readSensitivity(ops),
         scopeSubject: ops?.scopeSubject,
         score: result.score,
         vectorScore: result.vectorScore,
@@ -226,7 +226,6 @@ export class MemoryOpsService {
         const captureResult = await this.capture({
           scopeSubject: input.scopeSubject,
           source: "memory_hygiene",
-          rejectSecrets: true,
           entries: [
             {
               text: action.candidateText ?? "Promoted preference",
@@ -361,7 +360,9 @@ export class MemoryOpsService {
       const all = await this.db.listByScope(input.scopeSubject, this.cfg.hygieneMaxCandidates * 4);
       const preferences = all
         .map((entry) => ({ entry, ops: readOpsMetadata(entry) }))
-        .filter(({ ops }) => ops?.kind === "preference")
+        .filter(
+          ({ ops }) => ops?.kind === "preference" && !isSecretSensitivity(readSensitivity(ops)),
+        )
         .map(({ entry, ops }) => ({
           id: entry.id,
           text: entry.text,
@@ -453,7 +454,6 @@ export class MemoryOpsService {
           confidence: 1,
         },
       ],
-      rejectSecrets: false,
     });
 
     const created = captured.outcomes.find((outcome) => outcome.status === "created" && outcome.id);
@@ -504,7 +504,6 @@ export class MemoryOpsService {
     scopeSubject: string;
     source: string;
     dedupeThreshold: number;
-    rejectSecrets: boolean;
   }): Promise<MemoryCaptureOutcome> {
     const parts = normalizeParts(input.candidate.parts, input.candidate.text);
     if (parts.length === 0) {
@@ -522,10 +521,12 @@ export class MemoryOpsService {
       };
     }
 
-    if (input.rejectSecrets && looksLikeSecret(fallbackText)) {
+    const sensitivity = normalizeSensitivity(input.candidate.sensitivity);
+    if (looksLikeSecret(fallbackText) && !isSecretSensitivity(sensitivity)) {
       return {
         status: "rejected_secret",
-        reason: "candidate contains secret-like content",
+        reason:
+          "candidate contains secret-like content; re-submit with sensitivity=secret to store intentionally",
       };
     }
 
@@ -589,6 +590,7 @@ export class MemoryOpsService {
 
     const existing = await this.db.searchByQuery(fallbackText, 3, 0, {
       scopeSubject: input.scopeSubject,
+      includeSecrets: true,
     });
 
     for (const candidate of existing) {
@@ -624,6 +626,7 @@ export class MemoryOpsService {
       kind: input.candidate.kind,
       scopeSubject: input.scopeSubject,
       source: input.source,
+      sensitivity,
       confidence,
       sourceMessageIds: input.candidate.sourceMessageIds,
       status,
@@ -674,7 +677,9 @@ export class MemoryOpsService {
         : (["dedupe", "stale-prune", "promote", "conflict-review"] as MemoryHygieneStrategy[]);
 
     const limit = Math.max(1, Math.min(maxCandidates ?? this.cfg.hygieneMaxCandidates, 100));
-    const entries = await this.db.listByScope(scopeSubject, limit);
+    const entries = (await this.db.listByScope(scopeSubject, limit)).filter(
+      (entry) => !isSecretSensitivity(readSensitivity(readOpsMetadata(entry))),
+    );
     const actions: MemoryHygieneAction[] = [];
 
     if (selectedStrategies.includes("dedupe")) {
@@ -782,7 +787,9 @@ export class MemoryOpsService {
   }
 
   private async listOpenCommitments(scopeSubject: string): Promise<Array<Record<string, unknown>>> {
-    const entries = await this.db.listByScope(scopeSubject, this.cfg.hygieneMaxCandidates * 4);
+    const entries = await this.db.listByScope(scopeSubject, this.cfg.hygieneMaxCandidates * 4, {
+      includeSecrets: true,
+    });
     const commitmentEntries = entries
       .map((entry) => ({ entry, ops: readOpsMetadata(entry) }))
       .filter(({ ops }) => ops?.kind === "commitment");
@@ -795,7 +802,12 @@ export class MemoryOpsService {
     }
 
     return commitmentEntries
-      .filter(({ entry, ops }) => ops?.status === "open" && !superseded.has(entry.id))
+      .filter(
+        ({ entry, ops }) =>
+          ops?.status === "open" &&
+          !superseded.has(entry.id) &&
+          !isSecretSensitivity(readSensitivity(ops)),
+      )
       .map(({ entry, ops }) => ({
         id: entry.id,
         text: entry.text,
@@ -820,7 +832,11 @@ export class MemoryOpsService {
     }
 
     const ops = readOpsMetadata(existing);
-    if (ops?.scopeSubject !== scopeSubject || ops.kind !== "commitment") {
+    if (
+      ops?.scopeSubject !== scopeSubject ||
+      ops.kind !== "commitment" ||
+      isSecretSensitivity(readSensitivity(ops))
+    ) {
       throw new Error("commitment not found in current agent scope");
     }
 
@@ -843,7 +859,6 @@ export class MemoryOpsService {
           },
         },
       ],
-      rejectSecrets: true,
       dedupeThreshold: 1,
     });
 
@@ -866,6 +881,9 @@ export class MemoryOpsService {
     for (const entry of entries) {
       const ops = readOpsMetadata(entry);
       if (ops?.kind !== "preference") {
+        continue;
+      }
+      if (isSecretSensitivity(readSensitivity(ops))) {
         continue;
       }
       const status = typeof ops.status === "string" ? ops.status : "observed";
@@ -1108,6 +1126,24 @@ function readPreferenceValue(ops: Record<string, unknown> | null): string | unde
     return undefined;
   }
   return typeof ops.preference.value === "string" ? ops.preference.value : undefined;
+}
+
+function readSensitivity(ops: Record<string, unknown> | null): MemorySensitivity | undefined {
+  if (!ops || typeof ops.sensitivity !== "string") {
+    return undefined;
+  }
+  if (ops.sensitivity === "secret" || ops.sensitivity === "normal") {
+    return ops.sensitivity;
+  }
+  return undefined;
+}
+
+function normalizeSensitivity(value: unknown): MemorySensitivity {
+  return value === "secret" ? "secret" : "normal";
+}
+
+function isSecretSensitivity(value: unknown): value is "secret" {
+  return value === "secret";
 }
 
 function isPriority(value: unknown): value is "low" | "medium" | "high" {

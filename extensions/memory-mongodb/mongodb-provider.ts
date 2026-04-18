@@ -46,6 +46,7 @@ export type MemoryQueryFilters = {
   modalities?: string[];
   openCommitmentsOnly?: boolean;
   preferencesOnly?: boolean;
+  includeSecrets?: boolean;
 };
 
 export type RetrievalOptions = {
@@ -251,11 +252,18 @@ export class MongoMemoryDB {
     return parsed?.entry ?? null;
   }
 
-  async listByScope(scopeSubject: string, limit = 50): Promise<MemoryEntry[]> {
+  async listByScope(
+    scopeSubject: string,
+    limit = 50,
+    options: { includeSecrets?: boolean } = {},
+  ): Promise<MemoryEntry[]> {
     if (!scopeSubject.trim()) {
       throw new Error("scopeSubject required");
     }
     const boundedLimit = Math.max(1, Math.min(limit, 200));
+
+    const fetchLimit =
+      options.includeSecrets === true ? boundedLimit : Math.min(boundedLimit * 5, 200);
 
     const documents = await this.mcp.aggregate(this.databaseName, this.collectionName, [
       {
@@ -269,7 +277,7 @@ export class MongoMemoryDB {
         },
       },
       {
-        $limit: boundedLimit,
+        $limit: fetchLimit,
       },
       {
         $project: {
@@ -291,11 +299,15 @@ export class MongoMemoryDB {
     const entries: MemoryEntry[] = [];
     for (const doc of documents) {
       const parsed = this.documentToEntry(doc);
-      if (parsed?.entry) {
-        entries.push(parsed.entry);
+      if (!parsed?.entry) {
+        continue;
       }
+      if (!matchesFilters(parsed.entry, { includeSecrets: options.includeSecrets })) {
+        continue;
+      }
+      entries.push(parsed.entry);
     }
-    return entries;
+    return entries.slice(0, boundedLimit);
   }
 
   async close(): Promise<void> {
@@ -379,10 +391,13 @@ function isObject(value: unknown): value is Record<string, unknown> {
 }
 
 function matchesFilters(entry: MemoryEntry, filters: MemoryQueryFilters | undefined): boolean {
+  const ops = extractOpsMetadata(entry);
+  if (ops?.sensitivity === "secret" && filters?.includeSecrets !== true) {
+    return false;
+  }
   if (!filters) {
     return true;
   }
-  const ops = extractOpsMetadata(entry);
   if (filters.scopeSubject) {
     if (ops?.scopeSubject !== filters.scopeSubject) {
       return false;
@@ -412,7 +427,7 @@ function matchesFilters(entry: MemoryEntry, filters: MemoryQueryFilters | undefi
 
 function extractOpsMetadata(
   entry: MemoryEntry,
-): { scopeSubject?: string; kind?: string; status?: string } | null {
+): { scopeSubject?: string; kind?: string; status?: string; sensitivity?: string } | null {
   if (!isObject(entry.metadata)) {
     return null;
   }
@@ -424,6 +439,7 @@ function extractOpsMetadata(
     scopeSubject: typeof rawOps.scopeSubject === "string" ? rawOps.scopeSubject : undefined,
     kind: typeof rawOps.kind === "string" ? rawOps.kind : undefined,
     status: typeof rawOps.status === "string" ? rawOps.status : undefined,
+    sensitivity: typeof rawOps.sensitivity === "string" ? rawOps.sensitivity : undefined,
   };
 }
 
