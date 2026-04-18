@@ -265,6 +265,7 @@ jobs:
       - name: Deploy
         env:
           DEPLOY_ENV: ${{ inputs.environment }}
+          DAISY_ENVIRONMENT: ${{ inputs.environment }}
           DRY_RUN: ${{ inputs.dry_run }}
           IMAGE_REF_OVERRIDE: ${{ inputs.image_ref }}
           # Infrastructure (secrets, with vars fallback for migration)
