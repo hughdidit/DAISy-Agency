@@ -113,7 +113,7 @@ Before merge:
 
 After merge:
 
-- Trigger Docker Release either via `workflow_dispatch` on the merged ref or by merging a change that matches the release path filters
+- Trigger Docker Release either via `workflow_dispatch` on the merged ref (manual dispatch runs regardless of changed file paths) or by merging a change that matches the release path filters for the automatic `push` trigger
 - Confirm each build job lands on the intended runner pool
 - Confirm `build-arm64` runs without QEMU and still publishes to GHCR
 - Confirm `create-manifest` stays on `ubuntu-latest`
