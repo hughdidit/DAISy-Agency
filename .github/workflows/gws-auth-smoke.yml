@@ -107,6 +107,7 @@ jobs:
           }
 
           require_container_script "scripts/gws/select-delegate-subject.mjs" "GWS delegated subject selector"
+          require_container_script "scripts/gws/run-auth-health.mjs" "GWS auth-health runner"
           delegate_subjects_json="$(gce_ssh_last_json_line "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; node scripts/gws/select-delegate-subject.mjs\"")" || {
             echo "No delegated GWS binding subjects found in ${container}" >&2
             exit 1
@@ -125,7 +126,7 @@ jobs:
             }
             printf -v subject_escaped '%q' "${subject}"
             payload="$(
-              gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; node dist/index.js gws auth-health --subject ${subject_escaped} | jq -c .\""
+              gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; node scripts/gws/run-auth-health.mjs --subject ${subject_escaped}\""
             )" || return 1
             printf '%s\n' "${payload}"
           }
