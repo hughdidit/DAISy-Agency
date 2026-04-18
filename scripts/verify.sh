@@ -483,6 +483,7 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
     checks_run=$((checks_run + 1))
     log "Checking route-bound Google Workspace auth-health policy gates on ${GCE_INSTANCE_NAME}..."
     require_container_script "${container_escaped}" "scripts/gws/select-delegate-subject.mjs" "GWS delegated subject selector"
+    require_container_script "${container_escaped}" "scripts/gws/run-auth-health.mjs" "GWS auth-health runner"
     gws_delegate_subjects_json="$(
       gce_ssh_last_json_line "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; node scripts/gws/select-delegate-subject.mjs\""
     )" || fail "No delegated GWS binding subjects found for auth-health verification in ${container}."
@@ -503,7 +504,7 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
       fi
       printf -v subject_escaped '%q' "${subject}"
       auth_health_json="$(
-        gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; node dist/index.js gws auth-health --subject ${subject_escaped} | jq -c .\""
+        gce_ssh_last_json_line "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; node scripts/gws/run-auth-health.mjs --subject ${subject_escaped}\""
       )" || return 1
       printf '%s\n' "${auth_health_json}"
     }
