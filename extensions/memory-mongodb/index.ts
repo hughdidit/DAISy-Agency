@@ -840,7 +840,7 @@ const memoryPlugin = {
             rejectSecrets: Type.Optional(
               Type.Boolean({
                 description:
-                  "Deprecated compatibility field. Secret handling is controlled by `entries[].sensitivity`; use `sensitivity: \"secret\"` for intentional secret storage.",
+                  'Deprecated compatibility field. Secret handling is controlled by `entries[].sensitivity`; use `sensitivity: "secret"` for intentional secret storage.',
               }),
             ),
           }),

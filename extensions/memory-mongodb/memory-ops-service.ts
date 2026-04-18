@@ -360,7 +360,9 @@ export class MemoryOpsService {
       const all = await this.db.listByScope(input.scopeSubject, this.cfg.hygieneMaxCandidates * 4);
       const preferences = all
         .map((entry) => ({ entry, ops: readOpsMetadata(entry) }))
-        .filter(({ ops }) => ops?.kind === "preference" && !isSecretSensitivity(readSensitivity(ops)))
+        .filter(
+          ({ ops }) => ops?.kind === "preference" && !isSecretSensitivity(readSensitivity(ops)),
+        )
         .map(({ entry, ops }) => ({
           id: entry.id,
           text: entry.text,
