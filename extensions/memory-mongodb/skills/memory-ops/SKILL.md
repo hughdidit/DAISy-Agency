@@ -15,7 +15,7 @@ Use this skill when a reply depends on prior user history, preferences, commitme
 3. Use `memory_capture` only for durable non-actionable information, not every turn.
 4. Use `preference_miner` for repeated non-secret behavior; do not promote one-off observations.
 5. Run `memory_hygiene` in `plan` mode when there are duplicates, conflicts, or stale records. Prioritize `dedupe`, `conflict-review`, and `stale-prune`. Apply only after reviewing actions.
-6. Use `memory_audit` after memory config changes or when recall reliability is uncertain.
+6. Use `memory_audit` after memory config changes or when recall reliability is uncertain. It runs probe capture and recall checks and can optionally clean up successful probes.
 7. Summarize tool output; do not dump raw memory records unless explicitly requested.
 
 ## Default Memory Policy
@@ -26,7 +26,8 @@ When memory is relevant, prefer these defaults:
 - Track actionable items with `commitment_tracker` instead of generic capture.
 - Capture only durable non-actionable facts, decisions, recurring context, and important project state with `memory_capture`.
 - Keep capture sparse. Do not store one-off chat noise.
-- If the agent decides a durable memory is secret, it must explicitly mark the tool call as secret. Secret-like content is rejected by default.
+- Do not store raw transcripts, temporary troubleshooting chatter, speculative guesses, duplicated rewrites of existing memory, or secrets that are not intentionally classified for later agent use.
+- If the agent decides a durable memory is secret, it must explicitly set `sensitivity: "secret"` on the relevant tool call. Secret-like content is rejected by default.
 - Use `preference_miner` only when repeated evidence supports a stable non-secret preference.
 - Use `memory_hygiene` in `plan` mode when memory appears noisy, duplicated, conflicting, or stale. Apply only after reviewing the plan.
 - Summarize tool output briefly; do not dump raw records unless explicitly requested.
@@ -35,7 +36,9 @@ When memory is relevant, prefer these defaults:
 
 When capturing durable memory with `memory_capture`, prefer structured entries with:
 
+- `text`
 - `kind`
+- `importance`
 - `category`
 - `tags`
 - `confidence`
@@ -46,6 +49,32 @@ When capturing durable memory with `memory_capture`, prefer structured entries w
 - `sensitivity` when the agent intentionally stores a secret memory
 
 Keep capture structured and sparse.
+
+Default shape:
+
+- `{ text, kind, importance, category, tags, confidence, sourceMessageIds, status }`
+
+## Cleanup Strategies
+
+When using `memory_hygiene`, prefer explicit cleanup strategies over vague cleanup requests:
+
+- `dedupe` for repeated records that say the same thing
+- `conflict-review` for records that disagree and need human-reviewed resolution
+- `stale-prune` for expired, obsolete, or low-value old records
+- `promote` only for repeated non-secret observations that should become durable preferences
+
+For noisy memory, start with `dedupe`, `conflict-review`, and `stale-prune`. Use `promote` only when the plan shows stable repeated evidence.
+
+## What Not To Store
+
+Do not store:
+
+- one-off chat chatter
+- raw transcript dumps
+- temporary debugging output or transient errors
+- speculative inferences that are not established facts or decisions
+- duplicate restatements of memory that already exists
+- secrets unless the agent intentionally stores them with `sensitivity: "secret"`
 
 ## Priority Order
 
