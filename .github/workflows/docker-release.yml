@@ -1,6 +1,7 @@
 name: Docker Release
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - daisy/main
@@ -14,6 +15,7 @@ on:
       - "!**/*.md"
       - "!**/*.mdx"
       - "skills/**"
+      - "extensions/**/skills/**"
 
 concurrency:
   group: docker-release-${{ github.workflow }}-${{ github.ref }}
