@@ -220,7 +220,7 @@ Each stored memory includes:
 - `memory_store({ text, importance, category, sensitivity? })`
 - `memory_store({ parts, text?, importance, category, sensitivity? })` for multimodal embedding
 - `memory_forget({ memoryId })` or `memory_forget({ query })`
-- `memory_capture({ entries[], dedupeThreshold?, rejectSecrets? })` where `entries[]` may include `sensitivity: "secret"` for explicit secret storage
+- `memory_capture({ entries[], dedupeThreshold?, rejectSecrets? })` where `entries[]` may include `sensitivity: "secret"` for explicit secret storage; `rejectSecrets` is retained for compatibility and no longer bypasses secret classification
 - `memory_hygiene({ mode: "plan"|"apply", strategies?, maxCandidates?, planId? })`
 - `commitment_tracker({ mode: "capture"|"list_open"|"resolve"|"cancel", ... })`
 - `preference_miner({ mode: "observe"|"plan_promotions"|"apply_promotions"|"list", ... })`
@@ -255,11 +255,19 @@ Memory records remain in the same `daisy_memory.memories` collection and use add
 ### Secret Memory Handling
 
 - Secret-like content is rejected by default.
+- Secret-like detection is pattern-based for common credential/token shapes such as API keys, passwords, bearer tokens, connection strings, private keys, and OTP-style verification codes.
 - The agent may intentionally store a secret memory only by explicitly setting `sensitivity: "secret"` on `memory_store` or `memory_capture`.
 - `memory_recall` never returns secret memories.
 - `memory_recallx` excludes secret memories unless `includeSecrets: true` is set.
 - Human-readable recall summaries redact secret values even when secret recall is explicitly enabled.
 - Secret memories are ignored by ordinary `memory_hygiene` and preference-promotion flows.
+- Rejected secret-like captures return `rejected_secret` with a reason telling the caller to re-submit using `sensitivity: "secret"` for intentional storage.
+
+Examples:
+
+- Store a secret with `memory_store({ text: "API key: sk-...", category: "fact", sensitivity: "secret" })`
+- Store a secret with `memory_capture({ entries: [{ text: "Mongo URI: mongodb+srv://...", kind: "fact", importance: 0.9, sensitivity: "secret" }] })`
+- Recall secret memories with `memory_recallx({ query: "credentials", includeSecrets: true })`
 
 ### Document MIME Matrix (Phased)
 

@@ -12,7 +12,7 @@ import type {
   MemoryRecallFilters,
   MemoryOpsAttachmentManifest,
   MemoryOpsMetadata,
-  type MemorySensitivity,
+  MemorySensitivity,
   PreferenceMinerMode,
 } from "./memory-ops-types.js";
 import type { MemoryEntry, MongoMemoryDB } from "./mongodb-provider.js";
@@ -33,7 +33,6 @@ type CaptureInput = {
   entries: MemoryCaptureCandidate[];
   source: string;
   dedupeThreshold?: number;
-  rejectSecrets?: boolean;
 };
 
 type CommitmentTrackerInput = {
@@ -227,7 +226,6 @@ export class MemoryOpsService {
         const captureResult = await this.capture({
           scopeSubject: input.scopeSubject,
           source: "memory_hygiene",
-          rejectSecrets: true,
           entries: [
             {
               text: action.candidateText ?? "Promoted preference",
@@ -454,7 +452,6 @@ export class MemoryOpsService {
           confidence: 1,
         },
       ],
-      rejectSecrets: false,
     });
 
     const created = captured.outcomes.find((outcome) => outcome.status === "created" && outcome.id);
@@ -855,7 +852,6 @@ export class MemoryOpsService {
           },
         },
       ],
-      rejectSecrets: true,
       dedupeThreshold: 1,
     });
 

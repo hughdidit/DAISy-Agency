@@ -505,6 +505,66 @@ describe("mongodb provider via MCP", () => {
     );
   });
 
+  test("listByScope excludes secret entries unless explicitly requested", async () => {
+    const now = Date.now();
+    const aggregate = vi.fn().mockResolvedValue([
+      {
+        _id: "ffffffff-ffff-4fff-8fff-ffffffffffff",
+        text: "apiKey=super-secret",
+        vector: [0.1, 0.2],
+        category: "fact",
+        type: "semantic",
+        metadata: {
+          source: "memory_store",
+          ops: {
+            scopeSubject: "agent:main",
+            kind: "fact",
+            sensitivity: "secret",
+          },
+        },
+        createdAt: now - 1000,
+        updatedAt: now,
+      },
+      {
+        _id: "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+        text: "safe",
+        vector: [0.1, 0.2],
+        category: "fact",
+        type: "semantic",
+        metadata: {
+          source: "memory_store",
+          ops: {
+            scopeSubject: "agent:main",
+            kind: "fact",
+          },
+        },
+        createdAt: now - 2000,
+        updatedAt: now - 500,
+      },
+    ]);
+    const provider = new MongoMemoryDB(
+      {
+        insertMany: vi.fn(),
+        aggregate,
+        deleteOne: vi.fn(),
+        countDocuments: vi.fn(),
+        close: vi.fn(),
+      } as any,
+      { embed: vi.fn() } as any,
+      "memdb",
+      "memories",
+      "vector_idx",
+      baseRetrieval,
+    );
+
+    const excluded = await provider.listByScope("agent:main", 10);
+    expect(excluded).toHaveLength(1);
+    expect(excluded[0]?.text).toBe("safe");
+
+    const included = await provider.listByScope("agent:main", 10, { includeSecrets: true });
+    expect(included).toHaveLength(2);
+  });
+
   test("getById returns null when no matching record exists", async () => {
     const provider = new MongoMemoryDB(
       {

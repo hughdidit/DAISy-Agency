@@ -252,7 +252,11 @@ export class MongoMemoryDB {
     return parsed?.entry ?? null;
   }
 
-  async listByScope(scopeSubject: string, limit = 50): Promise<MemoryEntry[]> {
+  async listByScope(
+    scopeSubject: string,
+    limit = 50,
+    options: { includeSecrets?: boolean } = {},
+  ): Promise<MemoryEntry[]> {
     if (!scopeSubject.trim()) {
       throw new Error("scopeSubject required");
     }
@@ -292,9 +296,13 @@ export class MongoMemoryDB {
     const entries: MemoryEntry[] = [];
     for (const doc of documents) {
       const parsed = this.documentToEntry(doc);
-      if (parsed?.entry) {
-        entries.push(parsed.entry);
+      if (!parsed?.entry) {
+        continue;
       }
+      if (!matchesFilters(parsed.entry, { includeSecrets: options.includeSecrets })) {
+        continue;
+      }
+      entries.push(parsed.entry);
     }
     return entries;
   }

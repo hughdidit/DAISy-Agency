@@ -640,11 +640,11 @@ const memoryPlugin = {
               };
             }
             if (outcome.status === "duplicate") {
-              const existingEntry =
-                outcome.existingId && (await db.getById(outcome.existingId).catch(() => null));
+              const existingEntry = outcome.existingId
+                ? await db.getById(outcome.existingId).catch(() => null)
+                : null;
               const existingText = existingEntry?.text;
-              const duplicateIsSecret =
-                sensitivity === "secret" || isSecretEntry(existingEntry ?? null);
+              const duplicateIsSecret = sensitivity === "secret" || isSecretEntry(existingEntry);
               return {
                 content: [
                   {
@@ -837,17 +837,21 @@ const memoryPlugin = {
           parameters: Type.Object({
             entries: Type.Array(memoryCaptureEntrySchema, { minItems: 1 }),
             dedupeThreshold: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
-            rejectSecrets: Type.Optional(Type.Boolean()),
+            rejectSecrets: Type.Optional(
+              Type.Boolean({
+                description:
+                  "Deprecated compatibility field. Secret handling is controlled by `entries[].sensitivity`; use `sensitivity: \"secret\"` for intentional secret storage.",
+              }),
+            ),
           }),
           async execute(_toolCallId, params) {
             if (!scopeSubject) {
               return scopeErrorResult();
             }
             await ensureMcpRuntimeDirs();
-            const { entries, dedupeThreshold, rejectSecrets } = params as {
+            const { entries, dedupeThreshold } = params as {
               entries: MemoryCaptureCandidate[];
               dedupeThreshold?: number;
-              rejectSecrets?: boolean;
             };
 
             const result = await opsService.capture({
@@ -855,7 +859,6 @@ const memoryPlugin = {
               entries,
               source: "memory_capture",
               dedupeThreshold,
-              rejectSecrets,
             });
 
             return {
@@ -942,7 +945,7 @@ const memoryPlugin = {
           name: "commitment_tracker",
           label: "Commitment Tracker",
           description:
-            "Capture, list, resolve, or cancel commitments with durable status metadata.",
+            "Capture, list, resolve, or cancel commitments with durable status metadata. Secret commitments remain hidden from list/resolve/cancel flows and can only be removed with memory_forget.",
           parameters: Type.Object({
             mode: stringEnum(["capture", "list_open", "resolve", "cancel"] as const),
             text: Type.Optional(Type.String()),
@@ -1214,7 +1217,6 @@ const memoryPlugin = {
             scopeSubject,
             entries,
             source: "auto_capture",
-            rejectSecrets: true,
           });
           const created = result.outcomes.filter((item) => item.status === "created").length;
           if (created > 0) {
