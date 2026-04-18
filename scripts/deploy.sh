@@ -89,6 +89,7 @@ OPENCLAW_GATEWAY_BIND="${OPENCLAW_GATEWAY_BIND:-${CLAWDBOT_GATEWAY_BIND:-loopbac
 : "${GCE_INSTANCE_NAME:?GCE_INSTANCE_NAME is required for real deploy}"
 : "${GHCR_USERNAME:?GHCR_USERNAME is required for real deploy}"
 : "${GHCR_TOKEN:?GHCR_TOKEN is required for real deploy}"
+: "${DAISY_ENVIRONMENT:?DAISY_ENVIRONMENT is required for real deploy}"
 
 # App secrets (passed to docker compose on the VM)
 : "${OPENCLAW_GATEWAY_TOKEN:?OPENCLAW_GATEWAY_TOKEN is required for real deploy}"
