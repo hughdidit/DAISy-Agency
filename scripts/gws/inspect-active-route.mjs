@@ -18,8 +18,29 @@ const active =
   route && cfg?.credentialRoutes && typeof cfg.credentialRoutes[route] === "object"
     ? cfg.credentialRoutes[route]
     : null;
+const hasLiteralImpersonatedUser =
+  typeof active?.impersonatedUser === "string" && active.impersonatedUser.trim().length > 0;
+const hasEnvVarImpersonatedUser =
+  typeof active?.impersonatedUserEnvVar === "string" && active.impersonatedUserEnvVar.length > 0;
+const resolvedEnvImpersonatedUser =
+  hasEnvVarImpersonatedUser &&
+  typeof process.env[active.impersonatedUserEnvVar] === "string" &&
+  process.env[active.impersonatedUserEnvVar].trim().length > 0
+    ? process.env[active.impersonatedUserEnvVar].trim()
+    : null;
 
-if (!route || !active || typeof active.mode !== "string" || active.mode.length === 0) {
+if (!route) {
+  console.error("missing route binding");
+  process.exit(1);
+}
+
+if (!active) {
+  console.error(`no active entry for route ${route}`);
+  process.exit(1);
+}
+
+if (typeof active.mode !== "string" || active.mode.length === 0) {
+  console.error(`active.mode missing or empty for route ${route}`);
   process.exit(1);
 }
 
@@ -30,39 +51,20 @@ process.stdout.write(
     route,
     mode: active.mode,
     credentialsFile: typeof active.credentialsFile === "string" ? active.credentialsFile : null,
-    impersonationConfigured:
-      (typeof active.impersonatedUser === "string" && active.impersonatedUser.length > 0) ||
-      (typeof active.impersonatedUserEnvVar === "string" &&
-        active.impersonatedUserEnvVar.length > 0),
-    impersonationSource:
-      typeof active.impersonatedUser === "string" && active.impersonatedUser.trim().length > 0
-        ? "literal"
-        : typeof active.impersonatedUserEnvVar === "string" &&
-            active.impersonatedUserEnvVar.length > 0
-          ? "env_var"
-          : null,
-    impersonatedUserEnvVar:
-      typeof active.impersonatedUserEnvVar === "string" && active.impersonatedUserEnvVar.length > 0
-        ? active.impersonatedUserEnvVar
+    impersonationConfigured: hasLiteralImpersonatedUser || hasEnvVarImpersonatedUser,
+    impersonationSource: hasLiteralImpersonatedUser
+      ? "literal"
+      : hasEnvVarImpersonatedUser
+        ? "env_var"
         : null,
-    impersonatedUser:
-      typeof active.impersonatedUser === "string" && active.impersonatedUser.trim().length > 0
-        ? active.impersonatedUser.trim()
-        : typeof active.impersonatedUserEnvVar === "string" &&
-            active.impersonatedUserEnvVar.length > 0 &&
-            typeof process.env[active.impersonatedUserEnvVar] === "string" &&
-            process.env[active.impersonatedUserEnvVar].trim().length > 0
-          ? process.env[active.impersonatedUserEnvVar].trim()
-          : null,
-    impersonationMissing:
-      typeof active.impersonatedUser === "string" && active.impersonatedUser.length > 0
-        ? active.impersonatedUser.trim().length === 0
-        : typeof active.impersonatedUserEnvVar === "string" &&
-            active.impersonatedUserEnvVar.length > 0
-          ? !(
-              typeof process.env[active.impersonatedUserEnvVar] === "string" &&
-              process.env[active.impersonatedUserEnvVar].trim().length > 0
-            )
-          : false,
+    impersonatedUserEnvVar: hasEnvVarImpersonatedUser ? active.impersonatedUserEnvVar : null,
+    impersonatedUser: hasLiteralImpersonatedUser
+      ? active.impersonatedUser.trim()
+      : resolvedEnvImpersonatedUser,
+    impersonationMissing: hasLiteralImpersonatedUser
+      ? false
+      : hasEnvVarImpersonatedUser
+        ? !resolvedEnvImpersonatedUser
+        : false,
   }),
 );

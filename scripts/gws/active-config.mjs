@@ -10,20 +10,19 @@ function unique(values) {
 }
 
 function getActiveConfig(value) {
-  if (value?.resolved && typeof value.resolved === "object") {
-    return value.resolved;
-  }
-  if (value?.config && typeof value.config === "object") {
-    return value.config;
-  }
   return value;
 }
 
 export function resolveActiveConfigPath() {
-  const candidates = unique([
-    normalizeCandidate(process.env.OPENCLAW_CONFIG_PATH),
-    "/home/node/.openclaw/openclaw.json",
-  ]);
+  const envCandidate = normalizeCandidate(process.env.OPENCLAW_CONFIG_PATH);
+  if (envCandidate) {
+    if (fs.existsSync(envCandidate)) {
+      return envCandidate;
+    }
+    throw new Error(`OPENCLAW_CONFIG_PATH points to a missing file: ${envCandidate}`);
+  }
+
+  const candidates = unique(["/home/node/.openclaw/openclaw.json"]);
 
   for (const candidate of candidates) {
     if (fs.existsSync(candidate)) {

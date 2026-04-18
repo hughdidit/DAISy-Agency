@@ -39,6 +39,14 @@ gce_ssh_lastline() {
   gce_ssh "$1" | tail -1
 }
 
+gce_ssh_last_json_line() {
+  local output json_line
+  output="$(gce_ssh "$1")" || return 1
+  json_line="$(printf '%s\n' "${output}" | grep -E '^[{]' | tail -1 || true)"
+  [[ -n "${json_line}" ]] || return 2
+  printf '%s\n' "${json_line}"
+}
+
 docker_container_state() {
   local name="${1:?container name required}"
   local escaped_name
@@ -363,7 +371,7 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
     checks_run=$((checks_run + 1))
     log "Checking Google Workspace active credential route materialization and auth health on ${GCE_INSTANCE_NAME}..."
     gws_active_route_json="$(
-      gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; node scripts/gws/inspect-active-route.mjs\""
+      gce_ssh_last_json_line "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; node scripts/gws/inspect-active-route.mjs\""
     )" || fail "Failed to inspect active Google Workspace credential route mode in ${container}"
     gws_active_config_path="$(jq -r '.configPath // empty' <<<"${gws_active_route_json}" | tr -d '[:space:]')" \
       || fail "Failed to parse GWS active route JSON (configPath field) in ${container}"
@@ -464,7 +472,7 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
     checks_run=$((checks_run + 1))
     log "Checking route-bound Google Workspace auth-health policy gates on ${GCE_INSTANCE_NAME}..."
     gws_delegate_subjects_json="$(
-      gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; node scripts/gws/select-delegate-subject.mjs\""
+      gce_ssh_last_json_line "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; node scripts/gws/select-delegate-subject.mjs\""
     )" || fail "No delegated GWS binding subjects found for auth-health verification in ${container}."
     gws_delegate_subject_config_path="$(jq -r '.configPath // empty' <<<"${gws_delegate_subjects_json}" | tr -d '[:space:]')" \
       || fail "Failed to parse delegate subject selector configPath in ${container}"
