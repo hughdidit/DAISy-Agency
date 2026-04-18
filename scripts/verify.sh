@@ -504,7 +504,7 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
       fi
       printf -v subject_escaped '%q' "${subject}"
       auth_health_json="$(
-        gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; node scripts/gws/run-auth-health.mjs --subject ${subject_escaped}\""
+        gce_ssh_last_json_line "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; node scripts/gws/run-auth-health.mjs --subject ${subject_escaped}\""
       )" || return 1
       printf '%s\n' "${auth_health_json}"
     }
