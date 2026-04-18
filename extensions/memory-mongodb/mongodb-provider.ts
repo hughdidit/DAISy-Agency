@@ -46,6 +46,7 @@ export type MemoryQueryFilters = {
   modalities?: string[];
   openCommitmentsOnly?: boolean;
   preferencesOnly?: boolean;
+  includeSecrets?: boolean;
 };
 
 export type RetrievalOptions = {
@@ -379,10 +380,13 @@ function isObject(value: unknown): value is Record<string, unknown> {
 }
 
 function matchesFilters(entry: MemoryEntry, filters: MemoryQueryFilters | undefined): boolean {
+  const ops = extractOpsMetadata(entry);
+  if (ops?.sensitivity === "secret" && filters?.includeSecrets !== true) {
+    return false;
+  }
   if (!filters) {
     return true;
   }
-  const ops = extractOpsMetadata(entry);
   if (filters.scopeSubject) {
     if (ops?.scopeSubject !== filters.scopeSubject) {
       return false;
@@ -412,7 +416,7 @@ function matchesFilters(entry: MemoryEntry, filters: MemoryQueryFilters | undefi
 
 function extractOpsMetadata(
   entry: MemoryEntry,
-): { scopeSubject?: string; kind?: string; status?: string } | null {
+): { scopeSubject?: string; kind?: string; status?: string; sensitivity?: string } | null {
   if (!isObject(entry.metadata)) {
     return null;
   }
@@ -424,6 +428,7 @@ function extractOpsMetadata(
     scopeSubject: typeof rawOps.scopeSubject === "string" ? rawOps.scopeSubject : undefined,
     kind: typeof rawOps.kind === "string" ? rawOps.kind : undefined,
     status: typeof rawOps.status === "string" ? rawOps.status : undefined,
+    sensitivity: typeof rawOps.sensitivity === "string" ? rawOps.sensitivity : undefined,
   };
 }
 

@@ -13,6 +13,10 @@ export const MEMORY_OPS_MODALITIES = ["text", "image", "audio", "video", "docume
 
 export type MemoryOpsModality = (typeof MEMORY_OPS_MODALITIES)[number];
 
+export const MEMORY_OPS_SENSITIVITIES = ["normal", "secret"] as const;
+
+export type MemorySensitivity = (typeof MEMORY_OPS_SENSITIVITIES)[number];
+
 export type MemoryOpsAttachmentManifest = {
   modality: MemoryOpsModality;
   mimeType: string;
@@ -33,6 +37,7 @@ export type MemoryOpsMetadata = {
   kind: MemoryOpsKind;
   scopeSubject: string;
   source: string;
+  sensitivity?: MemorySensitivity;
   confidence?: number;
   sourceMessageIds?: string[];
   observationCount?: number;
@@ -60,6 +65,7 @@ export type MemoryCaptureCandidate = {
   text?: string;
   kind: MemoryOpsKind;
   importance: number;
+  sensitivity?: MemorySensitivity;
   parts?: Array<Record<string, unknown>>;
   attachments?: MemoryOpsAttachmentManifest[];
   category?: string;
@@ -101,6 +107,7 @@ export type MemoryRecallFilters = {
   openCommitmentsOnly?: boolean;
   preferencesOnly?: boolean;
   modalities?: MemoryOpsModality[];
+  includeSecrets?: boolean;
   includeMetadata?: boolean;
 };
 

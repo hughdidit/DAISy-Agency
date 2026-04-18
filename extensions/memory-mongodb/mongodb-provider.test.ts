@@ -400,6 +400,57 @@ describe("mongodb provider via MCP", () => {
     expect(results[0]?.entry.id).toBe("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa");
   });
 
+  test("searchByQuery excludes secret entries unless explicitly requested", async () => {
+    const now = Date.now();
+    const mcp = {
+      insertMany: vi.fn(),
+      aggregate: vi.fn().mockResolvedValue([
+        {
+          _id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+          text: "apiKey=super-secret",
+          vector: [0.1, 0.2],
+          category: "fact",
+          type: "semantic",
+          metadata: {
+            source: "memory_capture",
+            ops: {
+              scopeSubject: "agent:main",
+              kind: "fact",
+              sensitivity: "secret",
+            },
+          },
+          createdAt: now,
+          updatedAt: now,
+          score: 0.9,
+        },
+      ]),
+      deleteOne: vi.fn(),
+      countDocuments: vi.fn(),
+      close: vi.fn(),
+    };
+
+    const provider = new MongoMemoryDB(
+      mcp as any,
+      { embed: vi.fn().mockResolvedValue([0.1, 0.2]) } as any,
+      "memdb",
+      "memories",
+      "vector_idx",
+      baseRetrieval,
+    );
+
+    const excluded = await provider.searchByQuery("api key", 5, 0.1, {
+      scopeSubject: "agent:main",
+    });
+    expect(excluded).toHaveLength(0);
+
+    const included = await provider.searchByQuery("api key", 5, 0.1, {
+      scopeSubject: "agent:main",
+      includeSecrets: true,
+    });
+    expect(included).toHaveLength(1);
+    expect(included[0]?.entry.id).toBe("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa");
+  });
+
   test("listByScope returns scoped entries sorted by recency", async () => {
     const now = Date.now();
     const aggregate = vi.fn().mockResolvedValue([
