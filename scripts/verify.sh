@@ -47,6 +47,16 @@ gce_ssh_last_json_line() {
   printf '%s\n' "${json_line}"
 }
 
+require_container_script() {
+  local container_escaped="${1:?container required}"
+  local script_path="${2:?script path required}"
+  local description="${3:?description required}"
+  local script_path_escaped
+  printf -v script_path_escaped '%q' "${script_path}"
+  gce_ssh "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; test -r ${script_path_escaped}\"" \
+    || fail "Deployed image is missing ${description} at ${script_path} in ${VERIFY_GCE_CONTAINER:-openclaw-gateway}"
+}
+
 docker_container_state() {
   local name="${1:?container name required}"
   local escaped_name
@@ -370,6 +380,7 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
     # and remain usable.
     checks_run=$((checks_run + 1))
     log "Checking Google Workspace active credential route materialization and auth health on ${GCE_INSTANCE_NAME}..."
+    require_container_script "${container_escaped}" "scripts/gws/inspect-active-route.mjs" "GWS active route inspector"
     gws_active_route_json="$(
       gce_ssh_last_json_line "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; node scripts/gws/inspect-active-route.mjs\""
     )" || fail "Failed to inspect active Google Workspace credential route mode in ${container}"
@@ -471,6 +482,7 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
     # delegated subject. Both must stay healthy and service-account-backed.
     checks_run=$((checks_run + 1))
     log "Checking route-bound Google Workspace auth-health policy gates on ${GCE_INSTANCE_NAME}..."
+    require_container_script "${container_escaped}" "scripts/gws/select-delegate-subject.mjs" "GWS delegated subject selector"
     gws_delegate_subjects_json="$(
       gce_ssh_last_json_line "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; node scripts/gws/select-delegate-subject.mjs\""
     )" || fail "No delegated GWS binding subjects found for auth-health verification in ${container}."

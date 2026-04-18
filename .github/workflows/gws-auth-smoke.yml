@@ -80,6 +80,25 @@ jobs:
             gce_ssh "$1" | tail -1
           }
 
+          gce_ssh_last_json_line() {
+            local output json_line
+            output="$(gce_ssh "$1")" || return 1
+            json_line="$(printf '%s\n' "${output}" | grep -E '^[{]' | tail -1 || true)"
+            [[ -n "${json_line}" ]] || return 2
+            printf '%s\n' "${json_line}"
+          }
+
+          require_container_script() {
+            local script_path="${1:?script path required}"
+            local description="${2:?description required}"
+            local script_path_escaped
+            printf -v script_path_escaped '%q' "${script_path}"
+            gce_ssh "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; test -r ${script_path_escaped}\"" || {
+              echo "Deployed image is missing ${description} at ${script_path}" >&2
+              exit 1
+            }
+          }
+
           state="$(gce_ssh_lastline "sudo docker ps --filter 'name=^${container}\$' --format '{{.State}}'")"
           state="$(echo "${state}" | tr -d '[:space:]')"
           [[ "${state}" == "running" ]] || {
@@ -87,14 +106,8 @@ jobs:
             exit 1
           }
 
-          delegate_subject_selector_path="${GITHUB_WORKSPACE}/scripts/gws/select-delegate-subject.mjs"
-          [[ -r "${delegate_subject_selector_path}" ]] || {
-            echo "Missing delegate subject selector script at ${delegate_subject_selector_path}" >&2
-            exit 1
-          }
-          delegate_subject_js="$(cat "${delegate_subject_selector_path}")"
-          delegate_subject_js_b64="$(printf '%s' "${delegate_subject_js}" | base64 | tr -d '\n')"
-          delegate_subjects_json="$(gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; printf '%s' '${delegate_subject_js_b64}' | base64 -d | node --input-type=module\"")" || {
+          require_container_script "scripts/gws/select-delegate-subject.mjs" "GWS delegated subject selector"
+          delegate_subjects_json="$(gce_ssh_last_json_line "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; node scripts/gws/select-delegate-subject.mjs\"")" || {
             echo "No delegated GWS binding subjects found in ${container}" >&2
             exit 1
           }
