@@ -15,7 +15,7 @@ Use this skill when a reply depends on prior user history, preferences, commitme
 3. Use `memory_capture` only for durable non-actionable information, not every turn.
 4. Use `preference_miner` for repeated non-secret behavior; do not promote one-off observations.
 5. Run `memory_hygiene` in `plan` mode when there are duplicates, conflicts, or stale records. Prioritize `dedupe`, `conflict-review`, and `stale-prune`. Apply only after reviewing actions.
-6. Use `memory_audit` after memory config changes or when recall reliability is uncertain. It runs probe capture and recall checks and can optionally clean up successful probes.
+6. Use `memory_audit` after memory config changes, recall-path deploys, or when recall reliability is uncertain. It runs probe capture and recall checks and can optionally clean up successful probes.
 7. Summarize tool output; do not dump raw memory records unless explicitly requested.
 
 ## Default Memory Policy
@@ -64,6 +64,14 @@ When using `memory_hygiene`, prefer explicit cleanup strategies over vague clean
 - `promote` only for repeated non-secret observations that should become durable preferences
 
 For noisy memory, start with `dedupe`, `conflict-review`, and `stale-prune`. Use `promote` only when the plan shows stable repeated evidence.
+
+## Audit Guidance
+
+Use `memory_audit` when memory behavior itself is in question, not as a routine step on every prompt.
+
+- Run it after memory configuration changes, recall-related deploys, scope/routing fixes, or when expected memories are missing, inconsistent, or suspiciously slow to return.
+- Inspect whether the probe was stored, whether recall found the same memory in the same scope, whether recall latency looks abnormal, and whether probe cleanup succeeded or left stale audit records behind.
+- A good summary is short and operational: report `pass` or `fail`, `runId`, `reason` when failed, `recallHits`, `latencyMs`, `cleanupResult`, and the next action if follow-up is needed. Do not repeat the raw probe token unless you are debugging the audit itself.
 
 ## What Not To Store
 
