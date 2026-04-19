@@ -1745,7 +1745,8 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
   confirm: (p: { message: string; initialValue: boolean }) => Promise<boolean>;
 }) {
   const shouldPreview = params.options.dryRun === true;
-  const shouldRepair = params.options.repair === true || params.options.yes === true;
+  const shouldRepair =
+    !shouldPreview && (params.options.repair === true || params.options.yes === true);
   const stateDirResult = await autoMigrateLegacyStateDir({
     env: process.env,
     ...(shouldPreview ? { preview: true } : {}),

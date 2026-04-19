@@ -222,7 +222,7 @@ export function createOpenClawDoctorRepairTool(options?: {
       );
 
       return jsonResult({
-        ok: gatewayResult?.ok !== false,
+        ok: gatewayResult?.ok === true,
         decision,
         mode,
         transport: route.transport,

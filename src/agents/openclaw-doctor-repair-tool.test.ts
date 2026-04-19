@@ -115,6 +115,28 @@ describe("openclaw_doctor_repair tool", () => {
     });
   });
 
+  it("treats malformed gateway responses as failure", async () => {
+    const { callGatewayTool } = await import("./tools/gateway.js");
+    vi.mocked(callGatewayTool).mockResolvedValueOnce({
+      background: false,
+    });
+    const tool = requireDoctorRepairTool(buildRemoteConfig());
+
+    const result = await tool.execute("call-preview-malformed", {
+      action: "preview",
+    });
+
+    expect(result.details).toMatchObject({
+      ok: false,
+      mode: "dry-run",
+      transport: "direct",
+      target: "wss://gateway.example",
+      result: {
+        background: false,
+      },
+    });
+  });
+
   it("fails closed on direct loopback targets", async () => {
     const tool = requireDoctorRepairTool(
       buildRemoteConfig({

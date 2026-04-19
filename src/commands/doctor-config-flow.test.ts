@@ -373,6 +373,37 @@ describe("doctor config flow", () => {
     expect(cfg.channels.discord.accounts.default.allowFrom).toEqual(["123"]);
   });
 
+  it("keeps dry-run preview-only even when yes is set", async () => {
+    const result = await runDoctorConfigWithInput({
+      config: {
+        channels: {
+          discord: {
+            token: "test-token",
+            dmPolicy: "open",
+          },
+        },
+      },
+      run: async ({ confirm }) =>
+        loadAndMaybeMigrateDoctorConfig({
+          options: { nonInteractive: true, dryRun: true, yes: true },
+          confirm,
+        }),
+    });
+
+    const cfg = result.cfg as {
+      channels: {
+        discord: {
+          allowFrom?: string[];
+          dmPolicy: string;
+        };
+      };
+    };
+
+    expect(cfg.channels.discord.allowFrom).toBeUndefined();
+    expect(cfg.channels.discord.dmPolicy).toBe("open");
+    expect(result.shouldWriteConfig).toBe(true);
+  });
+
   it('adds allowFrom ["*"] when dmPolicy="open" and allowFrom is missing on repair', async () => {
     const result = await runDoctorConfigWithInput({
       repair: true,
