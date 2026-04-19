@@ -93,27 +93,6 @@ async function copyIfExists(sourcePath: string, targetPath: string): Promise<voi
   }
 }
 
-async function copyDirectoryIfExists(sourcePath: string, targetPath: string): Promise<boolean> {
-  try {
-    const stat = await fs.stat(sourcePath);
-    if (!stat.isDirectory()) {
-      return false;
-    }
-    await fs.mkdir(path.dirname(targetPath), { recursive: true });
-    await fs.cp(sourcePath, targetPath, { recursive: true });
-    return true;
-  } catch (error) {
-    const code =
-      error instanceof Error && "code" in error && typeof error.code === "string"
-        ? error.code
-        : undefined;
-    if (code === "ENOENT") {
-      return false;
-    }
-    throw error;
-  }
-}
-
 function buildProjectedConfig(config: OpenClawConfig): OpenClawConfig {
   const projected = redactConfigObject(structuredClone(config));
   if (projected.session && typeof projected.session === "object") {
@@ -133,38 +112,102 @@ async function clearDirectoryContents(dirPath: string): Promise<void> {
   );
 }
 
+function collectReferencedPluginIds(config: OpenClawConfig): Set<string> {
+  const ids = new Set<string>();
+  const add = (value: unknown) => {
+    if (typeof value !== "string") {
+      return;
+    }
+    const trimmed = value.trim();
+    if (trimmed) {
+      ids.add(trimmed);
+    }
+  };
+
+  const plugins = config.plugins;
+  if (!plugins) {
+    return ids;
+  }
+
+  for (const pluginId of plugins.allow ?? []) {
+    add(pluginId);
+  }
+  for (const pluginId of plugins.deny ?? []) {
+    add(pluginId);
+  }
+  for (const pluginId of Object.keys(plugins.entries ?? {})) {
+    add(pluginId);
+  }
+  add(plugins.slots?.memory);
+  return ids;
+}
+
+function resolveProjectedPluginTargetDir(extensionsRoot: string, pluginId: string): string {
+  const safePluginId = pluginId.replace(/[^a-z0-9._-]+/gi, "-").replace(/^-+|-+$/g, "") || "plugin";
+  return path.join(extensionsRoot, safePluginId);
+}
+
 async function syncProjectedPluginRoots(params: {
   config: OpenClawConfig;
   workspaceDir?: string;
   projection: OpenClawReadonlyProjection;
 }): Promise<void> {
-  const manifestRegistry = loadPluginManifestRegistry({
+  const referencedPluginIds = collectReferencedPluginIds(params.config);
+  if (referencedPluginIds.size === 0) {
+    return;
+  }
+
+  const envForProjection = {
+    ...process.env,
+    OPENCLAW_STATE_DIR: params.projection.hostStateDir,
+    CLAWDBOT_STATE_DIR: undefined,
+  };
+
+  const hostRegistry = loadPluginManifestRegistry({
     config: params.config,
     workspaceDir: params.workspaceDir,
+    cache: false,
   });
-  if (manifestRegistry.plugins.length === 0) {
+  const discoverableInProjection = new Set(
+    loadPluginManifestRegistry({
+      config: params.config,
+      workspaceDir: params.workspaceDir,
+      cache: false,
+      env: envForProjection,
+    }).plugins.map((record) => record.id),
+  );
+
+  const recordsToProject = hostRegistry.plugins.filter(
+    (record) => referencedPluginIds.has(record.id) && !discoverableInProjection.has(record.id),
+  );
+  if (recordsToProject.length === 0) {
     return;
   }
 
   const extensionsRoot = path.join(params.projection.hostStateDir, "extensions");
-  let copied = 0;
-  for (const [index, record] of manifestRegistry.plugins.entries()) {
-    const targetRoot = path.join(extensionsRoot, `plugin-${String(index).padStart(3, "0")}`);
-    try {
-      if (await copyDirectoryIfExists(record.rootDir, targetRoot)) {
-        copied += 1;
-      }
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      log.warn(
-        `Failed to project readonly plugin root for ${record.id} from ${record.rootDir}: ${message}`,
+  const copiedFlags = await Promise.all(
+    recordsToProject.map(async (record) => {
+      const targetManifestPath = path.join(
+        resolveProjectedPluginTargetDir(extensionsRoot, record.id),
+        path.basename(record.manifestPath),
       );
-    }
-  }
+      try {
+        await copyIfExists(record.manifestPath, targetManifestPath);
+        return true;
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        log.warn(
+          `Failed to project readonly plugin manifest for ${record.id} from ${record.manifestPath}: ${message}`,
+        );
+        return false;
+      }
+    }),
+  );
 
+  const copied = copiedFlags.filter(Boolean).length;
   if (copied > 0) {
     log.debug?.(
-      `Projected ${copied} plugin root${copied === 1 ? "" : "s"} into ${extensionsRoot} for readonly sandbox validation.`,
+      `Projected ${copied} plugin manifest${copied === 1 ? "" : "s"} into ${extensionsRoot} for readonly sandbox validation.`,
     );
   }
 }

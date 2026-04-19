@@ -569,6 +569,7 @@ export function discoverOpenClawPlugins(params: {
   workspaceDir?: string;
   extraPaths?: string[];
   ownershipUid?: number | null;
+  env?: NodeJS.ProcessEnv;
 }): PluginDiscoveryResult {
   const candidates: PluginCandidate[] = [];
   const diagnostics: PluginDiagnostic[] = [];
@@ -610,7 +611,7 @@ export function discoverOpenClawPlugins(params: {
     }
   }
 
-  const bundledDir = resolveBundledPluginsDir();
+  const bundledDir = resolveBundledPluginsDir(params.env);
   if (bundledDir) {
     discoverInDirectory({
       dir: bundledDir,
@@ -624,7 +625,7 @@ export function discoverOpenClawPlugins(params: {
 
   // Keep auto-discovered global extensions behind bundled plugins.
   // Users can still intentionally override via plugins.load.paths (origin=config).
-  const globalDir = path.join(resolveConfigDir(), "extensions");
+  const globalDir = path.join(resolveConfigDir(params.env), "extensions");
   discoverInDirectory({
     dir: globalDir,
     origin: "global",

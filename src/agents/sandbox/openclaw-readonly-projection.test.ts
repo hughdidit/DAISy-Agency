@@ -208,7 +208,9 @@ describe("openclaw-readonly projection", () => {
     );
 
     const envSnapshot = process.env.OPENCLAW_STATE_DIR;
+    const bundledDirSnapshot = process.env.OPENCLAW_BUNDLED_PLUGINS_DIR;
     process.env.OPENCLAW_STATE_DIR = hostStateDir;
+    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = path.join(tempRoot, "missing-bundled-plugins");
     clearPluginManifestRegistryCache();
 
     try {
@@ -238,7 +240,7 @@ describe("openclaw-readonly projection", () => {
 
       await expect(
         fs.access(
-          path.join(projection.hostStateDir, "extensions", "plugin-000", "openclaw.plugin.json"),
+          path.join(projection.hostStateDir, "extensions", "demo-plugin", "openclaw.plugin.json"),
         ),
       ).resolves.toBeUndefined();
 
@@ -257,6 +259,11 @@ describe("openclaw-readonly projection", () => {
         delete process.env.OPENCLAW_STATE_DIR;
       } else {
         process.env.OPENCLAW_STATE_DIR = envSnapshot;
+      }
+      if (bundledDirSnapshot === undefined) {
+        delete process.env.OPENCLAW_BUNDLED_PLUGINS_DIR;
+      } else {
+        process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = bundledDirSnapshot;
       }
     }
   });
