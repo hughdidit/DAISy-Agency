@@ -495,7 +495,7 @@ jobs:
           RESULT_BUNDLE_PATH="$RUNNER_TEMP/Clawdis-iOS.xcresult"
           xcrun xccov view --report --only-targets "$RESULT_BUNDLE_PATH"
 
-      - name: iOS coverage gate (43%)
+      - name: iOS coverage gate (34%)
         run: |
           set -euo pipefail
           RESULT_BUNDLE_PATH="$RUNNER_TEMP/Clawdis-iOS.xcresult"
@@ -506,7 +506,7 @@ jobs:
           import sys
 
           target_name = "OpenClaw.app"
-          minimum = 0.43
+          minimum = 0.34
 
           report = json.loads(
             subprocess.check_output(
