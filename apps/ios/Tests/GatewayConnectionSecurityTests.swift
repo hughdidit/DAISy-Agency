@@ -5,7 +5,6 @@ import Testing
 @testable import OpenClaw
 
 @Suite(.serialized) struct GatewayConnectionSecurityTests {
-    @MainActor
     private func makeController() -> GatewayConnectionController {
         GatewayConnectionController(appModel: NodeAppModel(), startDiscovery: false)
     }
