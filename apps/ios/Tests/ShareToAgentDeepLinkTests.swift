@@ -36,18 +36,9 @@ import Testing
         #expect(agent.message.contains("https://example.com"))
     }
 
-    @Test func buildURLUsesDefaultMessageWhenPayloadEmpty() {
+    @Test func buildURLReturnsNilWhenPayloadEmpty() {
         let payload = SharedContentPayload(title: nil, url: nil, text: nil)
-        let url = ShareToAgentDeepLink.buildURL(from: payload)
-        let parsed = url.flatMap { DeepLinkParser.parse($0) }
-        guard case let .agent(agent)? = parsed else {
-            Issue.record("Expected openclaw://agent deep link")
-            return
-        }
-
-        #expect(agent.thinking == "low")
-        #expect(agent.message.contains("Shared from iOS."))
-        #expect(agent.message.contains("Please help me with this."))
+        #expect(ShareToAgentDeepLink.buildURL(from: payload) == nil)
     }
 
     @Test func shareInstructionSettingsRoundTrip() {
