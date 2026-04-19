@@ -25,10 +25,10 @@ the flow is read-only, and whether any later step becomes approval-gated.
 
 Use this quick reference before digging through the full skill bodies.
 
-| Skill               | Safety class                                                              | Best used for                                                                                        | Not for                                                                       | Tiny example                                                              |
-| ------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| `openclaw-readonly` | Sandbox-safe, read-only                                                   | Fast sandbox diagnostics like `status`, `sandbox explain`, `skills list`, and `skills check`         | `doctor`, `update`, `config`, host-side setup, or any mutating action         | `node skills/openclaw-readonly/scripts/openclaw-readonly.mjs status`      |
-| `openclaw-doctor`   | Sandbox-safe triage; remote preview/apply are approval-gated and mutating | Guided OpenClaw troubleshooting that starts with triage and then offers remote preview/apply choices | Local repair, direct sandbox mutation, or vague “go ahead and fix it” consent | `node skills/openclaw-doctor/scripts/openclaw-doctor-readonly.mjs triage` |
+| Skill               | Safety class                                                                | Best used for                                                                                          | Not for                                                                       | Tiny example                                                              |
+| ------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `openclaw-readonly` | Sandbox-safe, read-only                                                     | Fast sandbox diagnostics like `status`, `sandbox explain`, `skills list`, and `skills check`           | `doctor`, `update`, `config`, host-side setup, or any mutating action         | `node skills/openclaw-readonly/scripts/openclaw-readonly.mjs status`      |
+| `openclaw-doctor`   | Sandbox-safe triage; remote preview/apply are approval-gated; apply mutates | Guided OpenClaw troubleshooting that starts with `triage` and then offers remote preview/apply choices | Local repair, direct sandbox mutation, or vague “go ahead and fix it” consent | `node skills/openclaw-doctor/scripts/openclaw-doctor-readonly.mjs triage` |
 
 Direct tool use for these two cases:
 
@@ -198,8 +198,8 @@ If those paths are still missing, it fails closed with a setup error instead of
 trying a host-side fallback.
 
 The bundled `openclaw-doctor` skill layers on top of that same readonly
-contract for sandbox-safe triage. Safety class: **sandbox-safe triage; remote
-preview/apply are approval-gated and mutating**. It only uses:
+contract for sandbox-safe triage. Safety class: **sandbox-safe triage; preview/apply
+are approval-gated; remote apply is mutating**. It only uses:
 
 ```bash
 node skills/openclaw-doctor/scripts/openclaw-doctor-readonly.mjs triage
