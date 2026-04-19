@@ -24,3 +24,17 @@ openclaw skills list --eligible
 openclaw skills info <name>
 openclaw skills check
 ```
+
+Use `openclaw skills info <name>` when you want quick discovery metadata such as
+the skill path, source, and requirement gates. If you need the actual operating
+contract, such as fixed launcher commands, read-only restrictions, or approval
+rules, read that skill’s `SKILL.md`. Use a tool directly only when you already
+know the exact tool entrypoint and there is no skill-specific wrapper to
+preserve.
+
+Common discovery examples:
+
+```bash
+openclaw skills info openclaw-readonly
+openclaw skills info openclaw-doctor
+```
