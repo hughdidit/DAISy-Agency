@@ -147,6 +147,25 @@ function resolveProjectedPluginTargetDir(extensionsRoot: string, pluginId: strin
   return path.join(extensionsRoot, safePluginId);
 }
 
+function buildReadonlyProjectionRegistryEnv(
+  projection: OpenClawReadonlyProjection,
+): NodeJS.ProcessEnv {
+  return {
+    ...process.env,
+    OPENCLAW_STATE_DIR: projection.hostStateDir,
+    CLAWDBOT_STATE_DIR: undefined,
+    // openclaw-readonly runs inside Dockerfile.sandbox, which ships the
+    // readonly runtime wrapper but not the gateway image's /app/extensions
+    // bundled plugin tree. Disable bundled discovery while computing the
+    // projected view so host-only bundled plugins get copied into
+    // state/extensions for readonly validation.
+    OPENCLAW_BUNDLED_PLUGINS_DIR: path.join(
+      projection.hostStateDir,
+      ".openclaw-readonly-missing-bundled-plugins",
+    ),
+  };
+}
+
 async function syncProjectedPluginRoots(params: {
   config: OpenClawConfig;
   workspaceDir?: string;
@@ -157,11 +176,7 @@ async function syncProjectedPluginRoots(params: {
     return;
   }
 
-  const envForProjection = {
-    ...process.env,
-    OPENCLAW_STATE_DIR: params.projection.hostStateDir,
-    CLAWDBOT_STATE_DIR: undefined,
-  };
+  const envForProjection = buildReadonlyProjectionRegistryEnv(params.projection);
 
   const hostRegistry = loadPluginManifestRegistry({
     config: params.config,
