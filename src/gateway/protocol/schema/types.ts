@@ -45,6 +45,7 @@ export type ConfigGetParams = SchemaType<"ConfigGetParams">;
 export type ConfigSetParams = SchemaType<"ConfigSetParams">;
 export type ConfigApplyParams = SchemaType<"ConfigApplyParams">;
 export type ConfigPatchParams = SchemaType<"ConfigPatchParams">;
+export type DoctorRunParams = SchemaType<"DoctorRunParams">;
 export type ConfigSchemaParams = SchemaType<"ConfigSchemaParams">;
 export type ConfigSchemaResponse = SchemaType<"ConfigSchemaResponse">;
 export type WizardStartParams = SchemaType<"WizardStartParams">;

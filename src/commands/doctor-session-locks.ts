@@ -35,8 +35,13 @@ function formatLockLine(lock: SessionLockInspection): string {
   return `- ${shortenHomePath(lock.lockPath)} ${pidStatus} ${ageStatus} ${staleStatus}${removedStatus}`;
 }
 
-export async function noteSessionLockHealth(params?: { shouldRepair?: boolean; staleMs?: number }) {
+export async function noteSessionLockHealth(params?: {
+  shouldRepair?: boolean;
+  staleMs?: number;
+  dryRun?: boolean;
+}) {
   const shouldRepair = params?.shouldRepair === true;
+  const dryRun = params?.dryRun === true;
   const staleMs = params?.staleMs ?? DEFAULT_STALE_MS;
   let sessionDirs: string[] = [];
   try {
@@ -55,7 +60,7 @@ export async function noteSessionLockHealth(params?: { shouldRepair?: boolean; s
     const result = await cleanStaleLockFiles({
       sessionsDir,
       staleMs,
-      removeStale: shouldRepair,
+      removeStale: shouldRepair && !dryRun,
     });
     allLocks.push(...result.locks);
   }
@@ -74,6 +79,11 @@ export async function noteSessionLockHealth(params?: { shouldRepair?: boolean; s
   if (staleCount > 0 && !shouldRepair) {
     lines.push(`- ${staleCount} lock file${staleCount === 1 ? " is" : "s are"} stale.`);
     lines.push('- Run "openclaw doctor --fix" to remove stale lock files automatically.');
+  }
+  if (dryRun && staleCount > 0) {
+    lines.push(
+      `- Dry-run: would remove ${staleCount} stale session lock file${staleCount === 1 ? "" : "s"}.`,
+    );
   }
   if (shouldRepair && removedCount > 0) {
     lines.push(

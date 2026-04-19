@@ -90,6 +90,8 @@ import {
   ChatSendParamsSchema,
   type ConfigApplyParams,
   ConfigApplyParamsSchema,
+  type DoctorRunParams,
+  DoctorRunParamsSchema,
   type ConfigGetParams,
   ConfigGetParamsSchema,
   type ConfigPatchParams,
@@ -362,6 +364,7 @@ export const validateConfigGetParams = ajv.compile<ConfigGetParams>(ConfigGetPar
 export const validateConfigSetParams = ajv.compile<ConfigSetParams>(ConfigSetParamsSchema);
 export const validateConfigApplyParams = ajv.compile<ConfigApplyParams>(ConfigApplyParamsSchema);
 export const validateConfigPatchParams = ajv.compile<ConfigPatchParams>(ConfigPatchParamsSchema);
+export const validateDoctorRunParams = ajv.compile<DoctorRunParams>(DoctorRunParamsSchema);
 export const validateConfigSchemaParams = ajv.compile<ConfigSchemaParams>(ConfigSchemaParamsSchema);
 export const validateWizardStartParams = ajv.compile<WizardStartParams>(WizardStartParamsSchema);
 export const validateWizardNextParams = ajv.compile<WizardNextParams>(WizardNextParamsSchema);
@@ -511,6 +514,7 @@ export {
   ConfigSetParamsSchema,
   ConfigApplyParamsSchema,
   ConfigPatchParamsSchema,
+  DoctorRunParamsSchema,
   ConfigSchemaParamsSchema,
   ConfigSchemaResponseSchema,
   WizardStartParamsSchema,
@@ -608,6 +612,7 @@ export type {
   ConfigSetParams,
   ConfigApplyParams,
   ConfigPatchParams,
+  DoctorRunParams,
   ConfigSchemaParams,
   ConfigSchemaResponse,
   WizardStartParams,

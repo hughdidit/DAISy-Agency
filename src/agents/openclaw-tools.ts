@@ -14,6 +14,7 @@ import { createImageGenerateTool } from "./tools/image-generate-tool.js";
 import { createImageTool } from "./tools/image-tool.js";
 import { createMessageTool } from "./tools/message-tool.js";
 import { createNodesTool } from "./tools/nodes-tool.js";
+import { createOpenClawDoctorRepairTool } from "./tools/openclaw-doctor-repair-tool.js";
 import { createPdfTool } from "./tools/pdf-tool.js";
 import { createSessionStatusTool } from "./tools/session-status-tool.js";
 import { createSessionsHistoryTool } from "./tools/sessions-history-tool.js";
@@ -158,6 +159,14 @@ export function createOpenClawTools(options?: {
     }),
     createGatewayTool({
       agentSessionKey: options?.agentSessionKey,
+      config: options?.config,
+    }),
+    createOpenClawDoctorRepairTool({
+      agentSessionKey: options?.agentSessionKey,
+      agentChannel: options?.agentChannel,
+      agentAccountId: options?.agentAccountId,
+      currentChannelId: options?.currentChannelId,
+      currentThreadTs: options?.currentThreadTs,
       config: options?.config,
     }),
     createAgentsListTool({

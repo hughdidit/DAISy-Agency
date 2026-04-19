@@ -118,4 +118,27 @@ describe("sandbox skill mirroring", () => {
       "runOpenClawReadonlyLauncher",
     );
   });
+
+  it("copies the bundled openclaw-doctor launcher into ro sandboxes", async () => {
+    const bundledDir = path.resolve(
+      path.dirname(fileURLToPath(import.meta.url)),
+      "..",
+      "..",
+      "skills",
+    );
+    process.env.OPENCLAW_BUNDLED_SKILLS_DIR = bundledDir;
+    const { context } = await runContext("ro", { bundledDir });
+
+    expect(context?.enabled).toBe(true);
+    const launcherPath = path.join(
+      context?.workspaceDir ?? "",
+      "skills",
+      "openclaw-doctor",
+      "scripts",
+      "openclaw-doctor-readonly.mjs",
+    );
+    await expect(fs.readFile(launcherPath, "utf-8")).resolves.toContain(
+      "runOpenClawDoctorReadonlyLauncher",
+    );
+  });
 });

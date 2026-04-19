@@ -49,6 +49,11 @@ export async function maybeRepairUiProtocolFreshness(
         return;
       }
 
+      if (prompter.isDryRun) {
+        note("- Would build missing Control UI assets.", "Doctor dry-run");
+        return;
+      }
+
       const shouldRepair = await prompter.confirmRepair({
         message: "Build Control UI assets now?",
         initialValue: true,
@@ -106,6 +111,11 @@ export async function maybeRepairUiProtocolFreshness(
             .join("\n")}`,
           "UI Freshness",
         );
+
+        if (prompter.isDryRun) {
+          note("- Would rebuild stale UI assets to match the current protocol schema.", "Doctor dry-run");
+          return;
+        }
 
         const shouldRepair = await prompter.confirmAggressive({
           message: "Rebuild UI now? (Detected protocol mismatch requiring update)",

@@ -42,7 +42,11 @@ import {
   noteDeprecatedLegacyEnvVars,
   noteStartupOptimizationHints,
 } from "./doctor-platform-notes.js";
-import { createDoctorPrompter, type DoctorOptions } from "./doctor-prompter.js";
+import {
+  createDoctorPrompter,
+  resolveDoctorExecutionMode,
+  type DoctorOptions,
+} from "./doctor-prompter.js";
 import { maybeRepairSandboxImages, noteSandboxScopeWarnings } from "./doctor-sandbox.js";
 import { noteSecurityWarnings } from "./doctor-security.js";
 import { noteSessionLockHealth } from "./doctor-session-locks.js";
@@ -66,13 +70,41 @@ function resolveMode(cfg: OpenClawConfig): "local" | "remote" {
   return cfg.gateway?.mode === "remote" ? "remote" : "local";
 }
 
+function validateDoctorOptions(options: DoctorOptions) {
+  if (!options.dryRun) {
+    return;
+  }
+  const conflicts = [
+    options.repair === true ? "--repair/--fix" : null,
+    options.yes === true ? "--yes" : null,
+    options.force === true ? "--force" : null,
+    options.generateGatewayToken === true ? "--generate-gateway-token" : null,
+  ].filter((value): value is string => Boolean(value));
+  if (conflicts.length === 0) {
+    return;
+  }
+  throw new Error(`--dry-run cannot be combined with ${conflicts.join(", ")}.`);
+}
+
 export async function doctorCommand(
   runtime: RuntimeEnv = defaultRuntime,
   options: DoctorOptions = {},
 ) {
+  validateDoctorOptions(options);
   const prompter = createDoctorPrompter({ runtime, options });
+  const executionMode = resolveDoctorExecutionMode(options);
   printWizardHeader(runtime);
-  intro("OpenClaw doctor");
+  intro(executionMode === "dry-run" ? "OpenClaw doctor (dry-run)" : "OpenClaw doctor");
+  if (executionMode === "dry-run") {
+    note(
+      [
+        "- Target mode: dry-run",
+        "- Preview only. Doctor will not write config/state, repair permissions, restart services, or build images/assets.",
+        '- If you want to apply repairs later, rerun "openclaw doctor --repair --yes" in an approved environment.',
+      ].join("\n"),
+      "Doctor mode",
+    );
+  }
 
   const root = await resolveOpenClawPackageRoot({
     moduleUrl: import.meta.url,
@@ -139,6 +171,9 @@ export async function doctorCommand(
         "Gateway auth is off or missing a token. Token auth is now the recommended default (including loopback).",
         "Gateway auth",
       );
+      if (prompter.isDryRun) {
+        note("- Would generate and configure a gateway token.", "Doctor dry-run");
+      }
       const shouldSetToken =
         options.generateGatewayToken === true
           ? true
@@ -169,13 +204,21 @@ export async function doctorCommand(
   const legacyState = await detectLegacyStateMigrations({ cfg });
   if (legacyState.preview.length > 0) {
     note(legacyState.preview.join("\n"), "Legacy state detected");
+    if (prompter.isDryRun) {
+      note(
+        ["- Would migrate legacy state on apply mode.", ...legacyState.preview].join("\n"),
+        "Doctor dry-run",
+      );
+    }
     const migrate =
-      options.nonInteractive === true
-        ? true
-        : await prompter.confirm({
-            message: "Migrate legacy state (sessions/agent/WhatsApp auth) now?",
-            initialValue: true,
-          });
+      prompter.isDryRun
+        ? false
+        : options.nonInteractive === true
+          ? true
+          : await prompter.confirm({
+              message: "Migrate legacy state (sessions/agent/WhatsApp auth) now?",
+              initialValue: true,
+            });
     if (migrate) {
       const migrated = await runLegacyStateMigrations({
         detected: legacyState,
@@ -190,7 +233,10 @@ export async function doctorCommand(
   }
 
   await noteStateIntegrity(cfg, prompter, configResult.path ?? CONFIG_PATH);
-  await noteSessionLockHealth({ shouldRepair: prompter.shouldRepair });
+  await noteSessionLockHealth({
+    shouldRepair: prompter.shouldRepair,
+    dryRun: prompter.isDryRun,
+  });
 
   cfg = await maybeRepairSandboxImages(cfg, runtime, prompter);
   noteSandboxScopeWarnings(cfg);
@@ -257,25 +303,38 @@ export async function doctorCommand(
       loaded = false;
     }
     if (loaded) {
-      await ensureSystemdUserLingerInteractive({
-        runtime,
-        prompter: {
-          confirm: async (p) => prompter.confirm(p),
-          note,
-        },
-        reason:
-          "Gateway runs as a systemd user service. Without lingering, systemd stops the user session on logout/idle and kills the Gateway.",
-        requireConfirm: true,
-      });
+      if (prompter.isDryRun) {
+        note(
+          "- Would check systemd lingering and offer to enable it for the current user if disabled.",
+          "Doctor dry-run",
+        );
+      } else {
+        await ensureSystemdUserLingerInteractive({
+          runtime,
+          prompter: {
+            confirm: async (p) => prompter.confirm(p),
+            note,
+          },
+          reason:
+            "Gateway runs as a systemd user service. Without lingering, systemd stops the user session on logout/idle and kills the Gateway.",
+          requireConfirm: true,
+        });
+      }
     }
   }
 
   noteWorkspaceStatus(cfg);
 
-  // Check and fix shell completion
-  await doctorShellCompletion(runtime, prompter, {
-    nonInteractive: options.nonInteractive,
-  });
+  if (prompter.isDryRun) {
+    note(
+      "- Would audit shell completion and regenerate/install the cache if needed.",
+      "Doctor dry-run",
+    );
+  } else {
+    await doctorShellCompletion(runtime, prompter, {
+      nonInteractive: options.nonInteractive,
+    });
+  }
 
   const { healthOk } = await checkGatewayHealth({
     runtime,
@@ -300,7 +359,7 @@ export async function doctorCommand(
 
   const shouldWriteConfig =
     configResult.shouldWriteConfig || JSON.stringify(cfg) !== JSON.stringify(cfgForPersistence);
-  if (shouldWriteConfig) {
+  if (shouldWriteConfig && !prompter.isDryRun) {
     cfg = applyWizardMetadata(cfg, { command: "doctor", mode: resolveMode(cfg) });
     await writeConfigFile(cfg);
     logConfigUpdated(runtime);
@@ -308,7 +367,9 @@ export async function doctorCommand(
     if (fs.existsSync(backupPath)) {
       runtime.log(`Backup: ${shortenHomePath(backupPath)}`);
     }
-  } else if (!prompter.shouldRepair) {
+  } else if (shouldWriteConfig && prompter.isDryRun) {
+    note("- Config changes were previewed only; no config file was written.", "Doctor dry-run");
+  } else if (!prompter.shouldRepair && !prompter.isDryRun) {
     runtime.log(`Run "${formatCliCommand("openclaw doctor --fix")}" to apply changes.`);
   }
 
@@ -329,5 +390,5 @@ export async function doctorCommand(
     }
   }
 
-  outro("Doctor complete.");
+  outro(prompter.isDryRun ? "Doctor dry-run complete." : "Doctor complete.");
 }

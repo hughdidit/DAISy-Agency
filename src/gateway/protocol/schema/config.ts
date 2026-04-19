@@ -1,5 +1,6 @@
 import { Type } from "@sinclair/typebox";
 import { NonEmptyString } from "./primitives.js";
+import { stringEnum } from "./typebox.js";
 
 export const ConfigGetParamsSchema = Type.Object({}, { additionalProperties: false });
 
@@ -32,6 +33,16 @@ export const UpdateRunParamsSchema = Type.Object(
     sessionKey: Type.Optional(Type.String()),
     note: Type.Optional(Type.String()),
     restartDelayMs: Type.Optional(Type.Integer({ minimum: 0 })),
+    timeoutMs: Type.Optional(Type.Integer({ minimum: 1 })),
+  },
+  { additionalProperties: false },
+);
+
+export const DOCTOR_RUN_MODES = ["dry-run", "apply"] as const;
+
+export const DoctorRunParamsSchema = Type.Object(
+  {
+    mode: stringEnum(DOCTOR_RUN_MODES),
     timeoutMs: Type.Optional(Type.Integer({ minimum: 1 })),
   },
   { additionalProperties: false },

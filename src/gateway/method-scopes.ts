@@ -111,6 +111,7 @@ const METHOD_SCOPE_GROUPS: Record<OperatorScope, readonly string[]> = {
     "push.test",
   ],
   [ADMIN_SCOPE]: [
+    "doctor.run",
     "channels.logout",
     "agents.create",
     "agents.update",
