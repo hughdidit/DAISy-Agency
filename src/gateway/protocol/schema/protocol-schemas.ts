@@ -66,6 +66,7 @@ import {
 } from "./channels.js";
 import {
   ConfigApplyParamsSchema,
+  DoctorRunParamsSchema,
   ConfigGetParamsSchema,
   ConfigPatchParamsSchema,
   ConfigSchemaParamsSchema,
@@ -215,6 +216,7 @@ export const ProtocolSchemas = {
   ConfigSetParams: ConfigSetParamsSchema,
   ConfigApplyParams: ConfigApplyParamsSchema,
   ConfigPatchParams: ConfigPatchParamsSchema,
+  DoctorRunParams: DoctorRunParamsSchema,
   ConfigSchemaParams: ConfigSchemaParamsSchema,
   ConfigSchemaResponse: ConfigSchemaResponseSchema,
   WizardStartParams: WizardStartParamsSchema,

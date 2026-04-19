@@ -399,13 +399,25 @@ function scanTelegramAllowFromUsernameEntries(cfg: OpenClawConfig): TelegramAllo
   return hits;
 }
 
-async function maybeRepairTelegramAllowFromUsernames(cfg: OpenClawConfig): Promise<{
+async function maybeRepairTelegramAllowFromUsernames(
+  cfg: OpenClawConfig,
+  options?: { previewOnly?: boolean },
+): Promise<{
   config: OpenClawConfig;
   changes: string[];
 }> {
   const hits = scanTelegramAllowFromUsernameEntries(cfg);
   if (hits.length === 0) {
     return { config: cfg, changes: [] };
+  }
+  if (options?.previewOnly) {
+    const sample = hits[0];
+    return {
+      config: cfg,
+      changes: [
+        `- Preview blocked: Telegram allowFrom contains ${hits.length} non-numeric entr${hits.length === 1 ? "y" : "ies"}${sample ? ` (for example ${sample.path}=${sample.entry})` : ""}; apply mode would attempt Telegram API resolution using configured bot tokens.`,
+      ],
+    };
   }
 
   const tokens = Array.from(
@@ -1676,7 +1688,7 @@ function maybeRepairLegacyToolsBySenderKeys(cfg: OpenClawConfig): {
   return { config: next, changes };
 }
 
-async function maybeMigrateLegacyConfig(): Promise<string[]> {
+async function maybeMigrateLegacyConfig(params?: { previewOnly?: boolean }): Promise<string[]> {
   const changes: string[] = [];
   const home = resolveHomeDir();
   if (!home) {
@@ -1712,6 +1724,11 @@ async function maybeMigrateLegacyConfig(): Promise<string[]> {
     return changes;
   }
 
+  if (params?.previewOnly) {
+    changes.push(`Would migrate legacy config: ${legacyPath} -> ${targetPath}`);
+    return changes;
+  }
+
   await fs.mkdir(targetDir, { recursive: true });
   try {
     await fs.copyFile(legacyPath, targetPath, fs.constants.COPYFILE_EXCL);
@@ -1727,18 +1744,29 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
   options: DoctorOptions;
   confirm: (p: { message: string; initialValue: boolean }) => Promise<boolean>;
 }) {
-  const shouldRepair = params.options.repair === true || params.options.yes === true;
-  const stateDirResult = await autoMigrateLegacyStateDir({ env: process.env });
+  const shouldPreview = params.options.dryRun === true;
+  const shouldRepair =
+    !shouldPreview && (params.options.repair === true || params.options.yes === true);
+  const stateDirResult = await autoMigrateLegacyStateDir({
+    env: process.env,
+    ...(shouldPreview ? { preview: true } : {}),
+  });
   if (stateDirResult.changes.length > 0) {
-    note(stateDirResult.changes.map((entry) => `- ${entry}`).join("\n"), "Doctor changes");
+    note(
+      stateDirResult.changes.map((entry) => `- ${entry}`).join("\n"),
+      shouldPreview ? "Doctor dry-run" : "Doctor changes",
+    );
   }
   if (stateDirResult.warnings.length > 0) {
     note(stateDirResult.warnings.map((entry) => `- ${entry}`).join("\n"), "Doctor warnings");
   }
 
-  const legacyConfigChanges = await maybeMigrateLegacyConfig();
+  const legacyConfigChanges = await maybeMigrateLegacyConfig({ previewOnly: shouldPreview });
   if (legacyConfigChanges.length > 0) {
-    note(legacyConfigChanges.map((entry) => `- ${entry}`).join("\n"), "Doctor changes");
+    note(
+      legacyConfigChanges.map((entry) => `- ${entry}`).join("\n"),
+      shouldPreview ? "Doctor dry-run" : "Doctor changes",
+    );
   }
 
   let snapshot = await readConfigFileSnapshot();
@@ -1765,7 +1793,7 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
     );
     const { config: migrated, changes } = migrateLegacyConfig(snapshot.parsed);
     if (changes.length > 0) {
-      note(changes.join("\n"), "Doctor changes");
+      note(changes.join("\n"), shouldPreview ? "Doctor dry-run" : "Doctor changes");
     }
     if (migrated) {
       candidate = migrated;
@@ -1785,7 +1813,7 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
 
   const normalized = normalizeCompatibilityConfigValues(candidate);
   if (normalized.changes.length > 0) {
-    note(normalized.changes.join("\n"), "Doctor changes");
+    note(normalized.changes.join("\n"), shouldPreview ? "Doctor dry-run" : "Doctor changes");
     candidate = normalized.config;
     pendingChanges = true;
     if (shouldRepair) {
@@ -1797,7 +1825,7 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
 
   const autoEnable = applyPluginAutoEnable({ config: candidate, env: process.env });
   if (autoEnable.changes.length > 0) {
-    note(autoEnable.changes.join("\n"), "Doctor changes");
+    note(autoEnable.changes.join("\n"), shouldPreview ? "Doctor dry-run" : "Doctor changes");
     candidate = autoEnable.config;
     pendingChanges = true;
     if (shouldRepair) {
@@ -1813,37 +1841,48 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
     note(missingDefaultAccountBindingWarnings.join("\n"), "Doctor warnings");
   }
 
-  if (shouldRepair) {
-    const repair = await maybeRepairTelegramAllowFromUsernames(candidate);
+  if (shouldRepair || shouldPreview) {
+    const repair = await maybeRepairTelegramAllowFromUsernames(candidate, {
+      previewOnly: shouldPreview,
+    });
     if (repair.changes.length > 0) {
-      note(repair.changes.join("\n"), "Doctor changes");
+      const repairChangedConfig = JSON.stringify(repair.config) !== JSON.stringify(candidate);
+      note(repair.changes.join("\n"), shouldPreview ? "Doctor dry-run" : "Doctor changes");
       candidate = repair.config;
-      pendingChanges = true;
-      cfg = repair.config;
+      pendingChanges = pendingChanges || repairChangedConfig;
+      if (shouldRepair) {
+        cfg = repair.config;
+      }
     }
 
     const discordRepair = maybeRepairDiscordNumericIds(candidate);
     if (discordRepair.changes.length > 0) {
-      note(discordRepair.changes.join("\n"), "Doctor changes");
+      note(discordRepair.changes.join("\n"), shouldPreview ? "Doctor dry-run" : "Doctor changes");
       candidate = discordRepair.config;
       pendingChanges = true;
-      cfg = discordRepair.config;
+      if (shouldRepair) {
+        cfg = discordRepair.config;
+      }
     }
 
     const allowFromRepair = maybeRepairOpenPolicyAllowFrom(candidate);
     if (allowFromRepair.changes.length > 0) {
-      note(allowFromRepair.changes.join("\n"), "Doctor changes");
+      note(allowFromRepair.changes.join("\n"), shouldPreview ? "Doctor dry-run" : "Doctor changes");
       candidate = allowFromRepair.config;
       pendingChanges = true;
-      cfg = allowFromRepair.config;
+      if (shouldRepair) {
+        cfg = allowFromRepair.config;
+      }
     }
 
     const allowlistRepair = await maybeRepairAllowlistPolicyAllowFrom(candidate);
     if (allowlistRepair.changes.length > 0) {
-      note(allowlistRepair.changes.join("\n"), "Doctor changes");
+      note(allowlistRepair.changes.join("\n"), shouldPreview ? "Doctor dry-run" : "Doctor changes");
       candidate = allowlistRepair.config;
       pendingChanges = true;
-      cfg = allowlistRepair.config;
+      if (shouldRepair) {
+        cfg = allowlistRepair.config;
+      }
     }
 
     const emptyAllowlistWarnings = detectEmptyAllowlistPolicy(candidate);
@@ -1853,18 +1892,28 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
 
     const toolsBySenderRepair = maybeRepairLegacyToolsBySenderKeys(candidate);
     if (toolsBySenderRepair.changes.length > 0) {
-      note(toolsBySenderRepair.changes.join("\n"), "Doctor changes");
+      note(
+        toolsBySenderRepair.changes.join("\n"),
+        shouldPreview ? "Doctor dry-run" : "Doctor changes",
+      );
       candidate = toolsBySenderRepair.config;
       pendingChanges = true;
-      cfg = toolsBySenderRepair.config;
+      if (shouldRepair) {
+        cfg = toolsBySenderRepair.config;
+      }
     }
 
     const safeBinProfileRepair = maybeRepairExecSafeBinProfiles(candidate);
     if (safeBinProfileRepair.changes.length > 0) {
-      note(safeBinProfileRepair.changes.join("\n"), "Doctor changes");
+      note(
+        safeBinProfileRepair.changes.join("\n"),
+        shouldPreview ? "Doctor dry-run" : "Doctor changes",
+      );
       candidate = safeBinProfileRepair.config;
       pendingChanges = true;
-      cfg = safeBinProfileRepair.config;
+      if (shouldRepair) {
+        cfg = safeBinProfileRepair.config;
+      }
     }
     if (safeBinProfileRepair.warnings.length > 0) {
       note(safeBinProfileRepair.warnings.join("\n"), "Doctor warnings");
@@ -2013,13 +2062,17 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
     if (shouldRepair) {
       cfg = unknown.config;
       note(lines, "Doctor changes");
+    } else if (shouldPreview) {
+      note(lines, "Doctor dry-run");
     } else {
       note(lines, "Unknown config keys");
       fixHints.push('Run "openclaw doctor --fix" to remove these keys.');
     }
   }
 
-  if (!shouldRepair && pendingChanges) {
+  if (shouldPreview) {
+    shouldWriteConfig = pendingChanges;
+  } else if (!shouldRepair && pendingChanges) {
     const shouldApply = await params.confirm({
       message: "Apply recommended config repairs now?",
       initialValue: true,

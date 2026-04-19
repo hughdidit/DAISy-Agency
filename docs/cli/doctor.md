@@ -19,6 +19,7 @@ Related:
 
 ```bash
 openclaw doctor
+openclaw doctor --dry-run
 openclaw doctor --repair
 openclaw doctor --deep
 ```
@@ -26,6 +27,8 @@ openclaw doctor --deep
 Notes:
 
 - Interactive prompts (like keychain/OAuth fixes) only run when stdin is a TTY and `--non-interactive` is **not** set. Headless runs (cron, Telegram, no terminal) will skip prompts.
+- `--dry-run` previews config/state/service/UI repair actions without mutating the host.
+- `--non-interactive` is not a dry-run substitute; it suppresses prompts but still allows safe mutating flows.
 - `--fix` (alias for `--repair`) writes a backup to `~/.openclaw/openclaw.json.bak` and drops unknown config keys, listing each removal.
 - State integrity checks now detect orphan transcript files in the sessions directory and can archive them as `.deleted.<timestamp>` to reclaim space safely.
 - Doctor includes a memory-search readiness check and can recommend `openclaw configure --section model` when embedding credentials are missing.

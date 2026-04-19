@@ -37,6 +37,21 @@ export const UpdateRunParamsSchema = Type.Object(
   { additionalProperties: false },
 );
 
+export const DOCTOR_RUN_MODES = ["dry-run", "apply"] as const;
+
+const DoctorRunModeSchema = Type.Unsafe<(typeof DOCTOR_RUN_MODES)[number]>({
+  type: "string",
+  enum: [...DOCTOR_RUN_MODES],
+});
+
+export const DoctorRunParamsSchema = Type.Object(
+  {
+    mode: DoctorRunModeSchema,
+    timeoutMs: Type.Optional(Type.Integer({ minimum: 1_000, maximum: 30 * 60_000 })),
+  },
+  { additionalProperties: false },
+);
+
 export const ConfigUiHintSchema = Type.Object(
   {
     label: Type.Optional(Type.String()),

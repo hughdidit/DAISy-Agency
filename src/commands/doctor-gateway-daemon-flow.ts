@@ -58,6 +58,11 @@ async function maybeRepairLaunchAgentBootstrap(params: {
 
   note("LaunchAgent is listed but not loaded in launchd.", `${params.title} LaunchAgent`);
 
+  if (params.prompter.isDryRun) {
+    note(`- Would repair ${params.title} LaunchAgent bootstrap.`, "Doctor dry-run");
+    return false;
+  }
+
   const shouldFix = await params.prompter.confirmSkipInNonInteractive({
     message: `Repair ${params.title} LaunchAgent bootstrap now?`,
     initialValue: true,
@@ -158,6 +163,10 @@ export async function maybeRepairGatewayDaemon(params: {
     }
     note("Gateway service not installed.", "Gateway");
     if (params.cfg.gateway?.mode !== "remote") {
+      if (params.prompter.isDryRun) {
+        note("- Would install the gateway service.", "Doctor dry-run");
+        return;
+      }
       const install = await params.prompter.confirmSkipInNonInteractive({
         message: "Install gateway service now?",
         initialValue: true,
@@ -212,6 +221,10 @@ export async function maybeRepairGatewayDaemon(params: {
   }
 
   if (serviceRuntime?.status !== "running") {
+    if (params.prompter.isDryRun) {
+      note("- Would start the gateway service.", "Doctor dry-run");
+      return;
+    }
     const start = await params.prompter.confirmSkipInNonInteractive({
       message: "Start gateway service now?",
       initialValue: true,
@@ -234,6 +247,10 @@ export async function maybeRepairGatewayDaemon(params: {
   }
 
   if (serviceRuntime?.status === "running") {
+    if (params.prompter.isDryRun) {
+      note("- Would restart the gateway service.", "Doctor dry-run");
+      return;
+    }
     const restart = await params.prompter.confirmSkipInNonInteractive({
       message: "Restart gateway service now?",
       initialValue: true,

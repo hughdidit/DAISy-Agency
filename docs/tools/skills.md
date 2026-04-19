@@ -168,6 +168,27 @@ is a synthetic read-only bind instead of a path written into the real workspace.
 If those paths are still missing, it fails closed with a setup error instead of
 trying a host-side fallback.
 
+The bundled `openclaw-doctor` skill layers on top of that same readonly
+contract for sandbox-safe triage. It only uses:
+
+```bash
+node skills/openclaw-doctor/scripts/openclaw-doctor-readonly.mjs triage
+node skills/openclaw-doctor/scripts/openclaw-doctor-readonly.mjs status
+node skills/openclaw-doctor/scripts/openclaw-doctor-readonly.mjs sandbox explain
+node skills/openclaw-doctor/scripts/openclaw-doctor-readonly.mjs skills list
+node skills/openclaw-doctor/scripts/openclaw-doctor-readonly.mjs skills check
+```
+
+Additional rules for `openclaw-doctor`:
+
+- No flags or extra args.
+- No direct `openclaw doctor`, `openclaw update`, `openclaw config`, or other mutating commands from the sandbox.
+- After triage, the skill must stop and present exactly these numbered choices:
+  1. Preview proposed repair steps
+  2. Run approved repair now
+  3. Stop after diagnosis
+- Any preview/apply step must go through the dedicated remote-only repair workflow (`openclaw_doctor_repair` + `doctor.run`) and still requires explicit approval.
+
 Installer example:
 
 ```markdown

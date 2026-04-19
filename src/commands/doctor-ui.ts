@@ -49,6 +49,11 @@ export async function maybeRepairUiProtocolFreshness(
         return;
       }
 
+      if (prompter.isDryRun) {
+        note("- Would build missing Control UI assets.", "Doctor dry-run");
+        return;
+      }
+
       const shouldRepair = await prompter.confirmRepair({
         message: "Build Control UI assets now?",
         initialValue: true,
@@ -107,19 +112,27 @@ export async function maybeRepairUiProtocolFreshness(
           "UI Freshness",
         );
 
+        const uiSourcesPath = path.join(root, "ui/package.json");
+        const uiSourcesExist = await fs.stat(uiSourcesPath).catch(() => null);
+        if (!uiSourcesExist) {
+          note("Skipping UI rebuild: ui/ sources not present.", "UI");
+          return;
+        }
+
+        if (prompter.isDryRun) {
+          note(
+            "- Would rebuild stale UI assets to match the current protocol schema.",
+            "Doctor dry-run",
+          );
+          return;
+        }
+
         const shouldRepair = await prompter.confirmAggressive({
           message: "Rebuild UI now? (Detected protocol mismatch requiring update)",
           initialValue: true,
         });
 
         if (shouldRepair) {
-          const uiSourcesPath = path.join(root, "ui/package.json");
-          const uiSourcesExist = await fs.stat(uiSourcesPath).catch(() => null);
-          if (!uiSourcesExist) {
-            note("Skipping UI rebuild: ui/ sources not present.", "UI");
-            return;
-          }
-
           note("Rebuilding stale UI assets... (this may take a moment)", "UI");
           // Use scripts/ui.js to build, assuming node is available as we are running in it.
           // We use the same node executable to run the script.

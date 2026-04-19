@@ -9,9 +9,30 @@ export type DoctorOptions = {
   nonInteractive?: boolean;
   deep?: boolean;
   repair?: boolean;
+  dryRun?: boolean;
   force?: boolean;
   generateGatewayToken?: boolean;
 };
+
+export type DoctorExecutionMode = "inspect" | "dry-run" | "apply";
+
+export function resolveDoctorExecutionMode(options: DoctorOptions): DoctorExecutionMode {
+  if (
+    options.force === true &&
+    options.dryRun !== true &&
+    options.repair !== true &&
+    options.yes !== true
+  ) {
+    throw new Error("--force can only be used with --repair/--fix or --yes.");
+  }
+  if (options.dryRun === true) {
+    return "dry-run";
+  }
+  if (options.repair === true || options.yes === true) {
+    return "apply";
+  }
+  return "inspect";
+}
 
 export type DoctorPrompter = {
   confirm: (params: Parameters<typeof confirm>[0]) => Promise<boolean>;
@@ -19,6 +40,8 @@ export type DoctorPrompter = {
   confirmAggressive: (params: Parameters<typeof confirm>[0]) => Promise<boolean>;
   confirmSkipInNonInteractive: (params: Parameters<typeof confirm>[0]) => Promise<boolean>;
   select: <T>(params: Parameters<typeof select>[0], fallback: T) => Promise<T>;
+  mode?: DoctorExecutionMode;
+  isDryRun?: boolean;
   shouldRepair: boolean;
   shouldForce: boolean;
 };
@@ -27,10 +50,12 @@ export function createDoctorPrompter(params: {
   runtime: RuntimeEnv;
   options: DoctorOptions;
 }): DoctorPrompter {
-  const yes = params.options.yes === true;
+  const mode = resolveDoctorExecutionMode(params.options);
+  const yes = params.options.yes === true && mode === "apply";
   const requestedNonInteractive = params.options.nonInteractive === true;
-  const shouldRepair = params.options.repair === true || yes;
-  const shouldForce = params.options.force === true;
+  const shouldRepair = mode === "apply";
+  const shouldForce = mode === "apply" && params.options.force === true;
+  const isDryRun = mode === "dry-run";
   const isTty = Boolean(process.stdin.isTTY);
   const nonInteractive = requestedNonInteractive || (!isTty && !yes);
 
@@ -57,13 +82,13 @@ export function createDoctorPrompter(params: {
   return {
     confirm: confirmDefault,
     confirmRepair: async (p) => {
-      if (nonInteractive) {
+      if (nonInteractive || isDryRun) {
         return false;
       }
       return confirmDefault(p);
     },
     confirmAggressive: async (p) => {
-      if (nonInteractive) {
+      if (nonInteractive || isDryRun) {
         return false;
       }
       if (shouldRepair && shouldForce) {
@@ -84,7 +109,7 @@ export function createDoctorPrompter(params: {
       );
     },
     confirmSkipInNonInteractive: async (p) => {
-      if (nonInteractive) {
+      if (nonInteractive || isDryRun) {
         return false;
       }
       if (shouldRepair) {
@@ -107,6 +132,8 @@ export function createDoctorPrompter(params: {
         params.runtime,
       ) as T;
     },
+    mode,
+    isDryRun,
     shouldRepair,
     shouldForce,
   };

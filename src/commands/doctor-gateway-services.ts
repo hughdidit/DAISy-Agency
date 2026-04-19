@@ -290,6 +290,16 @@ export async function maybeRepairGatewayServiceConfig(
     );
   }
 
+  if (prompter.isDryRun) {
+    note(
+      needsAggressive
+        ? "- Would overwrite gateway service config with current defaults."
+        : "- Would update gateway service config to the recommended defaults.",
+      "Doctor dry-run",
+    );
+    return;
+  }
+
   const repair = needsAggressive
     ? await prompter.confirmAggressive({
         message: "Overwrite gateway service config with current defaults now?",
@@ -334,6 +344,14 @@ export async function maybeScanExtraGatewayServices(
 
   const legacyServices = extraServices.filter((svc) => svc.legacy === true);
   if (legacyServices.length > 0) {
+    if (prompter.isDryRun) {
+      note(
+        legacyServices
+          .map((svc) => `- Would remove legacy gateway service: ${svc.label}`)
+          .join("\n"),
+        "Doctor dry-run",
+      );
+    }
     const shouldRemove = await prompter.confirmSkipInNonInteractive({
       message: "Remove legacy gateway services (clawdbot/moltbot) now?",
       initialValue: true,

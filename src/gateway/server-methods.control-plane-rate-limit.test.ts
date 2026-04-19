@@ -131,6 +131,28 @@ describe("gateway control-plane write rate limit", () => {
     expect(handlerCalls).toHaveBeenCalledTimes(4);
   });
 
+  it("applies the same write budget to doctor.run", async () => {
+    const handlerCalls = vi.fn();
+    const handler: GatewayRequestHandler = (opts) => {
+      handlerCalls(opts);
+      opts.respond(true, undefined, undefined);
+    };
+    const context = buildContext();
+    const client = buildClient();
+
+    await runRequest({ method: "doctor.run", context, client, handler });
+    await runRequest({ method: "doctor.run", context, client, handler });
+    await runRequest({ method: "doctor.run", context, client, handler });
+    const blocked = await runRequest({ method: "doctor.run", context, client, handler });
+
+    expect(handlerCalls).toHaveBeenCalledTimes(3);
+    expect(blocked).toHaveBeenCalledWith(
+      false,
+      undefined,
+      expect.objectContaining({ code: "UNAVAILABLE" }),
+    );
+  });
+
   it("uses connId fallback when both device and client IP are unknown", () => {
     const key = resolveControlPlaneRateLimitKey({
       connect: buildConnect(),

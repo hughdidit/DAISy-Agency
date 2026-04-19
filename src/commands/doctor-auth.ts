@@ -33,6 +33,10 @@ export async function maybeRepairAnthropicOAuthProfileId(
   }
 
   note(repair.changes.map((c) => `- ${c}`).join("\n"), "Auth profiles");
+  if (prompter.isDryRun) {
+    note(repair.changes.map((change) => `- Would apply: ${change}`).join("\n"), "Doctor dry-run");
+    return cfg;
+  }
   const apply = await prompter.confirm({
     message: "Update Anthropic OAuth profile id in config now?",
     initialValue: true,
@@ -140,6 +144,15 @@ export async function maybeRemoveDeprecatedCliAuthProfiles(
     );
   }
   note(lines.join("\n"), "Auth profiles");
+  if (prompter.isDryRun) {
+    note(
+      Array.from(deprecated.values())
+        .map((id) => `- Would remove deprecated auth profile: ${id}`)
+        .join("\n"),
+      "Doctor dry-run",
+    );
+    return cfg;
+  }
 
   const shouldRemove = await prompter.confirmRepair({
     message: "Remove deprecated CLI auth profiles now?",
@@ -242,6 +255,19 @@ function formatAuthIssueLine(issue: AuthIssue): string {
   return `- ${issue.profileId}: ${issue.status}${remaining}${hint ? ` — ${hint}` : ""}`;
 }
 
+function formatAuthIssueLines(issues: AuthIssue[]): string {
+  return issues
+    .map((issue) =>
+      formatAuthIssueLine({
+        profileId: issue.profileId,
+        provider: issue.provider,
+        status: issue.status,
+        remainingMs: issue.remainingMs,
+      }),
+    )
+    .join("\n");
+}
+
 export async function noteAuthProfileHealth(params: {
   cfg: OpenClawConfig;
   prompter: DoctorPrompter;
@@ -297,6 +323,15 @@ export async function noteAuthProfileHealth(params: {
     return;
   }
 
+  if (params.prompter.isDryRun) {
+    note(
+      issues.map((issue) => `- Would refresh ${issue.profileId} (${issue.status}).`).join("\n"),
+      "Doctor dry-run",
+    );
+    note(formatAuthIssueLines(issues), "Model auth");
+    return;
+  }
+
   const shouldRefresh = await params.prompter.confirmRepair({
     message: "Refresh expiring OAuth tokens now? (static tokens need re-auth)",
     initialValue: true,
@@ -333,18 +368,6 @@ export async function noteAuthProfileHealth(params: {
   }
 
   if (issues.length > 0) {
-    note(
-      issues
-        .map((issue) =>
-          formatAuthIssueLine({
-            profileId: issue.profileId,
-            provider: issue.provider,
-            status: issue.status,
-            remainingMs: issue.remainingMs,
-          }),
-        )
-        .join("\n"),
-      "Model auth",
-    );
+    note(formatAuthIssueLines(issues), "Model auth");
   }
 }

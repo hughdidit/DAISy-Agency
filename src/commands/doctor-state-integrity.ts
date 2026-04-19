@@ -25,6 +25,7 @@ type DoctorPrompterLike = {
     message: string;
     initialValue?: boolean;
   }) => Promise<boolean>;
+  isDryRun?: boolean;
 };
 
 function existsDir(dir: string): boolean {
@@ -472,6 +473,7 @@ export async function noteStateIntegrity(
   prompter: DoctorPrompterLike,
   configPath?: string,
 ) {
+  const isDryRun = prompter.isDryRun === true;
   const warnings: string[] = [];
   const changes: string[] = [];
   const env = process.env;
@@ -517,10 +519,15 @@ export async function noteStateIntegrity(
         "- Gateway is in remote mode; run doctor on the remote host where the gateway runs.",
       );
     }
-    const create = await prompter.confirmSkipInNonInteractive({
-      message: `Create ${displayStateDir} now?`,
-      initialValue: false,
-    });
+    if (isDryRun) {
+      note(`- Would create ${displayStateDir}.`, "Doctor dry-run");
+    }
+    const create = isDryRun
+      ? false
+      : await prompter.confirmSkipInNonInteractive({
+          message: `Create ${displayStateDir} now?`,
+          initialValue: false,
+        });
     if (create) {
       const created = ensureDir(stateDir);
       if (created.ok) {
@@ -538,10 +545,15 @@ export async function noteStateIntegrity(
     if (hint) {
       warnings.push(`  ${hint}`);
     }
-    const repair = await prompter.confirmSkipInNonInteractive({
-      message: `Repair permissions on ${displayStateDir}?`,
-      initialValue: true,
-    });
+    if (isDryRun) {
+      note(`- Would repair permissions on ${displayStateDir}.`, "Doctor dry-run");
+    }
+    const repair = isDryRun
+      ? false
+      : await prompter.confirmSkipInNonInteractive({
+          message: `Repair permissions on ${displayStateDir}?`,
+          initialValue: true,
+        });
     if (repair) {
       try {
         const stat = fs.statSync(stateDir);
@@ -567,10 +579,15 @@ export async function noteStateIntegrity(
         warnings.push(
           `- State directory permissions are too open (${displayStateDir}). Recommend chmod 700.`,
         );
-        const tighten = await prompter.confirmSkipInNonInteractive({
-          message: `Tighten permissions on ${displayStateDir} to 700?`,
-          initialValue: true,
-        });
+        if (isDryRun) {
+          note(`- Would chmod 700 ${displayStateDir}.`, "Doctor dry-run");
+        }
+        const tighten = isDryRun
+          ? false
+          : await prompter.confirmSkipInNonInteractive({
+              message: `Tighten permissions on ${displayStateDir} to 700?`,
+              initialValue: true,
+            });
         if (tighten) {
           fs.chmodSync(stateDir, 0o700);
           changes.push(`- Tightened permissions on ${displayStateDir} to 700`);
@@ -594,10 +611,15 @@ export async function noteStateIntegrity(
         warnings.push(
           `- Config file is group/world readable (${displayConfigPath ?? configPath}). Recommend chmod 600.`,
         );
-        const tighten = await prompter.confirmSkipInNonInteractive({
-          message: `Tighten permissions on ${displayConfigPath ?? configPath} to 600?`,
-          initialValue: true,
-        });
+        if (isDryRun) {
+          note(`- Would chmod 600 ${displayConfigPath ?? configPath}.`, "Doctor dry-run");
+        }
+        const tighten = isDryRun
+          ? false
+          : await prompter.confirmSkipInNonInteractive({
+              message: `Tighten permissions on ${displayConfigPath ?? configPath} to 600?`,
+              initialValue: true,
+            });
         if (tighten) {
           fs.chmodSync(configPath, 0o600);
           changes.push(`- Tightened permissions on ${displayConfigPath ?? configPath} to 600`);
@@ -610,7 +632,8 @@ export async function noteStateIntegrity(
     }
   }
 
-  if (stateDirExists) {
+  const shouldPreviewStateChildren = stateDirExists || isDryRun;
+  if (shouldPreviewStateChildren) {
     const dirCandidates = new Map<string, string>();
     dirCandidates.set(sessionsDir, "Sessions dir");
     dirCandidates.set(storeDir, "Session store dir");
@@ -638,10 +661,15 @@ export async function noteStateIntegrity(
       const displayDir = displayDirFor(dir);
       if (!existsDir(dir)) {
         warnings.push(`- CRITICAL: ${label} missing (${displayDir}).`);
-        const create = await prompter.confirmSkipInNonInteractive({
-          message: `Create ${label} at ${displayDir}?`,
-          initialValue: true,
-        });
+        if (isDryRun) {
+          note(`- Would create ${label}: ${displayDir}`, "Doctor dry-run");
+        }
+        const create = isDryRun
+          ? false
+          : await prompter.confirmSkipInNonInteractive({
+              message: `Create ${label} at ${displayDir}?`,
+              initialValue: true,
+            });
         if (create) {
           const created = ensureDir(dir);
           if (created.ok) {
@@ -658,10 +686,15 @@ export async function noteStateIntegrity(
         if (hint) {
           warnings.push(`  ${hint}`);
         }
-        const repair = await prompter.confirmSkipInNonInteractive({
-          message: `Repair permissions on ${label}?`,
-          initialValue: true,
-        });
+        if (isDryRun) {
+          note(`- Would repair permissions on ${label}: ${displayDir}`, "Doctor dry-run");
+        }
+        const repair = isDryRun
+          ? false
+          : await prompter.confirmSkipInNonInteractive({
+              message: `Repair permissions on ${label}?`,
+              initialValue: true,
+            });
         if (repair) {
           try {
             const stat = fs.statSync(dir);
@@ -773,10 +806,18 @@ export async function noteStateIntegrity(
       warnings.push(
         `- Found ${orphanTranscriptPaths.length} orphan transcript file(s) in ${displaySessionsDir}. They are not referenced by sessions.json and can consume disk over time.`,
       );
-      const archiveOrphans = await prompter.confirmSkipInNonInteractive({
-        message: `Archive ${orphanTranscriptPaths.length} orphan transcript file(s) in ${displaySessionsDir}?`,
-        initialValue: false,
-      });
+      if (isDryRun) {
+        note(
+          `- Would archive ${orphanTranscriptPaths.length} orphan transcript file(s) in ${displaySessionsDir}.`,
+          "Doctor dry-run",
+        );
+      }
+      const archiveOrphans = isDryRun
+        ? false
+        : await prompter.confirmSkipInNonInteractive({
+            message: `Archive ${orphanTranscriptPaths.length} orphan transcript file(s) in ${displaySessionsDir}?`,
+            initialValue: false,
+          });
       if (archiveOrphans) {
         let archived = 0;
         const archivedAt = formatSessionArchiveTimestamp();

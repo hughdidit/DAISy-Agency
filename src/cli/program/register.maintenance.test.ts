@@ -87,6 +87,20 @@ describe("registerMaintenanceCommands doctor action", () => {
     );
   });
 
+  it("passes dryRun to doctor command", async () => {
+    doctorCommand.mockResolvedValue(undefined);
+
+    await runMaintenanceCli(["doctor", "--dry-run", "--non-interactive"]);
+
+    expect(doctorCommand).toHaveBeenCalledWith(
+      runtime,
+      expect.objectContaining({
+        dryRun: true,
+        nonInteractive: true,
+      }),
+    );
+  });
+
   it("passes noOpen to dashboard command", async () => {
     dashboardCommand.mockResolvedValue(undefined);
 

@@ -26,6 +26,12 @@ openclaw doctor --yes
 Accept defaults without prompting (including restart/service/sandbox repair steps when applicable).
 
 ```bash
+openclaw doctor --dry-run
+```
+
+Preview repairs without writing config/state, changing permissions, rebuilding assets, or restarting services.
+
+```bash
 openclaw doctor --repair
 ```
 
@@ -43,6 +49,8 @@ openclaw doctor --non-interactive
 
 Run without prompts and only apply safe migrations (config normalization + on-disk state moves). Skips restart/service/sandbox actions that require human confirmation.
 Legacy state migrations run automatically when detected.
+
+`--non-interactive` is **not** a dry-run substitute. It suppresses prompts; it does not make mutating repair steps safe to preview.
 
 ```bash
 openclaw doctor --deep
@@ -261,6 +269,98 @@ Notes:
 - `openclaw doctor --repair` applies recommended fixes without prompts.
 - `openclaw doctor --repair --force` overwrites custom supervisor configs.
 - You can always force a full rewrite via `openclaw gateway install --force`.
+
+## Triage vs preview vs apply
+
+- `openclaw doctor`
+  - Inspect-only. Reports health and offers guided fixes when interactive.
+- `openclaw doctor --dry-run`
+  - Preview-only. Emits the actions doctor would take, including blocked actions and impacted files/services/state paths, without mutating the host.
+- `openclaw doctor --repair --yes`
+  - Apply mode. Executes the repair plan, including service/config/state changes when needed.
+
+For sandbox-safe diagnosis, the bundled `openclaw-doctor` skill uses a fixed read-only launcher and stops after triage with exactly three choices:
+
+1. Preview proposed repair steps
+2. Run approved repair now
+3. Stop after diagnosis
+
+The skill never runs mutating doctor flows locally.
+
+## Remote-only repair workflow
+
+The `openclaw_doctor_repair` agent tool and the `doctor.run` gateway method are intentionally narrow:
+
+- They only support `dry-run` preview and `apply`.
+- They require explicit exec approval before dispatch.
+- They refuse local gateway mode and direct loopback gateway targets.
+- They require a configured remote route plus remote credentials.
+- They do not expose arbitrary shell execution or unrestricted `openclaw` passthrough.
+
+Direct remote example:
+
+```json5
+{
+  gateway: {
+    mode: "remote",
+    remote: {
+      transport: "direct",
+      url: "wss://gateway.example.com",
+      token: { source: "env", provider: "default", id: "OPENCLAW_GATEWAY_TOKEN" },
+      tlsFingerprint: "sha256:replace-with-your-pin",
+    },
+  },
+}
+```
+
+SSH-tunneled remote example:
+
+```json5
+{
+  gateway: {
+    mode: "remote",
+    remote: {
+      transport: "ssh",
+      sshTarget: "ops@gateway-host",
+      url: "ws://127.0.0.1:18789",
+      token: { source: "env", provider: "default", id: "OPENCLAW_GATEWAY_TOKEN" },
+    },
+  },
+}
+```
+
+In SSH mode the forwarded URL can still be loopback, because the remote route is anchored by `gateway.remote.transport=ssh` plus `gateway.remote.sshTarget`. In direct mode, loopback targets are rejected.
+
+## Example transcript
+
+```text
+Agent: Triage complete. Summary:
+  - Gateway service config drift detected.
+  - Control UI assets are stale.
+  - No config write was performed.
+
+Agent: Reply with exactly one choice:
+1. Preview proposed repair steps
+2. Run approved repair now
+3. Stop after diagnosis
+
+User: 1
+
+Agent: Requested remote doctor preview.
+Approval: Allow "openclaw doctor --dry-run --non-interactive" on the remote gateway?
+
+Agent: Preview result:
+  - Would update gateway service config to recommended defaults.
+  - Would rebuild stale UI assets to match the current protocol schema.
+  - Would restart the gateway service after repairs.
+
+User: 2
+
+Agent: Requested remote doctor apply.
+Approval: Allow "openclaw doctor --repair --yes" on the remote gateway?
+
+Agent: Apply accepted. Doctor was started on the remote gateway as a background repair job.
+```
 
 ### 16) Gateway runtime + port diagnostics
 
