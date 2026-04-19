@@ -2,7 +2,7 @@ import OpenClawKit
 import Foundation
 import Testing
 
-@Suite struct ShareToAgentDeepLinkTests {
+@Suite(.serialized) struct ShareToAgentDeepLinkTests {
     @Test func buildMessageIncludesSharedFields() {
         let payload = SharedContentPayload(
             title: "Article",
@@ -37,8 +37,9 @@ import Testing
     }
 
     @Test func buildURLFallsBackToDefaultInstructionWhenPayloadEmpty() {
+        let previousInstruction = ShareToAgentSettings.loadDefaultInstruction()
         ShareToAgentSettings.saveDefaultInstruction(nil)
-        defer { ShareToAgentSettings.saveDefaultInstruction(nil) }
+        defer { ShareToAgentSettings.saveDefaultInstruction(previousInstruction) }
 
         let payload = SharedContentPayload(title: nil, url: nil, text: nil)
         let url = ShareToAgentDeepLink.buildURL(from: payload)
@@ -54,8 +55,9 @@ import Testing
 
     @Test func shareInstructionSettingsRoundTrip() {
         let value = "Focus on booking constraints and alternatives."
+        let previousInstruction = ShareToAgentSettings.loadDefaultInstruction()
         ShareToAgentSettings.saveDefaultInstruction(value)
-        defer { ShareToAgentSettings.saveDefaultInstruction(nil) }
+        defer { ShareToAgentSettings.saveDefaultInstruction(previousInstruction) }
 
         #expect(ShareToAgentSettings.loadDefaultInstruction() == value)
     }
