@@ -10,8 +10,8 @@ import { runCommandWithTimeout } from "../../process/exec.js";
 import { formatControlPlaneActor, resolveControlPlaneActor } from "../control-plane-audit.js";
 import { validateDoctorRunParams } from "../protocol/index.js";
 import { formatError } from "../server-utils.js";
-import { assertValidParams } from "./validation.js";
 import type { GatewayRequestHandlers } from "./types.js";
+import { assertValidParams } from "./validation.js";
 
 export type DoctorMemoryStatusPayload = {
   agentId: string;

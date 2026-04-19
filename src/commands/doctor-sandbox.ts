@@ -161,7 +161,10 @@ async function handleMissingSandboxImage(
   note(`Sandbox ${params.kind} image missing: ${params.image}. ${buildHint}`, "Sandbox");
 
   if (prompter.isDryRun) {
-    note(`- Would build or provision sandbox ${params.kind} image: ${params.image}.`, "Doctor dry-run");
+    note(
+      `- Would build or provision sandbox ${params.kind} image: ${params.image}.`,
+      "Doctor dry-run",
+    );
     return;
   }
 

@@ -34,10 +34,7 @@ export async function maybeRepairAnthropicOAuthProfileId(
 
   note(repair.changes.map((c) => `- ${c}`).join("\n"), "Auth profiles");
   if (prompter.isDryRun) {
-    note(
-      repair.changes.map((change) => `- Would apply: ${change}`).join("\n"),
-      "Doctor dry-run",
-    );
+    note(repair.changes.map((change) => `- Would apply: ${change}`).join("\n"), "Doctor dry-run");
     return cfg;
   }
   const apply = await prompter.confirm({
@@ -315,9 +312,7 @@ export async function noteAuthProfileHealth(params: {
 
   if (params.prompter.isDryRun) {
     note(
-      issues
-        .map((issue) => `- Would refresh ${issue.profileId} (${issue.status}).`)
-        .join("\n"),
+      issues.map((issue) => `- Would refresh ${issue.profileId} (${issue.status}).`).join("\n"),
       "Doctor dry-run",
     );
     return;

@@ -6,17 +6,16 @@ const loadConfig = vi.hoisted(() => vi.fn(() => ({}) as OpenClawConfig));
 const resolveDefaultAgentId = vi.hoisted(() => vi.fn(() => "main"));
 const getMemorySearchManager = vi.hoisted(() => vi.fn());
 const resolveOpenClawPackageRoot = vi.hoisted(() => vi.fn(async () => process.cwd()));
-const runCommandWithTimeout = vi.hoisted(
-  () =>
-    vi.fn(async () => ({
-      stdout: "doctor preview output",
-      stderr: "",
-      code: 0,
-      signal: null,
-      killed: false,
-      termination: "exit",
-      noOutputTimedOut: false,
-    })),
+const runCommandWithTimeout = vi.hoisted(() =>
+  vi.fn(async () => ({
+    stdout: "doctor preview output",
+    stderr: "",
+    code: 0,
+    signal: null,
+    killed: false,
+    termination: "exit",
+    noOutputTimedOut: false,
+  })),
 );
 const spawn = vi.hoisted(() =>
   vi.fn(() => ({
@@ -208,7 +207,13 @@ describe("doctor.run", () => {
     await invokeDoctorRun({ mode: "dry-run", timeoutMs: 45_000 }, respond);
 
     expect(runCommandWithTimeout).toHaveBeenCalledWith(
-      [process.execPath, expect.stringContaining("openclaw.mjs"), "doctor", "--dry-run", "--non-interactive"],
+      [
+        process.execPath,
+        expect.stringContaining("openclaw.mjs"),
+        "doctor",
+        "--dry-run",
+        "--non-interactive",
+      ],
       expect.objectContaining({
         cwd: process.cwd(),
         timeoutMs: 45_000,

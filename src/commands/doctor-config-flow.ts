@@ -1840,10 +1840,7 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
 
     const discordRepair = maybeRepairDiscordNumericIds(candidate);
     if (discordRepair.changes.length > 0) {
-      note(
-        discordRepair.changes.join("\n"),
-        shouldPreview ? "Doctor dry-run" : "Doctor changes",
-      );
+      note(discordRepair.changes.join("\n"), shouldPreview ? "Doctor dry-run" : "Doctor changes");
       candidate = discordRepair.config;
       pendingChanges = true;
       if (shouldRepair) {
@@ -1853,10 +1850,7 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
 
     const allowFromRepair = maybeRepairOpenPolicyAllowFrom(candidate);
     if (allowFromRepair.changes.length > 0) {
-      note(
-        allowFromRepair.changes.join("\n"),
-        shouldPreview ? "Doctor dry-run" : "Doctor changes",
-      );
+      note(allowFromRepair.changes.join("\n"), shouldPreview ? "Doctor dry-run" : "Doctor changes");
       candidate = allowFromRepair.config;
       pendingChanges = true;
       if (shouldRepair) {
@@ -1866,10 +1860,7 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
 
     const allowlistRepair = await maybeRepairAllowlistPolicyAllowFrom(candidate);
     if (allowlistRepair.changes.length > 0) {
-      note(
-        allowlistRepair.changes.join("\n"),
-        shouldPreview ? "Doctor dry-run" : "Doctor changes",
-      );
+      note(allowlistRepair.changes.join("\n"), shouldPreview ? "Doctor dry-run" : "Doctor changes");
       candidate = allowlistRepair.config;
       pendingChanges = true;
       if (shouldRepair) {

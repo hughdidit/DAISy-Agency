@@ -210,15 +210,14 @@ export async function doctorCommand(
         "Doctor dry-run",
       );
     }
-    const migrate =
-      prompter.isDryRun
-        ? false
-        : options.nonInteractive === true
-          ? true
-          : await prompter.confirm({
-              message: "Migrate legacy state (sessions/agent/WhatsApp auth) now?",
-              initialValue: true,
-            });
+    const migrate = prompter.isDryRun
+      ? false
+      : options.nonInteractive === true
+        ? true
+        : await prompter.confirm({
+            message: "Migrate legacy state (sessions/agent/WhatsApp auth) now?",
+            initialValue: true,
+          });
     if (migrate) {
       const migrated = await runLegacyStateMigrations({
         detected: legacyState,

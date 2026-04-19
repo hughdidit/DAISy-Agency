@@ -15,9 +15,7 @@ vi.mock("./bash-tools.exec-approval-request.js", () => ({
   requestExecApprovalDecisionForHost: vi.fn(async () => "allow-once"),
 }));
 
-function buildRemoteConfig(
-  overrides: Record<string, unknown> = {},
-): OpenClawConfig {
+function buildRemoteConfig(overrides: Record<string, unknown> = {}): OpenClawConfig {
   return {
     gateway: {
       mode: "remote",
@@ -45,9 +43,8 @@ function requireDoctorRepairTool(config: OpenClawConfig, agentSessionKey?: strin
 describe("openclaw_doctor_repair tool", () => {
   beforeEach(async () => {
     const { callGatewayTool } = await import("./tools/gateway.js");
-    const { requestExecApprovalDecisionForHost } = await import(
-      "./bash-tools.exec-approval-request.js"
-    );
+    const { requestExecApprovalDecisionForHost } =
+      await import("./bash-tools.exec-approval-request.js");
     vi.mocked(callGatewayTool).mockClear();
     vi.mocked(callGatewayTool).mockResolvedValue({
       ok: true,
@@ -64,9 +61,8 @@ describe("openclaw_doctor_repair tool", () => {
 
   it("dispatches preview to doctor.run after approval", async () => {
     const { callGatewayTool } = await import("./tools/gateway.js");
-    const { requestExecApprovalDecisionForHost } = await import(
-      "./bash-tools.exec-approval-request.js"
-    );
+    const { requestExecApprovalDecisionForHost } =
+      await import("./bash-tools.exec-approval-request.js");
     const tool = requireDoctorRepairTool(
       buildRemoteConfig(),
       "agent:main:whatsapp:dm:+15555550123",
@@ -160,9 +156,8 @@ describe("openclaw_doctor_repair tool", () => {
 
   it("returns a structured no-op when approval is denied", async () => {
     const { callGatewayTool } = await import("./tools/gateway.js");
-    const { requestExecApprovalDecisionForHost } = await import(
-      "./bash-tools.exec-approval-request.js"
-    );
+    const { requestExecApprovalDecisionForHost } =
+      await import("./bash-tools.exec-approval-request.js");
     vi.mocked(requestExecApprovalDecisionForHost).mockResolvedValueOnce("deny");
     const tool = requireDoctorRepairTool(buildRemoteConfig());
 

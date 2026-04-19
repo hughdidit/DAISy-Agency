@@ -1458,6 +1458,24 @@ public struct ConfigPatchParams: Codable, Sendable {
     }
 }
 
+public struct DoctorRunParams: Codable, Sendable {
+    public let mode: String
+    public let timeoutms: Int?
+
+    public init(
+        mode: String,
+        timeoutms: Int?)
+    {
+        self.mode = mode
+        self.timeoutms = timeoutms
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case mode
+        case timeoutms = "timeoutMs"
+    }
+}
+
 public struct ConfigSchemaParams: Codable, Sendable {}
 
 public struct ConfigSchemaResponse: Codable, Sendable {

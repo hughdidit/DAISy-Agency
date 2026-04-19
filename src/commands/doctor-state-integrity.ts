@@ -612,10 +612,7 @@ export async function noteStateIntegrity(
           `- Config file is group/world readable (${displayConfigPath ?? configPath}). Recommend chmod 600.`,
         );
         if (isDryRun) {
-          note(
-            `- Would chmod 600 ${displayConfigPath ?? configPath}.`,
-            "Doctor dry-run",
-          );
+          note(`- Would chmod 600 ${displayConfigPath ?? configPath}.`, "Doctor dry-run");
         }
         const tighten = isDryRun
           ? false

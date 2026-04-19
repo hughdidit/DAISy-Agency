@@ -346,7 +346,9 @@ export async function maybeScanExtraGatewayServices(
   if (legacyServices.length > 0) {
     if (prompter.isDryRun) {
       note(
-        legacyServices.map((svc) => `- Would remove legacy gateway service: ${svc.label}`).join("\n"),
+        legacyServices
+          .map((svc) => `- Would remove legacy gateway service: ${svc.label}`)
+          .join("\n"),
         "Doctor dry-run",
       );
     }

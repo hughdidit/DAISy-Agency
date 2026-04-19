@@ -113,7 +113,10 @@ export async function maybeRepairUiProtocolFreshness(
         );
 
         if (prompter.isDryRun) {
-          note("- Would rebuild stale UI assets to match the current protocol schema.", "Doctor dry-run");
+          note(
+            "- Would rebuild stale UI assets to match the current protocol schema.",
+            "Doctor dry-run",
+          );
           return;
         }
 
