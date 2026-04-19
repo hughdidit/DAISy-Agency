@@ -2,7 +2,8 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import type { OpenClawConfig } from "../../config/config.js";
+import { validateConfigObjectWithPlugins, type OpenClawConfig } from "../../config/config.js";
+import { clearPluginManifestRegistryCache } from "../../plugins/manifest-registry.js";
 import {
   OPENCLAW_READONLY_SYNTHETIC_CONTAINER_ROOT,
   resolveOpenClawReadonlyProjection,
@@ -179,5 +180,84 @@ describe("openclaw-readonly projection", () => {
     });
 
     await expect(fs.readdir(projection.hostProjectionRoot)).resolves.toEqual([]);
+  });
+
+  it("projects discovered plugin roots so readonly validation can still resolve plugin ids", async () => {
+    const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-readonly-plugins-"));
+    cleanupDirs.add(tempRoot);
+
+    const hostStateDir = path.join(tempRoot, "host-state");
+    const hostExtensionsDir = path.join(hostStateDir, "extensions", "demo-plugin");
+    await fs.mkdir(hostExtensionsDir, { recursive: true });
+    await fs.writeFile(
+      path.join(hostExtensionsDir, "index.js"),
+      'module.exports = { id: "demo-plugin", register() {} };\n',
+      "utf8",
+    );
+    await fs.writeFile(
+      path.join(hostExtensionsDir, "openclaw.plugin.json"),
+      JSON.stringify(
+        {
+          id: "demo-plugin",
+          configSchema: { type: "object", additionalProperties: false },
+        },
+        null,
+        2,
+      ),
+      "utf8",
+    );
+
+    const envSnapshot = process.env.OPENCLAW_STATE_DIR;
+    process.env.OPENCLAW_STATE_DIR = hostStateDir;
+    clearPluginManifestRegistryCache();
+
+    try {
+      const config: OpenClawConfig = {
+        session: { store: "" },
+        agents: { list: [{ id: "main", skills: ["openclaw-readonly"] }] },
+        plugins: {
+          enabled: false,
+          allow: ["demo-plugin"],
+        },
+      };
+
+      const projection = resolveOpenClawReadonlyProjection({
+        config,
+        agentId: "main",
+        workspaceDir: path.join(tempRoot, "workspace"),
+        sandboxWorkspaceDir: path.join(tempRoot, "sandbox"),
+        containerWorkdir: "/workspace",
+      });
+
+      await syncOpenClawReadonlyProjection({
+        config,
+        agentId: "main",
+        projection,
+        workspaceDir: path.join(tempRoot, "workspace"),
+      });
+
+      await expect(
+        fs.access(
+          path.join(projection.hostStateDir, "extensions", "plugin-000", "openclaw.plugin.json"),
+        ),
+      ).resolves.toBeUndefined();
+
+      const projectedConfig = JSON.parse(await fs.readFile(projection.hostConfigPath, "utf8"));
+      process.env.OPENCLAW_STATE_DIR = projection.hostStateDir;
+      clearPluginManifestRegistryCache();
+
+      const validated = validateConfigObjectWithPlugins(projectedConfig);
+      expect(validated.ok).toBe(true);
+      if (validated.ok) {
+        expect(validated.warnings).toEqual([]);
+      }
+    } finally {
+      clearPluginManifestRegistryCache();
+      if (envSnapshot === undefined) {
+        delete process.env.OPENCLAW_STATE_DIR;
+      } else {
+        process.env.OPENCLAW_STATE_DIR = envSnapshot;
+      }
+    }
   });
 });

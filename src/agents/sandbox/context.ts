@@ -167,6 +167,7 @@ export async function resolveSandboxContext(params: {
       config: effectiveConfig,
       agentId: runtime.agentId,
       projection: openclawReadonlyProjection,
+      workspaceDir,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : JSON.stringify(error);

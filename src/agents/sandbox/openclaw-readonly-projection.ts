@@ -4,6 +4,7 @@ import type { OpenClawConfig } from "../../config/config.js";
 import { redactConfigObject } from "../../config/redact-snapshot.js";
 import { resolveStorePath } from "../../config/sessions.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
+import { loadPluginManifestRegistry } from "../../plugins/manifest-registry.js";
 import { normalizeAgentId } from "../../routing/session-key.js";
 import { resolveAgentSkillsFilter } from "../agent-scope.js";
 
@@ -92,6 +93,27 @@ async function copyIfExists(sourcePath: string, targetPath: string): Promise<voi
   }
 }
 
+async function copyDirectoryIfExists(sourcePath: string, targetPath: string): Promise<boolean> {
+  try {
+    const stat = await fs.stat(sourcePath);
+    if (!stat.isDirectory()) {
+      return false;
+    }
+    await fs.mkdir(path.dirname(targetPath), { recursive: true });
+    await fs.cp(sourcePath, targetPath, { recursive: true });
+    return true;
+  } catch (error) {
+    const code =
+      error instanceof Error && "code" in error && typeof error.code === "string"
+        ? error.code
+        : undefined;
+    if (code === "ENOENT") {
+      return false;
+    }
+    throw error;
+  }
+}
+
 function buildProjectedConfig(config: OpenClawConfig): OpenClawConfig {
   const projected = redactConfigObject(structuredClone(config));
   if (projected.session && typeof projected.session === "object") {
@@ -109,6 +131,42 @@ async function clearDirectoryContents(dirPath: string): Promise<void> {
       await fs.rm(path.join(dirPath, entry), { recursive: true, force: true });
     }),
   );
+}
+
+async function syncProjectedPluginRoots(params: {
+  config: OpenClawConfig;
+  workspaceDir?: string;
+  projection: OpenClawReadonlyProjection;
+}): Promise<void> {
+  const manifestRegistry = loadPluginManifestRegistry({
+    config: params.config,
+    workspaceDir: params.workspaceDir,
+  });
+  if (manifestRegistry.plugins.length === 0) {
+    return;
+  }
+
+  const extensionsRoot = path.join(params.projection.hostStateDir, "extensions");
+  let copied = 0;
+  for (const [index, record] of manifestRegistry.plugins.entries()) {
+    const targetRoot = path.join(extensionsRoot, `plugin-${String(index).padStart(3, "0")}`);
+    try {
+      if (await copyDirectoryIfExists(record.rootDir, targetRoot)) {
+        copied += 1;
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      log.warn(
+        `Failed to project readonly plugin root for ${record.id} from ${record.rootDir}: ${message}`,
+      );
+    }
+  }
+
+  if (copied > 0) {
+    log.debug?.(
+      `Projected ${copied} plugin root${copied === 1 ? "" : "s"} into ${extensionsRoot} for readonly sandbox validation.`,
+    );
+  }
 }
 
 export function resolveOpenClawReadonlyProjection(params: {
@@ -139,6 +197,7 @@ export async function syncOpenClawReadonlyProjection(params: {
   config: OpenClawConfig;
   agentId: string;
   projection: OpenClawReadonlyProjection;
+  workspaceDir?: string;
 }): Promise<void> {
   await clearDirectoryContents(params.projection.hostProjectionRoot);
   if (!params.projection.enabled) {
@@ -165,6 +224,11 @@ export async function syncOpenClawReadonlyProjection(params: {
     "sessions.json",
   );
   await copyIfExists(sourceStorePath, targetStorePath);
+  await syncProjectedPluginRoots({
+    config: params.config,
+    workspaceDir: params.workspaceDir,
+    projection: params.projection,
+  });
 
   log.debug?.(
     `Projected readonly snapshot for ${params.agentId} into ${params.projection.hostProjectionRoot} for sandbox diagnostics.`,
