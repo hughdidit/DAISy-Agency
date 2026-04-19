@@ -147,6 +147,45 @@ function resolveProjectedPluginTargetDir(extensionsRoot: string, pluginId: strin
   return path.join(extensionsRoot, safePluginId);
 }
 
+function resolveProjectedPluginRelativeEntryPath(params: {
+  pluginRootDir: string;
+  pluginSourcePath: string;
+}): string {
+  const relativePath = path.relative(params.pluginRootDir, params.pluginSourcePath);
+  if (
+    !relativePath ||
+    relativePath.startsWith("..") ||
+    path.isAbsolute(relativePath)
+  ) {
+    const ext = path.extname(params.pluginSourcePath);
+    return `index${ext || ".js"}`;
+  }
+  return relativePath;
+}
+
+async function writeProjectedPluginPackageManifest(params: {
+  pluginId: string;
+  targetRootDir: string;
+  relativeEntryPath: string;
+}): Promise<void> {
+  await fs.mkdir(params.targetRootDir, { recursive: true });
+  await fs.writeFile(
+    path.join(params.targetRootDir, "package.json"),
+    `${JSON.stringify(
+      {
+        name: params.pluginId,
+        private: true,
+        openclaw: {
+          extensions: [`./${params.relativeEntryPath.split(path.sep).join("/")}`],
+        },
+      },
+      null,
+      2,
+    )}\n`,
+    "utf8",
+  );
+}
+
 function buildReadonlyProjectionRegistryEnv(
   projection: OpenClawReadonlyProjection,
 ): NodeJS.ProcessEnv {
@@ -202,12 +241,23 @@ async function syncProjectedPluginRoots(params: {
   const extensionsRoot = path.join(params.projection.hostStateDir, "extensions");
   const copiedFlags = await Promise.all(
     recordsToProject.map(async (record) => {
-      const targetManifestPath = path.join(
-        resolveProjectedPluginTargetDir(extensionsRoot, record.id),
-        path.basename(record.manifestPath),
-      );
+      const targetRootDir = resolveProjectedPluginTargetDir(extensionsRoot, record.id);
+      const relativeEntryPath = resolveProjectedPluginRelativeEntryPath({
+        pluginRootDir: record.rootDir,
+        pluginSourcePath: record.source,
+      });
+      const targetManifestPath = path.join(targetRootDir, path.basename(record.manifestPath));
+      const targetSourcePath = path.join(targetRootDir, relativeEntryPath);
       try {
-        await copyIfExists(record.manifestPath, targetManifestPath);
+        await fs.mkdir(path.dirname(targetManifestPath), { recursive: true });
+        await fs.copyFile(record.manifestPath, targetManifestPath);
+        await fs.mkdir(path.dirname(targetSourcePath), { recursive: true });
+        await fs.copyFile(record.source, targetSourcePath);
+        await writeProjectedPluginPackageManifest({
+          pluginId: record.id,
+          targetRootDir,
+          relativeEntryPath,
+        });
         return true;
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
