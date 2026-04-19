@@ -165,9 +165,7 @@ export function createOpenClawDoctorRepairTool(options?: {
       const params = args as Record<string, unknown>;
       const actionRaw = readStringParam(params, "action", { required: true });
       if (!isDoctorRepairAction(actionRaw)) {
-        throw new ToolInputError(
-          `Unsupported openclaw_doctor_repair action: ${String(actionRaw)}`,
-        );
+        throw new ToolInputError(`Unsupported openclaw_doctor_repair action: ${String(actionRaw)}`);
       }
       const action = actionRaw;
       const cfg = options?.config ?? loadConfig();
