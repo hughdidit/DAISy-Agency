@@ -152,11 +152,7 @@ function resolveProjectedPluginRelativeEntryPath(params: {
   pluginSourcePath: string;
 }): string {
   const relativePath = path.relative(params.pluginRootDir, params.pluginSourcePath);
-  if (
-    !relativePath ||
-    relativePath.startsWith("..") ||
-    path.isAbsolute(relativePath)
-  ) {
+  if (!relativePath || relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
     const ext = path.extname(params.pluginSourcePath);
     return `index${ext || ".js"}`;
   }
