@@ -4,6 +4,14 @@ import Testing
 import UIKit
 @testable import OpenClaw
 
+@MainActor
+private func mountAppModelScreen(_ appModel: NodeAppModel) throws -> ScreenWebViewCoordinator {
+    let coordinator = ScreenWebViewCoordinator(controller: appModel.screen)
+    _ = coordinator.makeContainerView()
+    _ = try #require(coordinator.managedWebView)
+    return coordinator
+}
+
 private func makeAgentDeepLinkURL(
     message: String,
     deliver: Bool = false,
@@ -146,6 +154,8 @@ private final class MockWatchMessagingService: @preconcurrency WatchMessagingSer
 
     @Test @MainActor func handleInvokeCanvasCommandsUpdateScreen() async throws {
         let appModel = NodeAppModel()
+        let coordinator = try mountAppModelScreen(appModel)
+        defer { coordinator.teardown() }
         appModel.screen.navigate(to: "http://example.com")
 
         let present = BridgeInvokeRequest(id: "present", command: OpenClawCanvasCommand.present.rawValue)
@@ -172,9 +182,21 @@ private final class MockWatchMessagingService: @preconcurrency WatchMessagingSer
             id: "eval",
             command: OpenClawCanvasCommand.evalJS.rawValue,
             paramsJSON: evalJSON)
-        let evalRes = await appModel._test_handleInvoke(eval)
-        #expect(evalRes.ok == true)
-        let payloadData = try #require(evalRes.payloadJSON?.data(using: .utf8))
+        let clock = ContinuousClock()
+        let deadline = clock.now.advanced(by: .seconds(3))
+        var evalRes: BridgeInvokeResponse?
+        while clock.now < deadline {
+            let candidate = await appModel._test_handleInvoke(eval)
+            if candidate.ok {
+                evalRes = candidate
+                break
+            }
+            evalRes = candidate
+            try? await Task.sleep(nanoseconds: 100_000_000)
+        }
+        let resolvedEvalRes = try #require(evalRes)
+        #expect(resolvedEvalRes.ok == true)
+        let payloadData = try #require(resolvedEvalRes.payloadJSON?.data(using: .utf8))
         let payload = try JSONSerialization.jsonObject(with: payloadData) as? [String: Any]
         #expect(payload?["result"] as? String == "2")
     }
@@ -384,6 +406,12 @@ private final class MockWatchMessagingService: @preconcurrency WatchMessagingSer
                 note: nil,
                 sentAtMs: 1234,
                 transport: "transferUserInfo"))
+        let clock = ContinuousClock()
+        let deadline = clock.now.advanced(by: .seconds(1))
+        while clock.now < deadline, appModel._test_queuedWatchReplyCount() == 0 {
+            await Task.yield()
+            try? await Task.sleep(nanoseconds: 50_000_000)
+        }
         #expect(appModel._test_queuedWatchReplyCount() == 1)
     }
 
