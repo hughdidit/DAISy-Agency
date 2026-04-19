@@ -47,7 +47,7 @@ const DoctorRunModeSchema = Type.Unsafe<(typeof DOCTOR_RUN_MODES)[number]>({
 export const DoctorRunParamsSchema = Type.Object(
   {
     mode: DoctorRunModeSchema,
-    timeoutMs: Type.Optional(Type.Integer({ minimum: 1 })),
+    timeoutMs: Type.Optional(Type.Integer({ minimum: 1_000, maximum: 30 * 60_000 })),
   },
   { additionalProperties: false },
 );

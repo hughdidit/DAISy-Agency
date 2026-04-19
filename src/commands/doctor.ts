@@ -112,15 +112,17 @@ export async function doctorCommand(
     cwd: process.cwd(),
   });
 
-  const updateResult = await maybeOfferUpdateBeforeDoctor({
-    runtime,
-    options,
-    root,
-    confirm: (p) => prompter.confirm(p),
-    outro,
-  });
-  if (updateResult.handled) {
-    return;
+  if (executionMode !== "dry-run") {
+    const updateResult = await maybeOfferUpdateBeforeDoctor({
+      runtime,
+      options,
+      root,
+      confirm: (p) => prompter.confirm(p),
+      outro,
+    });
+    if (updateResult.handled) {
+      return;
+    }
   }
 
   await maybeRepairUiProtocolFreshness(runtime, prompter);

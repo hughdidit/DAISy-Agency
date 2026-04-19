@@ -4,6 +4,7 @@ import type { OpenClawConfig } from "../../config/config.js";
 import { loadConfig } from "../../config/config.js";
 import { hasConfiguredSecretInput } from "../../config/types.secrets.js";
 import { isLoopbackHost } from "../../gateway/net.js";
+import { parseSshTarget } from "../../infra/ssh-tunnel.js";
 import { requestExecApprovalDecisionForHost } from "../bash-tools.exec-approval-request.js";
 import { stringEnum } from "../schema/typebox.js";
 import {
@@ -37,6 +38,10 @@ function trimToUndefined(value: unknown): string | undefined {
   }
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : undefined;
+}
+
+function isDoctorRepairAction(value: string): value is DoctorRepairAction {
+  return OPENCLAW_DOCTOR_REPAIR_ACTIONS.includes(value as DoctorRepairAction);
 }
 
 function resolveDoctorRepairRoute(cfg: OpenClawConfig): DoctorRepairRoute {
@@ -85,6 +90,15 @@ function resolveDoctorRepairRoute(cfg: OpenClawConfig): DoctorRepairRoute {
         "gateway.remote.sshTarget is required when gateway.remote.transport=ssh.",
       );
     }
+    const parsedTarget = parseSshTarget(sshTarget);
+    if (!parsedTarget) {
+      throw new ToolInputError("gateway.remote.sshTarget is invalid.");
+    }
+    if (isLoopbackHost(parsedTarget.host)) {
+      throw new ToolInputError(
+        "openclaw_doctor_repair refuses loopback gateway.remote.sshTarget values. Use a non-loopback SSH host.",
+      );
+    }
     return {
       transport,
       target: `ssh:${sshTarget}`,
@@ -106,7 +120,14 @@ function resolveRequestedTimeoutMs(params: Record<string, unknown>): number | un
 }
 
 function buildDoctorMode(action: DoctorRepairAction): "dry-run" | "apply" {
-  return action === "preview" ? "dry-run" : "apply";
+  switch (action) {
+    case "preview":
+      return "dry-run";
+    case "apply":
+      return "apply";
+    default:
+      throw new ToolInputError(`Unsupported openclaw_doctor_repair action: ${String(action)}`);
+  }
 }
 
 function buildDoctorApprovalCommand(mode: "dry-run" | "apply"): {
@@ -120,8 +141,8 @@ function buildDoctorApprovalCommand(mode: "dry-run" | "apply"): {
     };
   }
   return {
-    command: "openclaw doctor --repair --yes",
-    argv: ["openclaw", "doctor", "--repair", "--yes"],
+    command: "openclaw doctor --repair --yes --non-interactive",
+    argv: ["openclaw", "doctor", "--repair", "--yes", "--non-interactive"],
   };
 }
 
@@ -142,7 +163,13 @@ export function createOpenClawDoctorRepairTool(options?: {
     parameters: OpenClawDoctorRepairToolSchema,
     execute: async (_toolCallId, args) => {
       const params = args as Record<string, unknown>;
-      const action = readStringParam(params, "action", { required: true }) as DoctorRepairAction;
+      const actionRaw = readStringParam(params, "action", { required: true });
+      if (!isDoctorRepairAction(actionRaw)) {
+        throw new ToolInputError(
+          `Unsupported openclaw_doctor_repair action: ${String(actionRaw)}`,
+        );
+      }
+      const action = actionRaw;
       const cfg = options?.config ?? loadConfig();
       const route = resolveDoctorRepairRoute(cfg);
       const mode = buildDoctorMode(action);
@@ -154,7 +181,7 @@ export function createOpenClawDoctorRepairTool(options?: {
         approvalId: crypto.randomUUID(),
         command: approval.command,
         commandArgv: approval.argv,
-        workdir: route.target,
+        workdir: "<remote gateway>",
         host: "gateway",
         security: "full",
         ask: "always",

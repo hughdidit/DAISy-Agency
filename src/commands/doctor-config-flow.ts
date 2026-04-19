@@ -399,13 +399,25 @@ function scanTelegramAllowFromUsernameEntries(cfg: OpenClawConfig): TelegramAllo
   return hits;
 }
 
-async function maybeRepairTelegramAllowFromUsernames(cfg: OpenClawConfig): Promise<{
+async function maybeRepairTelegramAllowFromUsernames(
+  cfg: OpenClawConfig,
+  options?: { previewOnly?: boolean },
+): Promise<{
   config: OpenClawConfig;
   changes: string[];
 }> {
   const hits = scanTelegramAllowFromUsernameEntries(cfg);
   if (hits.length === 0) {
     return { config: cfg, changes: [] };
+  }
+  if (options?.previewOnly) {
+    const sample = hits[0];
+    return {
+      config: cfg,
+      changes: [
+        `- Preview blocked: Telegram allowFrom contains ${hits.length} non-numeric entr${hits.length === 1 ? "y" : "ies"}${sample ? ` (for example ${sample.path}=${sample.entry})` : ""}; apply mode would attempt Telegram API resolution using configured bot tokens.`,
+      ],
+    };
   }
 
   const tokens = Array.from(
@@ -1734,9 +1746,10 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
 }) {
   const shouldPreview = params.options.dryRun === true;
   const shouldRepair = params.options.repair === true || params.options.yes === true;
-  const stateDirResult = shouldPreview
-    ? { migrated: false, skipped: true, changes: [], warnings: [] }
-    : await autoMigrateLegacyStateDir({ env: process.env });
+  const stateDirResult = await autoMigrateLegacyStateDir({
+    env: process.env,
+    ...(shouldPreview ? { preview: true } : {}),
+  });
   if (stateDirResult.changes.length > 0) {
     note(
       stateDirResult.changes.map((entry) => `- ${entry}`).join("\n"),
@@ -1828,11 +1841,14 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
   }
 
   if (shouldRepair || shouldPreview) {
-    const repair = await maybeRepairTelegramAllowFromUsernames(candidate);
+    const repair = await maybeRepairTelegramAllowFromUsernames(candidate, {
+      previewOnly: shouldPreview,
+    });
     if (repair.changes.length > 0) {
+      const repairChangedConfig = JSON.stringify(repair.config) !== JSON.stringify(candidate);
       note(repair.changes.join("\n"), shouldPreview ? "Doctor dry-run" : "Doctor changes");
       candidate = repair.config;
-      pendingChanges = true;
+      pendingChanges = pendingChanges || repairChangedConfig;
       if (shouldRepair) {
         cfg = repair.config;
       }
@@ -2054,7 +2070,7 @@ export async function loadAndMaybeMigrateDoctorConfig(params: {
   }
 
   if (shouldPreview) {
-    shouldWriteConfig = false;
+    shouldWriteConfig = pendingChanges;
   } else if (!shouldRepair && pendingChanges) {
     const shouldApply = await params.confirm({
       message: "Apply recommended config repairs now?",

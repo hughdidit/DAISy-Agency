@@ -358,6 +358,10 @@ function formatStateDirMigration(legacyDir: string, targetDir: string): string {
   return `State dir: ${legacyDir} → ${targetDir} (legacy path now symlinked)`;
 }
 
+function formatStateDirMigrationPreview(legacyDir: string, targetDir: string): string {
+  return `Would migrate state dir: ${legacyDir} → ${targetDir} (legacy path would be symlinked)`;
+}
+
 function isDirPath(filePath: string): boolean {
   try {
     return fs.statSync(filePath).isDirectory();
@@ -427,11 +431,15 @@ export async function autoMigrateLegacyStateDir(params: {
   env?: NodeJS.ProcessEnv;
   homedir?: () => string;
   log?: MigrationLogger;
+  preview?: boolean;
 }): Promise<StateDirMigrationResult> {
-  if (autoMigrateStateDirChecked) {
+  const preview = params.preview === true;
+  if (!preview && autoMigrateStateDirChecked) {
     return { migrated: false, skipped: true, changes: [], warnings: [] };
   }
-  autoMigrateStateDirChecked = true;
+  if (!preview) {
+    autoMigrateStateDirChecked = true;
+  }
 
   const env = params.env ?? process.env;
   if (env.OPENCLAW_STATE_DIR?.trim()) {
@@ -515,10 +523,17 @@ export async function autoMigrateLegacyStateDir(params: {
     return { migrated: false, skipped: false, changes, warnings };
   }
 
+  if (!legacyDir) {
+    warnings.push("Legacy state dir not found");
+    return { migrated: false, skipped: false, changes, warnings };
+  }
+
+  if (preview) {
+    changes.push(formatStateDirMigrationPreview(legacyDir, targetDir));
+    return { migrated: false, skipped: false, changes, warnings };
+  }
+
   try {
-    if (!legacyDir) {
-      throw new Error("Legacy state dir not found");
-    }
     fs.renameSync(legacyDir, targetDir);
   } catch (err) {
     warnings.push(

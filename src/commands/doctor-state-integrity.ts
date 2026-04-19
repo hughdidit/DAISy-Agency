@@ -632,7 +632,8 @@ export async function noteStateIntegrity(
     }
   }
 
-  if (stateDirExists) {
+  const shouldPreviewStateChildren = stateDirExists || isDryRun;
+  if (shouldPreviewStateChildren) {
     const dirCandidates = new Map<string, string>();
     dirCandidates.set(sessionsDir, "Sessions dir");
     dirCandidates.set(storeDir, "Session store dir");

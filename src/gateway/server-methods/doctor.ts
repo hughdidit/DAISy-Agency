@@ -8,7 +8,7 @@ import { trimLogTail } from "../../infra/restart-sentinel.js";
 import { getMemorySearchManager } from "../../memory/index.js";
 import { runCommandWithTimeout } from "../../process/exec.js";
 import { formatControlPlaneActor, resolveControlPlaneActor } from "../control-plane-audit.js";
-import { validateDoctorRunParams } from "../protocol/index.js";
+import { type DoctorRunParams, validateDoctorRunParams } from "../protocol/index.js";
 import { formatError } from "../server-utils.js";
 import type { GatewayRequestHandlers } from "./types.js";
 import { assertValidParams } from "./validation.js";
@@ -26,7 +26,7 @@ const DEFAULT_DOCTOR_RUN_TIMEOUT_MS = 10 * 60_000;
 const MAX_DOCTOR_RUN_TIMEOUT_MS = 30 * 60_000;
 const MAX_DOCTOR_LOG_CHARS = 8_000;
 
-type DoctorRunMode = "dry-run" | "apply";
+type DoctorRunMode = DoctorRunParams["mode"];
 
 type DoctorRunResultPayload = {
   ok: boolean;
@@ -61,12 +61,26 @@ async function resolveDoctorCliCommand(mode: DoctorRunMode): Promise<{
   const argv =
     mode === "dry-run"
       ? [process.execPath, entryPath, "doctor", "--dry-run", "--non-interactive"]
-      : [process.execPath, entryPath, "doctor", "--repair", "--yes"];
+      : [process.execPath, entryPath, "doctor", "--repair", "--yes", "--non-interactive"];
   return {
     argv,
-    command: argv.join(" "),
+    command: formatCommandForDisplay(argv),
     cwd: root,
   };
+}
+
+function formatCommandArg(arg: string): string {
+  if (arg.length === 0) {
+    return '""';
+  }
+  if (/^[A-Za-z0-9_./:=+-]+$/.test(arg)) {
+    return arg;
+  }
+  return JSON.stringify(arg);
+}
+
+function formatCommandForDisplay(argv: string[]): string {
+  return argv.map((arg) => formatCommandArg(arg)).join(" ");
 }
 
 function normalizeDoctorRunTimeout(value: unknown): number {
@@ -106,6 +120,7 @@ async function runDoctorPreview(
 
 function startDoctorApply(
   command: Awaited<ReturnType<typeof resolveDoctorCliCommand>>,
+  logGateway?: { warn: (message: string) => void },
 ): DoctorRunResultPayload {
   const child = spawn(command.argv[0] ?? process.execPath, command.argv.slice(1), {
     cwd: command.cwd,
@@ -114,6 +129,9 @@ function startDoctorApply(
     ) as NodeJS.ProcessEnv,
     detached: true,
     stdio: "ignore",
+  });
+  child.on("error", (err) => {
+    logGateway?.warn(`doctor.run apply spawn failed: ${formatError(err)}`);
   });
   child.unref();
   return {
@@ -178,13 +196,15 @@ export const doctorHandlers: GatewayRequestHandlers = {
       return;
     }
 
-    const mode = params.mode as DoctorRunMode;
+    const mode = params.mode;
     const timeoutMs = normalizeDoctorRunTimeout(params.timeoutMs);
     const actor = resolveControlPlaneActor(client);
     try {
       const command = await resolveDoctorCliCommand(mode);
       const payload =
-        mode === "dry-run" ? await runDoctorPreview(command, timeoutMs) : startDoctorApply(command);
+        mode === "dry-run"
+          ? await runDoctorPreview(command, timeoutMs)
+          : startDoctorApply(command, context?.logGateway);
       context?.logGateway?.info(
         `doctor.run completed ${formatControlPlaneActor(actor)} mode=${mode} background=${payload.background} ok=${payload.ok}`,
       );

@@ -255,6 +255,19 @@ function formatAuthIssueLine(issue: AuthIssue): string {
   return `- ${issue.profileId}: ${issue.status}${remaining}${hint ? ` — ${hint}` : ""}`;
 }
 
+function formatAuthIssueLines(issues: AuthIssue[]): string {
+  return issues
+    .map((issue) =>
+      formatAuthIssueLine({
+        profileId: issue.profileId,
+        provider: issue.provider,
+        status: issue.status,
+        remainingMs: issue.remainingMs,
+      }),
+    )
+    .join("\n");
+}
+
 export async function noteAuthProfileHealth(params: {
   cfg: OpenClawConfig;
   prompter: DoctorPrompter;
@@ -315,6 +328,7 @@ export async function noteAuthProfileHealth(params: {
       issues.map((issue) => `- Would refresh ${issue.profileId} (${issue.status}).`).join("\n"),
       "Doctor dry-run",
     );
+    note(formatAuthIssueLines(issues), "Model auth");
     return;
   }
 
@@ -354,18 +368,6 @@ export async function noteAuthProfileHealth(params: {
   }
 
   if (issues.length > 0) {
-    note(
-      issues
-        .map((issue) =>
-          formatAuthIssueLine({
-            profileId: issue.profileId,
-            provider: issue.provider,
-            status: issue.status,
-            remainingMs: issue.remainingMs,
-          }),
-        )
-        .join("\n"),
-      "Model auth",
-    );
+    note(formatAuthIssueLines(issues), "Model auth");
   }
 }

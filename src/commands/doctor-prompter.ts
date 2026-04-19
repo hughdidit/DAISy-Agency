@@ -17,6 +17,14 @@ export type DoctorOptions = {
 export type DoctorExecutionMode = "inspect" | "dry-run" | "apply";
 
 export function resolveDoctorExecutionMode(options: DoctorOptions): DoctorExecutionMode {
+  if (
+    options.force === true &&
+    options.dryRun !== true &&
+    options.repair !== true &&
+    options.yes !== true
+  ) {
+    throw new Error("--force can only be used with --repair/--fix or --yes.");
+  }
   if (options.dryRun === true) {
     return "dry-run";
   }
