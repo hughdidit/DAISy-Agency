@@ -224,7 +224,7 @@ Each stored memory includes:
 - `memory_hygiene({ mode: "plan"|"apply", strategies?, maxCandidates?, planId? })` where `strategies[]` may include `dedupe`, `stale-prune`, `conflict-review`, and `promote`
 - `commitment_tracker({ mode: "capture"|"list_open"|"resolve"|"cancel", ... })`
 - `preference_miner({ mode: "observe"|"plan_promotions"|"apply_promotions"|"list", ... })`
-- `memory_audit({ runId?, cleanupOnSuccess? })` to run probe capture/recall checks after memory config changes or when recall reliability is uncertain
+- `memory_audit({ runId?, cleanupOnSuccess? })` to run probe capture/recall checks after memory config changes, recall-related deploys, or when recall reliability is uncertain; raw output may include `token`, `storedId`, `recallEvidenceIds`, and `reason` on early failure, but routine summaries should report `pass: true|false`, `runId`, and, where available, `recallHits`, `latencyMs`, `cleanupResult`, and `reason`
 
 Migration note:
 
