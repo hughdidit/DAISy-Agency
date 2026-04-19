@@ -32,8 +32,8 @@ export type DoctorPrompter = {
   confirmAggressive: (params: Parameters<typeof confirm>[0]) => Promise<boolean>;
   confirmSkipInNonInteractive: (params: Parameters<typeof confirm>[0]) => Promise<boolean>;
   select: <T>(params: Parameters<typeof select>[0], fallback: T) => Promise<T>;
-  mode: DoctorExecutionMode;
-  isDryRun: boolean;
+  mode?: DoctorExecutionMode;
+  isDryRun?: boolean;
   shouldRepair: boolean;
   shouldForce: boolean;
 };
