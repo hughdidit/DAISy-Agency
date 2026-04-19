@@ -10,6 +10,34 @@ title: "Skills"
 
 OpenClaw uses **[AgentSkills](https://agentskills.io)-compatible** skill folders to teach the agent how to use tools. Each skill is a directory containing a `SKILL.md` with YAML frontmatter and instructions. OpenClaw loads **bundled skills** plus optional local overrides, and filters them at load time based on environment, config, and binary presence.
 
+## Read the skill vs use the tool directly
+
+Read the skill first when the behavior depends on a fixed launcher, a safety
+contract, approval rules, or a required response pattern. Use the tool directly
+only when you already know the exact tool surface you want and there is **no**
+skill-specific wrapper or operating procedure you need to preserve.
+
+For the bundled troubleshooting skills below, the `SKILL.md` is part of the
+contract, not optional reading: it defines which commands are allowed, whether
+the flow is read-only, and whether any later step becomes approval-gated.
+
+## Troubleshooting skills
+
+Use this quick reference before digging through the full skill bodies.
+
+| Skill | Safety class | Best used for | Not for | Tiny example |
+| --- | --- | --- | --- | --- |
+| `openclaw-readonly` | Sandbox-safe, read-only | Fast sandbox diagnostics like `status`, `sandbox explain`, `skills list`, and `skills check` | `doctor`, `update`, `config`, host-side setup, or any mutating action | `node skills/openclaw-readonly/scripts/openclaw-readonly.mjs status` |
+| `openclaw-doctor` | Sandbox-safe triage; remote preview/apply are approval-gated and mutating | Guided OpenClaw troubleshooting that starts with triage and then offers remote preview/apply choices | Local repair, direct sandbox mutation, or vague “go ahead and fix it” consent | `node skills/openclaw-doctor/scripts/openclaw-doctor-readonly.mjs triage` |
+
+Direct tool use for these two cases:
+
+- Use the `openclaw-doctor` skill when you want the guided triage flow and the
+  exact numbered repair choices.
+- Use `openclaw_doctor_repair` directly only when you already know you want the
+  dedicated remote preview/apply workflow and do **not** need local triage.
+- Do not bypass `openclaw-readonly` with raw `openclaw` commands from a sandbox.
+
 ## Locations and precedence
 
 Skills are loaded from **three** places:
@@ -145,8 +173,9 @@ Note on sandboxing:
   in the sandbox container to run there.
 
 The bundled `openclaw-readonly` skill is a special-case sandbox diagnostic
-skill. It uses the sandbox-local `openclaw-readonly` runtime instead of the
-full `openclaw` CLI and only supports:
+skill. Safety class: **sandbox-safe, read-only**. It uses the sandbox-local
+`openclaw-readonly` runtime instead of the full `openclaw` CLI and only
+supports:
 
 - `status`
 - `sandbox explain`
@@ -169,7 +198,8 @@ If those paths are still missing, it fails closed with a setup error instead of
 trying a host-side fallback.
 
 The bundled `openclaw-doctor` skill layers on top of that same readonly
-contract for sandbox-safe triage. It only uses:
+contract for sandbox-safe triage. Safety class: **sandbox-safe triage; remote
+preview/apply are approval-gated and mutating**. It only uses:
 
 ```bash
 node skills/openclaw-doctor/scripts/openclaw-doctor-readonly.mjs triage
