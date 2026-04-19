@@ -32,6 +32,14 @@ private func makeAgentDeepLinkURL(
 }
 
 @MainActor
+private func mountScreen(on appModel: NodeAppModel) throws -> ScreenWebViewCoordinator {
+    let coordinator = ScreenWebViewCoordinator(controller: appModel.screen)
+    _ = coordinator.makeContainerView()
+    _ = try #require(coordinator.managedWebView)
+    return coordinator
+}
+
+@MainActor
 private final class MockWatchMessagingService: @preconcurrency WatchMessagingServicing, @unchecked Sendable {
     var currentStatus = WatchMessagingStatus(
         supported: true,
@@ -146,6 +154,8 @@ private final class MockWatchMessagingService: @preconcurrency WatchMessagingSer
 
     @Test @MainActor func handleInvokeCanvasCommandsUpdateScreen() async throws {
         let appModel = NodeAppModel()
+        let coordinator = try mountScreen(on: appModel)
+        defer { coordinator.teardown() }
         appModel.screen.navigate(to: "http://example.com")
 
         let present = BridgeInvokeRequest(id: "present", command: OpenClawCanvasCommand.present.rawValue)
@@ -172,7 +182,13 @@ private final class MockWatchMessagingService: @preconcurrency WatchMessagingSer
             id: "eval",
             command: OpenClawCanvasCommand.evalJS.rawValue,
             paramsJSON: evalJSON)
-        let evalRes = await appModel._test_handleInvoke(eval)
+        let deadline = ContinuousClock().now.advanced(by: .seconds(3))
+        var evalRes = await appModel._test_handleInvoke(eval)
+        while !evalRes.ok && ContinuousClock().now < deadline {
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            evalRes = await appModel._test_handleInvoke(eval)
+        }
+
         #expect(evalRes.ok == true)
         let payloadData = try #require(evalRes.payloadJSON?.data(using: .utf8))
         let payload = try JSONSerialization.jsonObject(with: payloadData) as? [String: Any]
@@ -384,6 +400,10 @@ private final class MockWatchMessagingService: @preconcurrency WatchMessagingSer
                 note: nil,
                 sentAtMs: 1234,
                 transport: "transferUserInfo"))
+        let deadline = ContinuousClock().now.advanced(by: .seconds(1))
+        while appModel._test_queuedWatchReplyCount() != 1 && ContinuousClock().now < deadline {
+            try? await Task.sleep(nanoseconds: 50_000_000)
+        }
         #expect(appModel._test_queuedWatchReplyCount() == 1)
     }
 

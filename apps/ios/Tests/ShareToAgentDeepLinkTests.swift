@@ -2,7 +2,7 @@ import OpenClawKit
 import Foundation
 import Testing
 
-@Suite struct ShareToAgentDeepLinkTests {
+@Suite(.serialized) struct ShareToAgentDeepLinkTests {
     @Test func buildMessageIncludesSharedFields() {
         let payload = SharedContentPayload(
             title: "Article",
@@ -36,15 +36,28 @@ import Testing
         #expect(agent.message.contains("https://example.com"))
     }
 
-    @Test func buildURLReturnsNilWhenPayloadEmpty() {
+    @Test func buildURLFallsBackToDefaultInstructionWhenPayloadEmpty() {
+        let previousInstruction = ShareToAgentSettings.loadDefaultInstruction()
+        ShareToAgentSettings.saveDefaultInstruction(nil)
+        defer { ShareToAgentSettings.saveDefaultInstruction(previousInstruction) }
+
         let payload = SharedContentPayload(title: nil, url: nil, text: nil)
-        #expect(ShareToAgentDeepLink.buildURL(from: payload) == nil)
+        let url = ShareToAgentDeepLink.buildURL(from: payload)
+        let parsed = url.flatMap { DeepLinkParser.parse($0) }
+        guard case let .agent(agent)? = parsed else {
+            Issue.record("Expected openclaw://agent deep link")
+            return
+        }
+
+        #expect(agent.message.contains("Shared from iOS."))
+        #expect(agent.message.contains("Please help me with this."))
     }
 
     @Test func shareInstructionSettingsRoundTrip() {
         let value = "Focus on booking constraints and alternatives."
+        let previousInstruction = ShareToAgentSettings.loadDefaultInstruction()
         ShareToAgentSettings.saveDefaultInstruction(value)
-        defer { ShareToAgentSettings.saveDefaultInstruction(nil) }
+        defer { ShareToAgentSettings.saveDefaultInstruction(previousInstruction) }
 
         #expect(ShareToAgentSettings.loadDefaultInstruction() == value)
     }
