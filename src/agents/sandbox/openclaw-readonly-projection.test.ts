@@ -2,9 +2,9 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { buildWorkspaceSkillStatus } from "../skills-status.js";
 import { validateConfigObjectWithPlugins, type OpenClawConfig } from "../../config/config.js";
 import { clearPluginManifestRegistryCache } from "../../plugins/manifest-registry.js";
+import { buildWorkspaceSkillStatus } from "../skills-status.js";
 import {
   OPENCLAW_READONLY_SYNTHETIC_CONTAINER_ROOT,
   resolveOpenClawReadonlyProjection,
