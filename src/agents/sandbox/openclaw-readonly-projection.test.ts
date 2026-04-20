@@ -49,6 +49,7 @@ type ReadonlyPluginProjectionFixture = {
   hostExtensionsDir: string;
   projectedManifestPath: string;
   projectedSourcePath: string;
+  projectedEscapedSkillDirPath: string;
   projectedSkillFilePath: string;
   projectedOutsideSkillFilePath: string;
   projectedSymlinkSkillDir: string;
@@ -154,6 +155,11 @@ async function withReadonlyPluginProjectionFixture(
         "openclaw.plugin.json",
       ),
       projectedSourcePath: path.join(projection.hostStateDir, "extensions", pluginId, "index.js"),
+      projectedEscapedSkillDirPath: path.join(
+        projection.hostStateDir,
+        "extensions",
+        "outside-skills",
+      ),
       projectedSkillFilePath: path.join(
         projection.hostStateDir,
         "extensions",
@@ -384,6 +390,7 @@ describe("openclaw-readonly projection", () => {
         await expect(fs.access(fixture.projectedManifestPath)).resolves.toBeUndefined();
         await expect(fs.access(fixture.projectedSourcePath)).resolves.toBeUndefined();
         await expect(fs.access(fixture.projectedSkillFilePath)).resolves.toBeUndefined();
+        await expect(fs.access(fixture.projectedEscapedSkillDirPath)).rejects.toThrow();
         await expect(fs.access(fixture.projectedOutsideSkillFilePath)).rejects.toThrow();
       },
     );
@@ -412,8 +419,9 @@ describe("openclaw-readonly projection", () => {
           config: projectedConfig,
         });
         const projectedSkill = report.skills.find((entry) => entry.name === "projected-demo-skill");
-        expect(projectedSkill?.filePath).toContain(fixture.projectedSkillFilePath);
-        expect(projectedSkill?.filePath).not.toContain(fixture.hostExtensionsDir);
+        expect(projectedSkill).toBeDefined();
+        expect(projectedSkill!.filePath).toContain(fixture.projectedSkillFilePath);
+        expect(projectedSkill!.filePath).not.toContain(fixture.hostExtensionsDir);
       }
     });
   });
