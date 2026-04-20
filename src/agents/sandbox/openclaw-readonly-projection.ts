@@ -167,7 +167,11 @@ function resolveProjectedPluginRelativePath(params: {
   pluginSourcePath: string;
 }): string | null {
   const relativePath = path.relative(params.pluginRootDir, params.pluginSourcePath);
-  if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
+  if (
+    relativePath === ".." ||
+    relativePath.startsWith(`..${path.sep}`) ||
+    path.isAbsolute(relativePath)
+  ) {
     return null;
   }
   return relativePath || ".";
@@ -388,13 +392,21 @@ async function syncProjectedPluginRoots(params: {
             continue;
           }
           copiedSkillDirs.add(relativeSkillPath);
+          const targetSkillDir = path.join(targetRootDir, relativeSkillPath);
           try {
             await copyProjectedPluginDirectory({
               pluginRootDir: record.rootDir,
               sourceDir: sourceSkillDir,
-              targetDir: path.join(targetRootDir, relativeSkillPath),
+              targetDir: targetSkillDir,
             });
           } catch (error) {
+            await fs.rm(targetSkillDir, { recursive: true, force: true }).catch((cleanupError) => {
+              const cleanupMessage =
+                cleanupError instanceof Error ? cleanupError.message : String(cleanupError);
+              log.warn(
+                `Failed to clean partial readonly plugin skill projection for ${record.id} (${trimmedSkillPath}): ${cleanupMessage}`,
+              );
+            });
             const message = error instanceof Error ? error.message : String(error);
             log.warn(
               `Skipping readonly plugin skill projection for ${record.id} (${trimmedSkillPath}): ${message}`,
