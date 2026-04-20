@@ -72,7 +72,7 @@ async function withReadonlyPluginProjectionFixture(
   const hostStateDir = path.join(tempRoot, "host-state");
   const hostExtensionsDir = path.join(hostStateDir, "extensions", pluginId);
   const workspaceDir = path.join(tempRoot, "workspace");
-  const outsideSkillsDir = path.join(tempRoot, "outside-skills");
+  const outsideSkillsDir = path.join(path.dirname(hostExtensionsDir), "outside-skills");
 
   await fs.mkdir(hostExtensionsDir, { recursive: true });
   await fs.mkdir(workspaceDir, { recursive: true });
@@ -125,7 +125,7 @@ async function withReadonlyPluginProjectionFixture(
 
   try {
     const config: OpenClawConfig = {
-      session: { store: "" },
+      session: { store: path.join(tempRoot, "stores", "{agentId}", "sessions.json") },
       agents: { list: [{ id: "main", skills: ["openclaw-readonly"] }] },
       plugins: {
         allow: [pluginId],
