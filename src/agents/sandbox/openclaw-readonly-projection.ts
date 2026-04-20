@@ -226,7 +226,7 @@ async function copyProjectedPluginDirectory(params: {
         ? error.code
         : undefined;
     if (code === "ENOENT") {
-      throw new Error(`declared skill path not found: ${params.sourceDir}`);
+      throw new Error(`declared skill path not found: ${params.sourceDir}`, { cause: error });
     }
     throw error;
   }
