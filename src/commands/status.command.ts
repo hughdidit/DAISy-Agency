@@ -32,11 +32,25 @@ import {
 } from "./status.format.js";
 import { resolveGatewayProbeAuth } from "./status.gateway-probe.js";
 import { scanStatus } from "./status.scan.js";
+import type { StatusRuntimeContext } from "./status.scan.js";
 import {
   formatUpdateAvailableHint,
   formatUpdateOneLiner,
   resolveUpdateAvailability,
 } from "./status.update.js";
+
+function formatGatewayProbeReason(
+  reason: string | null | undefined,
+  options?: { remoteUrlMissing?: boolean },
+): string {
+  const detail =
+    reason === "readonly-sandbox-local-loopback-unsupported"
+      ? "probe unsupported from readonly sandbox (resolved target is host loopback)"
+      : reason
+        ? `probe unsupported (${reason})`
+        : "probe unsupported";
+  return options?.remoteUrlMissing ? `${detail}; gateway.remote.url missing` : detail;
+}
 
 function resolvePairingRecoveryContext(params: {
   error?: string | null;
@@ -73,6 +87,7 @@ export async function statusCommand(
     timeoutMs?: number;
     verbose?: boolean;
     all?: boolean;
+    runtimeContext?: StatusRuntimeContext;
   },
   runtime: RuntimeEnv,
 ) {
@@ -83,7 +98,15 @@ export async function statusCommand(
 
   const [scan, securityAudit] = opts.json
     ? await Promise.all([
-        scanStatus({ json: opts.json, timeoutMs: opts.timeoutMs, all: opts.all }, runtime),
+        scanStatus(
+          {
+            json: opts.json,
+            timeoutMs: opts.timeoutMs,
+            all: opts.all,
+            runtimeContext: opts.runtimeContext,
+          },
+          runtime,
+        ),
         runSecurityAudit({
           config: loadConfig(),
           deep: false,
@@ -92,7 +115,15 @@ export async function statusCommand(
         }),
       ])
     : [
-        await scanStatus({ json: opts.json, timeoutMs: opts.timeoutMs, all: opts.all }, runtime),
+        await scanStatus(
+          {
+            json: opts.json,
+            timeoutMs: opts.timeoutMs,
+            all: opts.all,
+            runtimeContext: opts.runtimeContext,
+          },
+          runtime,
+        ),
         await withProgress(
           {
             label: "Running security audit…",
@@ -118,6 +149,9 @@ export async function statusCommand(
     gatewayConnection,
     remoteUrlMissing,
     gatewayMode,
+    gatewayReachability,
+    gatewayProbeContext,
+    gatewayProbeReason,
     gatewayProbe,
     gatewayReachable,
     gatewaySelf,
@@ -139,23 +173,25 @@ export async function statusCommand(
         async () => await loadProviderUsageSummary({ timeoutMs: opts.timeoutMs }),
       )
     : undefined;
-  const health: HealthSummary | undefined = opts.deep
-    ? await withProgress(
-        {
-          label: "Checking gateway health…",
-          indeterminate: true,
-          enabled: opts.json !== true,
-        },
-        async () =>
-          await callGateway<HealthSummary>({
-            method: "health",
-            params: { probe: true },
-            timeoutMs: opts.timeoutMs,
-          }),
-      )
-    : undefined;
+  const gatewayProbeSupported = gatewayReachability !== "unsupported";
+  const health: HealthSummary | undefined =
+    opts.deep && gatewayProbeSupported
+      ? await withProgress(
+          {
+            label: "Checking gateway health…",
+            indeterminate: true,
+            enabled: opts.json !== true,
+          },
+          async () =>
+            await callGateway<HealthSummary>({
+              method: "health",
+              params: { probe: true },
+              timeoutMs: opts.timeoutMs,
+            }),
+        )
+      : undefined;
   const lastHeartbeat =
-    opts.deep && gatewayReachable
+    opts.deep && gatewayProbeSupported && gatewayReachable
       ? await callGateway<HeartbeatEventPayload | null>({
           method: "last-heartbeat",
           params: {},
@@ -191,6 +227,9 @@ export async function statusCommand(
             url: gatewayConnection.url,
             urlSource: gatewayConnection.urlSource,
             misconfigured: remoteUrlMissing,
+            reachability: gatewayReachability,
+            probeContext: gatewayProbeContext,
+            probeReason: gatewayProbeReason,
             reachable: gatewayReachable,
             connectLatencyMs: gatewayProbe?.connectLatencyMs ?? null,
             self: gatewaySelf,
@@ -215,7 +254,7 @@ export async function statusCommand(
   const warn = (value: string) => (rich ? theme.warn(value) : value);
 
   if (opts.verbose) {
-    const details = buildGatewayConnectionDetails();
+    const details = buildGatewayConnectionDetails({ config: cfg });
     runtime.log(info("Gateway connection:"));
     for (const line of details.message.split("\n")) {
       runtime.log(`  ${line}`);
@@ -243,11 +282,14 @@ export async function statusCommand(
     const target = remoteUrlMissing
       ? `fallback ${gatewayConnection.url}`
       : `${gatewayConnection.url}${gatewayConnection.urlSource ? ` (${gatewayConnection.urlSource})` : ""}`;
-    const reach = remoteUrlMissing
-      ? warn("misconfigured (remote.url missing)")
-      : gatewayReachable
-        ? ok(`reachable ${formatDuration(gatewayProbe?.connectLatencyMs)}`)
-        : warn(gatewayProbe?.error ? `unreachable (${gatewayProbe.error})` : "unreachable");
+    const reach =
+      gatewayReachability === "unsupported"
+        ? muted(formatGatewayProbeReason(gatewayProbeReason, { remoteUrlMissing }))
+        : remoteUrlMissing
+          ? warn("misconfigured (remote.url missing)")
+          : gatewayReachable
+            ? ok(`reachable ${formatDuration(gatewayProbe?.connectLatencyMs)}`)
+            : warn(gatewayProbe?.error ? `unreachable (${gatewayProbe.error})` : "unreachable");
     const auth =
       gatewayReachable && !remoteUrlMissing
         ? ` · auth ${formatGatewayAuthUsed(resolveGatewayProbeAuth(cfg))}`
@@ -308,7 +350,11 @@ export async function statusCommand(
   const eventsValue =
     summary.queuedSystemEvents.length > 0 ? `${summary.queuedSystemEvents.length} queued` : "none";
 
-  const probesValue = health ? ok("enabled") : muted("skipped (use --deep)");
+  const probesValue = !gatewayProbeSupported
+    ? muted(formatGatewayProbeReason(gatewayProbeReason, { remoteUrlMissing }))
+    : health
+      ? ok("enabled")
+      : muted("skipped (use --deep)");
 
   const heartbeatValue = (() => {
     const parts = summary.heartbeat.agents
@@ -325,6 +371,9 @@ export async function statusCommand(
   const lastHeartbeatValue = (() => {
     if (!opts.deep) {
       return null;
+    }
+    if (!gatewayProbeSupported) {
+      return muted(formatGatewayProbeReason(gatewayProbeReason, { remoteUrlMissing }));
     }
     if (!gatewayReachable) {
       return warn("unavailable");
@@ -662,6 +711,10 @@ export async function statusCommand(
   runtime.log(`  Need to debug live? ${formatCliCommand("openclaw logs --follow")}`);
   if (gatewayReachable) {
     runtime.log(`  Need to test channels? ${formatCliCommand("openclaw status --deep")}`);
+  } else if (!gatewayProbeSupported) {
+    runtime.log(
+      `  Gateway probe:     ${muted(formatGatewayProbeReason(gatewayProbeReason, { remoteUrlMissing }))}`,
+    );
   } else {
     runtime.log(`  Fix reachability first: ${formatCliCommand("openclaw gateway probe")}`);
   }

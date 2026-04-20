@@ -2,6 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import type { StatusRuntimeContext } from "../commands/status.scan.js";
 import { isMainModule } from "../infra/is-main.js";
 import type { RuntimeEnv } from "../runtime.js";
 
@@ -56,6 +57,7 @@ type OpenClawReadonlyDeps = {
         timeoutMs?: number;
         verbose?: boolean;
         all?: boolean;
+        runtimeContext?: StatusRuntimeContext;
       },
       runtime: OpenClawReadonlyRuntime,
     ) => Promise<void>;
@@ -276,7 +278,15 @@ async function runOpenClawReadonlyResolved(
   switch (resolved.command.key) {
     case "status": {
       const { statusCommand } = await deps.importStatusCommand();
-      await statusCommand({}, deps.runtime);
+      await statusCommand(
+        {
+          runtimeContext: {
+            kind: "readonly-sandbox",
+            agentId: resolved.agentId,
+          },
+        },
+        deps.runtime,
+      );
       return;
     }
     case "sandbox-explain": {

@@ -58,3 +58,5 @@ The launcher prefers this order:
 For skills diagnostics, the launcher will prefer `/agent` and then `/workspace` when `OPENCLAW_READONLY_WORKSPACE_DIR` is unset.
 
 If those paths are still missing, report the launcher error as a sandbox setup issue instead of guessing.
+
+`status` may report gateway probing as unsupported when the readonly sandbox only sees a host-loopback gateway target. Treat that as truthful sandbox context reporting, not as proof that the host gateway is down.
