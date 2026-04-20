@@ -167,10 +167,10 @@ function resolveProjectedPluginRelativePath(params: {
   pluginSourcePath: string;
 }): string | null {
   const relativePath = path.relative(params.pluginRootDir, params.pluginSourcePath);
-  if (!relativePath || relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
+  if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
     return null;
   }
-  return relativePath;
+  return relativePath || ".";
 }
 
 function ensureProjectedPluginPathWithinRoot(params: {
@@ -244,26 +244,31 @@ async function copyProjectedPluginDirectory(params: {
   for (const entry of entries) {
     const sourcePath = path.join(params.sourceDir, entry.name);
     const targetPath = path.join(params.targetDir, entry.name);
-    if (entry.isSymbolicLink()) {
-      throw new Error(`symlinked skill entry is not allowed: ${sourcePath}`);
+    try {
+      if (entry.isSymbolicLink()) {
+        throw new Error(`symlinked skill entry is not allowed: ${sourcePath}`);
+      }
+      if (entry.isDirectory()) {
+        await copyProjectedPluginDirectory({
+          pluginRootDir: params.pluginRootDir,
+          sourceDir: sourcePath,
+          targetDir: targetPath,
+        });
+        continue;
+      }
+      if (entry.isFile()) {
+        await copyProjectedPluginFile({
+          pluginRootDir: params.pluginRootDir,
+          sourcePath,
+          targetPath,
+        });
+        continue;
+      }
+      throw new Error(`unsupported skill entry type: ${sourcePath}`);
+    } catch (error) {
+      await fs.rm(targetPath, { recursive: true, force: true });
+      throw error;
     }
-    if (entry.isDirectory()) {
-      await copyProjectedPluginDirectory({
-        pluginRootDir: params.pluginRootDir,
-        sourceDir: sourcePath,
-        targetDir: targetPath,
-      });
-      continue;
-    }
-    if (entry.isFile()) {
-      await copyProjectedPluginFile({
-        pluginRootDir: params.pluginRootDir,
-        sourcePath,
-        targetPath,
-      });
-      continue;
-    }
-    throw new Error(`unsupported skill entry type: ${sourcePath}`);
   }
 }
 

@@ -209,7 +209,7 @@ describe("openclaw-readonly projection", () => {
 
     const hostStateDir = path.join(tempRoot, "host-state");
     const hostExtensionsDir = path.join(hostStateDir, "extensions", "demo-plugin");
-    const outsideSkillsDir = path.join(tempRoot, "outside-skills");
+    const outsideSkillsDir = path.join(path.dirname(hostExtensionsDir), "outside-skills");
     await fs.mkdir(hostExtensionsDir, { recursive: true });
     await fs.writeFile(
       path.join(hostExtensionsDir, "index.js"),
