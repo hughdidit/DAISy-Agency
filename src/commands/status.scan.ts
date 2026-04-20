@@ -4,6 +4,7 @@ import { withProgress } from "../cli/progress.js";
 import { loadConfig } from "../config/config.js";
 import { buildGatewayConnectionDetails, callGateway } from "../gateway/call.js";
 import { normalizeControlUiBasePath } from "../gateway/control-ui-shared.js";
+import { isLoopbackHost } from "../gateway/net.js";
 import { probeGateway } from "../gateway/probe.js";
 import { collectChannelStatusIssues } from "../infra/channels-status-issues.js";
 import { resolveOsSummary } from "../infra/os-summary.js";
@@ -30,12 +31,28 @@ type MemoryPluginStatus = {
 
 type DeferredResult<T> = { ok: true; value: T } | { ok: false; error: unknown };
 
+export type StatusRuntimeContext =
+  | {
+      kind: "standard";
+    }
+  | {
+      kind: "readonly-sandbox";
+      agentId: string;
+    };
+
+export type StatusGatewayReachability = "reachable" | "unreachable" | "unsupported";
+
 type GatewayProbeSnapshot = {
   gatewayConnection: ReturnType<typeof buildGatewayConnectionDetails>;
   remoteUrlMissing: boolean;
   gatewayMode: "local" | "remote";
+  gatewayReachability: StatusGatewayReachability;
+  gatewayProbeContext: StatusRuntimeContext["kind"];
+  gatewayProbeReason: string | null;
   gatewayProbe: Awaited<ReturnType<typeof probeGateway>> | null;
 };
+
+const DEFAULT_STATUS_RUNTIME_CONTEXT: StatusRuntimeContext = { kind: "standard" };
 
 function deferResult<T>(promise: Promise<T>): Promise<DeferredResult<T>> {
   return promise.then(
@@ -63,16 +80,60 @@ function resolveMemoryPluginStatus(cfg: ReturnType<typeof loadConfig>): MemoryPl
   return { enabled: true, slot: raw || "memory-core" };
 }
 
+function resolveStatusRuntimeContext(
+  runtimeContext?: StatusRuntimeContext,
+): StatusRuntimeContext {
+  return runtimeContext ?? DEFAULT_STATUS_RUNTIME_CONTEXT;
+}
+
+function resolveReadonlyGatewayProbeReason(params: {
+  runtimeContext: StatusRuntimeContext;
+  gatewayConnection: ReturnType<typeof buildGatewayConnectionDetails>;
+}): string | null {
+  if (params.runtimeContext.kind !== "readonly-sandbox") {
+    return null;
+  }
+  if (
+    params.gatewayConnection.urlSource === "local loopback" ||
+    params.gatewayConnection.urlSource === "missing gateway.remote.url (fallback local)"
+  ) {
+    return "readonly-sandbox-local-loopback-unsupported";
+  }
+  try {
+    const parsed = new URL(params.gatewayConnection.url);
+    if (isLoopbackHost(parsed.hostname)) {
+      return "readonly-sandbox-local-loopback-unsupported";
+    }
+  } catch {}
+  return null;
+}
+
 async function resolveGatewayProbeSnapshot(params: {
   cfg: ReturnType<typeof loadConfig>;
-  opts: { timeoutMs?: number; all?: boolean };
+  opts: { timeoutMs?: number; all?: boolean; runtimeContext?: StatusRuntimeContext };
 }): Promise<GatewayProbeSnapshot> {
-  const gatewayConnection = buildGatewayConnectionDetails();
+  const runtimeContext = resolveStatusRuntimeContext(params.opts.runtimeContext);
+  const gatewayConnection = buildGatewayConnectionDetails({ config: params.cfg });
   const isRemoteMode = params.cfg.gateway?.mode === "remote";
   const remoteUrlRaw =
     typeof params.cfg.gateway?.remote?.url === "string" ? params.cfg.gateway.remote.url : "";
   const remoteUrlMissing = isRemoteMode && !remoteUrlRaw.trim();
   const gatewayMode = isRemoteMode ? "remote" : "local";
+  const gatewayProbeReason = resolveReadonlyGatewayProbeReason({
+    runtimeContext,
+    gatewayConnection,
+  });
+  if (gatewayProbeReason) {
+    return {
+      gatewayConnection,
+      remoteUrlMissing,
+      gatewayMode,
+      gatewayReachability: "unsupported",
+      gatewayProbeContext: runtimeContext.kind,
+      gatewayProbeReason,
+      gatewayProbe: null,
+    };
+  }
   const gatewayProbe = remoteUrlMissing
     ? null
     : await probeGateway({
@@ -80,14 +141,24 @@ async function resolveGatewayProbeSnapshot(params: {
         auth: resolveGatewayProbeAuth(params.cfg),
         timeoutMs: Math.min(params.opts.all ? 5000 : 2500, params.opts.timeoutMs ?? 10_000),
       }).catch(() => null);
-  return { gatewayConnection, remoteUrlMissing, gatewayMode, gatewayProbe };
+  const gatewayReachability: StatusGatewayReachability =
+    remoteUrlMissing || gatewayProbe?.ok !== true ? "unreachable" : "reachable";
+  return {
+    gatewayConnection,
+    remoteUrlMissing,
+    gatewayMode,
+    gatewayReachability,
+    gatewayProbeContext: runtimeContext.kind,
+    gatewayProbeReason: null,
+    gatewayProbe,
+  };
 }
 
 async function resolveChannelsStatus(params: {
-  gatewayReachable: boolean;
+  gatewayReachability: StatusGatewayReachability;
   opts: { timeoutMs?: number; all?: boolean };
 }) {
-  if (!params.gatewayReachable) {
+  if (params.gatewayReachability !== "reachable") {
     return null;
   }
   return await callGateway({
@@ -110,6 +181,9 @@ export type StatusScanResult = {
   gatewayConnection: ReturnType<typeof buildGatewayConnectionDetails>;
   remoteUrlMissing: boolean;
   gatewayMode: "local" | "remote";
+  gatewayReachability: StatusGatewayReachability;
+  gatewayProbeContext: StatusRuntimeContext["kind"];
+  gatewayProbeReason: string | null;
   gatewayProbe: Awaited<ReturnType<typeof probeGateway>> | null;
   gatewayReachable: boolean;
   gatewaySelf: ReturnType<typeof pickGatewaySelfPresence>;
@@ -149,6 +223,7 @@ async function resolveMemoryStatusSnapshot(params: {
 async function scanStatusJsonFast(opts: {
   timeoutMs?: number;
   all?: boolean;
+  runtimeContext?: StatusRuntimeContext;
 }): Promise<StatusScanResult> {
   const loadedRaw = loadConfig();
   const { resolvedConfig: cfg } = await resolveCommandSecretRefsViaGateway({
@@ -188,12 +263,20 @@ async function scanStatusJsonFast(opts: {
       ? `https://${tailscaleDns}${normalizeControlUiBasePath(cfg.gateway?.controlUi?.basePath)}`
       : null;
 
-  const { gatewayConnection, remoteUrlMissing, gatewayMode, gatewayProbe } = gatewaySnapshot;
-  const gatewayReachable = gatewayProbe?.ok === true;
+  const {
+    gatewayConnection,
+    remoteUrlMissing,
+    gatewayMode,
+    gatewayReachability,
+    gatewayProbeContext,
+    gatewayProbeReason,
+    gatewayProbe,
+  } = gatewaySnapshot;
+  const gatewayReachable = gatewayReachability === "reachable";
   const gatewaySelf = gatewayProbe?.presence
     ? pickGatewaySelfPresence(gatewayProbe.presence)
     : null;
-  const channelsStatusPromise = resolveChannelsStatus({ gatewayReachable, opts });
+  const channelsStatusPromise = resolveChannelsStatus({ gatewayReachability, opts });
   const memoryPlugin = resolveMemoryPluginStatus(cfg);
   const memoryPromise = resolveMemoryStatusSnapshot({ cfg, agentStatus, memoryPlugin });
   const [channelsStatus, memory] = await Promise.all([channelsStatusPromise, memoryPromise]);
@@ -209,6 +292,9 @@ async function scanStatusJsonFast(opts: {
     gatewayConnection,
     remoteUrlMissing,
     gatewayMode,
+    gatewayReachability,
+    gatewayProbeContext,
+    gatewayProbeReason,
     gatewayProbe,
     gatewayReachable,
     gatewaySelf,
@@ -226,11 +312,16 @@ export async function scanStatus(
     json?: boolean;
     timeoutMs?: number;
     all?: boolean;
+    runtimeContext?: StatusRuntimeContext;
   },
   _runtime: RuntimeEnv,
 ): Promise<StatusScanResult> {
   if (opts.json) {
-    return await scanStatusJsonFast({ timeoutMs: opts.timeoutMs, all: opts.all });
+    return await scanStatusJsonFast({
+      timeoutMs: opts.timeoutMs,
+      all: opts.all,
+      runtimeContext: opts.runtimeContext,
+    });
   }
   return await withProgress(
     {
@@ -283,16 +374,24 @@ export async function scanStatus(
       progress.tick();
 
       progress.setLabel("Probing gateway…");
-      const { gatewayConnection, remoteUrlMissing, gatewayMode, gatewayProbe } =
+      const {
+        gatewayConnection,
+        remoteUrlMissing,
+        gatewayMode,
+        gatewayReachability,
+        gatewayProbeContext,
+        gatewayProbeReason,
+        gatewayProbe,
+      } =
         await resolveGatewayProbeSnapshot({ cfg, opts });
-      const gatewayReachable = gatewayProbe?.ok === true;
+      const gatewayReachable = gatewayReachability === "reachable";
       const gatewaySelf = gatewayProbe?.presence
         ? pickGatewaySelfPresence(gatewayProbe.presence)
         : null;
       progress.tick();
 
       progress.setLabel("Querying channel status…");
-      const channelsStatus = await resolveChannelsStatus({ gatewayReachable, opts });
+      const channelsStatus = await resolveChannelsStatus({ gatewayReachability, opts });
       const channelIssues = channelsStatus ? collectChannelStatusIssues(channelsStatus) : [];
       progress.tick();
 
@@ -326,6 +425,9 @@ export async function scanStatus(
         gatewayConnection,
         remoteUrlMissing,
         gatewayMode,
+        gatewayReachability,
+        gatewayProbeContext,
+        gatewayProbeReason,
         gatewayProbe,
         gatewayReachable,
         gatewaySelf,

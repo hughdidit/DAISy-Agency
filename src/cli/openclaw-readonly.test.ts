@@ -187,6 +187,42 @@ describe("openclaw-readonly CLI", () => {
     }
   });
 
+  it("dispatches status with readonly sandbox runtime context", async () => {
+    const statusCommand = vi.fn();
+
+    await runOpenClawReadonly(["status"], {
+      env: {
+        OPENCLAW_READONLY_CONFIG_PATH: "/readonly/openclaw.json",
+        OPENCLAW_READONLY_STATE_DIR: "/readonly/state",
+        OPENCLAW_READONLY_AGENT_ID: "readonly-agent",
+      },
+      runtime,
+      pathExists: () => true,
+      importStatusCommand: async () => ({
+        statusCommand,
+      }),
+      importSandboxExplainCommand: async () => ({
+        sandboxExplainCommand: vi.fn(),
+      }),
+      importSkillsModules: async () => ({
+        loadConfig: vi.fn(),
+        buildWorkspaceSkillStatus: vi.fn(),
+        formatSkillsList: vi.fn(),
+        formatSkillsCheck: vi.fn(),
+      }),
+    });
+
+    expect(statusCommand).toHaveBeenCalledWith(
+      {
+        runtimeContext: {
+          kind: "readonly-sandbox",
+          agentId: "readonly-agent",
+        },
+      },
+      runtime,
+    );
+  });
+
   it("surfaces actionable runtime failures", async () => {
     await runOpenClawReadonly(["skills", "check"], {
       env: {

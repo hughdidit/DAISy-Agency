@@ -345,7 +345,7 @@ vi.mock("../config/config.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../config/config.js")>();
   return {
     ...actual,
-    loadConfig: () => ({ session: {} }),
+    loadConfig: vi.fn(() => ({ session: {} })),
   };
 });
 vi.mock("../daemon/service.js", () => ({
@@ -479,6 +479,133 @@ describe("statusCommand", () => {
       const logs = await runStatusAndGetLogs();
       expect(logs.some((l: string) => l.includes("auth token"))).toBe(true);
     });
+  });
+
+  it("keeps probing local loopback for standard status", async () => {
+    mocks.probeGateway.mockClear();
+
+    await statusCommand({ json: true }, runtime as never);
+
+    expect(mocks.probeGateway).toHaveBeenCalledTimes(1);
+    const payload = JSON.parse(String(runtimeLogMock.mock.calls.at(-1)?.[0]));
+    expect(payload.gateway.urlSource).toBe("local loopback");
+    expect(payload.gateway.reachability).toBe("unreachable");
+    expect(payload.gateway.probeContext).toBe("standard");
+    expect(payload.gateway.probeReason).toBeNull();
+  });
+
+  it("reports readonly sandbox loopback probes as unsupported instead of unreachable", async () => {
+    mocks.probeGateway.mockClear();
+    mocks.callGateway.mockClear();
+
+    const joined = await runStatusAndGetJoinedLogs({
+      runtimeContext: {
+        kind: "readonly-sandbox",
+        agentId: "main",
+      },
+    });
+
+    expect(joined).toContain("probe unsupported from readonly sandbox");
+    expect(joined).not.toContain("gateway unreachable");
+    expect(mocks.probeGateway).not.toHaveBeenCalled();
+    expect(mocks.callGateway).not.toHaveBeenCalled();
+  });
+
+  it("emits unsupported readonly sandbox loopback details in JSON output", async () => {
+    mocks.probeGateway.mockClear();
+    mocks.callGateway.mockClear();
+
+    await statusCommand(
+      {
+        json: true,
+        runtimeContext: {
+          kind: "readonly-sandbox",
+          agentId: "main",
+        },
+      },
+      runtime as never,
+    );
+
+    const payload = JSON.parse(String(runtimeLogMock.mock.calls.at(-1)?.[0]));
+    expect(payload.gateway.urlSource).toBe("local loopback");
+    expect(payload.gateway.reachability).toBe("unsupported");
+    expect(payload.gateway.probeContext).toBe("readonly-sandbox");
+    expect(payload.gateway.probeReason).toBe("readonly-sandbox-local-loopback-unsupported");
+    expect(payload.gateway.reachable).toBe(false);
+    expect(payload.gateway.error).toBeNull();
+    expect(mocks.probeGateway).not.toHaveBeenCalled();
+    expect(mocks.callGateway).not.toHaveBeenCalled();
+  });
+
+  it("treats readonly sandbox remote-mode fallback to loopback as unsupported", async () => {
+    const configModule = await import("../config/config.js");
+    const loadConfigMock = vi.mocked(configModule.loadConfig);
+    mocks.probeGateway.mockClear();
+
+    loadConfigMock.mockImplementationOnce(
+      () =>
+        ({
+          gateway: {
+            mode: "remote",
+            remote: {},
+          },
+          session: {},
+        }) as never,
+    );
+
+    await statusCommand(
+      {
+        json: true,
+        runtimeContext: {
+          kind: "readonly-sandbox",
+          agentId: "main",
+        },
+      },
+      runtime as never,
+    );
+
+    const payload = JSON.parse(String(runtimeLogMock.mock.calls.at(-1)?.[0]));
+    expect(payload.gateway.urlSource).toBe("missing gateway.remote.url (fallback local)");
+    expect(payload.gateway.misconfigured).toBe(true);
+    expect(payload.gateway.reachability).toBe("unsupported");
+    expect(payload.gateway.probeReason).toBe("readonly-sandbox-local-loopback-unsupported");
+    expect(mocks.probeGateway).not.toHaveBeenCalled();
+  });
+
+  it("still probes explicit non-loopback targets from readonly sandbox status", async () => {
+    mocks.probeGateway.mockClear();
+
+    await withEnvVar("OPENCLAW_GATEWAY_URL", "wss://remote.example/ws", async () => {
+      mockProbeGatewayResult({
+        ok: true,
+        url: "wss://remote.example/ws",
+        connectLatencyMs: 42,
+        error: null,
+        health: {},
+        status: {},
+        presence: [],
+      });
+
+      await statusCommand(
+        {
+          json: true,
+          runtimeContext: {
+            kind: "readonly-sandbox",
+            agentId: "main",
+          },
+        },
+        runtime as never,
+      );
+    });
+
+    const payload = JSON.parse(String(runtimeLogMock.mock.calls.at(-1)?.[0]));
+    expect(mocks.probeGateway).toHaveBeenCalledTimes(1);
+    expect(mocks.probeGateway.mock.calls[0]?.[0]?.url).toBe("wss://remote.example/ws");
+    expect(payload.gateway.url).toBe("wss://remote.example/ws");
+    expect(payload.gateway.urlSource).toBe("env OPENCLAW_GATEWAY_URL");
+    expect(payload.gateway.reachability).toBe("reachable");
+    expect(payload.gateway.probeContext).toBe("readonly-sandbox");
+    expect(payload.gateway.probeReason).toBeNull();
   });
 
   it("surfaces channel runtime errors from the gateway", async () => {
