@@ -86,19 +86,17 @@ function resolveStatusRuntimeContext(runtimeContext?: StatusRuntimeContext): Sta
 
 function resolveReadonlyGatewayProbeReason(params: {
   runtimeContext: StatusRuntimeContext;
-  gatewayConnection: ReturnType<typeof buildGatewayConnectionDetails>;
+  remoteUrlMissing: boolean;
+  gatewayUrl: string;
 }): string | null {
   if (params.runtimeContext.kind !== "readonly-sandbox") {
     return null;
   }
-  if (
-    params.gatewayConnection.urlSource === "local loopback" ||
-    params.gatewayConnection.urlSource === "missing gateway.remote.url (fallback local)"
-  ) {
+  if (params.remoteUrlMissing) {
     return "readonly-sandbox-local-loopback-unsupported";
   }
   try {
-    const parsed = new URL(params.gatewayConnection.url);
+    const parsed = new URL(params.gatewayUrl);
     if (isLoopbackHost(parsed.hostname)) {
       return "readonly-sandbox-local-loopback-unsupported";
     }
@@ -113,13 +111,12 @@ async function resolveGatewayProbeSnapshot(params: {
   const runtimeContext = resolveStatusRuntimeContext(params.opts.runtimeContext);
   const gatewayConnection = buildGatewayConnectionDetails({ config: params.cfg });
   const isRemoteMode = params.cfg.gateway?.mode === "remote";
-  const remoteUrlRaw =
-    typeof params.cfg.gateway?.remote?.url === "string" ? params.cfg.gateway.remote.url : "";
-  const remoteUrlMissing = isRemoteMode && !remoteUrlRaw.trim();
+  const remoteUrlMissing = isRemoteMode && typeof gatewayConnection.remoteFallbackNote === "string";
   const gatewayMode = isRemoteMode ? "remote" : "local";
   const gatewayProbeReason = resolveReadonlyGatewayProbeReason({
     runtimeContext,
-    gatewayConnection,
+    remoteUrlMissing,
+    gatewayUrl: gatewayConnection.url,
   });
   if (gatewayProbeReason) {
     return {

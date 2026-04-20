@@ -39,11 +39,17 @@ import {
   resolveUpdateAvailability,
 } from "./status.update.js";
 
-function formatGatewayProbeReason(reason: string | null | undefined): string {
-  if (reason === "readonly-sandbox-local-loopback-unsupported") {
-    return "probe unsupported from readonly sandbox (resolved target is host loopback)";
-  }
-  return "probe unsupported";
+function formatGatewayProbeReason(
+  reason: string | null | undefined,
+  options?: { remoteUrlMissing?: boolean },
+): string {
+  const detail =
+    reason === "readonly-sandbox-local-loopback-unsupported"
+      ? "probe unsupported from readonly sandbox (resolved target is host loopback)"
+      : reason
+        ? `probe unsupported (${reason})`
+        : "probe unsupported";
+  return options?.remoteUrlMissing ? `${detail}; gateway.remote.url missing` : detail;
 }
 
 function resolvePairingRecoveryContext(params: {
@@ -248,7 +254,7 @@ export async function statusCommand(
   const warn = (value: string) => (rich ? theme.warn(value) : value);
 
   if (opts.verbose) {
-    const details = buildGatewayConnectionDetails();
+    const details = buildGatewayConnectionDetails({ config: cfg });
     runtime.log(info("Gateway connection:"));
     for (const line of details.message.split("\n")) {
       runtime.log(`  ${line}`);
@@ -278,7 +284,7 @@ export async function statusCommand(
       : `${gatewayConnection.url}${gatewayConnection.urlSource ? ` (${gatewayConnection.urlSource})` : ""}`;
     const reach =
       gatewayReachability === "unsupported"
-        ? muted(formatGatewayProbeReason(gatewayProbeReason))
+        ? muted(formatGatewayProbeReason(gatewayProbeReason, { remoteUrlMissing }))
         : remoteUrlMissing
           ? warn("misconfigured (remote.url missing)")
           : gatewayReachable
@@ -344,7 +350,11 @@ export async function statusCommand(
   const eventsValue =
     summary.queuedSystemEvents.length > 0 ? `${summary.queuedSystemEvents.length} queued` : "none";
 
-  const probesValue = health ? ok("enabled") : muted("skipped (use --deep)");
+  const probesValue = !gatewayProbeSupported
+    ? muted(formatGatewayProbeReason(gatewayProbeReason, { remoteUrlMissing }))
+    : health
+      ? ok("enabled")
+      : muted("skipped (use --deep)");
 
   const heartbeatValue = (() => {
     const parts = summary.heartbeat.agents
@@ -363,7 +373,7 @@ export async function statusCommand(
       return null;
     }
     if (!gatewayProbeSupported) {
-      return muted(formatGatewayProbeReason(gatewayProbeReason));
+      return muted(formatGatewayProbeReason(gatewayProbeReason, { remoteUrlMissing }));
     }
     if (!gatewayReachable) {
       return warn("unavailable");
@@ -701,6 +711,10 @@ export async function statusCommand(
   runtime.log(`  Need to debug live? ${formatCliCommand("openclaw logs --follow")}`);
   if (gatewayReachable) {
     runtime.log(`  Need to test channels? ${formatCliCommand("openclaw status --deep")}`);
+  } else if (!gatewayProbeSupported) {
+    runtime.log(
+      `  Gateway probe:     ${muted(formatGatewayProbeReason(gatewayProbeReason, { remoteUrlMissing }))}`,
+    );
   } else {
     runtime.log(`  Fix reachability first: ${formatCliCommand("openclaw gateway probe")}`);
   }
