@@ -80,9 +80,7 @@ function resolveMemoryPluginStatus(cfg: ReturnType<typeof loadConfig>): MemoryPl
   return { enabled: true, slot: raw || "memory-core" };
 }
 
-function resolveStatusRuntimeContext(
-  runtimeContext?: StatusRuntimeContext,
-): StatusRuntimeContext {
+function resolveStatusRuntimeContext(runtimeContext?: StatusRuntimeContext): StatusRuntimeContext {
   return runtimeContext ?? DEFAULT_STATUS_RUNTIME_CONTEXT;
 }
 
@@ -382,8 +380,7 @@ export async function scanStatus(
         gatewayProbeContext,
         gatewayProbeReason,
         gatewayProbe,
-      } =
-        await resolveGatewayProbeSnapshot({ cfg, opts });
+      } = await resolveGatewayProbeSnapshot({ cfg, opts });
       const gatewayReachable = gatewayReachability === "reachable";
       const gatewaySelf = gatewayProbe?.presence
         ? pickGatewaySelfPresence(gatewayProbe.presence)

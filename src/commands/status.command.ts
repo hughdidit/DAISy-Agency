@@ -32,12 +32,12 @@ import {
 } from "./status.format.js";
 import { resolveGatewayProbeAuth } from "./status.gateway-probe.js";
 import { scanStatus } from "./status.scan.js";
+import type { StatusRuntimeContext } from "./status.scan.js";
 import {
   formatUpdateAvailableHint,
   formatUpdateOneLiner,
   resolveUpdateAvailability,
 } from "./status.update.js";
-import type { StatusRuntimeContext } from "./status.scan.js";
 
 function formatGatewayProbeReason(reason: string | null | undefined): string {
   if (reason === "readonly-sandbox-local-loopback-unsupported") {
@@ -168,21 +168,22 @@ export async function statusCommand(
       )
     : undefined;
   const gatewayProbeSupported = gatewayReachability !== "unsupported";
-  const health: HealthSummary | undefined = opts.deep && gatewayProbeSupported
-    ? await withProgress(
-        {
-          label: "Checking gateway health…",
-          indeterminate: true,
-          enabled: opts.json !== true,
-        },
-        async () =>
-          await callGateway<HealthSummary>({
-            method: "health",
-            params: { probe: true },
-            timeoutMs: opts.timeoutMs,
-          }),
-      )
-    : undefined;
+  const health: HealthSummary | undefined =
+    opts.deep && gatewayProbeSupported
+      ? await withProgress(
+          {
+            label: "Checking gateway health…",
+            indeterminate: true,
+            enabled: opts.json !== true,
+          },
+          async () =>
+            await callGateway<HealthSummary>({
+              method: "health",
+              params: { probe: true },
+              timeoutMs: opts.timeoutMs,
+            }),
+        )
+      : undefined;
   const lastHeartbeat =
     opts.deep && gatewayProbeSupported && gatewayReachable
       ? await callGateway<HeartbeatEventPayload | null>({

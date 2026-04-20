@@ -2,9 +2,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import type { StatusRuntimeContext } from "../commands/status.scan.js";
 import { isMainModule } from "../infra/is-main.js";
 import type { RuntimeEnv } from "../runtime.js";
-import type { StatusRuntimeContext } from "../commands/status.scan.js";
 
 type ReadonlyLoadConfig = typeof import("../config/config.js").loadConfig;
 type ReadonlyBuildWorkspaceSkillStatus =
