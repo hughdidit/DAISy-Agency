@@ -4,6 +4,7 @@ import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { validateConfigObjectWithPlugins, type OpenClawConfig } from "../../config/config.js";
 import { clearPluginManifestRegistryCache } from "../../plugins/manifest-registry.js";
+import { buildWorkspaceSkillStatus } from "../skills-status.js";
 import {
   OPENCLAW_READONLY_SYNTHETIC_CONTAINER_ROOT,
   resolveOpenClawReadonlyProjection,
@@ -19,6 +20,26 @@ function createConfig(skills?: string[]): OpenClawConfig {
       list: [{ id: "main", skills }],
     },
   };
+}
+
+async function writeSkillFile(params: {
+  dir: string;
+  name: string;
+  description: string;
+  body?: string;
+}): Promise<void> {
+  await fs.mkdir(params.dir, { recursive: true });
+  await fs.writeFile(
+    path.join(params.dir, "SKILL.md"),
+    `---
+name: ${params.name}
+description: ${params.description}
+---
+
+${params.body ?? `# ${params.name}\n`}
+`,
+    "utf8",
+  );
 }
 
 describe("openclaw-readonly projection", () => {
@@ -182,23 +203,35 @@ describe("openclaw-readonly projection", () => {
     await expect(fs.readdir(projection.hostProjectionRoot)).resolves.toEqual([]);
   });
 
-  it("projects discovered plugin roots so readonly validation can still resolve plugin ids", async () => {
+  it("projects discovered plugin roots and declared skill trees for readonly validation", async () => {
     const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-readonly-plugins-"));
     cleanupDirs.add(tempRoot);
 
     const hostStateDir = path.join(tempRoot, "host-state");
     const hostExtensionsDir = path.join(hostStateDir, "extensions", "demo-plugin");
+    const outsideSkillsDir = path.join(path.dirname(hostExtensionsDir), "outside-skills");
     await fs.mkdir(hostExtensionsDir, { recursive: true });
     await fs.writeFile(
       path.join(hostExtensionsDir, "index.js"),
       'module.exports = { id: "demo-plugin", register() {} };\n',
       "utf8",
     );
+    await writeSkillFile({
+      dir: path.join(hostExtensionsDir, "skills", "projected-demo-skill"),
+      name: "projected-demo-skill",
+      description: "Projected plugin skill",
+    });
+    await writeSkillFile({
+      dir: outsideSkillsDir,
+      name: "escaped-demo-skill",
+      description: "Should never be projected",
+    });
     await fs.writeFile(
       path.join(hostExtensionsDir, "openclaw.plugin.json"),
       JSON.stringify(
         {
           id: "demo-plugin",
+          skills: ["./skills", "../outside-skills"],
           configSchema: { type: "object", additionalProperties: false },
         },
         null,
@@ -218,15 +251,18 @@ describe("openclaw-readonly projection", () => {
         session: { store: "" },
         agents: { list: [{ id: "main", skills: ["openclaw-readonly"] }] },
         plugins: {
-          enabled: false,
           allow: ["demo-plugin"],
+          slots: {
+            memory: "none",
+          },
         },
       };
+      const workspaceDir = path.join(tempRoot, "workspace");
 
       const projection = resolveOpenClawReadonlyProjection({
         config,
         agentId: "main",
-        workspaceDir: path.join(tempRoot, "workspace"),
+        workspaceDir,
         sandboxWorkspaceDir: path.join(tempRoot, "sandbox"),
         containerWorkdir: "/workspace",
       });
@@ -235,7 +271,7 @@ describe("openclaw-readonly projection", () => {
         config,
         agentId: "main",
         projection,
-        workspaceDir: path.join(tempRoot, "workspace"),
+        workspaceDir,
       });
 
       await expect(
@@ -243,8 +279,42 @@ describe("openclaw-readonly projection", () => {
           path.join(projection.hostStateDir, "extensions", "demo-plugin", "openclaw.plugin.json"),
         ),
       ).resolves.toBeUndefined();
+      await expect(
+        fs.access(path.join(projection.hostStateDir, "extensions", "demo-plugin", "index.js")),
+      ).resolves.toBeUndefined();
+      await expect(
+        fs.access(
+          path.join(
+            projection.hostStateDir,
+            "extensions",
+            "demo-plugin",
+            "skills",
+            "projected-demo-skill",
+            "SKILL.md",
+          ),
+        ),
+      ).resolves.toBeUndefined();
+      await expect(
+        fs.access(
+          path.join(
+            projection.hostStateDir,
+            "extensions",
+            "demo-plugin",
+            "..",
+            "outside-skills",
+            "SKILL.md",
+          ),
+        ),
+      ).rejects.toThrow();
+      await expect(
+        fs.access(
+          path.join(projection.hostStateDir, "extensions", "demo-plugin", "outside-skills"),
+        ),
+      ).rejects.toThrow();
 
-      const projectedConfig = JSON.parse(await fs.readFile(projection.hostConfigPath, "utf8"));
+      const projectedConfig = JSON.parse(
+        await fs.readFile(projection.hostConfigPath, "utf8"),
+      ) as OpenClawConfig;
       process.env.OPENCLAW_STATE_DIR = projection.hostStateDir;
       clearPluginManifestRegistryCache();
 
@@ -252,6 +322,20 @@ describe("openclaw-readonly projection", () => {
       expect(validated.ok).toBe(true);
       if (validated.ok) {
         expect(validated.warnings).toEqual([]);
+        const report = buildWorkspaceSkillStatus(workspaceDir, {
+          config: projectedConfig,
+        });
+        const projectedSkill = report.skills.find((entry) => entry.name === "projected-demo-skill");
+        expect(projectedSkill?.filePath).toContain(
+          path.join(
+            projection.hostStateDir,
+            "extensions",
+            "demo-plugin",
+            "skills",
+            "projected-demo-skill",
+            "SKILL.md",
+          ),
+        );
       }
     } finally {
       clearPluginManifestRegistryCache();

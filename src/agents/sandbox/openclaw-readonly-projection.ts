@@ -1,11 +1,14 @@
+import nodeFs from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { OpenClawConfig } from "../../config/config.js";
 import { redactConfigObject } from "../../config/redact-snapshot.js";
 import { resolveStorePath } from "../../config/sessions.js";
+import { openBoundaryFileSync } from "../../infra/boundary-file-read.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { loadPluginManifestRegistry } from "../../plugins/manifest-registry.js";
 import { normalizeAgentId } from "../../routing/session-key.js";
+import { isPathInsideWithRealpath } from "../../security/scan-paths.js";
 import { resolveAgentSkillsFilter } from "../agent-scope.js";
 
 const log = createSubsystemLogger("sandbox/openclaw-readonly");
@@ -151,12 +154,126 @@ function resolveProjectedPluginRelativeEntryPath(params: {
   pluginRootDir: string;
   pluginSourcePath: string;
 }): string {
-  const relativePath = path.relative(params.pluginRootDir, params.pluginSourcePath);
-  if (!relativePath || relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
-    const ext = path.extname(params.pluginSourcePath);
-    return `index${ext || ".js"}`;
+  const relativePath = resolveProjectedPluginRelativePath(params);
+  if (relativePath) {
+    return relativePath;
   }
-  return relativePath;
+  const ext = path.extname(params.pluginSourcePath);
+  return `index${ext || ".js"}`;
+}
+
+function resolveProjectedPluginRelativePath(params: {
+  pluginRootDir: string;
+  pluginSourcePath: string;
+}): string | null {
+  const relativePath = path.relative(params.pluginRootDir, params.pluginSourcePath);
+  if (
+    relativePath === ".." ||
+    relativePath.startsWith(`..${path.sep}`) ||
+    path.isAbsolute(relativePath)
+  ) {
+    return null;
+  }
+  return relativePath || ".";
+}
+
+function ensureProjectedPluginPathWithinRoot(params: {
+  pluginRootDir: string;
+  candidatePath: string;
+}): void {
+  if (
+    !isPathInsideWithRealpath(params.pluginRootDir, params.candidatePath, {
+      requireRealpath: true,
+    })
+  ) {
+    throw new Error(`path escapes plugin root: ${params.candidatePath}`);
+  }
+}
+
+async function copyProjectedPluginFile(params: {
+  pluginRootDir: string;
+  sourcePath: string;
+  targetPath: string;
+}): Promise<void> {
+  const opened = openBoundaryFileSync({
+    absolutePath: params.sourcePath,
+    rootPath: params.pluginRootDir,
+    boundaryLabel: "plugin root",
+  });
+  if (!opened.ok) {
+    throw new Error(`unsafe plugin skill file path (${opened.reason}): ${params.sourcePath}`);
+  }
+  try {
+    const content = nodeFs.readFileSync(opened.fd);
+    await fs.mkdir(path.dirname(params.targetPath), { recursive: true });
+    await fs.writeFile(params.targetPath, content);
+  } finally {
+    nodeFs.closeSync(opened.fd);
+  }
+}
+
+async function copyProjectedPluginDirectory(params: {
+  pluginRootDir: string;
+  sourceDir: string;
+  targetDir: string;
+}): Promise<void> {
+  let stats: Awaited<ReturnType<typeof fs.lstat>>;
+  try {
+    stats = await fs.lstat(params.sourceDir);
+  } catch (error) {
+    const code =
+      error instanceof Error && "code" in error && typeof error.code === "string"
+        ? error.code
+        : undefined;
+    if (code === "ENOENT") {
+      throw new Error(`declared skill path not found: ${params.sourceDir}`, { cause: error });
+    }
+    throw error;
+  }
+  if (stats.isSymbolicLink()) {
+    throw new Error(`symlinked skill path is not allowed: ${params.sourceDir}`);
+  }
+  if (!stats.isDirectory()) {
+    throw new Error(`skill path must be a directory: ${params.sourceDir}`);
+  }
+  ensureProjectedPluginPathWithinRoot({
+    pluginRootDir: params.pluginRootDir,
+    candidatePath: params.sourceDir,
+  });
+
+  await fs.mkdir(params.targetDir, { recursive: true });
+  const entries = await fs.readdir(params.sourceDir, { withFileTypes: true });
+  entries.sort((left, right) => left.name.localeCompare(right.name));
+
+  for (const entry of entries) {
+    const sourcePath = path.join(params.sourceDir, entry.name);
+    const targetPath = path.join(params.targetDir, entry.name);
+    try {
+      if (entry.isSymbolicLink()) {
+        throw new Error(`symlinked skill entry is not allowed: ${sourcePath}`);
+      }
+      if (entry.isDirectory()) {
+        await copyProjectedPluginDirectory({
+          pluginRootDir: params.pluginRootDir,
+          sourceDir: sourcePath,
+          targetDir: targetPath,
+        });
+        continue;
+      }
+      if (entry.isFile()) {
+        await copyProjectedPluginFile({
+          pluginRootDir: params.pluginRootDir,
+          sourcePath,
+          targetPath,
+        });
+        continue;
+      }
+      throw new Error(`unsupported skill entry type: ${sourcePath}`);
+    } catch (error) {
+      await fs.rm(targetPath, { recursive: true, force: true });
+      throw error;
+    }
+  }
 }
 
 async function writeProjectedPluginPackageManifest(params: {
@@ -254,6 +371,48 @@ async function syncProjectedPluginRoots(params: {
           targetRootDir,
           relativeEntryPath,
         });
+        const copiedSkillDirs = new Set<string>();
+        for (const rawSkillPath of record.skills) {
+          const trimmedSkillPath = rawSkillPath.trim();
+          if (!trimmedSkillPath) {
+            continue;
+          }
+          const sourceSkillDir = path.resolve(record.rootDir, trimmedSkillPath);
+          const relativeSkillPath = resolveProjectedPluginRelativePath({
+            pluginRootDir: record.rootDir,
+            pluginSourcePath: sourceSkillDir,
+          });
+          if (!relativeSkillPath) {
+            log.warn(
+              `Skipping readonly plugin skill projection for ${record.id}: declared skill path is outside plugin root (${trimmedSkillPath}).`,
+            );
+            continue;
+          }
+          if (copiedSkillDirs.has(relativeSkillPath)) {
+            continue;
+          }
+          copiedSkillDirs.add(relativeSkillPath);
+          const targetSkillDir = path.join(targetRootDir, relativeSkillPath);
+          try {
+            await copyProjectedPluginDirectory({
+              pluginRootDir: record.rootDir,
+              sourceDir: sourceSkillDir,
+              targetDir: targetSkillDir,
+            });
+          } catch (error) {
+            await fs.rm(targetSkillDir, { recursive: true, force: true }).catch((cleanupError) => {
+              const cleanupMessage =
+                cleanupError instanceof Error ? cleanupError.message : String(cleanupError);
+              log.warn(
+                `Failed to clean partial readonly plugin skill projection for ${record.id} (${trimmedSkillPath}): ${cleanupMessage}`,
+              );
+            });
+            const message = error instanceof Error ? error.message : String(error);
+            log.warn(
+              `Skipping readonly plugin skill projection for ${record.id} (${trimmedSkillPath}): ${message}`,
+            );
+          }
+        }
         return true;
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
@@ -268,7 +427,7 @@ async function syncProjectedPluginRoots(params: {
   const copied = copiedFlags.filter(Boolean).length;
   if (copied > 0) {
     log.debug?.(
-      `Projected ${copied} plugin manifest${copied === 1 ? "" : "s"} into ${extensionsRoot} for readonly sandbox validation.`,
+      `Projected ${copied} plugin root${copied === 1 ? "" : "s"} into ${extensionsRoot} for readonly sandbox validation.`,
     );
   }
 }
