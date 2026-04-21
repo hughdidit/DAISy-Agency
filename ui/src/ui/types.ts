@@ -1,15 +1,5 @@
 export type UpdateAvailable = import("../../../src/infra/update-startup.js").UpdateAvailable;
 import type { CronJobBase } from "../../../src/cron/types-shared.js";
-import type { ConfigUiHints } from "../../../src/shared/config-ui-hints-types.js";
-import type {
-  ResolvedCapabilityManifest as SharedResolvedCapabilityManifest,
-  ResolvedSkillCapability as SharedResolvedSkillCapability,
-} from "../../../src/shared/resolved-capability-manifest.js";
-import type {
-  GatewayAgentRow as SharedGatewayAgentRow,
-  SessionsListResultBase,
-  SessionsPatchResultBase,
-} from "../../../src/shared/session-types.js";
 import type {
   SkillInstallOption as GatewaySkillInstallOption,
   SkillRemoteSatisfied as GatewaySkillRemoteSatisfied,
@@ -21,6 +11,16 @@ import type {
   ToolCatalogProfile as GatewayToolCatalogProfile,
   ToolsCatalogResult as GatewayToolsCatalogResult,
 } from "../../../src/gateway/protocol/schema/types.js";
+import type { ConfigUiHints } from "../../../src/shared/config-ui-hints-types.js";
+import type {
+  ResolvedCapabilityManifest as SharedResolvedCapabilityManifest,
+  ResolvedSkillCapability as SharedResolvedSkillCapability,
+} from "../../../src/shared/resolved-capability-manifest.js";
+import type {
+  GatewayAgentRow as SharedGatewayAgentRow,
+  SessionsListResultBase,
+  SessionsPatchResultBase,
+} from "../../../src/shared/session-types.js";
 export type { ConfigUiHints } from "../../../src/shared/config-ui-hints-types.js";
 
 export type ChannelsStatusSnapshot = {

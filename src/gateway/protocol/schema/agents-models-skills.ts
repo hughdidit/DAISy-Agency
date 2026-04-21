@@ -685,7 +685,9 @@ export const ResolvedCapabilityManifestSchema = Type.Object(
   {
     schemaVersion: Type.Literal(1),
     runtimeContext: ResolvedCapabilityRuntimeContextSchema,
-    capabilities: Type.Array(Type.Union([ResolvedSkillCapabilitySchema, ResolvedToolCapabilitySchema])),
+    capabilities: Type.Array(
+      Type.Union([ResolvedSkillCapabilitySchema, ResolvedToolCapabilitySchema]),
+    ),
   },
   { additionalProperties: false, $id: "ResolvedCapabilityManifest" },
 );

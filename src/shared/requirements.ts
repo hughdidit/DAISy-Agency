@@ -226,20 +226,19 @@ export function evaluateRequirements(
         config: missingConfig,
         os: missingOs,
       };
-  const remoteSatisfied =
-    params.always
-      ? { bins: [], anyBins: [], os: [] }
-      : {
-          bins: remoteSatisfiedBins,
-          anyBins: remoteSatisfiedAnyBins,
-          os: remoteSatisfiedOs,
-          note:
-            remoteSatisfiedBins.length > 0 ||
-            remoteSatisfiedAnyBins.length > 0 ||
-            remoteSatisfiedOs.length > 0
-              ? params.remoteNote
-              : undefined,
-        };
+  const remoteSatisfied = params.always
+    ? { bins: [], anyBins: [], os: [] }
+    : {
+        bins: remoteSatisfiedBins,
+        anyBins: remoteSatisfiedAnyBins,
+        os: remoteSatisfiedOs,
+        note:
+          remoteSatisfiedBins.length > 0 ||
+          remoteSatisfiedAnyBins.length > 0 ||
+          remoteSatisfiedOs.length > 0
+            ? params.remoteNote
+            : undefined,
+      };
 
   const eligible =
     params.always ||

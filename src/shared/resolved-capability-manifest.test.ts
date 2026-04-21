@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   RESOLVED_CAPABILITY_CLASSES,
   RESOLVED_CAPABILITY_DENY_REASONS,
+  RESOLVED_CAPABILITY_POLICY_SOURCE_KINDS,
   RESOLVED_CAPABILITY_UNAVAILABLE_REASONS,
   adaptToolCatalogEntryToResolvedCapability,
   buildResolvedSkillCapability,
@@ -20,6 +21,7 @@ describe("resolved capability manifest", () => {
       "unsupported-in-current-runtime",
     ]);
     expect(RESOLVED_CAPABILITY_DENY_REASONS).toContain("tool-denied-by-sandbox-policy");
+    expect(RESOLVED_CAPABILITY_POLICY_SOURCE_KINDS).toContain("bundled-skill-allowlist");
     expect(RESOLVED_CAPABILITY_UNAVAILABLE_REASONS).toContain("missing-runtime-binaries");
   });
 
@@ -135,5 +137,68 @@ describe("resolved capability manifest", () => {
         evidence: {},
       } as never),
     ).toThrow(/missing remote evidence/);
+  });
+
+  it("rejects blocked manifests with unknown policy source kinds", () => {
+    const invalid = {
+      schemaVersion: 1,
+      runtimeContext: { agentId: "main" },
+      capabilities: [
+        {
+          id: "discord",
+          label: "discord",
+          description: "discord skill",
+          kind: "skill",
+          capabilityClass: "configured-but-blocked",
+          runtimeContext: { agentId: "main" },
+          skillKey: "discord",
+          source: "openclaw-bundled",
+          filePath: "/tmp/discord/SKILL.md",
+          requirements: { bins: [], anyBins: [], env: [], config: [], os: [] },
+          missing: { bins: [], anyBins: [], env: [], config: [], os: [] },
+          configChecks: [],
+          policy: {
+            source: {
+              kind: "gateway-policy",
+              key: "skills.allowBundled",
+            },
+            denyReason: "bundled-skill-not-allowlisted",
+          },
+        },
+      ],
+    };
+
+    expect(isResolvedCapabilityManifest(invalid)).toBe(false);
+  });
+
+  it("rejects unsupported skill manifests that omit runtime evidence", () => {
+    const invalid = {
+      schemaVersion: 1,
+      runtimeContext: { agentId: "main" },
+      capabilities: [
+        {
+          id: "trello",
+          label: "trello",
+          description: "trello skill",
+          kind: "skill",
+          capabilityClass: "unsupported-in-current-runtime",
+          runtimeContext: { agentId: "main" },
+          skillKey: "trello",
+          source: "openclaw-bundled",
+          filePath: "/tmp/trello/SKILL.md",
+          requirements: { bins: [], anyBins: [], env: [], config: [], os: [] },
+          missing: { bins: [], anyBins: [], env: [], config: [], os: [] },
+          configChecks: [],
+          evidence: {
+            provider: {
+              providerId: "gateway",
+              reasonCodes: ["missing-provider"],
+            },
+          },
+        },
+      ],
+    };
+
+    expect(isResolvedCapabilityManifest(invalid)).toBe(false);
   });
 });

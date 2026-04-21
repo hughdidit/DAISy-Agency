@@ -130,4 +130,73 @@ describe("agents-models-skills schemas", () => {
 
     expect(validate(payload)).toBe(false);
   });
+
+  it("rejects unsupported skill capabilities that omit runtime evidence", () => {
+    const validate = new Ajv({ allErrors: true, strict: false }).compile(
+      ResolvedCapabilityManifestSchema,
+    );
+    const payload = {
+      schemaVersion: 1,
+      runtimeContext: { agentId: "main" },
+      capabilities: [
+        {
+          id: "trello",
+          label: "trello",
+          description: "trello skill",
+          kind: "skill",
+          capabilityClass: "unsupported-in-current-runtime",
+          runtimeContext: { agentId: "main" },
+          skillKey: "trello",
+          source: "openclaw-bundled",
+          filePath: "/tmp/trello/SKILL.md",
+          requirements: { bins: [], anyBins: [], env: [], config: [], os: [] },
+          missing: { bins: [], anyBins: [], env: [], config: [], os: [] },
+          configChecks: [],
+          evidence: {
+            provider: {
+              providerId: "gateway",
+              reasonCodes: ["missing-provider"],
+            },
+          },
+        },
+      ],
+    };
+
+    expect(validate(payload)).toBe(false);
+  });
+
+  it("rejects blocked capabilities with unknown policy source kinds", () => {
+    const validate = new Ajv({ allErrors: true, strict: false }).compile(
+      ResolvedCapabilityManifestSchema,
+    );
+    const payload = {
+      schemaVersion: 1,
+      runtimeContext: { agentId: "main" },
+      capabilities: [
+        {
+          id: "discord",
+          label: "discord",
+          description: "discord skill",
+          kind: "skill",
+          capabilityClass: "configured-but-blocked",
+          runtimeContext: { agentId: "main" },
+          skillKey: "discord",
+          source: "openclaw-bundled",
+          filePath: "/tmp/discord/SKILL.md",
+          requirements: { bins: [], anyBins: [], env: [], config: [], os: [] },
+          missing: { bins: [], anyBins: [], env: [], config: [], os: [] },
+          configChecks: [],
+          policy: {
+            source: {
+              kind: "gateway-policy",
+              key: "skills.allowBundled",
+            },
+            denyReason: "bundled-skill-not-allowlisted",
+          },
+        },
+      ],
+    };
+
+    expect(validate(payload)).toBe(false);
+  });
 });

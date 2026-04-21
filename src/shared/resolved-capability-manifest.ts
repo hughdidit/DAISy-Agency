@@ -1,4 +1,8 @@
-import type { RequirementConfigCheck, RequirementRemoteSatisfied, Requirements } from "./requirements.js";
+import type {
+  RequirementConfigCheck,
+  RequirementRemoteSatisfied,
+  Requirements,
+} from "./requirements.js";
 
 export const RESOLVED_CAPABILITY_SCHEMA_VERSION = 1 as const;
 
@@ -52,6 +56,15 @@ export type ResolvedCapabilityPolicySource = {
   key: string;
   detail?: string;
 };
+
+export const RESOLVED_CAPABILITY_POLICY_SOURCE_KINDS = [
+  "skill-config-entry",
+  "bundled-skill-allowlist",
+  "sandbox-tool-policy",
+] as const;
+
+export type ResolvedCapabilityPolicySourceKind =
+  (typeof RESOLVED_CAPABILITY_POLICY_SOURCE_KINDS)[number];
 
 export type ResolvedCapabilityPolicy = {
   source: ResolvedCapabilityPolicySource;
@@ -136,12 +149,11 @@ type ResolvedToolCapabilityBase<TClass extends ResolvedCapabilityClass> = Resolv
 
 export type ResolvedSkillLocalCapability = ResolvedSkillCapabilityBase<"sandbox-local">;
 
-export type ResolvedSkillRemoteCapability =
-  ResolvedSkillCapabilityBase<"remote-node-assisted"> & {
-    evidence: ResolvedCapabilityEvidence & {
-      remote: ResolvedCapabilityRemoteEvidence;
-    };
+export type ResolvedSkillRemoteCapability = ResolvedSkillCapabilityBase<"remote-node-assisted"> & {
+  evidence: ResolvedCapabilityEvidence & {
+    remote: ResolvedCapabilityRemoteEvidence;
   };
+};
 
 export type ResolvedSkillBlockedCapability =
   ResolvedSkillCapabilityBase<"configured-but-blocked"> & {
@@ -164,25 +176,22 @@ export type ResolvedSkillCapability =
 
 export type ResolvedToolLocalCapability = ResolvedToolCapabilityBase<"sandbox-local">;
 
-export type ResolvedToolBrokeredCapability =
-  ResolvedToolCapabilityBase<"gateway-brokered"> & {
-    evidence: ResolvedCapabilityEvidence & {
-      provider: ResolvedCapabilityProviderEvidence;
-    };
+export type ResolvedToolBrokeredCapability = ResolvedToolCapabilityBase<"gateway-brokered"> & {
+  evidence: ResolvedCapabilityEvidence & {
+    provider: ResolvedCapabilityProviderEvidence;
   };
+};
 
-export type ResolvedToolRemoteCapability =
-  ResolvedToolCapabilityBase<"remote-node-assisted"> & {
-    evidence: ResolvedCapabilityEvidence & {
-      remote: ResolvedCapabilityRemoteEvidence;
-    };
+export type ResolvedToolRemoteCapability = ResolvedToolCapabilityBase<"remote-node-assisted"> & {
+  evidence: ResolvedCapabilityEvidence & {
+    remote: ResolvedCapabilityRemoteEvidence;
   };
+};
 
-export type ResolvedToolBlockedCapability =
-  ResolvedToolCapabilityBase<"configured-but-blocked"> & {
-    policy: ResolvedCapabilityPolicy;
-    evidence?: ResolvedCapabilityEvidence;
-  };
+export type ResolvedToolBlockedCapability = ResolvedToolCapabilityBase<"configured-but-blocked"> & {
+  policy: ResolvedCapabilityPolicy;
+  evidence?: ResolvedCapabilityEvidence;
+};
 
 export type ResolvedToolUnsupportedCapability =
   ResolvedToolCapabilityBase<"unsupported-in-current-runtime"> & {
@@ -238,7 +247,11 @@ export type ToolCatalogCapabilityAdapterInput = {
   runtimeContext: ResolvedCapabilityRuntimeContext;
   capabilityClass?: Extract<
     ResolvedCapabilityClass,
-    "sandbox-local" | "gateway-brokered" | "remote-node-assisted" | "configured-but-blocked" | "unsupported-in-current-runtime"
+    | "sandbox-local"
+    | "gateway-brokered"
+    | "remote-node-assisted"
+    | "configured-but-blocked"
+    | "unsupported-in-current-runtime"
   >;
   policy?: ResolvedCapabilityPolicy;
   evidence?: ResolvedCapabilityEvidence;
@@ -277,14 +290,11 @@ export function isResolvedCapabilityUnavailableReason(
   value: unknown,
 ): value is ResolvedCapabilityUnavailableReason {
   return (
-    typeof value === "string" &&
-    RESOLVED_CAPABILITY_UNAVAILABLE_REASONS.includes(value as never)
+    typeof value === "string" && RESOLVED_CAPABILITY_UNAVAILABLE_REASONS.includes(value as never)
   );
 }
 
-export function isResolvedCapabilityManifest(
-  value: unknown,
-): value is ResolvedCapabilityManifest {
+export function isResolvedCapabilityManifest(value: unknown): value is ResolvedCapabilityManifest {
   if (!isRecord(value)) {
     return false;
   }
@@ -316,7 +326,10 @@ export function isResolvedCapability(value: unknown): value is ResolvedCapabilit
   if (typeof value.description !== "string") {
     return false;
   }
-  if (!hasObjectShape(value, "runtimeContext") || typeof value.runtimeContext.agentId !== "string") {
+  if (
+    !hasObjectShape(value, "runtimeContext") ||
+    typeof value.runtimeContext.agentId !== "string"
+  ) {
     return false;
   }
   if (value.policy !== undefined && !isResolvedCapabilityPolicy(value.policy)) {
@@ -338,9 +351,17 @@ export function isResolvedCapabilityPolicy(value: unknown): value is ResolvedCap
     return false;
   }
   return (
-    typeof value.source.kind === "string" &&
+    isResolvedCapabilityPolicySourceKind(value.source.kind) &&
     typeof value.source.key === "string" &&
     isResolvedCapabilityDenyReason(value.denyReason)
+  );
+}
+
+export function isResolvedCapabilityPolicySourceKind(
+  value: unknown,
+): value is ResolvedCapabilityPolicySourceKind {
+  return (
+    typeof value === "string" && RESOLVED_CAPABILITY_POLICY_SOURCE_KINDS.includes(value as never)
   );
 }
 
@@ -397,7 +418,10 @@ export function isResolvedProviderEvidence(
   if (!isRecord(value)) {
     return false;
   }
-  return Array.isArray(value.reasonCodes) && value.reasonCodes.every(isResolvedCapabilityUnavailableReason);
+  return (
+    Array.isArray(value.reasonCodes) &&
+    value.reasonCodes.every(isResolvedCapabilityUnavailableReason)
+  );
 }
 
 export function isResolvedRemoteEvidence(
@@ -627,7 +651,9 @@ function assertCapabilityVariantRequirements(capability: ResolvedCapability) {
       throw new Error(`remote-assisted capability "${capability.id}" is missing remote evidence`);
     }
     if (capability.capabilityClass === "gateway-brokered") {
-      throw new Error(`gateway-brokered capability "${capability.id}" is missing provider evidence`);
+      throw new Error(
+        `gateway-brokered capability "${capability.id}" is missing provider evidence`,
+      );
     }
     if (capability.capabilityClass === "unsupported-in-current-runtime") {
       throw new Error(`unsupported capability "${capability.id}" is missing availability evidence`);
@@ -642,15 +668,19 @@ function hasCapabilityVariantRequirements(capability: ResolvedCapability): boole
   if (capability.capabilityClass === "remote-node-assisted" && !capability.evidence?.remote) {
     return false;
   }
-  if (
-    capability.capabilityClass === "unsupported-in-current-runtime" &&
-    !(
-      capability.evidence?.runtime ||
-      capability.evidence?.projection ||
-      capability.evidence?.provider
-    )
-  ) {
-    return false;
+  if (capability.capabilityClass === "unsupported-in-current-runtime") {
+    if (capability.kind === "skill") {
+      return Boolean(capability.evidence?.runtime);
+    }
+    if (
+      !(
+        capability.evidence?.runtime ||
+        capability.evidence?.projection ||
+        capability.evidence?.provider
+      )
+    ) {
+      return false;
+    }
   }
   if (capability.capabilityClass === "gateway-brokered" && !capability.evidence?.provider) {
     return false;
