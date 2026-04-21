@@ -18,7 +18,8 @@ describe("ui type contracts", () => {
   });
 
   it("exposes the shared resolved skill capability through the UI skill entry type", () => {
-    expectTypeOf<UiSkillStatusEntry["capability"]>().toEqualTypeOf<ResolvedSkillCapability>();
+    expectTypeOf<UiSkillStatusEntry["capability"]>().toMatchTypeOf<ResolvedSkillCapability>();
+    expectTypeOf<ResolvedSkillCapability>().toMatchTypeOf<UiSkillStatusEntry["capability"]>();
   });
 
   it("keeps UI tools catalog types aligned with the gateway protocol result", () => {

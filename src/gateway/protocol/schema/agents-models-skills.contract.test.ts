@@ -1,4 +1,4 @@
-import Ajv from "ajv";
+import AjvPkg from "ajv";
 import { describe, expect, it } from "vitest";
 import {
   ResolvedCapabilityManifestSchema,
@@ -7,7 +7,9 @@ import {
 
 describe("agents-models-skills schemas", () => {
   it("accepts a blocked skills.status payload with explicit deny metadata", () => {
-    const validate = new Ajv({ allErrors: true, strict: false }).compile(SkillsStatusResultSchema);
+    const validate = new AjvPkg({ allErrors: true, strict: false }).compile(
+      SkillsStatusResultSchema,
+    );
     const payload = {
       workspaceDir: "/tmp/ws",
       managedSkillsDir: "/tmp/skills",
@@ -60,7 +62,7 @@ describe("agents-models-skills schemas", () => {
   });
 
   it("rejects remote-assisted capabilities that omit remote evidence", () => {
-    const validate = new Ajv({ allErrors: true, strict: false }).compile(
+    const validate = new AjvPkg({ allErrors: true, strict: false }).compile(
       ResolvedCapabilityManifestSchema,
     );
     const payload = {
@@ -85,7 +87,7 @@ describe("agents-models-skills schemas", () => {
   });
 
   it("rejects blocked capabilities that omit policy metadata", () => {
-    const validate = new Ajv({ allErrors: true, strict: false }).compile(
+    const validate = new AjvPkg({ allErrors: true, strict: false }).compile(
       ResolvedCapabilityManifestSchema,
     );
     const payload = {
@@ -108,7 +110,7 @@ describe("agents-models-skills schemas", () => {
   });
 
   it("rejects unsupported capabilities without availability evidence", () => {
-    const validate = new Ajv({ allErrors: true, strict: false }).compile(
+    const validate = new AjvPkg({ allErrors: true, strict: false }).compile(
       ResolvedCapabilityManifestSchema,
     );
     const payload = {
@@ -132,7 +134,7 @@ describe("agents-models-skills schemas", () => {
   });
 
   it("rejects unsupported skill capabilities that omit runtime evidence", () => {
-    const validate = new Ajv({ allErrors: true, strict: false }).compile(
+    const validate = new AjvPkg({ allErrors: true, strict: false }).compile(
       ResolvedCapabilityManifestSchema,
     );
     const payload = {
@@ -166,7 +168,7 @@ describe("agents-models-skills schemas", () => {
   });
 
   it("rejects blocked capabilities with unknown policy source kinds", () => {
-    const validate = new Ajv({ allErrors: true, strict: false }).compile(
+    const validate = new AjvPkg({ allErrors: true, strict: false }).compile(
       ResolvedCapabilityManifestSchema,
     );
     const payload = {

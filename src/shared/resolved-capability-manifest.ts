@@ -352,12 +352,13 @@ export function isResolvedCapabilityPolicy(value: unknown): value is ResolvedCap
   if (!isRecord(value) || !hasObjectShape(value, "source")) {
     return false;
   }
+  const source = value.source;
   return (
-    isResolvedCapabilityPolicySourceKind(value.source.kind) &&
-    typeof value.source.key === "string" &&
-    isOptionalString(value.source.detail) &&
-    isResolvedCapabilityDenyReason(value.denyReason) &&
-    isOptionalString(value.detail)
+    isResolvedCapabilityPolicySourceKind(source.kind) &&
+    typeof source.key === "string" &&
+    isOptionalString(source.detail) &&
+    isResolvedCapabilityDenyReason(value["denyReason"]) &&
+    isOptionalString(value["detail"])
   );
 }
 
