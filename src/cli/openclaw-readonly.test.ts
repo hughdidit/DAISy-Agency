@@ -238,15 +238,6 @@ describe("openclaw-readonly CLI", () => {
       importStatusCommand: async () => ({
         statusCommand,
       }),
-      importSandboxExplainCommand: async () => ({
-        sandboxExplainCommand: vi.fn(),
-      }),
-      importSkillsModules: async () => ({
-        loadConfig: vi.fn(),
-        buildWorkspaceSkillStatus: vi.fn(),
-        formatSkillsList: vi.fn(),
-        formatSkillsCheck: vi.fn(),
-      }),
     });
 
     expect(statusCommand).toHaveBeenCalledWith(
