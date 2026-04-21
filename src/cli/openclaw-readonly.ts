@@ -320,6 +320,10 @@ async function runOpenClawReadonlyResolved(
       const report = buildWorkspaceSkillStatus(resolved.workspaceDir, {
         config,
         eligibility: { remote: getRemoteSkillEligibility() },
+        runtimeContext: {
+          agentId: resolved.agentId,
+          sandboxed: true,
+        },
       });
       deps.runtime.log(
         resolved.command.key === "skills-list"

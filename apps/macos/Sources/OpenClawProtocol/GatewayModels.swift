@@ -2598,6 +2598,984 @@ public struct ModelsListResult: Codable, Sendable {
     }
 }
 
+public struct ResolvedCapabilityRuntimeContext: Codable, Sendable {
+    public let agentid: String
+    public let sessionkey: String?
+    public let sandboxmode: String?
+    public let sandboxscope: String?
+    public let sandboxed: Bool?
+
+    public init(
+        agentid: String,
+        sessionkey: String?,
+        sandboxmode: String?,
+        sandboxscope: String?,
+        sandboxed: Bool?)
+    {
+        self.agentid = agentid
+        self.sessionkey = sessionkey
+        self.sandboxmode = sandboxmode
+        self.sandboxscope = sandboxscope
+        self.sandboxed = sandboxed
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case agentid = "agentId"
+        case sessionkey = "sessionKey"
+        case sandboxmode = "sandboxMode"
+        case sandboxscope = "sandboxScope"
+        case sandboxed
+    }
+}
+
+public struct ResolvedCapabilityPolicySource: Codable, Sendable {
+    public let kind: AnyCodable
+    public let key: String
+    public let detail: String?
+
+    public init(
+        kind: AnyCodable,
+        key: String,
+        detail: String?)
+    {
+        self.kind = kind
+        self.key = key
+        self.detail = detail
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case kind
+        case key
+        case detail
+    }
+}
+
+public struct ResolvedCapabilityPolicy: Codable, Sendable {
+    public let source: ResolvedCapabilityPolicySource
+    public let denyreason: ResolvedCapabilityDenyReason
+    public let detail: String?
+
+    public init(
+        source: ResolvedCapabilityPolicySource,
+        denyreason: ResolvedCapabilityDenyReason,
+        detail: String?)
+    {
+        self.source = source
+        self.denyreason = denyreason
+        self.detail = detail
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case source
+        case denyreason = "denyReason"
+        case detail
+    }
+}
+
+public struct ResolvedCapabilityRuntimeEvidence: Codable, Sendable {
+    public let profile: String?
+    public let missingbins: [String]
+    public let missinganybins: [String]
+    public let missingos: [String]
+    public let reasoncodes: [ResolvedCapabilityUnavailableReason]
+    public let detail: String?
+
+    public init(
+        profile: String?,
+        missingbins: [String],
+        missinganybins: [String],
+        missingos: [String],
+        reasoncodes: [ResolvedCapabilityUnavailableReason],
+        detail: String?)
+    {
+        self.profile = profile
+        self.missingbins = missingbins
+        self.missinganybins = missinganybins
+        self.missingos = missingos
+        self.reasoncodes = reasoncodes
+        self.detail = detail
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case profile
+        case missingbins = "missingBins"
+        case missinganybins = "missingAnyBins"
+        case missingos = "missingOs"
+        case reasoncodes = "reasonCodes"
+        case detail
+    }
+}
+
+public struct ResolvedCapabilityProjectionEvidence: Codable, Sendable {
+    public let missingpaths: [String]
+    public let reasoncodes: [ResolvedCapabilityUnavailableReason]
+    public let detail: String?
+
+    public init(
+        missingpaths: [String],
+        reasoncodes: [ResolvedCapabilityUnavailableReason],
+        detail: String?)
+    {
+        self.missingpaths = missingpaths
+        self.reasoncodes = reasoncodes
+        self.detail = detail
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case missingpaths = "missingPaths"
+        case reasoncodes = "reasonCodes"
+        case detail
+    }
+}
+
+public struct ResolvedCapabilityProviderEvidence: Codable, Sendable {
+    public let providerid: String?
+    public let providerkind: String?
+    public let transport: String?
+    public let reasoncodes: [ResolvedCapabilityUnavailableReason]
+    public let detail: String?
+
+    public init(
+        providerid: String?,
+        providerkind: String?,
+        transport: String?,
+        reasoncodes: [ResolvedCapabilityUnavailableReason],
+        detail: String?)
+    {
+        self.providerid = providerid
+        self.providerkind = providerkind
+        self.transport = transport
+        self.reasoncodes = reasoncodes
+        self.detail = detail
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case providerid = "providerId"
+        case providerkind = "providerKind"
+        case transport
+        case reasoncodes = "reasonCodes"
+        case detail
+    }
+}
+
+public struct ResolvedCapabilityRemoteEvidence: Codable, Sendable {
+    public let satisfiedbins: [String]
+    public let satisfiedanybins: [String]
+    public let satisfiedos: [String]
+    public let note: String?
+
+    public init(
+        satisfiedbins: [String],
+        satisfiedanybins: [String],
+        satisfiedos: [String],
+        note: String?)
+    {
+        self.satisfiedbins = satisfiedbins
+        self.satisfiedanybins = satisfiedanybins
+        self.satisfiedos = satisfiedos
+        self.note = note
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case satisfiedbins = "satisfiedBins"
+        case satisfiedanybins = "satisfiedAnyBins"
+        case satisfiedos = "satisfiedOs"
+        case note
+    }
+}
+
+public struct ResolvedCapabilityEvidence: Codable, Sendable {
+    public let runtime: [String: AnyCodable]?
+    public let projection: [String: AnyCodable]?
+    public let provider: [String: AnyCodable]?
+    public let remote: [String: AnyCodable]?
+
+    public init(
+        runtime: [String: AnyCodable]?,
+        projection: [String: AnyCodable]?,
+        provider: [String: AnyCodable]?,
+        remote: [String: AnyCodable]?)
+    {
+        self.runtime = runtime
+        self.projection = projection
+        self.provider = provider
+        self.remote = remote
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case runtime
+        case projection
+        case provider
+        case remote
+    }
+}
+
+public struct SkillStatusRequirements: Codable, Sendable {
+    public let bins: [String]
+    public let anybins: [String]
+    public let env: [String]
+    public let config: [String]
+    public let os: [String]
+
+    public init(
+        bins: [String],
+        anybins: [String],
+        env: [String],
+        config: [String],
+        os: [String])
+    {
+        self.bins = bins
+        self.anybins = anybins
+        self.env = env
+        self.config = config
+        self.os = os
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case bins
+        case anybins = "anyBins"
+        case env
+        case config
+        case os
+    }
+}
+
+public struct SkillStatusConfigCheck: Codable, Sendable {
+    public let path: String
+    public let satisfied: Bool
+
+    public init(
+        path: String,
+        satisfied: Bool)
+    {
+        self.path = path
+        self.satisfied = satisfied
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case path
+        case satisfied
+    }
+}
+
+public struct SkillInstallOption: Codable, Sendable {
+    public let id: String
+    public let kind: AnyCodable
+    public let label: String
+    public let bins: [String]
+
+    public init(
+        id: String,
+        kind: AnyCodable,
+        label: String,
+        bins: [String])
+    {
+        self.id = id
+        self.kind = kind
+        self.label = label
+        self.bins = bins
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case kind
+        case label
+        case bins
+    }
+}
+
+public struct SkillRemoteSatisfied: Codable, Sendable {
+    public let bins: [String]
+    public let anybins: [String]
+    public let os: [String]
+    public let note: String?
+
+    public init(
+        bins: [String],
+        anybins: [String],
+        os: [String],
+        note: String?)
+    {
+        self.bins = bins
+        self.anybins = anybins
+        self.os = os
+        self.note = note
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case bins
+        case anybins = "anyBins"
+        case os
+        case note
+    }
+}
+
+public struct ResolvedSkillLocalCapability: Codable, Sendable {
+    public let id: String
+    public let label: String
+    public let description: String
+    public let kind: String
+    public let runtimecontext: ResolvedCapabilityRuntimeContext
+    public let skillkey: String
+    public let source: String
+    public let bundled: Bool?
+    public let filepath: String
+    public let primaryenv: String?
+    public let requirements: SkillStatusRequirements
+    public let missing: SkillStatusRequirements
+    public let configchecks: [SkillStatusConfigCheck]
+    public let capabilityclass: String
+
+    public init(
+        id: String,
+        label: String,
+        description: String,
+        kind: String,
+        runtimecontext: ResolvedCapabilityRuntimeContext,
+        skillkey: String,
+        source: String,
+        bundled: Bool?,
+        filepath: String,
+        primaryenv: String?,
+        requirements: SkillStatusRequirements,
+        missing: SkillStatusRequirements,
+        configchecks: [SkillStatusConfigCheck],
+        capabilityclass: String)
+    {
+        self.id = id
+        self.label = label
+        self.description = description
+        self.kind = kind
+        self.runtimecontext = runtimecontext
+        self.skillkey = skillkey
+        self.source = source
+        self.bundled = bundled
+        self.filepath = filepath
+        self.primaryenv = primaryenv
+        self.requirements = requirements
+        self.missing = missing
+        self.configchecks = configchecks
+        self.capabilityclass = capabilityclass
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case label
+        case description
+        case kind
+        case runtimecontext = "runtimeContext"
+        case skillkey = "skillKey"
+        case source
+        case bundled
+        case filepath = "filePath"
+        case primaryenv = "primaryEnv"
+        case requirements
+        case missing
+        case configchecks = "configChecks"
+        case capabilityclass = "capabilityClass"
+    }
+}
+
+public struct ResolvedSkillRemoteCapability: Codable, Sendable {
+    public let id: String
+    public let label: String
+    public let description: String
+    public let kind: String
+    public let runtimecontext: ResolvedCapabilityRuntimeContext
+    public let skillkey: String
+    public let source: String
+    public let bundled: Bool?
+    public let filepath: String
+    public let primaryenv: String?
+    public let requirements: SkillStatusRequirements
+    public let missing: SkillStatusRequirements
+    public let configchecks: [SkillStatusConfigCheck]
+    public let capabilityclass: String
+    public let evidence: [String: AnyCodable]
+
+    public init(
+        id: String,
+        label: String,
+        description: String,
+        kind: String,
+        runtimecontext: ResolvedCapabilityRuntimeContext,
+        skillkey: String,
+        source: String,
+        bundled: Bool?,
+        filepath: String,
+        primaryenv: String?,
+        requirements: SkillStatusRequirements,
+        missing: SkillStatusRequirements,
+        configchecks: [SkillStatusConfigCheck],
+        capabilityclass: String,
+        evidence: [String: AnyCodable])
+    {
+        self.id = id
+        self.label = label
+        self.description = description
+        self.kind = kind
+        self.runtimecontext = runtimecontext
+        self.skillkey = skillkey
+        self.source = source
+        self.bundled = bundled
+        self.filepath = filepath
+        self.primaryenv = primaryenv
+        self.requirements = requirements
+        self.missing = missing
+        self.configchecks = configchecks
+        self.capabilityclass = capabilityclass
+        self.evidence = evidence
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case label
+        case description
+        case kind
+        case runtimecontext = "runtimeContext"
+        case skillkey = "skillKey"
+        case source
+        case bundled
+        case filepath = "filePath"
+        case primaryenv = "primaryEnv"
+        case requirements
+        case missing
+        case configchecks = "configChecks"
+        case capabilityclass = "capabilityClass"
+        case evidence
+    }
+}
+
+public struct ResolvedSkillBlockedCapability: Codable, Sendable {
+    public let id: String
+    public let label: String
+    public let description: String
+    public let kind: String
+    public let runtimecontext: ResolvedCapabilityRuntimeContext
+    public let skillkey: String
+    public let source: String
+    public let bundled: Bool?
+    public let filepath: String
+    public let primaryenv: String?
+    public let requirements: SkillStatusRequirements
+    public let missing: SkillStatusRequirements
+    public let configchecks: [SkillStatusConfigCheck]
+    public let capabilityclass: String
+    public let policy: ResolvedCapabilityPolicy
+    public let evidence: [String: AnyCodable]?
+
+    public init(
+        id: String,
+        label: String,
+        description: String,
+        kind: String,
+        runtimecontext: ResolvedCapabilityRuntimeContext,
+        skillkey: String,
+        source: String,
+        bundled: Bool?,
+        filepath: String,
+        primaryenv: String?,
+        requirements: SkillStatusRequirements,
+        missing: SkillStatusRequirements,
+        configchecks: [SkillStatusConfigCheck],
+        capabilityclass: String,
+        policy: ResolvedCapabilityPolicy,
+        evidence: [String: AnyCodable]?)
+    {
+        self.id = id
+        self.label = label
+        self.description = description
+        self.kind = kind
+        self.runtimecontext = runtimecontext
+        self.skillkey = skillkey
+        self.source = source
+        self.bundled = bundled
+        self.filepath = filepath
+        self.primaryenv = primaryenv
+        self.requirements = requirements
+        self.missing = missing
+        self.configchecks = configchecks
+        self.capabilityclass = capabilityclass
+        self.policy = policy
+        self.evidence = evidence
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case label
+        case description
+        case kind
+        case runtimecontext = "runtimeContext"
+        case skillkey = "skillKey"
+        case source
+        case bundled
+        case filepath = "filePath"
+        case primaryenv = "primaryEnv"
+        case requirements
+        case missing
+        case configchecks = "configChecks"
+        case capabilityclass = "capabilityClass"
+        case policy
+        case evidence
+    }
+}
+
+public struct ResolvedSkillUnsupportedCapability: Codable, Sendable {
+    public let id: String
+    public let label: String
+    public let description: String
+    public let kind: String
+    public let runtimecontext: ResolvedCapabilityRuntimeContext
+    public let skillkey: String
+    public let source: String
+    public let bundled: Bool?
+    public let filepath: String
+    public let primaryenv: String?
+    public let requirements: SkillStatusRequirements
+    public let missing: SkillStatusRequirements
+    public let configchecks: [SkillStatusConfigCheck]
+    public let capabilityclass: String
+    public let evidence: [String: AnyCodable]
+
+    public init(
+        id: String,
+        label: String,
+        description: String,
+        kind: String,
+        runtimecontext: ResolvedCapabilityRuntimeContext,
+        skillkey: String,
+        source: String,
+        bundled: Bool?,
+        filepath: String,
+        primaryenv: String?,
+        requirements: SkillStatusRequirements,
+        missing: SkillStatusRequirements,
+        configchecks: [SkillStatusConfigCheck],
+        capabilityclass: String,
+        evidence: [String: AnyCodable])
+    {
+        self.id = id
+        self.label = label
+        self.description = description
+        self.kind = kind
+        self.runtimecontext = runtimecontext
+        self.skillkey = skillkey
+        self.source = source
+        self.bundled = bundled
+        self.filepath = filepath
+        self.primaryenv = primaryenv
+        self.requirements = requirements
+        self.missing = missing
+        self.configchecks = configchecks
+        self.capabilityclass = capabilityclass
+        self.evidence = evidence
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case label
+        case description
+        case kind
+        case runtimecontext = "runtimeContext"
+        case skillkey = "skillKey"
+        case source
+        case bundled
+        case filepath = "filePath"
+        case primaryenv = "primaryEnv"
+        case requirements
+        case missing
+        case configchecks = "configChecks"
+        case capabilityclass = "capabilityClass"
+        case evidence
+    }
+}
+
+public struct ResolvedToolLocalCapability: Codable, Sendable {
+    public let id: String
+    public let label: String
+    public let description: String
+    public let kind: String
+    public let runtimecontext: ResolvedCapabilityRuntimeContext
+    public let source: AnyCodable
+    public let pluginid: String?
+    public let optional: Bool?
+    public let defaultprofiles: [AnyCodable]?
+    public let capabilityclass: String
+
+    public init(
+        id: String,
+        label: String,
+        description: String,
+        kind: String,
+        runtimecontext: ResolvedCapabilityRuntimeContext,
+        source: AnyCodable,
+        pluginid: String?,
+        optional: Bool?,
+        defaultprofiles: [AnyCodable]?,
+        capabilityclass: String)
+    {
+        self.id = id
+        self.label = label
+        self.description = description
+        self.kind = kind
+        self.runtimecontext = runtimecontext
+        self.source = source
+        self.pluginid = pluginid
+        self.optional = optional
+        self.defaultprofiles = defaultprofiles
+        self.capabilityclass = capabilityclass
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case label
+        case description
+        case kind
+        case runtimecontext = "runtimeContext"
+        case source
+        case pluginid = "pluginId"
+        case optional
+        case defaultprofiles = "defaultProfiles"
+        case capabilityclass = "capabilityClass"
+    }
+}
+
+public struct ResolvedToolBrokeredCapability: Codable, Sendable {
+    public let id: String
+    public let label: String
+    public let description: String
+    public let kind: String
+    public let runtimecontext: ResolvedCapabilityRuntimeContext
+    public let source: AnyCodable
+    public let pluginid: String?
+    public let optional: Bool?
+    public let defaultprofiles: [AnyCodable]?
+    public let capabilityclass: String
+    public let evidence: [String: AnyCodable]
+
+    public init(
+        id: String,
+        label: String,
+        description: String,
+        kind: String,
+        runtimecontext: ResolvedCapabilityRuntimeContext,
+        source: AnyCodable,
+        pluginid: String?,
+        optional: Bool?,
+        defaultprofiles: [AnyCodable]?,
+        capabilityclass: String,
+        evidence: [String: AnyCodable])
+    {
+        self.id = id
+        self.label = label
+        self.description = description
+        self.kind = kind
+        self.runtimecontext = runtimecontext
+        self.source = source
+        self.pluginid = pluginid
+        self.optional = optional
+        self.defaultprofiles = defaultprofiles
+        self.capabilityclass = capabilityclass
+        self.evidence = evidence
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case label
+        case description
+        case kind
+        case runtimecontext = "runtimeContext"
+        case source
+        case pluginid = "pluginId"
+        case optional
+        case defaultprofiles = "defaultProfiles"
+        case capabilityclass = "capabilityClass"
+        case evidence
+    }
+}
+
+public struct ResolvedToolRemoteCapability: Codable, Sendable {
+    public let id: String
+    public let label: String
+    public let description: String
+    public let kind: String
+    public let runtimecontext: ResolvedCapabilityRuntimeContext
+    public let source: AnyCodable
+    public let pluginid: String?
+    public let optional: Bool?
+    public let defaultprofiles: [AnyCodable]?
+    public let capabilityclass: String
+    public let evidence: [String: AnyCodable]
+
+    public init(
+        id: String,
+        label: String,
+        description: String,
+        kind: String,
+        runtimecontext: ResolvedCapabilityRuntimeContext,
+        source: AnyCodable,
+        pluginid: String?,
+        optional: Bool?,
+        defaultprofiles: [AnyCodable]?,
+        capabilityclass: String,
+        evidence: [String: AnyCodable])
+    {
+        self.id = id
+        self.label = label
+        self.description = description
+        self.kind = kind
+        self.runtimecontext = runtimecontext
+        self.source = source
+        self.pluginid = pluginid
+        self.optional = optional
+        self.defaultprofiles = defaultprofiles
+        self.capabilityclass = capabilityclass
+        self.evidence = evidence
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case label
+        case description
+        case kind
+        case runtimecontext = "runtimeContext"
+        case source
+        case pluginid = "pluginId"
+        case optional
+        case defaultprofiles = "defaultProfiles"
+        case capabilityclass = "capabilityClass"
+        case evidence
+    }
+}
+
+public struct ResolvedToolBlockedCapability: Codable, Sendable {
+    public let id: String
+    public let label: String
+    public let description: String
+    public let kind: String
+    public let runtimecontext: ResolvedCapabilityRuntimeContext
+    public let source: AnyCodable
+    public let pluginid: String?
+    public let optional: Bool?
+    public let defaultprofiles: [AnyCodable]?
+    public let capabilityclass: String
+    public let policy: ResolvedCapabilityPolicy
+    public let evidence: [String: AnyCodable]?
+
+    public init(
+        id: String,
+        label: String,
+        description: String,
+        kind: String,
+        runtimecontext: ResolvedCapabilityRuntimeContext,
+        source: AnyCodable,
+        pluginid: String?,
+        optional: Bool?,
+        defaultprofiles: [AnyCodable]?,
+        capabilityclass: String,
+        policy: ResolvedCapabilityPolicy,
+        evidence: [String: AnyCodable]?)
+    {
+        self.id = id
+        self.label = label
+        self.description = description
+        self.kind = kind
+        self.runtimecontext = runtimecontext
+        self.source = source
+        self.pluginid = pluginid
+        self.optional = optional
+        self.defaultprofiles = defaultprofiles
+        self.capabilityclass = capabilityclass
+        self.policy = policy
+        self.evidence = evidence
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case label
+        case description
+        case kind
+        case runtimecontext = "runtimeContext"
+        case source
+        case pluginid = "pluginId"
+        case optional
+        case defaultprofiles = "defaultProfiles"
+        case capabilityclass = "capabilityClass"
+        case policy
+        case evidence
+    }
+}
+
+public struct ResolvedToolUnsupportedCapability: Codable, Sendable {
+    public let id: String
+    public let label: String
+    public let description: String
+    public let kind: String
+    public let runtimecontext: ResolvedCapabilityRuntimeContext
+    public let source: AnyCodable
+    public let pluginid: String?
+    public let optional: Bool?
+    public let defaultprofiles: [AnyCodable]?
+    public let capabilityclass: String
+    public let evidence: [String: AnyCodable]
+
+    public init(
+        id: String,
+        label: String,
+        description: String,
+        kind: String,
+        runtimecontext: ResolvedCapabilityRuntimeContext,
+        source: AnyCodable,
+        pluginid: String?,
+        optional: Bool?,
+        defaultprofiles: [AnyCodable]?,
+        capabilityclass: String,
+        evidence: [String: AnyCodable])
+    {
+        self.id = id
+        self.label = label
+        self.description = description
+        self.kind = kind
+        self.runtimecontext = runtimecontext
+        self.source = source
+        self.pluginid = pluginid
+        self.optional = optional
+        self.defaultprofiles = defaultprofiles
+        self.capabilityclass = capabilityclass
+        self.evidence = evidence
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case label
+        case description
+        case kind
+        case runtimecontext = "runtimeContext"
+        case source
+        case pluginid = "pluginId"
+        case optional
+        case defaultprofiles = "defaultProfiles"
+        case capabilityclass = "capabilityClass"
+        case evidence
+    }
+}
+
+public struct ResolvedCapabilityManifest: Codable, Sendable {
+    public let schemaversion: Double
+    public let runtimecontext: ResolvedCapabilityRuntimeContext
+    public let capabilities: [AnyCodable]
+
+    public init(
+        schemaversion: Double,
+        runtimecontext: ResolvedCapabilityRuntimeContext,
+        capabilities: [AnyCodable])
+    {
+        self.schemaversion = schemaversion
+        self.runtimecontext = runtimecontext
+        self.capabilities = capabilities
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case schemaversion = "schemaVersion"
+        case runtimecontext = "runtimeContext"
+        case capabilities
+    }
+}
+
+public struct SkillStatusEntry: Codable, Sendable {
+    public let name: String
+    public let description: String
+    public let source: String
+    public let bundled: Bool
+    public let filepath: String
+    public let basedir: String
+    public let skillkey: String
+    public let primaryenv: String?
+    public let emoji: String?
+    public let homepage: String?
+    public let always: Bool
+    public let disabled: Bool
+    public let blockedbyallowlist: Bool
+    public let eligible: Bool
+    public let capabilityclass: ResolvedCapabilityClass
+    public let capability: ResolvedSkillCapability
+    public let requirements: SkillStatusRequirements
+    public let missing: SkillStatusRequirements
+    public let configchecks: [SkillStatusConfigCheck]
+    public let remotesatisfied: AnyCodable
+    public let install: [SkillInstallOption]
+
+    public init(
+        name: String,
+        description: String,
+        source: String,
+        bundled: Bool,
+        filepath: String,
+        basedir: String,
+        skillkey: String,
+        primaryenv: String?,
+        emoji: String?,
+        homepage: String?,
+        always: Bool,
+        disabled: Bool,
+        blockedbyallowlist: Bool,
+        eligible: Bool,
+        capabilityclass: ResolvedCapabilityClass,
+        capability: ResolvedSkillCapability,
+        requirements: SkillStatusRequirements,
+        missing: SkillStatusRequirements,
+        configchecks: [SkillStatusConfigCheck],
+        remotesatisfied: AnyCodable,
+        install: [SkillInstallOption])
+    {
+        self.name = name
+        self.description = description
+        self.source = source
+        self.bundled = bundled
+        self.filepath = filepath
+        self.basedir = basedir
+        self.skillkey = skillkey
+        self.primaryenv = primaryenv
+        self.emoji = emoji
+        self.homepage = homepage
+        self.always = always
+        self.disabled = disabled
+        self.blockedbyallowlist = blockedbyallowlist
+        self.eligible = eligible
+        self.capabilityclass = capabilityclass
+        self.capability = capability
+        self.requirements = requirements
+        self.missing = missing
+        self.configchecks = configchecks
+        self.remotesatisfied = remotesatisfied
+        self.install = install
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case name
+        case description
+        case source
+        case bundled
+        case filepath = "filePath"
+        case basedir = "baseDir"
+        case skillkey = "skillKey"
+        case primaryenv = "primaryEnv"
+        case emoji
+        case homepage
+        case always
+        case disabled
+        case blockedbyallowlist = "blockedByAllowlist"
+        case eligible
+        case capabilityclass = "capabilityClass"
+        case capability
+        case requirements
+        case missing
+        case configchecks = "configChecks"
+        case remotesatisfied = "remoteSatisfied"
+        case install
+    }
+}
+
 public struct SkillsStatusParams: Codable, Sendable {
     public let agentid: String?
 
@@ -2609,6 +3587,28 @@ public struct SkillsStatusParams: Codable, Sendable {
 
     private enum CodingKeys: String, CodingKey {
         case agentid = "agentId"
+    }
+}
+
+public struct SkillsStatusResult: Codable, Sendable {
+    public let workspacedir: String
+    public let managedskillsdir: String
+    public let skills: [SkillStatusEntry]
+
+    public init(
+        workspacedir: String,
+        managedskillsdir: String,
+        skills: [SkillStatusEntry])
+    {
+        self.workspacedir = workspacedir
+        self.managedskillsdir = managedskillsdir
+        self.skills = skills
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case workspacedir = "workspaceDir"
+        case managedskillsdir = "managedSkillsDir"
+        case skills
     }
 }
 

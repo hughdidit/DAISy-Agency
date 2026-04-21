@@ -344,8 +344,7 @@ export function formatSkillsCheck(report: SkillStatusReport, opts: SkillsCheckOp
     lines.push(theme.heading("Ready to use:"));
     for (const skill of eligible) {
       const emoji = skill.emoji ?? "📦";
-      const suffix =
-        skill.capabilityClass === "remote-node-assisted" ? " (remote-backed)" : "";
+      const suffix = skill.capabilityClass === "remote-node-assisted" ? " (remote-backed)" : "";
       lines.push(`  ${emoji} ${skill.name}${suffix}`);
     }
   }
