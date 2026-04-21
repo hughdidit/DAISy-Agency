@@ -27,6 +27,8 @@ describe("gateway skills.status", () => {
           const res = await rpcReq<{
             skills?: Array<{
               name?: string;
+              capabilityClass?: string;
+              remoteSatisfied?: unknown;
               configChecks?: Array<
                 { path?: string; satisfied?: boolean } & Record<string, unknown>
               >;
@@ -38,6 +40,8 @@ describe("gateway skills.status", () => {
 
           const discord = res.payload?.skills?.find((s) => s.name === "discord");
           expect(discord).toBeTruthy();
+          expect(discord?.capabilityClass).toBe("sandbox-local");
+          expect(discord?.remoteSatisfied).toBeNull();
           const check = discord?.configChecks?.find((c) => c.path === "channels.discord.token");
           expect(check).toBeTruthy();
           expect(check?.satisfied).toBe(true);

@@ -6,6 +6,9 @@ import {
   resolveMissingBins,
   resolveMissingEnv,
   resolveMissingOs,
+  resolveRemoteSatisfiedAnyBins,
+  resolveRemoteSatisfiedBins,
+  resolveRemoteSatisfiedOs,
 } from "./requirements.js";
 
 describe("requirements helpers", () => {
@@ -17,6 +20,16 @@ describe("requirements helpers", () => {
         hasRemoteBin: (bin) => bin === "b",
       }),
     ).toEqual(["c"]);
+  });
+
+  it("resolveRemoteSatisfiedBins records remote-only binary matches", () => {
+    expect(
+      resolveRemoteSatisfiedBins({
+        required: ["a", "b", "c"],
+        hasLocalBin: (bin) => bin === "a",
+        hasRemoteBin: (bin) => bin === "b",
+      }),
+    ).toEqual(["b"]);
   });
 
   it("resolveMissingAnyBins requires at least one", () => {
@@ -35,6 +48,23 @@ describe("requirements helpers", () => {
     ).toEqual([]);
   });
 
+  it("resolveRemoteSatisfiedAnyBins records remote any-bin support", () => {
+    expect(
+      resolveRemoteSatisfiedAnyBins({
+        required: ["a", "b"],
+        hasLocalBin: () => false,
+        hasRemoteAnyBin: () => true,
+      }),
+    ).toEqual(["a", "b"]);
+    expect(
+      resolveRemoteSatisfiedAnyBins({
+        required: ["a", "b"],
+        hasLocalBin: (bin) => bin === "b",
+        hasRemoteAnyBin: () => true,
+      }),
+    ).toEqual([]);
+  });
+
   it("resolveMissingOs allows remote platform", () => {
     expect(
       resolveMissingOs({
@@ -44,6 +74,17 @@ describe("requirements helpers", () => {
       }),
     ).toEqual([]);
     expect(resolveMissingOs({ required: ["darwin"], localPlatform: "linux" })).toEqual(["darwin"]);
+  });
+
+  it("resolveRemoteSatisfiedOs records remote platform support", () => {
+    expect(
+      resolveRemoteSatisfiedOs({
+        required: ["darwin"],
+        localPlatform: "linux",
+        remotePlatforms: ["darwin"],
+      }),
+    ).toEqual(["darwin"]);
+    expect(resolveRemoteSatisfiedOs({ required: ["darwin"], localPlatform: "darwin" })).toEqual([]);
   });
 
   it("resolveMissingEnv uses predicate", () => {
@@ -77,6 +118,40 @@ describe("requirements helpers", () => {
     expect(res.required.bins).toEqual(["a"]);
     expect(res.missing.config).toEqual(["cfg.value"]);
     expect(res.missing.os).toEqual(["darwin"]);
+    expect(res.remoteSatisfied).toEqual({ bins: [], anyBins: [], os: [] });
     expect(res.eligible).toBe(false);
+  });
+
+  it("evaluateRequirementsFromMetadata records remote-backed provenance", () => {
+    const res = evaluateRequirementsFromMetadata({
+      always: false,
+      metadata: {
+        requires: { bins: ["xcodebuild"], anyBins: ["rg", "grep"] },
+        os: ["darwin"],
+      },
+      hasLocalBin: () => false,
+      hasRemoteBin: (bin) => bin === "xcodebuild",
+      hasRemoteAnyBin: () => true,
+      localPlatform: "linux",
+      remotePlatforms: ["darwin"],
+      remoteNote: "Remote macOS node available.",
+      isEnvSatisfied: () => true,
+      isConfigSatisfied: () => true,
+    });
+
+    expect(res.missing).toEqual({
+      bins: [],
+      anyBins: [],
+      env: [],
+      config: [],
+      os: [],
+    });
+    expect(res.remoteSatisfied).toEqual({
+      bins: ["xcodebuild"],
+      anyBins: ["rg", "grep"],
+      os: ["darwin"],
+      note: "Remote macOS node available.",
+    });
+    expect(res.eligible).toBe(true);
   });
 });

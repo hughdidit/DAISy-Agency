@@ -27,7 +27,9 @@ function appendClawHubHint(output: string, json?: boolean): string {
 
 function formatSkillStatus(skill: SkillStatusEntry): string {
   if (skill.eligible) {
-    return theme.success("✓ ready");
+    return skill.capabilityClass === "remote-node-assisted"
+      ? theme.success("✓ remote-backed")
+      : theme.success("✓ ready");
   }
   if (skill.disabled) {
     return theme.warn("⏸ disabled");
@@ -36,6 +38,24 @@ function formatSkillStatus(skill: SkillStatusEntry): string {
     return theme.warn("🚫 blocked");
   }
   return theme.error("✗ missing");
+}
+
+function formatRemoteSatisfiedSummary(skill: SkillStatusEntry): string {
+  if (!skill.remoteSatisfied) {
+    return "";
+  }
+
+  const remote: string[] = [];
+  if (skill.remoteSatisfied.bins.length > 0) {
+    remote.push(`bins: ${skill.remoteSatisfied.bins.join(", ")}`);
+  }
+  if (skill.remoteSatisfied.anyBins.length > 0) {
+    remote.push(`anyBins: ${skill.remoteSatisfied.anyBins.join(", ")}`);
+  }
+  if (skill.remoteSatisfied.os.length > 0) {
+    remote.push(`os: ${skill.remoteSatisfied.os.join(", ")}`);
+  }
+  return remote.join("; ");
 }
 
 function formatSkillName(skill: SkillStatusEntry): string {
@@ -81,6 +101,8 @@ export function formatSkillsList(report: SkillStatusReport, opts: SkillsListOpti
         bundled: s.bundled,
         primaryEnv: s.primaryEnv,
         homepage: s.homepage,
+        capabilityClass: s.capabilityClass,
+        remoteSatisfied: s.remoteSatisfied,
         missing: s.missing,
       })),
     };
@@ -98,12 +120,20 @@ export function formatSkillsList(report: SkillStatusReport, opts: SkillsListOpti
   const tableWidth = Math.max(60, (process.stdout.columns ?? 120) - 1);
   const rows = skills.map((skill) => {
     const missing = formatSkillMissingSummary(skill);
+    const remoteSatisfied = formatRemoteSatisfiedSummary(skill);
     return {
       Status: formatSkillStatus(skill),
       Skill: formatSkillName(skill),
       Description: theme.muted(skill.description),
       Source: skill.source ?? "",
-      Missing: missing ? theme.warn(missing) : "",
+      Missing:
+        missing && remoteSatisfied
+          ? `${theme.warn(missing)} | ${theme.success(`remote: ${remoteSatisfied}`)}`
+          : missing
+            ? theme.warn(missing)
+            : remoteSatisfied
+              ? theme.success(`remote: ${remoteSatisfied}`)
+              : "",
     };
   });
 
@@ -156,7 +186,9 @@ export function formatSkillInfo(
   const lines: string[] = [];
   const emoji = skill.emoji ?? "📦";
   const status = skill.eligible
-    ? theme.success("✓ Ready")
+    ? skill.capabilityClass === "remote-node-assisted"
+      ? theme.success("✓ Remote-backed")
+      : theme.success("✓ Ready")
     : skill.disabled
       ? theme.warn("⏸ Disabled")
       : skill.blockedByAllowlist
@@ -171,6 +203,7 @@ export function formatSkillInfo(
   lines.push(theme.heading("Details:"));
   lines.push(`${theme.muted("  Source:")} ${skill.source}`);
   lines.push(`${theme.muted("  Path:")} ${shortenHomePath(skill.filePath)}`);
+  lines.push(`${theme.muted("  Capability:")} ${skill.capabilityClass}`);
   if (skill.homepage) {
     lines.push(`${theme.muted("  Homepage:")} ${skill.homepage}`);
   }
@@ -226,6 +259,25 @@ export function formatSkillInfo(
     }
   }
 
+  if (skill.remoteSatisfied) {
+    lines.push("");
+    lines.push(theme.heading("Remote support:"));
+    if (skill.remoteSatisfied.bins.length > 0) {
+      lines.push(`${theme.muted("  Remote binaries:")} ${skill.remoteSatisfied.bins.join(", ")}`);
+    }
+    if (skill.remoteSatisfied.anyBins.length > 0) {
+      lines.push(
+        `${theme.muted("  Remote any binaries:")} ${skill.remoteSatisfied.anyBins.join(", ")}`,
+      );
+    }
+    if (skill.remoteSatisfied.os.length > 0) {
+      lines.push(`${theme.muted("  Remote OS:")} ${skill.remoteSatisfied.os.join(", ")}`);
+    }
+    if (skill.remoteSatisfied.note) {
+      lines.push(`${theme.muted("  Note:")} ${skill.remoteSatisfied.note}`);
+    }
+  }
+
   if (skill.install.length > 0 && !skill.eligible) {
     lines.push("");
     lines.push(theme.heading("Install options:"));
@@ -258,8 +310,17 @@ export function formatSkillsCheck(report: SkillStatusReport, opts: SkillsCheckOp
         eligible: eligible.map((s) => s.name),
         disabled: disabled.map((s) => s.name),
         blocked: blocked.map((s) => s.name),
+        remoteNodeAssisted: report.skills
+          .filter((s) => s.capabilityClass === "remote-node-assisted")
+          .map((s) => ({
+            name: s.name,
+            eligible: s.eligible,
+            remoteSatisfied: s.remoteSatisfied,
+          })),
         missingRequirements: missingReqs.map((s) => ({
           name: s.name,
+          capabilityClass: s.capabilityClass,
+          remoteSatisfied: s.remoteSatisfied,
           missing: s.missing,
           install: s.install,
         })),
@@ -283,7 +344,9 @@ export function formatSkillsCheck(report: SkillStatusReport, opts: SkillsCheckOp
     lines.push(theme.heading("Ready to use:"));
     for (const skill of eligible) {
       const emoji = skill.emoji ?? "📦";
-      lines.push(`  ${emoji} ${skill.name}`);
+      const suffix =
+        skill.capabilityClass === "remote-node-assisted" ? " (remote-backed)" : "";
+      lines.push(`  ${emoji} ${skill.name}${suffix}`);
     }
   }
 

@@ -20,6 +20,14 @@ export type RequirementRemote = {
   hasBin?: (bin: string) => boolean;
   hasAnyBin?: (bins: string[]) => boolean;
   platforms?: string[];
+  note?: string;
+};
+
+export type RequirementRemoteSatisfied = {
+  bins: string[];
+  anyBins: string[];
+  os: string[];
+  note?: string;
 };
 
 type RequirementsEvaluationContext = {
@@ -34,6 +42,7 @@ type RequirementsEvaluationRemoteContext = {
   hasRemoteBin?: (bin: string) => boolean;
   hasRemoteAnyBin?: (bins: string[]) => boolean;
   remotePlatforms?: string[];
+  remoteNote?: string;
 };
 
 export function resolveMissingBins(params: {
@@ -53,6 +62,18 @@ export function resolveMissingBins(params: {
   });
 }
 
+export function resolveRemoteSatisfiedBins(params: {
+  required: string[];
+  hasLocalBin: (bin: string) => boolean;
+  hasRemoteBin?: (bin: string) => boolean;
+}): string[] {
+  const remote = params.hasRemoteBin;
+  if (!remote) {
+    return [];
+  }
+  return params.required.filter((bin) => !params.hasLocalBin(bin) && remote(bin));
+}
+
 export function resolveMissingAnyBins(params: {
   required: string[];
   hasLocalBin: (bin: string) => boolean;
@@ -70,6 +91,23 @@ export function resolveMissingAnyBins(params: {
   return params.required;
 }
 
+export function resolveRemoteSatisfiedAnyBins(params: {
+  required: string[];
+  hasLocalBin: (bin: string) => boolean;
+  hasRemoteAnyBin?: (bins: string[]) => boolean;
+}): string[] {
+  if (params.required.length === 0) {
+    return [];
+  }
+  if (params.required.some((bin) => params.hasLocalBin(bin))) {
+    return [];
+  }
+  if (params.hasRemoteAnyBin?.(params.required)) {
+    return [...params.required];
+  }
+  return [];
+}
+
 export function resolveMissingOs(params: {
   required: string[];
   localPlatform: string;
@@ -85,6 +123,23 @@ export function resolveMissingOs(params: {
     return [];
   }
   return params.required;
+}
+
+export function resolveRemoteSatisfiedOs(params: {
+  required: string[];
+  localPlatform: string;
+  remotePlatforms?: string[];
+}): string[] {
+  if (params.required.length === 0) {
+    return [];
+  }
+  if (params.required.includes(params.localPlatform)) {
+    return [];
+  }
+  if (params.remotePlatforms?.some((platform) => params.required.includes(platform))) {
+    return [...params.required];
+  }
+  return [];
 }
 
 export function resolveMissingEnv(params: {
@@ -116,8 +171,18 @@ export function evaluateRequirements(
     RequirementsEvaluationRemoteContext & {
       required: Requirements;
     },
-): { missing: Requirements; eligible: boolean; configChecks: RequirementConfigCheck[] } {
+): {
+  missing: Requirements;
+  eligible: boolean;
+  configChecks: RequirementConfigCheck[];
+  remoteSatisfied: RequirementRemoteSatisfied;
+} {
   const missingBins = resolveMissingBins({
+    required: params.required.bins,
+    hasLocalBin: params.hasLocalBin,
+    hasRemoteBin: params.hasRemoteBin,
+  });
+  const remoteSatisfiedBins = resolveRemoteSatisfiedBins({
     required: params.required.bins,
     hasLocalBin: params.hasLocalBin,
     hasRemoteBin: params.hasRemoteBin,
@@ -127,7 +192,17 @@ export function evaluateRequirements(
     hasLocalBin: params.hasLocalBin,
     hasRemoteAnyBin: params.hasRemoteAnyBin,
   });
+  const remoteSatisfiedAnyBins = resolveRemoteSatisfiedAnyBins({
+    required: params.required.anyBins,
+    hasLocalBin: params.hasLocalBin,
+    hasRemoteAnyBin: params.hasRemoteAnyBin,
+  });
   const missingOs = resolveMissingOs({
+    required: params.required.os,
+    localPlatform: params.localPlatform,
+    remotePlatforms: params.remotePlatforms,
+  });
+  const remoteSatisfiedOs = resolveRemoteSatisfiedOs({
     required: params.required.os,
     localPlatform: params.localPlatform,
     remotePlatforms: params.remotePlatforms,
@@ -151,6 +226,20 @@ export function evaluateRequirements(
         config: missingConfig,
         os: missingOs,
       };
+  const remoteSatisfied =
+    params.always
+      ? { bins: [], anyBins: [], os: [] }
+      : {
+          bins: remoteSatisfiedBins,
+          anyBins: remoteSatisfiedAnyBins,
+          os: remoteSatisfiedOs,
+          note:
+            remoteSatisfiedBins.length > 0 ||
+            remoteSatisfiedAnyBins.length > 0 ||
+            remoteSatisfiedOs.length > 0
+              ? params.remoteNote
+              : undefined,
+        };
 
   const eligible =
     params.always ||
@@ -160,7 +249,7 @@ export function evaluateRequirements(
       missing.config.length === 0 &&
       missing.os.length === 0);
 
-  return { missing, eligible, configChecks };
+  return { missing, eligible, configChecks, remoteSatisfied };
 }
 
 export function evaluateRequirementsFromMetadata(
@@ -173,6 +262,7 @@ export function evaluateRequirementsFromMetadata(
   missing: Requirements;
   eligible: boolean;
   configChecks: RequirementConfigCheck[];
+  remoteSatisfied: RequirementRemoteSatisfied;
 } {
   const required: Requirements = {
     bins: params.metadata?.requires?.bins ?? [],
@@ -190,6 +280,7 @@ export function evaluateRequirementsFromMetadata(
     hasRemoteAnyBin: params.hasRemoteAnyBin,
     localPlatform: params.localPlatform,
     remotePlatforms: params.remotePlatforms,
+    remoteNote: params.remoteNote,
     isEnvSatisfied: params.isEnvSatisfied,
     isConfigSatisfied: params.isConfigSatisfied,
   });
@@ -206,6 +297,7 @@ export function evaluateRequirementsFromMetadataWithRemote(
   missing: Requirements;
   eligible: boolean;
   configChecks: RequirementConfigCheck[];
+  remoteSatisfied: RequirementRemoteSatisfied;
 } {
   return evaluateRequirementsFromMetadata({
     always: params.always,
@@ -215,6 +307,7 @@ export function evaluateRequirementsFromMetadataWithRemote(
     hasRemoteAnyBin: params.remote?.hasAnyBin,
     localPlatform: params.localPlatform,
     remotePlatforms: params.remote?.platforms,
+    remoteNote: params.remote?.note,
     isEnvSatisfied: params.isEnvSatisfied,
     isConfigSatisfied: params.isConfigSatisfied,
   });
