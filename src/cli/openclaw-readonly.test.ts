@@ -223,6 +223,34 @@ describe("openclaw-readonly CLI", () => {
     );
   });
 
+  it("dispatches status with readonly sandbox runtime context via projection fallback", async () => {
+    const statusCommand = vi.fn();
+
+    await runOpenClawReadonly(["status"], {
+      env: {
+        OPENCLAW_READONLY_AGENT_ID: "projection-agent",
+        OPENCLAW_READONLY_PROJECTION_ROOT: "/projection-root/agents/projection-agent",
+      },
+      runtime,
+      pathExists: (targetPath) =>
+        targetPath === "/projection-root/agents/projection-agent/openclaw.json" ||
+        targetPath === "/projection-root/agents/projection-agent/state",
+      importStatusCommand: async () => ({
+        statusCommand,
+      }),
+    });
+
+    expect(statusCommand).toHaveBeenCalledWith(
+      {
+        runtimeContext: {
+          kind: "readonly-sandbox",
+          agentId: "projection-agent",
+        },
+      },
+      runtime,
+    );
+  });
+
   it("surfaces actionable runtime failures", async () => {
     await runOpenClawReadonly(["skills", "check"], {
       env: {
