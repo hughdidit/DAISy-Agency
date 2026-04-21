@@ -664,7 +664,14 @@ export const ResolvedToolUnsupportedCapabilitySchema = Type.Object(
         provider: Type.Optional(ResolvedCapabilityProviderEvidenceSchema),
         remote: Type.Optional(ResolvedCapabilityRemoteEvidenceSchema),
       },
-      { additionalProperties: false },
+      {
+        additionalProperties: false,
+        anyOf: [
+          { required: ["runtime"] },
+          { required: ["projection"] },
+          { required: ["provider"] },
+        ],
+      },
     ),
   },
   { additionalProperties: false, $id: "ResolvedToolUnsupportedCapability" },

@@ -265,6 +265,14 @@ function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((entry) => typeof entry === "string");
 }
 
+function isOptionalString(value: unknown): value is string | undefined {
+  return value === undefined || typeof value === "string";
+}
+
+function isOptionalBoolean(value: unknown): value is boolean | undefined {
+  return value === undefined || typeof value === "boolean";
+}
+
 function hasObjectShape<T extends string>(
   value: Record<string, unknown>,
   key: T,
@@ -301,10 +309,7 @@ export function isResolvedCapabilityManifest(value: unknown): value is ResolvedC
   if (value.schemaVersion !== RESOLVED_CAPABILITY_SCHEMA_VERSION) {
     return false;
   }
-  if (!hasObjectShape(value, "runtimeContext")) {
-    return false;
-  }
-  if (typeof value.runtimeContext.agentId !== "string") {
+  if (!isResolvedCapabilityRuntimeContext(value.runtimeContext)) {
     return false;
   }
   if (!Array.isArray(value.capabilities)) {
@@ -326,10 +331,7 @@ export function isResolvedCapability(value: unknown): value is ResolvedCapabilit
   if (typeof value.description !== "string") {
     return false;
   }
-  if (
-    !hasObjectShape(value, "runtimeContext") ||
-    typeof value.runtimeContext.agentId !== "string"
-  ) {
+  if (!isResolvedCapabilityRuntimeContext(value.runtimeContext)) {
     return false;
   }
   if (value.policy !== undefined && !isResolvedCapabilityPolicy(value.policy)) {
@@ -353,7 +355,9 @@ export function isResolvedCapabilityPolicy(value: unknown): value is ResolvedCap
   return (
     isResolvedCapabilityPolicySourceKind(value.source.kind) &&
     typeof value.source.key === "string" &&
-    isResolvedCapabilityDenyReason(value.denyReason)
+    isOptionalString(value.source.detail) &&
+    isResolvedCapabilityDenyReason(value.denyReason) &&
+    isOptionalString(value.detail)
   );
 }
 
@@ -384,6 +388,19 @@ export function isResolvedCapabilityEvidence(value: unknown): value is ResolvedC
   return true;
 }
 
+export function isResolvedCapabilityRuntimeContext(
+  value: unknown,
+): value is ResolvedCapabilityRuntimeContext {
+  return (
+    isRecord(value) &&
+    typeof value.agentId === "string" &&
+    isOptionalString(value.sessionKey) &&
+    isOptionalString(value.sandboxMode) &&
+    isOptionalString(value.sandboxScope) &&
+    isOptionalBoolean(value.sandboxed)
+  );
+}
+
 export function isResolvedRuntimeEvidence(
   value: unknown,
 ): value is ResolvedCapabilityRuntimeEvidence {
@@ -395,7 +412,9 @@ export function isResolvedRuntimeEvidence(
     isStringArray(value.missingAnyBins) &&
     isStringArray(value.missingOs) &&
     Array.isArray(value.reasonCodes) &&
-    value.reasonCodes.every(isResolvedCapabilityUnavailableReason)
+    value.reasonCodes.every(isResolvedCapabilityUnavailableReason) &&
+    isOptionalString(value.profile) &&
+    isOptionalString(value.detail)
   );
 }
 
@@ -408,7 +427,8 @@ export function isResolvedProjectionEvidence(
   return (
     isStringArray(value.missingPaths) &&
     Array.isArray(value.reasonCodes) &&
-    value.reasonCodes.every(isResolvedCapabilityUnavailableReason)
+    value.reasonCodes.every(isResolvedCapabilityUnavailableReason) &&
+    isOptionalString(value.detail)
   );
 }
 
@@ -420,7 +440,11 @@ export function isResolvedProviderEvidence(
   }
   return (
     Array.isArray(value.reasonCodes) &&
-    value.reasonCodes.every(isResolvedCapabilityUnavailableReason)
+    value.reasonCodes.every(isResolvedCapabilityUnavailableReason) &&
+    isOptionalString(value.providerId) &&
+    isOptionalString(value.providerKind) &&
+    isOptionalString(value.transport) &&
+    isOptionalString(value.detail)
   );
 }
 
@@ -433,7 +457,8 @@ export function isResolvedRemoteEvidence(
   return (
     isStringArray(value.satisfiedBins) &&
     isStringArray(value.satisfiedAnyBins) &&
-    isStringArray(value.satisfiedOs)
+    isStringArray(value.satisfiedOs) &&
+    isOptionalString(value.note)
   );
 }
 
@@ -543,23 +568,23 @@ export function buildResolvedSkillCapability(
     };
   }
 
+  if (remoteEvidence) {
+    return {
+      ...sharedBase,
+      capabilityClass: "remote-node-assisted",
+      evidence: {
+        ...(runtimeEvidence ? { runtime: runtimeEvidence } : {}),
+        remote: remoteEvidence,
+      },
+    };
+  }
+
   if (runtimeEvidence) {
     return {
       ...sharedBase,
       capabilityClass: "unsupported-in-current-runtime",
       evidence: {
         runtime: runtimeEvidence,
-        ...(remoteEvidence ? { remote: remoteEvidence } : {}),
-      },
-    };
-  }
-
-  if (remoteEvidence) {
-    return {
-      ...sharedBase,
-      capabilityClass: "remote-node-assisted",
-      evidence: {
-        remote: remoteEvidence,
       },
     };
   }
@@ -661,34 +686,41 @@ function assertCapabilityVariantRequirements(capability: ResolvedCapability) {
   }
 }
 
-function hasCapabilityVariantRequirements(capability: ResolvedCapability): boolean {
+function hasCapabilityVariantRequirements(capability: Record<string, unknown>): boolean {
   if (capability.capabilityClass === "configured-but-blocked" && !capability.policy) {
     return false;
   }
-  if (capability.capabilityClass === "remote-node-assisted" && !capability.evidence?.remote) {
-    return false;
+  if (capability.capabilityClass === "remote-node-assisted") {
+    return isRecord(capability.evidence) && isResolvedRemoteEvidence(capability.evidence.remote);
   }
   if (capability.capabilityClass === "unsupported-in-current-runtime") {
+    if (!isRecord(capability.evidence)) {
+      return false;
+    }
     if (capability.kind === "skill") {
-      return Boolean(capability.evidence?.runtime);
+      return isResolvedRuntimeEvidence(capability.evidence.runtime);
     }
     if (
       !(
-        capability.evidence?.runtime ||
-        capability.evidence?.projection ||
-        capability.evidence?.provider
+        isResolvedRuntimeEvidence(capability.evidence.runtime) ||
+        isResolvedProjectionEvidence(capability.evidence.projection) ||
+        isResolvedProviderEvidence(capability.evidence.provider)
       )
     ) {
       return false;
     }
   }
-  if (capability.capabilityClass === "gateway-brokered" && !capability.evidence?.provider) {
-    return false;
+  if (capability.capabilityClass === "gateway-brokered") {
+    return (
+      isRecord(capability.evidence) && isResolvedProviderEvidence(capability.evidence.provider)
+    );
   }
   return true;
 }
 
-function isResolvedSkillCapability(value: ResolvedCapability): value is ResolvedSkillCapability {
+function isResolvedSkillCapability(
+  value: Record<string, unknown>,
+): value is ResolvedSkillCapability {
   return (
     value.kind === "skill" &&
     typeof value.skillKey === "string" &&
@@ -701,7 +733,7 @@ function isResolvedSkillCapability(value: ResolvedCapability): value is Resolved
   );
 }
 
-function isResolvedToolCapability(value: ResolvedCapability): value is ResolvedToolCapability {
+function isResolvedToolCapability(value: Record<string, unknown>): value is ResolvedToolCapability {
   return (
     value.kind === "tool" &&
     (value.source === "core" || value.source === "plugin") &&

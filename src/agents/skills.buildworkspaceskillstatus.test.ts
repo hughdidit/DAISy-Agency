@@ -139,6 +139,40 @@ describe("buildWorkspaceSkillStatus", () => {
     });
   });
 
+  it("keeps remote-node-assisted classification when local runtime requirements are only satisfied remotely", () => {
+    const entry = makeEntry({
+      name: "remote-only-runtime-skill",
+      requires: {
+        bins: ["definitely-not-installed-sbx201"],
+      },
+    });
+
+    const report = buildWorkspaceSkillStatus("/tmp/ws", {
+      entries: [entry],
+      eligibility: {
+        remote: {
+          platforms: [process.platform],
+          hasBin: (bin) => bin === "definitely-not-installed-sbx201",
+          hasAnyBin: () => false,
+          note: "Remote node satisfies the missing runtime dependency.",
+        },
+      },
+    });
+    const skill = report.skills.find(
+      (reportEntry) => reportEntry.name === "remote-only-runtime-skill",
+    );
+
+    expect(skill).toBeDefined();
+    expect(skill?.eligible).toBe(true);
+    expect(skill?.capabilityClass).toBe("remote-node-assisted");
+    expect(skill?.capability.evidence?.runtime?.missingBins).toEqual([
+      "definitely-not-installed-sbx201",
+    ]);
+    expect(skill?.capability.evidence?.remote?.satisfiedBins).toEqual([
+      "definitely-not-installed-sbx201",
+    ]);
+  });
+
   it("keeps local env blockers while preserving remote-backed provenance", () => {
     const entry = makeEntry({
       name: "remote-plus-env",

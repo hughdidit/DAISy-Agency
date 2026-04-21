@@ -124,6 +124,33 @@ describe("resolved capability manifest", () => {
     expect(capability.defaultProfiles).toEqual(["messaging", "full"]);
   });
 
+  it("prefers remote-node-assisted for skills with remote-backed runtime gaps", () => {
+    const capability = buildResolvedSkillCapability({
+      name: "remote-mac-skill",
+      description: "remote mac helper",
+      source: "openclaw-bundled",
+      skillKey: "remote-mac-skill",
+      bundled: true,
+      filePath: "/tmp/remote-mac-skill/SKILL.md",
+      requirements: { bins: ["xcodebuild"], anyBins: [], env: [], config: [], os: [] },
+      missing: { bins: ["xcodebuild"], anyBins: [], env: [], config: [], os: [] },
+      configChecks: [],
+      disabled: false,
+      blockedByAllowlist: false,
+      remoteSatisfied: {
+        bins: ["xcodebuild"],
+        anyBins: [],
+        os: ["darwin"],
+        note: "Remote macOS node available.",
+      },
+      runtimeContext: { agentId: "main", sandboxed: true },
+    });
+
+    expect(capability.capabilityClass).toBe("remote-node-assisted");
+    expect(capability.evidence?.runtime?.missingBins).toEqual(["xcodebuild"]);
+    expect(capability.evidence?.remote?.satisfiedBins).toEqual(["xcodebuild"]);
+  });
+
   it("requires remote evidence for remote-assisted tool capabilities", () => {
     expect(() =>
       buildResolvedToolCapability({
@@ -163,6 +190,40 @@ describe("resolved capability manifest", () => {
               key: "skills.allowBundled",
             },
             denyReason: "bundled-skill-not-allowlisted",
+          },
+        },
+      ],
+    };
+
+    expect(isResolvedCapabilityManifest(invalid)).toBe(false);
+  });
+
+  it("rejects blocked manifests with malformed optional policy detail fields", () => {
+    const invalid = {
+      schemaVersion: 1,
+      runtimeContext: { agentId: "main", sandboxed: "true" },
+      capabilities: [
+        {
+          id: "discord",
+          label: "discord",
+          description: "discord skill",
+          kind: "skill",
+          capabilityClass: "configured-but-blocked",
+          runtimeContext: { agentId: "main", sandboxMode: "all", sandboxed: true },
+          skillKey: "discord",
+          source: "openclaw-bundled",
+          filePath: "/tmp/discord/SKILL.md",
+          requirements: { bins: [], anyBins: [], env: [], config: [], os: [] },
+          missing: { bins: [], anyBins: [], env: [], config: [], os: [] },
+          configChecks: [],
+          policy: {
+            source: {
+              kind: "bundled-skill-allowlist",
+              key: "skills.allowBundled",
+              detail: 42,
+            },
+            denyReason: "bundled-skill-not-allowlisted",
+            detail: 42,
           },
         },
       ],
