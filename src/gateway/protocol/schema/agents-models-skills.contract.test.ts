@@ -5,11 +5,16 @@ import {
   SkillsStatusResultSchema,
 } from "./agents-models-skills.js";
 
+function createAjv() {
+  return new (AjvPkg as unknown as new (opts?: object) => import("ajv").default)({
+    allErrors: true,
+    strict: false,
+  });
+}
+
 describe("agents-models-skills schemas", () => {
   it("accepts a blocked skills.status payload with explicit deny metadata", () => {
-    const validate = new AjvPkg({ allErrors: true, strict: false }).compile(
-      SkillsStatusResultSchema,
-    );
+    const validate = createAjv().compile(SkillsStatusResultSchema);
     const payload = {
       workspaceDir: "/tmp/ws",
       managedSkillsDir: "/tmp/skills",
@@ -62,9 +67,7 @@ describe("agents-models-skills schemas", () => {
   });
 
   it("rejects remote-assisted capabilities that omit remote evidence", () => {
-    const validate = new AjvPkg({ allErrors: true, strict: false }).compile(
-      ResolvedCapabilityManifestSchema,
-    );
+    const validate = createAjv().compile(ResolvedCapabilityManifestSchema);
     const payload = {
       schemaVersion: 1,
       runtimeContext: { agentId: "main" },
@@ -87,9 +90,7 @@ describe("agents-models-skills schemas", () => {
   });
 
   it("rejects blocked capabilities that omit policy metadata", () => {
-    const validate = new AjvPkg({ allErrors: true, strict: false }).compile(
-      ResolvedCapabilityManifestSchema,
-    );
+    const validate = createAjv().compile(ResolvedCapabilityManifestSchema);
     const payload = {
       schemaVersion: 1,
       runtimeContext: { agentId: "main" },
@@ -110,9 +111,7 @@ describe("agents-models-skills schemas", () => {
   });
 
   it("rejects unsupported capabilities without availability evidence", () => {
-    const validate = new AjvPkg({ allErrors: true, strict: false }).compile(
-      ResolvedCapabilityManifestSchema,
-    );
+    const validate = createAjv().compile(ResolvedCapabilityManifestSchema);
     const payload = {
       schemaVersion: 1,
       runtimeContext: { agentId: "main" },
@@ -134,9 +133,7 @@ describe("agents-models-skills schemas", () => {
   });
 
   it("rejects unsupported skill capabilities that omit runtime evidence", () => {
-    const validate = new AjvPkg({ allErrors: true, strict: false }).compile(
-      ResolvedCapabilityManifestSchema,
-    );
+    const validate = createAjv().compile(ResolvedCapabilityManifestSchema);
     const payload = {
       schemaVersion: 1,
       runtimeContext: { agentId: "main" },
@@ -168,9 +165,7 @@ describe("agents-models-skills schemas", () => {
   });
 
   it("rejects blocked capabilities with unknown policy source kinds", () => {
-    const validate = new AjvPkg({ allErrors: true, strict: false }).compile(
-      ResolvedCapabilityManifestSchema,
-    );
+    const validate = createAjv().compile(ResolvedCapabilityManifestSchema);
     const payload = {
       schemaVersion: 1,
       runtimeContext: { agentId: "main" },

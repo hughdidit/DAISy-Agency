@@ -349,16 +349,18 @@ export function isResolvedCapability(value: unknown): value is ResolvedCapabilit
 }
 
 export function isResolvedCapabilityPolicy(value: unknown): value is ResolvedCapabilityPolicy {
-  if (!isRecord(value) || !hasObjectShape(value, "source")) {
+  if (!isRecord(value) || !isRecord(value.source)) {
     return false;
   }
   const source = value.source;
+  const denyReason = value.denyReason;
+  const detail = value.detail;
   return (
     isResolvedCapabilityPolicySourceKind(source.kind) &&
     typeof source.key === "string" &&
     isOptionalString(source.detail) &&
-    isResolvedCapabilityDenyReason(value["denyReason"]) &&
-    isOptionalString(value["detail"])
+    isResolvedCapabilityDenyReason(denyReason) &&
+    isOptionalString(detail)
   );
 }
 
