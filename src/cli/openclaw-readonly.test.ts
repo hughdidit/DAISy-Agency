@@ -150,6 +150,12 @@ describe("openclaw-readonly CLI", () => {
         managedSkillsDir: "/managed-skills",
       } satisfies SkillStatusReport;
       const buildWorkspaceSkillStatus = vi.fn<TestBuildWorkspaceSkillStatus>(() => report);
+      const getRemoteSkillEligibility = vi.fn(() => ({
+        platforms: ["darwin"],
+        hasBin: vi.fn(),
+        hasAnyBin: vi.fn(),
+        note: "Remote macOS node available.",
+      }));
       const formatSkillsList = vi.fn<TestFormatSkillsList>(() => "skills list output");
       const formatSkillsCheck = vi.fn<TestFormatSkillsCheck>(() => "skills check output");
       const loadConfig = vi.fn<TestLoadConfig>(() => config);
@@ -171,6 +177,7 @@ describe("openclaw-readonly CLI", () => {
         importSkillsModules: async () => ({
           loadConfig,
           buildWorkspaceSkillStatus,
+          getRemoteSkillEligibility,
           formatSkillsList,
           formatSkillsCheck,
         }),
@@ -178,6 +185,7 @@ describe("openclaw-readonly CLI", () => {
 
       expect(buildWorkspaceSkillStatus).toHaveBeenCalledWith("/agent", {
         config,
+        eligibility: { remote: getRemoteSkillEligibility() },
       });
       expect(formatSkillsList).toHaveBeenCalled();
       expect(runtime.log).toHaveBeenCalledWith("skills list output");
@@ -207,6 +215,7 @@ describe("openclaw-readonly CLI", () => {
       importSkillsModules: async () => ({
         loadConfig: vi.fn(),
         buildWorkspaceSkillStatus: vi.fn(),
+        getRemoteSkillEligibility: vi.fn(),
         formatSkillsList: vi.fn(),
         formatSkillsCheck: vi.fn(),
       }),

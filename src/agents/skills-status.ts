@@ -42,9 +42,16 @@ export type SkillStatusEntry = {
   disabled: boolean;
   blockedByAllowlist: boolean;
   eligible: boolean;
+  capabilityClass: "sandbox-local" | "remote-node-assisted";
   requirements: Requirements;
   missing: Requirements;
   configChecks: SkillStatusConfigCheck[];
+  remoteSatisfied: {
+    os: string[];
+    bins: string[];
+    anyBins: string[];
+    note?: string;
+  } | null;
   install: SkillInstallOption[];
 };
 
@@ -191,16 +198,27 @@ function buildSkillStatus(
       ? bundledNames.has(entry.skill.name)
       : entry.skill.source === "openclaw-bundled";
 
-  const { emoji, homepage, required, missing, requirementsSatisfied, configChecks } =
-    evaluateEntryRequirementsForCurrentPlatform({
-      always,
-      entry,
-      hasLocalBin: hasBinary,
-      remote: eligibility?.remote,
-      isEnvSatisfied,
-      isConfigSatisfied,
-    });
+  const {
+    emoji,
+    homepage,
+    required,
+    missing,
+    requirementsSatisfied,
+    configChecks,
+    remoteSatisfied,
+  } = evaluateEntryRequirementsForCurrentPlatform({
+    always,
+    entry,
+    hasLocalBin: hasBinary,
+    remote: eligibility?.remote,
+    isEnvSatisfied,
+    isConfigSatisfied,
+  });
   const eligible = !disabled && !blockedByAllowlist && requirementsSatisfied;
+  const usesRemoteEligibility =
+    remoteSatisfied.os.length > 0 ||
+    remoteSatisfied.bins.length > 0 ||
+    remoteSatisfied.anyBins.length > 0;
 
   return {
     name: entry.skill.name,
@@ -217,9 +235,11 @@ function buildSkillStatus(
     disabled,
     blockedByAllowlist,
     eligible,
+    capabilityClass: usesRemoteEligibility ? "remote-node-assisted" : "sandbox-local",
     requirements: required,
     missing,
     configChecks,
+    remoteSatisfied: usesRemoteEligibility ? remoteSatisfied : null,
     install: normalizeInstallOptions(entry, prefs ?? resolveSkillsInstallPreferences(config)),
   };
 }

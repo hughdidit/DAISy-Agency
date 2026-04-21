@@ -3,6 +3,7 @@ import {
   evaluateRequirementsFromMetadataWithRemote,
   type RequirementConfigCheck,
   type RequirementRemote,
+  type RequirementRemoteSatisfied,
   type Requirements,
   type RequirementsMetadata,
 } from "./requirements.js";
@@ -32,20 +33,22 @@ export function evaluateEntryMetadataRequirements(params: {
   missing: Requirements;
   requirementsSatisfied: boolean;
   configChecks: RequirementConfigCheck[];
+  remoteSatisfied: RequirementRemoteSatisfied;
 } {
   const { emoji, homepage } = resolveEmojiAndHomepage({
     metadata: params.metadata,
     frontmatter: params.frontmatter,
   });
-  const { required, missing, eligible, configChecks } = evaluateRequirementsFromMetadataWithRemote({
-    always: params.always,
-    metadata: params.metadata ?? undefined,
-    hasLocalBin: params.hasLocalBin,
-    localPlatform: params.localPlatform,
-    remote: params.remote,
-    isEnvSatisfied: params.isEnvSatisfied,
-    isConfigSatisfied: params.isConfigSatisfied,
-  });
+  const { required, missing, eligible, configChecks, remoteSatisfied } =
+    evaluateRequirementsFromMetadataWithRemote({
+      always: params.always,
+      metadata: params.metadata ?? undefined,
+      hasLocalBin: params.hasLocalBin,
+      localPlatform: params.localPlatform,
+      remote: params.remote,
+      isEnvSatisfied: params.isEnvSatisfied,
+      isConfigSatisfied: params.isConfigSatisfied,
+    });
   return {
     ...(emoji ? { emoji } : {}),
     ...(homepage ? { homepage } : {}),
@@ -53,6 +56,7 @@ export function evaluateEntryMetadataRequirements(params: {
     missing,
     requirementsSatisfied: eligible,
     configChecks,
+    remoteSatisfied,
   };
 }
 

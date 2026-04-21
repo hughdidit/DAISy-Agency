@@ -24,6 +24,8 @@ function createMockSkill(overrides: Partial<SkillStatusEntry> = {}): SkillStatus
     disabled: false,
     blockedByAllowlist: false,
     eligible: true,
+    capabilityClass: "sandbox-local",
+    remoteSatisfied: null,
     ...createEmptyInstallChecks(),
     ...overrides,
   };
@@ -59,6 +61,27 @@ describe("skills-cli", () => {
       expect(output).toContain("peekaboo");
       expect(output).toContain("📸");
       expect(output).toContain("✓");
+    });
+
+    it("formats remote-backed skills distinctly", () => {
+      const report = createMockReport([
+        createMockSkill({
+          name: "remote-skill",
+          eligible: true,
+          capabilityClass: "remote-node-assisted",
+          remoteSatisfied: {
+            bins: ["xcodebuild"],
+            anyBins: [],
+            os: ["darwin"],
+            note: "Remote macOS node available.",
+          },
+        }),
+      ]);
+      const output = formatSkillsList(report, { verbose: true });
+      expect(output).toContain("remote-skill");
+      expect(output).toContain("remote-backed");
+      expect(output).toContain("remote:");
+      expect(output).toContain("xcodebuild");
     });
 
     it("formats skills list with disabled skill", () => {
@@ -148,6 +171,30 @@ describe("skills-cli", () => {
       expect(output).toContain("Any binaries");
       expect(output).toContain("API_KEY");
     });
+
+    it("shows remote support details for remote-backed skills", () => {
+      const report = createMockReport([
+        createMockSkill({
+          name: "remote-info",
+          eligible: true,
+          capabilityClass: "remote-node-assisted",
+          remoteSatisfied: {
+            bins: ["xcodebuild"],
+            anyBins: ["rg", "grep"],
+            os: ["darwin"],
+            note: "Remote macOS node available.",
+          },
+        }),
+      ]);
+      const output = formatSkillInfo(report, "remote-info", {});
+      expect(output).toContain("Capability:");
+      expect(output).toContain("remote-node-assisted");
+      expect(output).toContain("Remote support:");
+      expect(output).toContain("Remote binaries:");
+      expect(output).toContain("Remote any binaries:");
+      expect(output).toContain("Remote OS:");
+      expect(output).toContain("Remote macOS node available.");
+    });
   });
 
   describe("formatSkillsCheck", () => {
@@ -170,6 +217,25 @@ describe("skills-cli", () => {
       expect(output).toContain("go"); // missing binary
       expect(output).toContain("npx clawhub");
     });
+
+    it("labels remote-backed ready skills in checks", () => {
+      const report = createMockReport([
+        createMockSkill({
+          name: "remote-ready",
+          eligible: true,
+          capabilityClass: "remote-node-assisted",
+          remoteSatisfied: {
+            bins: ["xcodebuild"],
+            anyBins: [],
+            os: ["darwin"],
+            note: "Remote macOS node available.",
+          },
+        }),
+      ]);
+      const output = formatSkillsCheck(report, {});
+      expect(output).toContain("remote-ready");
+      expect(output).toContain("remote-backed");
+    });
   });
 
   describe("JSON output", () => {
@@ -183,6 +249,7 @@ describe("skills-cli", () => {
           const skills = parsed.skills as Array<Record<string, unknown>>;
           expect(skills).toHaveLength(1);
           expect(skills[0]?.name).toBe("json-skill");
+          expect(skills[0]?.capabilityClass).toBe("sandbox-local");
         },
       },
       {
@@ -194,6 +261,7 @@ describe("skills-cli", () => {
         ),
         assert: (parsed: Record<string, unknown>) => {
           expect(parsed.name).toBe("info-skill");
+          expect(parsed.capabilityClass).toBe("sandbox-local");
         },
       },
       {
@@ -209,6 +277,8 @@ describe("skills-cli", () => {
           const summary = parsed.summary as Record<string, unknown>;
           expect(summary.eligible).toBe(1);
           expect(summary.total).toBe(2);
+          const remoteNodeAssisted = parsed.remoteNodeAssisted as Array<Record<string, unknown>>;
+          expect(remoteNodeAssisted).toEqual([]);
         },
       },
     ])("outputs JSON with --json flag for $formatter", ({ output, assert }) => {

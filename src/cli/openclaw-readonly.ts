@@ -9,6 +9,8 @@ import type { RuntimeEnv } from "../runtime.js";
 type ReadonlyLoadConfig = typeof import("../config/config.js").loadConfig;
 type ReadonlyBuildWorkspaceSkillStatus =
   typeof import("../agents/skills-status.js").buildWorkspaceSkillStatus;
+type ReadonlyGetRemoteSkillEligibility =
+  typeof import("../infra/skills-remote.js").getRemoteSkillEligibility;
 type ReadonlyFormatSkillsList = typeof import("./skills-cli.format.js").formatSkillsList;
 type ReadonlyFormatSkillsCheck = typeof import("./skills-cli.format.js").formatSkillsCheck;
 
@@ -71,6 +73,7 @@ type OpenClawReadonlyDeps = {
   importSkillsModules: () => Promise<{
     loadConfig: ReadonlyLoadConfig;
     buildWorkspaceSkillStatus: ReadonlyBuildWorkspaceSkillStatus;
+    getRemoteSkillEligibility: ReadonlyGetRemoteSkillEligibility;
     formatSkillsList: ReadonlyFormatSkillsList;
     formatSkillsCheck: ReadonlyFormatSkillsCheck;
   }>;
@@ -256,14 +259,21 @@ function createDefaultReadonlyDeps(): OpenClawReadonlyDeps {
     importStatusCommand: async () => await import("../commands/status.command.js"),
     importSandboxExplainCommand: async () => await import("../commands/sandbox-explain.js"),
     importSkillsModules: async () => {
-      const [{ loadConfig }, { buildWorkspaceSkillStatus }, formatting] = await Promise.all([
+      const [
+        { loadConfig },
+        { buildWorkspaceSkillStatus },
+        { getRemoteSkillEligibility },
+        formatting,
+      ] = await Promise.all([
         import("../config/config.js"),
         import("../agents/skills-status.js"),
+        import("../infra/skills-remote.js"),
         import("./skills-cli.format.js"),
       ]);
       return {
         loadConfig,
         buildWorkspaceSkillStatus,
+        getRemoteSkillEligibility,
         formatSkillsList: formatting.formatSkillsList,
         formatSkillsCheck: formatting.formatSkillsCheck,
       };
@@ -296,13 +306,21 @@ async function runOpenClawReadonlyResolved(
     }
     case "skills-list":
     case "skills-check": {
-      const { loadConfig, buildWorkspaceSkillStatus, formatSkillsCheck, formatSkillsList } =
-        await deps.importSkillsModules();
+      const {
+        loadConfig,
+        buildWorkspaceSkillStatus,
+        getRemoteSkillEligibility,
+        formatSkillsCheck,
+        formatSkillsList,
+      } = await deps.importSkillsModules();
       const config = loadConfig();
       if (!resolved.workspaceDir) {
         throw new Error(`Missing readonly workspace mount for ${resolved.command.args.join(" ")}.`);
       }
-      const report = buildWorkspaceSkillStatus(resolved.workspaceDir, { config });
+      const report = buildWorkspaceSkillStatus(resolved.workspaceDir, {
+        config,
+        eligibility: { remote: getRemoteSkillEligibility() },
+      });
       deps.runtime.log(
         resolved.command.key === "skills-list"
           ? formatSkillsList(report, {})

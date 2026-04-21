@@ -69,6 +69,8 @@ describe("buildWorkspaceSkillStatus", () => {
 
     expect(skill).toBeDefined();
     expect(skill?.eligible).toBe(false);
+    expect(skill?.capabilityClass).toBe("sandbox-local");
+    expect(skill?.remoteSatisfied).toBeNull();
     expect(skill?.missing.bins).toContain("fakebin");
     expect(skill?.missing.env).toContain("ENV_KEY");
     expect(skill?.missing.config).toContain("browser.enabled");
@@ -87,10 +89,108 @@ describe("buildWorkspaceSkillStatus", () => {
     if (process.platform === "darwin") {
       expect(skill?.eligible).toBe(true);
       expect(skill?.missing.os).toEqual([]);
+      expect(skill?.capabilityClass).toBe("sandbox-local");
     } else {
       expect(skill?.eligible).toBe(false);
       expect(skill?.missing.os).toEqual(["darwin"]);
+      expect(skill?.capabilityClass).toBe("sandbox-local");
     }
+  });
+
+  it("marks remote-backed skills as remote-node-assisted", () => {
+    const entry = makeEntry({
+      name: "remote-mac-skill",
+      os: ["darwin"],
+      requires: {
+        bins: ["xcodebuild"],
+      },
+    });
+
+    const report = buildWorkspaceSkillStatus("/tmp/ws", {
+      entries: [entry],
+      eligibility: {
+        remote: {
+          platforms: ["darwin"],
+          hasBin: (bin) => bin === "xcodebuild",
+          hasAnyBin: () => false,
+          note: "Remote macOS node available.",
+        },
+      },
+    });
+    const skill = report.skills.find((reportEntry) => reportEntry.name === "remote-mac-skill");
+
+    expect(skill).toBeDefined();
+    expect(skill?.eligible).toBe(true);
+    expect(skill?.capabilityClass).toBe("remote-node-assisted");
+    expect(skill?.remoteSatisfied).toEqual({
+      bins: ["xcodebuild"],
+      anyBins: [],
+      os: process.platform === "darwin" ? [] : ["darwin"],
+      note: "Remote macOS node available.",
+    });
+  });
+
+  it("keeps local env blockers while preserving remote-backed provenance", () => {
+    const entry = makeEntry({
+      name: "remote-plus-env",
+      os: ["darwin"],
+      requires: {
+        bins: ["xcodebuild"],
+        env: ["MAC_API_KEY"],
+      },
+    });
+
+    const report = buildWorkspaceSkillStatus("/tmp/ws", {
+      entries: [entry],
+      eligibility: {
+        remote: {
+          platforms: ["darwin"],
+          hasBin: (bin) => bin === "xcodebuild",
+          hasAnyBin: () => false,
+          note: "Remote macOS node available.",
+        },
+      },
+    });
+    const skill = report.skills.find((reportEntry) => reportEntry.name === "remote-plus-env");
+
+    expect(skill).toBeDefined();
+    expect(skill?.eligible).toBe(false);
+    expect(skill?.capabilityClass).toBe("remote-node-assisted");
+    expect(skill?.missing.env).toEqual(["MAC_API_KEY"]);
+    expect(skill?.remoteSatisfied).toEqual({
+      bins: ["xcodebuild"],
+      anyBins: [],
+      os: process.platform === "darwin" ? [] : ["darwin"],
+      note: "Remote macOS node available.",
+    });
+  });
+
+  it("does not relabel locally satisfied skills as remote-backed", () => {
+    const nodeBin = process.platform === "win32" ? "node.exe" : "node";
+    const report = buildWorkspaceSkillStatus("/tmp/ws", {
+      entries: [
+        makeEntry({
+          name: "local-node-skill",
+          requires: {
+            bins: [nodeBin],
+          },
+        }),
+      ],
+      eligibility: {
+        remote: {
+          platforms: ["darwin"],
+          hasBin: () => true,
+          hasAnyBin: () => true,
+          note: "Remote macOS node available.",
+        },
+      },
+    });
+    const skill = report.skills.find((reportEntry) => reportEntry.name === "local-node-skill");
+
+    expect(skill).toBeDefined();
+    expect(skill?.eligible).toBe(true);
+    expect(skill?.capabilityClass).toBe("sandbox-local");
+    expect(skill?.remoteSatisfied).toBeNull();
   });
   it("marks bundled skills blocked by allowlist", async () => {
     const entry = makeEntry({
