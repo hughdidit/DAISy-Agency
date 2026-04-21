@@ -273,13 +273,6 @@ function isOptionalBoolean(value: unknown): value is boolean | undefined {
   return value === undefined || typeof value === "boolean";
 }
 
-function hasObjectShape<T extends string>(
-  value: Record<string, unknown>,
-  key: T,
-): value is Record<T, Record<string, unknown>> {
-  return isRecord(value[key]);
-}
-
 export function isResolvedCapabilityClass(value: unknown): value is ResolvedCapabilityClass {
   return typeof value === "string" && RESOLVED_CAPABILITY_CLASSES.includes(value as never);
 }
