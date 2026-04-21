@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import type { SkillStatusEntry, SkillStatusReport } from "../agents/skills-status.js";
 import { createEmptyInstallChecks } from "./requirements-test-fixtures.js";
+import { buildResolvedSkillCapability } from "../shared/resolved-capability-manifest.js";
 import { formatSkillInfo, formatSkillsCheck, formatSkillsList } from "./skills-cli.format.js";
 
 // Unit tests: don't pay the runtime cost of loading/parsing the real skills loader.
@@ -10,7 +11,7 @@ vi.mock("@mariozechner/pi-coding-agent", () => ({
 }));
 
 function createMockSkill(overrides: Partial<SkillStatusEntry> = {}): SkillStatusEntry {
-  return {
+  const base = {
     name: "test-skill",
     description: "A test skill",
     source: "bundled",
@@ -24,10 +25,32 @@ function createMockSkill(overrides: Partial<SkillStatusEntry> = {}): SkillStatus
     disabled: false,
     blockedByAllowlist: false,
     eligible: true,
-    capabilityClass: "sandbox-local",
-    remoteSatisfied: null,
     ...createEmptyInstallChecks(),
-    ...overrides,
+  };
+  const merged = { ...base, ...overrides };
+  const capability =
+    overrides.capability ??
+    buildResolvedSkillCapability({
+      name: merged.name,
+      description: merged.description,
+      source: merged.source,
+      skillKey: merged.skillKey,
+      bundled: merged.bundled,
+      filePath: merged.filePath,
+      primaryEnv: merged.primaryEnv,
+      requirements: merged.requirements,
+      missing: merged.missing,
+      configChecks: merged.configChecks,
+      disabled: merged.disabled,
+      blockedByAllowlist: merged.blockedByAllowlist,
+      remoteSatisfied: merged.remoteSatisfied ?? null,
+      runtimeContext: { agentId: "main" },
+    });
+  return {
+    ...merged,
+    capability,
+    capabilityClass: overrides.capabilityClass ?? capability.capabilityClass,
+    remoteSatisfied: overrides.remoteSatisfied ?? null,
   };
 }
 

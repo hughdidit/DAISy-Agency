@@ -69,7 +69,8 @@ describe("buildWorkspaceSkillStatus", () => {
 
     expect(skill).toBeDefined();
     expect(skill?.eligible).toBe(false);
-    expect(skill?.capabilityClass).toBe("sandbox-local");
+    expect(skill?.capabilityClass).toBe("configured-but-blocked");
+    expect(skill?.capability.policy?.denyReason).toBe("missing-required-env");
     expect(skill?.remoteSatisfied).toBeNull();
     expect(skill?.missing.bins).toContain("fakebin");
     expect(skill?.missing.env).toContain("ENV_KEY");
@@ -90,10 +91,12 @@ describe("buildWorkspaceSkillStatus", () => {
       expect(skill?.eligible).toBe(true);
       expect(skill?.missing.os).toEqual([]);
       expect(skill?.capabilityClass).toBe("sandbox-local");
+      expect(skill?.capability.capabilityClass).toBe("sandbox-local");
     } else {
       expect(skill?.eligible).toBe(false);
       expect(skill?.missing.os).toEqual(["darwin"]);
-      expect(skill?.capabilityClass).toBe("sandbox-local");
+      expect(skill?.capabilityClass).toBe("unsupported-in-current-runtime");
+      expect(skill?.capability.evidence?.runtime?.reasonCodes).toContain("unsupported-os");
     }
   });
 
@@ -122,6 +125,12 @@ describe("buildWorkspaceSkillStatus", () => {
     expect(skill).toBeDefined();
     expect(skill?.eligible).toBe(true);
     expect(skill?.capabilityClass).toBe("remote-node-assisted");
+    expect(skill?.capability.evidence?.remote).toEqual({
+      satisfiedBins: ["xcodebuild"],
+      satisfiedAnyBins: [],
+      satisfiedOs: process.platform === "darwin" ? [] : ["darwin"],
+      note: "Remote macOS node available.",
+    });
     expect(skill?.remoteSatisfied).toEqual({
       bins: ["xcodebuild"],
       anyBins: [],
@@ -155,7 +164,14 @@ describe("buildWorkspaceSkillStatus", () => {
 
     expect(skill).toBeDefined();
     expect(skill?.eligible).toBe(false);
-    expect(skill?.capabilityClass).toBe("remote-node-assisted");
+    expect(skill?.capabilityClass).toBe("configured-but-blocked");
+    expect(skill?.capability.policy?.denyReason).toBe("missing-required-env");
+    expect(skill?.capability.evidence?.remote).toEqual({
+      satisfiedBins: ["xcodebuild"],
+      satisfiedAnyBins: [],
+      satisfiedOs: process.platform === "darwin" ? [] : ["darwin"],
+      note: "Remote macOS node available.",
+    });
     expect(skill?.missing.env).toEqual(["MAC_API_KEY"]);
     expect(skill?.remoteSatisfied).toEqual({
       bins: ["xcodebuild"],
@@ -208,6 +224,31 @@ describe("buildWorkspaceSkillStatus", () => {
     expect(skill?.blockedByAllowlist).toBe(true);
     expect(skill?.eligible).toBe(false);
     expect(skill?.bundled).toBe(true);
+    expect(skill?.capabilityClass).toBe("configured-but-blocked");
+    expect(skill?.capability.policy).toMatchObject({
+      denyReason: "bundled-skill-not-allowlisted",
+      source: {
+        key: "skills.allowBundled",
+      },
+    });
+  });
+
+  it("marks explicitly disabled skills as configured-but-blocked", () => {
+    const entry = makeEntry({
+      name: "disabled-skill",
+    });
+
+    const report = buildWorkspaceSkillStatus("/tmp/ws", {
+      entries: [entry],
+      config: { skills: { entries: { "disabled-skill": { enabled: false } } } },
+    });
+    const skill = report.skills.find((reportEntry) => reportEntry.name === "disabled-skill");
+
+    expect(skill).toBeDefined();
+    expect(skill?.eligible).toBe(false);
+    expect(skill?.disabled).toBe(true);
+    expect(skill?.capabilityClass).toBe("configured-but-blocked");
+    expect(skill?.capability.policy?.denyReason).toBe("skill-disabled");
   });
 
   it("filters install options by OS", async () => {

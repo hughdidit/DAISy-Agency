@@ -186,6 +186,10 @@ describe("openclaw-readonly CLI", () => {
       expect(buildWorkspaceSkillStatus).toHaveBeenCalledWith("/agent", {
         config,
         eligibility: { remote: getRemoteSkillEligibility() },
+        runtimeContext: {
+          agentId: "main",
+          sandboxed: true,
+        },
       });
       expect(formatSkillsList).toHaveBeenCalled();
       expect(runtime.log).toHaveBeenCalledWith("skills list output");

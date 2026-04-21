@@ -2,6 +2,11 @@ import path from "node:path";
 import type { OpenClawConfig } from "../config/config.js";
 import { evaluateEntryRequirementsForCurrentPlatform } from "../shared/entry-status.js";
 import type { RequirementConfigCheck, Requirements } from "../shared/requirements.js";
+import {
+  buildResolvedSkillCapability,
+  type ResolvedCapabilityRuntimeContext,
+  type ResolvedSkillCapability,
+} from "../shared/resolved-capability-manifest.js";
 import { CONFIG_DIR } from "../utils.js";
 import {
   hasBinary,
@@ -42,7 +47,13 @@ export type SkillStatusEntry = {
   disabled: boolean;
   blockedByAllowlist: boolean;
   eligible: boolean;
-  capabilityClass: "sandbox-local" | "remote-node-assisted";
+  capabilityClass:
+    | "sandbox-local"
+    | "gateway-brokered"
+    | "remote-node-assisted"
+    | "configured-but-blocked"
+    | "unsupported-in-current-runtime";
+  capability: ResolvedSkillCapability;
   requirements: Requirements;
   missing: Requirements;
   configChecks: SkillStatusConfigCheck[];
@@ -179,6 +190,7 @@ function buildSkillStatus(
   prefs?: SkillsInstallPreferences,
   eligibility?: SkillEligibilityContext,
   bundledNames?: Set<string>,
+  runtimeContext?: ResolvedCapabilityRuntimeContext,
 ): SkillStatusEntry {
   const skillKey = resolveSkillKey(entry);
   const skillConfig = resolveSkillConfig(config, skillKey);
@@ -219,6 +231,22 @@ function buildSkillStatus(
     remoteSatisfied.os.length > 0 ||
     remoteSatisfied.bins.length > 0 ||
     remoteSatisfied.anyBins.length > 0;
+  const capability = buildResolvedSkillCapability({
+    name: entry.skill.name,
+    description: entry.skill.description,
+    source: entry.skill.source,
+    skillKey,
+    bundled,
+    filePath: entry.skill.filePath,
+    primaryEnv: entry.metadata?.primaryEnv,
+    requirements: required,
+    missing,
+    configChecks,
+    disabled,
+    blockedByAllowlist,
+    remoteSatisfied: usesRemoteEligibility ? remoteSatisfied : null,
+    runtimeContext: runtimeContext ?? { agentId: "main" },
+  });
 
   return {
     name: entry.skill.name,
@@ -235,7 +263,8 @@ function buildSkillStatus(
     disabled,
     blockedByAllowlist,
     eligible,
-    capabilityClass: usesRemoteEligibility ? "remote-node-assisted" : "sandbox-local",
+    capabilityClass: capability.capabilityClass,
+    capability,
     requirements: required,
     missing,
     configChecks,
@@ -251,6 +280,7 @@ export function buildWorkspaceSkillStatus(
     managedSkillsDir?: string;
     entries?: SkillEntry[];
     eligibility?: SkillEligibilityContext;
+    runtimeContext?: ResolvedCapabilityRuntimeContext;
   },
 ): SkillStatusReport {
   const managedSkillsDir = opts?.managedSkillsDir ?? path.join(CONFIG_DIR, "skills");
@@ -267,7 +297,14 @@ export function buildWorkspaceSkillStatus(
     workspaceDir,
     managedSkillsDir,
     skills: skillEntries.map((entry) =>
-      buildSkillStatus(entry, opts?.config, prefs, opts?.eligibility, bundledContext.names),
+      buildSkillStatus(
+        entry,
+        opts?.config,
+        prefs,
+        opts?.eligibility,
+        bundledContext.names,
+        opts?.runtimeContext,
+      ),
     ),
   };
 }

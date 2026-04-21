@@ -2,10 +2,25 @@ export type UpdateAvailable = import("../../../src/infra/update-startup.js").Upd
 import type { CronJobBase } from "../../../src/cron/types-shared.js";
 import type { ConfigUiHints } from "../../../src/shared/config-ui-hints-types.js";
 import type {
+  ResolvedCapabilityManifest as SharedResolvedCapabilityManifest,
+  ResolvedSkillCapability as SharedResolvedSkillCapability,
+} from "../../../src/shared/resolved-capability-manifest.js";
+import type {
   GatewayAgentRow as SharedGatewayAgentRow,
   SessionsListResultBase,
   SessionsPatchResultBase,
 } from "../../../src/shared/session-types.js";
+import type {
+  SkillInstallOption as GatewaySkillInstallOption,
+  SkillRemoteSatisfied as GatewaySkillRemoteSatisfied,
+  SkillStatusConfigCheck as GatewaySkillStatusConfigCheck,
+  SkillStatusEntry as GatewaySkillStatusEntry,
+  SkillsStatusResult as GatewaySkillsStatusResult,
+  ToolCatalogEntry as GatewayToolCatalogEntry,
+  ToolCatalogGroup as GatewayToolCatalogGroup,
+  ToolCatalogProfile as GatewayToolCatalogProfile,
+  ToolsCatalogResult as GatewayToolsCatalogResult,
+} from "../../../src/gateway/protocol/schema/types.js";
 export type { ConfigUiHints } from "../../../src/shared/config-ui-hints-types.js";
 
 export type ChannelsStatusSnapshot = {
@@ -329,34 +344,13 @@ export type AgentsListResult = {
   agents: GatewayAgentRow[];
 };
 
-export type ToolCatalogProfile = {
-  id: "minimal" | "coding" | "messaging" | "full";
-  label: string;
-};
+export type ToolCatalogProfile = GatewayToolCatalogProfile;
 
-export type ToolCatalogEntry = {
-  id: string;
-  label: string;
-  description: string;
-  source: "core" | "plugin";
-  pluginId?: string;
-  optional?: boolean;
-  defaultProfiles: Array<"minimal" | "coding" | "messaging" | "full">;
-};
+export type ToolCatalogEntry = GatewayToolCatalogEntry;
 
-export type ToolCatalogGroup = {
-  id: string;
-  label: string;
-  source: "core" | "plugin";
-  pluginId?: string;
-  tools: ToolCatalogEntry[];
-};
+export type ToolCatalogGroup = GatewayToolCatalogGroup;
 
-export type ToolsCatalogResult = {
-  agentId: string;
-  profiles: ToolCatalogProfile[];
-  groups: ToolCatalogGroup[];
-};
+export type ToolsCatalogResult = GatewayToolsCatalogResult;
 
 export type AgentIdentityResult = {
   agentId: string;
@@ -604,54 +598,19 @@ export type CronRunsResult = {
   nextOffset?: number | null;
 };
 
-export type SkillsStatusConfigCheck = {
-  path: string;
-  satisfied: boolean;
-};
+export type SkillsStatusConfigCheck = GatewaySkillStatusConfigCheck;
 
-export type SkillInstallOption = {
-  id: string;
-  kind: "brew" | "node" | "go" | "uv";
-  label: string;
-  bins: string[];
-};
+export type SkillInstallOption = GatewaySkillInstallOption;
 
-export type SkillStatusEntry = {
-  name: string;
-  description: string;
-  source: string;
-  filePath: string;
-  baseDir: string;
-  skillKey: string;
-  bundled?: boolean;
-  primaryEnv?: string;
-  emoji?: string;
-  homepage?: string;
-  always: boolean;
-  disabled: boolean;
-  blockedByAllowlist: boolean;
-  eligible: boolean;
-  requirements: {
-    bins: string[];
-    env: string[];
-    config: string[];
-    os: string[];
-  };
-  missing: {
-    bins: string[];
-    env: string[];
-    config: string[];
-    os: string[];
-  };
-  configChecks: SkillsStatusConfigCheck[];
-  install: SkillInstallOption[];
-};
+export type SkillRemoteSatisfied = GatewaySkillRemoteSatisfied;
 
-export type SkillStatusReport = {
-  workspaceDir: string;
-  managedSkillsDir: string;
-  skills: SkillStatusEntry[];
-};
+export type SkillStatusEntry = GatewaySkillStatusEntry;
+
+export type SkillStatusReport = GatewaySkillsStatusResult;
+
+export type ResolvedSkillCapability = SharedResolvedSkillCapability;
+
+export type ResolvedCapabilityManifest = SharedResolvedCapabilityManifest;
 
 export type StatusSummary = Record<string, unknown>;
 
