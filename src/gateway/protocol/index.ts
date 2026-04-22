@@ -440,6 +440,7 @@ export const validateChannelsLogoutParams = ajv.compile<ChannelsLogoutParams>(
 );
 export const validateModelsListParams = ajv.compile<ModelsListParams>(ModelsListParamsSchema);
 export const validateSkillsStatusParams = ajv.compile<SkillsStatusParams>(SkillsStatusParamsSchema);
+export const validateSkillsStatusResult = ajv.compile<SkillsStatusResult>(SkillsStatusResultSchema);
 export const validateToolsCatalogParams = ajv.compile<ToolsCatalogParams>(ToolsCatalogParamsSchema);
 export const validateSkillsBinsParams = ajv.compile<SkillsBinsParams>(SkillsBinsParamsSchema);
 export const validateSkillsInstallParams =

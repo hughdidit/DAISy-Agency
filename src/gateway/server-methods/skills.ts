@@ -91,6 +91,7 @@ export const skillsHandlers: GatewayRequestHandlers = {
       agentId,
       workspaceDir,
       eligibility: { remote: getRemoteSkillEligibility() },
+      includePlugins: false,
     });
     const manifest = resolveCapabilityManifest(collected);
     const report = buildSkillStatusReportFromManifest({
