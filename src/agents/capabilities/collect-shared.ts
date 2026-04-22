@@ -1,0 +1,291 @@
+import path from "node:path";
+import type { OpenClawConfig } from "../../config/config.js";
+import { evaluateEntryRequirementsForCurrentPlatform } from "../../shared/entry-status.js";
+import type { RequirementRemoteSatisfied } from "../../shared/requirements.js";
+import { CONFIG_DIR } from "../../utils.js";
+import {
+  hasBinary,
+  isBundledSkillAllowed,
+  isConfigPathTruthy,
+  loadWorkspaceSkillEntries,
+  resolveBundledAllowlist,
+  resolveSkillConfig,
+  resolveSkillsInstallPreferences,
+  type SkillEligibilityContext,
+  type SkillEntry,
+  type SkillInstallSpec,
+  type SkillsInstallPreferences,
+} from "../skills.js";
+import { resolveBundledSkillsContext } from "../skills/bundled-context.js";
+import type {
+  CapabilityAvailabilityFacts,
+  CollectedSkillCapabilityInput,
+  CollectedSkillInstallOption,
+} from "./types.js";
+import { createCollectedSkillMatchKey } from "./types.js";
+
+function resolveSkillKey(entry: SkillEntry): string {
+  return entry.metadata?.skillKey ?? entry.skill.name;
+}
+
+function selectPreferredInstallSpec(
+  install: SkillInstallSpec[],
+  prefs: SkillsInstallPreferences,
+): { spec: SkillInstallSpec; index: number } | undefined {
+  if (install.length === 0) {
+    return undefined;
+  }
+
+  const indexed = install.map((spec, index) => ({ spec, index }));
+  const findKind = (kind: SkillInstallSpec["kind"]) =>
+    indexed.find((item) => item.spec.kind === kind);
+
+  const brewSpec = findKind("brew");
+  const nodeSpec = findKind("node");
+  const goSpec = findKind("go");
+  const uvSpec = findKind("uv");
+  const downloadSpec = findKind("download");
+  const brewAvailable = hasBinary("brew");
+
+  const pickers: Array<() => { spec: SkillInstallSpec; index: number } | undefined> = [
+    () => (prefs.preferBrew && brewAvailable ? brewSpec : undefined),
+    () => uvSpec,
+    () => nodeSpec,
+    () => (brewAvailable ? brewSpec : undefined),
+    () => goSpec,
+    () => downloadSpec,
+    () => brewSpec,
+    () => indexed[0],
+  ];
+
+  for (const pick of pickers) {
+    const selected = pick();
+    if (selected) {
+      return selected;
+    }
+  }
+
+  return undefined;
+}
+
+function normalizeInstallOptions(
+  entry: SkillEntry,
+  prefs: SkillsInstallPreferences,
+): CollectedSkillInstallOption[] {
+  const requiredOs = entry.metadata?.os ?? [];
+  if (requiredOs.length > 0 && !requiredOs.includes(process.platform)) {
+    return [];
+  }
+
+  const install = entry.metadata?.install ?? [];
+  if (install.length === 0) {
+    return [];
+  }
+
+  const filtered = install.filter((spec) => {
+    const osList = spec.os ?? [];
+    return osList.length === 0 || osList.includes(process.platform);
+  });
+  if (filtered.length === 0) {
+    return [];
+  }
+
+  const toOption = (spec: SkillInstallSpec, index: number): CollectedSkillInstallOption => {
+    const id = (spec.id ?? `${spec.kind}-${index}`).trim();
+    const bins = spec.bins ?? [];
+    let label = (spec.label ?? "").trim();
+    if (spec.kind === "node" && spec.package) {
+      label = `Install ${spec.package} (${prefs.nodeManager})`;
+    }
+    if (!label) {
+      if (spec.kind === "brew" && spec.formula) {
+        label = `Install ${spec.formula} (brew)`;
+      } else if (spec.kind === "node" && spec.package) {
+        label = `Install ${spec.package} (${prefs.nodeManager})`;
+      } else if (spec.kind === "go" && spec.module) {
+        label = `Install ${spec.module} (go)`;
+      } else if (spec.kind === "uv" && spec.package) {
+        label = `Install ${spec.package} (uv)`;
+      } else if (spec.kind === "download" && spec.url) {
+        const url = spec.url.trim();
+        const last = url.split("/").pop();
+        label = `Download ${last && last.length > 0 ? last : url}`;
+      } else {
+        label = "Run installer";
+      }
+    }
+    return { id, kind: spec.kind, label, bins };
+  };
+
+  const allDownloads = filtered.every((spec) => spec.kind === "download");
+  if (allDownloads) {
+    return filtered.map((spec, index) => toOption(spec, index));
+  }
+
+  const preferred = selectPreferredInstallSpec(filtered, prefs);
+  if (!preferred) {
+    return [];
+  }
+  return [toOption(preferred.spec, preferred.index)];
+}
+
+function hasRemoteSatisfaction(remoteSatisfied: RequirementRemoteSatisfied): boolean {
+  return (
+    remoteSatisfied.os.length > 0 ||
+    remoteSatisfied.bins.length > 0 ||
+    remoteSatisfied.anyBins.length > 0 ||
+    Boolean(remoteSatisfied.note)
+  );
+}
+
+function buildSkillSortKey(entry: SkillEntry): string {
+  return `skill:${entry.skill.name.toLowerCase()}:${entry.skill.filePath.toLowerCase()}`;
+}
+
+export function mergeAvailabilityFacts(
+  base?: CapabilityAvailabilityFacts,
+  override?: CapabilityAvailabilityFacts,
+): CapabilityAvailabilityFacts | undefined {
+  if (!base && !override) {
+    return undefined;
+  }
+  return {
+    runtime: override?.runtime ?? base?.runtime,
+    projection: override?.projection ?? base?.projection,
+    provider: override?.provider ?? base?.provider,
+    remote: override?.remote ?? base?.remote,
+  };
+}
+
+export function collectWorkspaceSkillCapabilityInputs(params: {
+  workspaceDir: string;
+  runtimeContext: CollectedSkillCapabilityInput["runtimeContext"];
+  config?: OpenClawConfig;
+  managedSkillsDir?: string;
+  entries?: SkillEntry[];
+  eligibility?: SkillEligibilityContext;
+  overrides?: Record<string, CapabilityAvailabilityFacts | undefined>;
+}): {
+  managedSkillsDir: string;
+  skills: CollectedSkillCapabilityInput[];
+} {
+  const managedSkillsDir = params.managedSkillsDir ?? path.join(CONFIG_DIR, "skills");
+  const bundledContext = resolveBundledSkillsContext();
+  const entries =
+    params.entries ??
+    loadWorkspaceSkillEntries(params.workspaceDir, {
+      config: params.config,
+      managedSkillsDir,
+      bundledSkillsDir: bundledContext.dir,
+    });
+  const prefs = resolveSkillsInstallPreferences(params.config);
+
+  const skills = entries
+    .map((entry) => {
+      const skillKey = resolveSkillKey(entry);
+      const skillConfig = resolveSkillConfig(params.config, skillKey);
+      const disabled = skillConfig?.enabled === false;
+      const blockedByAllowlist = !isBundledSkillAllowed(
+        entry,
+        resolveBundledAllowlist(params.config),
+      );
+      const always = entry.metadata?.always === true;
+      const isEnvSatisfied = (envName: string) =>
+        Boolean(
+          process.env[envName] ||
+            skillConfig?.env?.[envName] ||
+            (skillConfig?.apiKey && entry.metadata?.primaryEnv === envName),
+        );
+      const isConfigSatisfied = (pathStr: string) => isConfigPathTruthy(params.config, pathStr);
+      const bundled =
+        bundledContext.names.size > 0
+          ? bundledContext.names.has(entry.skill.name)
+          : entry.skill.source === "openclaw-bundled";
+
+      const {
+        emoji,
+        homepage,
+        required,
+        missing,
+        requirementsSatisfied,
+        configChecks,
+        remoteSatisfied,
+      } = evaluateEntryRequirementsForCurrentPlatform({
+        always,
+        entry,
+        hasLocalBin: hasBinary,
+        remote: params.eligibility?.remote,
+        isEnvSatisfied,
+        isConfigSatisfied,
+      });
+
+      const eligible = !disabled && !blockedByAllowlist && requirementsSatisfied;
+      return {
+        matchKey: createCollectedSkillMatchKey({
+          name: entry.skill.name,
+          source: entry.skill.source,
+          filePath: entry.skill.filePath,
+          skillKey,
+        }),
+        sortKey: buildSkillSortKey(entry),
+        name: entry.skill.name,
+        description: entry.skill.description,
+        source: entry.skill.source,
+        bundled,
+        filePath: entry.skill.filePath,
+        baseDir: entry.skill.baseDir,
+        skillKey,
+        primaryEnv: entry.metadata?.primaryEnv,
+        emoji,
+        homepage,
+        always,
+        disabled,
+        blockedByAllowlist,
+        eligible,
+        requirements: required,
+        missing,
+        configChecks,
+        remoteSatisfied: hasRemoteSatisfaction(remoteSatisfied) ? remoteSatisfied : null,
+        install: normalizeInstallOptions(entry, prefs),
+        runtimeContext: params.runtimeContext,
+        availability: params.overrides?.[entry.skill.name],
+      } satisfies CollectedSkillCapabilityInput;
+    })
+    .toSorted((a, b) => a.sortKey.localeCompare(b.sortKey));
+
+  return {
+    managedSkillsDir,
+    skills,
+  };
+}
+
+export function createGatewayProviderAvailability(params: {
+  providerId: string;
+  providerKind: string;
+  transport: string;
+}): CapabilityAvailabilityFacts {
+  return {
+    provider: {
+      providerId: params.providerId,
+      providerKind: params.providerKind,
+      transport: params.transport,
+      reasonCodes: [],
+    },
+  };
+}
+
+export function buildMissingProjectionAvailability(
+  missingPaths: string[],
+  detailPrefix: string,
+): CapabilityAvailabilityFacts | undefined {
+  if (missingPaths.length === 0) {
+    return undefined;
+  }
+  return {
+    projection: {
+      missingPaths,
+      reasonCodes: ["missing-projection"],
+      detail: `${detailPrefix}: ${missingPaths.join(", ")}`,
+    },
+  };
+}

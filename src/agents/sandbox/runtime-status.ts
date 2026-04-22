@@ -3,9 +3,8 @@ import type { OpenClawConfig } from "../../config/config.js";
 import { canonicalizeMainSessionAlias, resolveAgentMainSessionKey } from "../../config/sessions.js";
 import { normalizeAgentId } from "../../routing/session-key.js";
 import { resolveSessionAgentId } from "../agent-scope.js";
-import { expandToolGroups } from "../tool-policy.js";
 import { resolveSandboxConfigForAgent } from "./config.js";
-import { resolveSandboxToolPolicyForAgent } from "./tool-policy.js";
+import { resolveSandboxToolPolicyDecision, resolveSandboxToolPolicyForAgent } from "./tool-policy.js";
 import type { SandboxConfig, SandboxToolPolicyResolved } from "./types.js";
 
 function shouldSandboxSession(cfg: SandboxConfig, sessionKey: string, mainSessionKey: string) {
@@ -101,22 +100,18 @@ export function formatSandboxToolPolicyBlockedMessage(params: {
     return undefined;
   }
 
-  const deny = new Set(expandToolGroups(runtime.toolPolicy.deny));
-  const allow = expandToolGroups(runtime.toolPolicy.allow);
-  const allowSet = allow.length > 0 ? new Set(allow) : null;
-  const blockedByDeny = deny.has(tool);
-  const blockedByAllow = allowSet ? !allowSet.has(tool) : false;
-  if (!blockedByDeny && !blockedByAllow) {
+  const decision = resolveSandboxToolPolicyDecision(runtime.toolPolicy, tool);
+  if (decision.allowed) {
     return undefined;
   }
 
   const reasons: string[] = [];
   const fixes: string[] = [];
-  if (blockedByDeny) {
+  if (decision.blockedByDeny) {
     reasons.push("deny list");
     fixes.push(`Remove "${tool}" from ${runtime.toolPolicy.sources.deny.key}.`);
   }
-  if (blockedByAllow) {
+  if (decision.blockedByAllow) {
     reasons.push("allow list");
     fixes.push(
       `Add "${tool}" to ${runtime.toolPolicy.sources.allow.key} (or set it to [] to allow all).`,

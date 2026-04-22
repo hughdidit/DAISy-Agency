@@ -9,6 +9,13 @@ import type {
   SandboxToolPolicySource,
 } from "./types.js";
 
+export type SandboxToolPolicyDecision = {
+  allowed: boolean;
+  blockedByDeny: boolean;
+  blockedByAllow: boolean;
+  sources: SandboxToolPolicyResolved["sources"];
+};
+
 function normalizeGlob(value: string) {
   return value.trim().toLowerCase();
 }
@@ -30,6 +37,29 @@ export function isToolAllowed(policy: SandboxToolPolicy, name: string) {
     return true;
   }
   return matchesAnyGlobPattern(normalized, allow);
+}
+
+export function resolveSandboxToolPolicyDecision(
+  policy: SandboxToolPolicyResolved,
+  name: string,
+): SandboxToolPolicyDecision {
+  const normalized = normalizeGlob(name);
+  const deny = compileGlobPatterns({
+    raw: policy.deny,
+    normalize: normalizeGlob,
+  });
+  const blockedByDeny = matchesAnyGlobPattern(normalized, deny);
+  const allow = compileGlobPatterns({
+    raw: policy.allow,
+    normalize: normalizeGlob,
+  });
+  const blockedByAllow = allow.length > 0 ? !matchesAnyGlobPattern(normalized, allow) : false;
+  return {
+    allowed: !blockedByDeny && !blockedByAllow,
+    blockedByDeny,
+    blockedByAllow,
+    sources: policy.sources,
+  };
 }
 
 export function resolveSandboxToolPolicyForAgent(
