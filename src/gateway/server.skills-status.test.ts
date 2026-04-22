@@ -1,13 +1,21 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import AjvPkg from "ajv";
 import { describe, expect, it } from "vitest";
-import { validateSkillsStatusResult } from "./protocol/index.js";
 import { withEnvAsync } from "../test-utils/env.js";
+import { SkillsStatusResultSchema } from "./protocol/schema/agents-models-skills.js";
 import { connectOk, installGatewayTestHooks, rpcReq } from "./test-helpers.js";
 import { withServer } from "./test-with-server.js";
 
 installGatewayTestHooks({ scope: "suite" });
+
+function createAjv() {
+  return new (AjvPkg as unknown as new (opts?: object) => import("ajv").default)({
+    allErrors: true,
+    strict: false,
+  });
+}
 
 describe("gateway skills.status", () => {
   it("uses the default agent when agentId is omitted, supports explicit agents, and redacts secrets", async () => {
@@ -81,7 +89,7 @@ describe("gateway skills.status", () => {
             expect(discord?.install).toBeTruthy();
             expect(discord?.missing).toBeTruthy();
 
-            expect(validateSkillsStatusResult(defaultRes.payload)).toBe(true);
+            expect(createAjv().compile(SkillsStatusResultSchema)(defaultRes.payload)).toBe(true);
           });
         } finally {
           await fs.rm(tempRoot, { recursive: true, force: true });

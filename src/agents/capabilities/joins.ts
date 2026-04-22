@@ -17,7 +17,9 @@ import {
   createResolvedCapabilityMatchKey,
 } from "./types.js";
 
-function isEligibleSkillCapabilityClass(capabilityClass: ResolvedSkillCapability["capabilityClass"]) {
+function isEligibleSkillCapabilityClass(
+  capabilityClass: ResolvedSkillCapability["capabilityClass"],
+) {
   return capabilityClass === "sandbox-local" || capabilityClass === "remote-node-assisted";
 }
 
