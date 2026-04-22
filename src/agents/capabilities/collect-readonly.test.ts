@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import type { OpenClawConfig } from "../../config/config.js";
 import type { PluginManifestRecord } from "../../plugins/manifest-registry.js";
 import type { SkillEntry } from "../skills.js";
-import { buildReadonlySkillStatusReport } from "./readonly-report.js";
 import { collectReadonlyCapabilityInputs } from "./collect-readonly.js";
+import { buildReadonlySkillStatusReport } from "./readonly-report.js";
 import { resolveCapabilityManifest } from "./resolve.js";
 
 function makeSkillEntry(
@@ -208,7 +208,9 @@ describe("collectReadonlyCapabilityInputs", () => {
       ],
     });
 
-    expect(report.skills.find((skill) => skill.name === "projected-demo-skill")).toMatchObject({
+    expect(
+      report.skills.find((skill) => skill.name === "demo-plugin:projected-demo-skill"),
+    ).toMatchObject({
       eligible: false,
       capabilityClass: "unsupported-in-current-runtime",
     });

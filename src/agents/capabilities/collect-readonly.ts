@@ -97,7 +97,8 @@ function buildReadonlyRuntimeContext(params: {
 
 function isLexicallyInsideRoot(rootDir: string, candidatePath: string): boolean {
   const relative = path.relative(rootDir, candidatePath);
-  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
+  const escapesRoot = relative === ".." || relative.startsWith(`..${path.sep}`);
+  return relative === "" || (!escapesRoot && !path.isAbsolute(relative));
 }
 
 function buildSyntheticReadonlyPluginSkillName(params: {
@@ -111,7 +112,7 @@ function buildSyntheticReadonlyPluginSkillName(params: {
   if (baseName.toLowerCase() === "skills") {
     return `${params.pluginId}:skills`;
   }
-  return baseName;
+  return `${params.pluginId}:${baseName}`;
 }
 
 function buildSyntheticReadonlyPluginSkillInput(params: {
