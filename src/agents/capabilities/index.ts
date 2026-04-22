@@ -5,6 +5,7 @@ export {
   buildSkillStatusReportFromManifest,
   indexResolvedCapabilityManifest,
 } from "./joins.js";
+export { buildReadonlySkillStatusReport } from "./readonly-report.js";
 export {
   resolveCapabilityManifest,
   resolveCollectedSkillCapability,

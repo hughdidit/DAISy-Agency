@@ -168,6 +168,7 @@ describe("openclaw-readonly sandbox smoke", () => {
         },
       );
       expect(skillsList.status, skillsList.stderr || skillsList.stdout).toBe(0);
+      expect(skillsList.stdout).toContain("Skills");
       expect(skillsList.stdout).toContain("openclaw-readonly");
 
       const sandboxExplain = spawnSync(

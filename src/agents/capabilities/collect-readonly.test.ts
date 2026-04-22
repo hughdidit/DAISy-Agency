@@ -1,9 +1,17 @@
 import { describe, expect, it } from "vitest";
+import type { OpenClawConfig } from "../../config/config.js";
+import type { PluginManifestRecord } from "../../plugins/manifest-registry.js";
 import type { SkillEntry } from "../skills.js";
+import { buildReadonlySkillStatusReport } from "./readonly-report.js";
 import { collectReadonlyCapabilityInputs } from "./collect-readonly.js";
 import { resolveCapabilityManifest } from "./resolve.js";
 
-function makeSkillEntry(name: string): SkillEntry {
+function makeSkillEntry(
+  name: string,
+  overrides: Partial<SkillEntry> = {},
+  metadata: SkillEntry["metadata"] = {},
+): SkillEntry {
+  const { skill: skillOverrides, metadata: metadataOverrides, ...entryOverrides } = overrides;
   return {
     skill: {
       name,
@@ -12,9 +20,28 @@ function makeSkillEntry(name: string): SkillEntry {
       filePath: `/tmp/${name}/SKILL.md`,
       baseDir: `/tmp/${name}`,
       disableModelInvocation: false,
+      ...(skillOverrides ?? {}),
     },
     frontmatter: {},
-    metadata: {},
+    metadata: metadataOverrides ?? metadata,
+    ...entryOverrides,
+  };
+}
+
+function makePluginManifestRecord(params: {
+  id: string;
+  rootDir: string;
+  skills: string[];
+}): PluginManifestRecord {
+  return {
+    id: params.id,
+    channels: [],
+    providers: [],
+    skills: params.skills,
+    origin: "workspace",
+    rootDir: params.rootDir,
+    source: params.rootDir,
+    manifestPath: `${params.rootDir}/openclaw.plugin.json`,
   };
 }
 
@@ -96,5 +123,159 @@ describe("collectReadonlyCapabilityInputs", () => {
 
     expect(webFetch?.capabilityClass).toBe("gateway-brokered");
     expect(pluginTool?.capabilityClass).toBe("gateway-brokered");
+  });
+
+  it("keeps readonly-visible bundled skills sandbox-local through the shared resolver", () => {
+    const { report } = buildReadonlySkillStatusReport({
+      agentId: "main",
+      workspaceDir: "/workspace",
+      entries: [makeSkillEntry("bundled-readonly-skill")],
+      projection: {
+        configPath: "/workspace/.openclaw-readonly/openclaw.json",
+        stateDir: "/workspace/.openclaw-readonly/state",
+        workspaceDir: "/workspace",
+        pathExists: () => true,
+      },
+    });
+
+    expect(report.skills[0]).toMatchObject({
+      name: "bundled-readonly-skill",
+      eligible: true,
+      capabilityClass: "sandbox-local",
+    });
+  });
+
+  it("keeps projected plugin skills sandbox-local when readonly discovery can see them", () => {
+    const pluginRoot = "/workspace/.openclaw-readonly/state/extensions/demo-plugin";
+    const projectedSkillDir = `${pluginRoot}/skills/projected-demo-skill`;
+    const { report } = buildReadonlySkillStatusReport({
+      agentId: "main",
+      workspaceDir: "/workspace",
+      entries: [
+        makeSkillEntry(
+          "projected-demo-skill",
+          {
+            skill: {
+              source: "openclaw-extra",
+              filePath: `${projectedSkillDir}/SKILL.md`,
+              baseDir: projectedSkillDir,
+            },
+          },
+          {},
+        ),
+      ],
+      projection: {
+        configPath: "/workspace/.openclaw-readonly/openclaw.json",
+        stateDir: "/workspace/.openclaw-readonly/state",
+        workspaceDir: "/workspace",
+        pathExists: () => true,
+      },
+      pluginManifestRecords: [
+        makePluginManifestRecord({
+          id: "demo-plugin",
+          rootDir: pluginRoot,
+          skills: ["./skills/projected-demo-skill"],
+        }),
+      ],
+    });
+
+    expect(report.skills.find((skill) => skill.name === "projected-demo-skill")).toMatchObject({
+      eligible: true,
+      capabilityClass: "sandbox-local",
+    });
+  });
+
+  it("reports declared plugin skill paths missing from readonly projection as unsupported", () => {
+    const pluginRoot = "/workspace/.openclaw-readonly/state/extensions/demo-plugin";
+    const { report } = buildReadonlySkillStatusReport({
+      agentId: "main",
+      workspaceDir: "/workspace",
+      projection: {
+        configPath: "/workspace/.openclaw-readonly/openclaw.json",
+        stateDir: "/workspace/.openclaw-readonly/state",
+        workspaceDir: "/workspace",
+        pathExists: (targetPath) =>
+          targetPath === "/workspace" ||
+          targetPath === "/workspace/.openclaw-readonly/openclaw.json" ||
+          targetPath === "/workspace/.openclaw-readonly/state",
+      },
+      pluginManifestRecords: [
+        makePluginManifestRecord({
+          id: "demo-plugin",
+          rootDir: pluginRoot,
+          skills: ["./skills/projected-demo-skill"],
+        }),
+      ],
+    });
+
+    expect(report.skills.find((skill) => skill.name === "projected-demo-skill")).toMatchObject({
+      eligible: false,
+      capabilityClass: "unsupported-in-current-runtime",
+    });
+  });
+
+  it("keeps remote-assisted readonly skills explicit instead of treating them as sandbox-local", () => {
+    const { report } = buildReadonlySkillStatusReport({
+      agentId: "main",
+      workspaceDir: "/workspace",
+      entries: [
+        makeSkillEntry(
+          "remote-mac-skill",
+          {},
+          {
+            os: ["darwin"],
+            requires: { bins: ["xcodebuild"] },
+          },
+        ),
+      ],
+      eligibility: {
+        remote: {
+          platforms: ["darwin"],
+          hasBin: (bin) => bin === "xcodebuild",
+          hasAnyBin: () => false,
+          note: "Remote macOS node available.",
+        },
+      },
+      projection: {
+        configPath: "/workspace/.openclaw-readonly/openclaw.json",
+        stateDir: "/workspace/.openclaw-readonly/state",
+        workspaceDir: "/workspace",
+        pathExists: () => true,
+      },
+    });
+
+    expect(report.skills.find((skill) => skill.name === "remote-mac-skill")).toMatchObject({
+      eligible: true,
+      capabilityClass: "remote-node-assisted",
+    });
+  });
+
+  it("keeps disabled readonly skills configured-but-blocked under the shared resolver", () => {
+    const config = {
+      skills: {
+        entries: {
+          "disabled-readonly-skill": {
+            enabled: false,
+          },
+        },
+      },
+    } as OpenClawConfig;
+    const { report } = buildReadonlySkillStatusReport({
+      config,
+      agentId: "main",
+      workspaceDir: "/workspace",
+      entries: [makeSkillEntry("disabled-readonly-skill")],
+      projection: {
+        configPath: "/workspace/.openclaw-readonly/openclaw.json",
+        stateDir: "/workspace/.openclaw-readonly/state",
+        workspaceDir: "/workspace",
+        pathExists: () => true,
+      },
+    });
+
+    expect(report.skills.find((skill) => skill.name === "disabled-readonly-skill")).toMatchObject({
+      eligible: false,
+      capabilityClass: "configured-but-blocked",
+    });
   });
 });
