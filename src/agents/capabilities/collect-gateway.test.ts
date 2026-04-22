@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { collectGatewayCapabilityInputs } from "./collect-gateway.js";
-import { buildResolvedToolCatalogGroupsFromManifest, buildSkillStatusReportFromManifest } from "./joins.js";
-import { resolveCapabilityManifest } from "./resolve.js";
 import type { SkillEntry } from "../skills.js";
+import { collectGatewayCapabilityInputs } from "./collect-gateway.js";
+import {
+  buildResolvedToolCatalogGroupsFromManifest,
+  buildSkillStatusReportFromManifest,
+} from "./joins.js";
+import { resolveCapabilityManifest } from "./resolve.js";
 
 function makeSkillEntry(params: {
   name: string;

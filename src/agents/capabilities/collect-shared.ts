@@ -197,8 +197,8 @@ export function collectWorkspaceSkillCapabilityInputs(params: {
       const isEnvSatisfied = (envName: string) =>
         Boolean(
           process.env[envName] ||
-            skillConfig?.env?.[envName] ||
-            (skillConfig?.apiKey && entry.metadata?.primaryEnv === envName),
+          skillConfig?.env?.[envName] ||
+          (skillConfig?.apiKey && entry.metadata?.primaryEnv === envName),
         );
       const isConfigSatisfied = (pathStr: string) => isConfigPathTruthy(params.config, pathStr);
       const bundled =

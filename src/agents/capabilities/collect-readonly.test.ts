@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
+import type { SkillEntry } from "../skills.js";
 import { collectReadonlyCapabilityInputs } from "./collect-readonly.js";
 import { resolveCapabilityManifest } from "./resolve.js";
-import type { SkillEntry } from "../skills.js";
 
 function makeSkillEntry(name: string): SkillEntry {
   return {
@@ -49,7 +49,9 @@ describe("collectReadonlyCapabilityInputs", () => {
       },
     });
     const manifest = resolveCapabilityManifest(collected);
-    const capability = manifest.capabilities.find((entry) => entry.id === "explicit-readonly-skill");
+    const capability = manifest.capabilities.find(
+      (entry) => entry.id === "explicit-readonly-skill",
+    );
 
     expect(capability?.capabilityClass).toBe("unsupported-in-current-runtime");
     expect(capability?.evidence?.runtime?.reasonCodes).toContain("missing-projection");

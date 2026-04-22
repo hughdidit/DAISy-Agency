@@ -4,7 +4,10 @@ import { canonicalizeMainSessionAlias, resolveAgentMainSessionKey } from "../../
 import { normalizeAgentId } from "../../routing/session-key.js";
 import { resolveSessionAgentId } from "../agent-scope.js";
 import { resolveSandboxConfigForAgent } from "./config.js";
-import { resolveSandboxToolPolicyDecision, resolveSandboxToolPolicyForAgent } from "./tool-policy.js";
+import {
+  resolveSandboxToolPolicyDecision,
+  resolveSandboxToolPolicyForAgent,
+} from "./tool-policy.js";
 import type { SandboxConfig, SandboxToolPolicyResolved } from "./types.js";
 
 function shouldSandboxSession(cfg: SandboxConfig, sessionKey: string, mainSessionKey: string) {

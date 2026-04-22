@@ -58,10 +58,13 @@ export type ReadonlyCapabilityCollectorParams = {
 function collectMissingProjectionPaths(
   projection?: ReadonlyCapabilityCollectorParams["projection"],
 ): string[] {
-  const pathExists =
-    projection?.pathExists ?? ((targetPath: string) => fs.existsSync(targetPath));
+  const pathExists = projection?.pathExists ?? ((targetPath: string) => fs.existsSync(targetPath));
   const missing: string[] = [];
-  for (const targetPath of [projection?.configPath, projection?.stateDir, projection?.workspaceDir]) {
+  for (const targetPath of [
+    projection?.configPath,
+    projection?.stateDir,
+    projection?.workspaceDir,
+  ]) {
     if (targetPath && !pathExists(targetPath)) {
       missing.push(targetPath);
     }

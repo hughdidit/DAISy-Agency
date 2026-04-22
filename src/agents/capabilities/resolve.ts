@@ -67,7 +67,9 @@ function toRemoteEvidence(
   };
 }
 
-function toResolvedEvidence(availability?: CapabilityAvailabilityFacts): ResolvedCapabilityEvidence | undefined {
+function toResolvedEvidence(
+  availability?: CapabilityAvailabilityFacts,
+): ResolvedCapabilityEvidence | undefined {
   if (!availability) {
     return undefined;
   }
@@ -121,7 +123,9 @@ function toResolvedEvidence(availability?: CapabilityAvailabilityFacts): Resolve
           ...(availability.provider.providerKind
             ? { providerKind: availability.provider.providerKind }
             : {}),
-          ...(availability.provider.transport ? { transport: availability.provider.transport } : {}),
+          ...(availability.provider.transport
+            ? { transport: availability.provider.transport }
+            : {}),
           reasonCodes: providerReasonCodes,
           ...(availability.provider.detail ? { detail: availability.provider.detail } : {}),
         }
@@ -159,7 +163,9 @@ function resolveSkillRuntimeDetail(input: CollectedSkillCapabilityInput): string
   ]);
 }
 
-function resolveToolPolicy(input: CollectedToolCapabilityInput): ResolvedCapabilityPolicy | undefined {
+function resolveToolPolicy(
+  input: CollectedToolCapabilityInput,
+): ResolvedCapabilityPolicy | undefined {
   if (!input.runtimeContext.sandboxed) {
     return undefined;
   }
@@ -195,13 +201,13 @@ function hasProviderEvidence(availability?: CapabilityAvailabilityFacts): boolea
   }
   return (
     mergeReasonCodes(provider.reasonCodes).length > 0 ||
-    Boolean(
-      provider.providerId || provider.providerKind || provider.transport || provider.detail,
-    )
+    Boolean(provider.providerId || provider.providerKind || provider.transport || provider.detail)
   );
 }
 
-function ensureUnsupportedAvailability(input: CollectedToolCapabilityInput): CapabilityAvailabilityFacts {
+function ensureUnsupportedAvailability(
+  input: CollectedToolCapabilityInput,
+): CapabilityAvailabilityFacts {
   const availability = input.availability ?? {};
   const provider =
     input.intent === "gateway-brokered" || input.intent === "remote-node-assisted"
@@ -317,7 +323,9 @@ export function resolveCollectedToolCapability(
   const unsupportedAvailability = ensureUnsupportedAvailability(input);
   const unsupportedEvidence = toResolvedEvidence(unsupportedAvailability);
   const hasUnsupportedEvidence =
-    unsupportedEvidence?.runtime || unsupportedEvidence?.projection || unsupportedEvidence?.provider;
+    unsupportedEvidence?.runtime ||
+    unsupportedEvidence?.projection ||
+    unsupportedEvidence?.provider;
   if (hasUnsupportedEvidence) {
     return buildResolvedToolCapability({
       id: input.id,

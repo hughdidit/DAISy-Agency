@@ -57,10 +57,7 @@ function requireSkillCapability(
   return capability;
 }
 
-function requireToolCapability(
-  index: CapabilityManifestIndex,
-  tool: CollectedToolCapabilityInput,
-) {
+function requireToolCapability(index: CapabilityManifestIndex, tool: CollectedToolCapabilityInput) {
   const key = createCollectedToolMatchKey({
     id: tool.id,
     source: tool.source,
@@ -121,15 +118,13 @@ export function buildResolvedToolCatalogGroupsFromManifest(params: {
   const groups = new Map<string, ResolvedToolCatalogGroup>();
   for (const tool of params.tools.toSorted((a, b) => a.sortKey.localeCompare(b.sortKey))) {
     const capability = requireToolCapability(index, tool);
-    const group =
-      groups.get(tool.groupId) ??
-      {
-        id: tool.groupId,
-        label: tool.groupLabel,
-        source: tool.groupSource,
-        ...(tool.groupPluginId ? { pluginId: tool.groupPluginId } : {}),
-        tools: [],
-      };
+    const group = groups.get(tool.groupId) ?? {
+      id: tool.groupId,
+      label: tool.groupLabel,
+      source: tool.groupSource,
+      ...(tool.groupPluginId ? { pluginId: tool.groupPluginId } : {}),
+      tools: [],
+    };
     group.tools.push({
       id: tool.id,
       label: tool.label,

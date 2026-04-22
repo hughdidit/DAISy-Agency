@@ -1,4 +1,8 @@
-import type { RequirementConfigCheck, RequirementRemoteSatisfied, Requirements } from "../../shared/requirements.js";
+import type {
+  RequirementConfigCheck,
+  RequirementRemoteSatisfied,
+  Requirements,
+} from "../../shared/requirements.js";
 import type {
   ResolvedCapability,
   ResolvedCapabilityManifest,
