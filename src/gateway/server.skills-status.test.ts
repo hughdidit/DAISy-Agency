@@ -100,6 +100,11 @@ describe("gateway skills.status", () => {
   });
 
   it("rejects unknown agent ids", async () => {
+    const { writeConfigFile } = await import("../config/config.js");
+    await writeConfigFile({
+      session: { mainKey: "main-test" },
+    });
+
     await withServer(async (ws) => {
       await connectOk(ws, { token: "secret", scopes: ["operator.read"] });
       const res = await rpcReq(ws, "skills.status", { agentId: "does-not-exist" });
