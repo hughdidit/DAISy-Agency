@@ -1,10 +1,10 @@
 import type { ResolvedCapabilityManifest } from "../../shared/resolved-capability-manifest.js";
 import type { SkillStatusReport } from "../skills-status.js";
-import { buildSkillStatusReportFromManifest } from "./joins.js";
 import {
   collectReadonlyCapabilityInputs,
   type ReadonlyCapabilityCollectorParams,
 } from "./collect-readonly.js";
+import { buildSkillStatusReportFromManifest } from "./joins.js";
 import { resolveCapabilityManifest } from "./resolve.js";
 
 export type ReadonlySkillStatusAssembly = {
