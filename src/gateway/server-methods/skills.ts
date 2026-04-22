@@ -3,8 +3,12 @@ import {
   resolveAgentWorkspaceDir,
   resolveDefaultAgentId,
 } from "../../agents/agent-scope.js";
+import {
+  buildSkillStatusReportFromManifest,
+  collectGatewayCapabilityInputs,
+  resolveCapabilityManifest,
+} from "../../agents/capabilities/index.js";
 import { installSkill } from "../../agents/skills-install.js";
-import { buildWorkspaceSkillStatus } from "../../agents/skills-status.js";
 import { loadWorkspaceSkillEntries, type SkillEntry } from "../../agents/skills.js";
 import { listAgentWorkspaceDirs } from "../../agents/workspace-dirs.js";
 import type { OpenClawConfig } from "../../config/config.js";
@@ -82,10 +86,18 @@ export const skillsHandlers: GatewayRequestHandlers = {
       }
     }
     const workspaceDir = resolveAgentWorkspaceDir(cfg, agentId);
-    const report = buildWorkspaceSkillStatus(workspaceDir, {
+    const collected = collectGatewayCapabilityInputs({
       config: cfg,
+      agentId,
+      workspaceDir,
       eligibility: { remote: getRemoteSkillEligibility() },
-      runtimeContext: { agentId },
+    });
+    const manifest = resolveCapabilityManifest(collected);
+    const report = buildSkillStatusReportFromManifest({
+      workspaceDir,
+      managedSkillsDir: collected.managedSkillsDir,
+      skills: collected.skills,
+      manifest,
     });
     respond(true, report, undefined);
   },

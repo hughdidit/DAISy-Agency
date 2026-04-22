@@ -17,6 +17,10 @@ import {
   createResolvedCapabilityMatchKey,
 } from "./types.js";
 
+function isEligibleSkillCapabilityClass(capabilityClass: ResolvedSkillCapability["capabilityClass"]) {
+  return capabilityClass === "sandbox-local" || capabilityClass === "remote-node-assisted";
+}
+
 export function indexResolvedCapabilityManifest(
   manifest: ResolvedCapabilityManifest,
 ): CapabilityManifestIndex {
@@ -93,7 +97,7 @@ export function buildSkillStatusReportFromManifest(params: {
       always: skill.always,
       disabled: skill.disabled,
       blockedByAllowlist: skill.blockedByAllowlist,
-      eligible: skill.eligible,
+      eligible: isEligibleSkillCapabilityClass(capability.capabilityClass),
       capabilityClass: capability.capabilityClass,
       capability,
       requirements: skill.requirements,
