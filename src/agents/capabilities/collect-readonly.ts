@@ -177,6 +177,7 @@ export function collectReadonlyCapabilityInputs(
   params: ReadonlyCapabilityCollectorParams = {},
 ): CapabilityResolutionInput & { managedSkillsDir: string } {
   const agentId = params.agentId?.trim() || resolveDefaultAgentId(params.config);
+  const workspaceDir = params.workspaceDir ?? "/workspace";
   const runtimeContext = buildReadonlyRuntimeContext({
     config: params.config,
     agentId,
@@ -190,12 +191,11 @@ export function collectReadonlyCapabilityInputs(
   );
   const hasExplicitEntries = Array.isArray(params.entries);
   const canLoadWorkspace =
-    typeof params.workspaceDir === "string" &&
-    (!params.projection?.pathExists || params.projection.pathExists(params.workspaceDir));
+    !params.projection?.pathExists || params.projection.pathExists(workspaceDir);
   const canCollectSkills = hasExplicitEntries || canLoadWorkspace;
   const skillCollectionRaw = canCollectSkills
     ? collectWorkspaceSkillCapabilityInputs({
-        workspaceDir: params.workspaceDir ?? "/workspace",
+        workspaceDir,
         runtimeContext,
         config: params.config,
         managedSkillsDir: params.managedSkillsDir,

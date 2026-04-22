@@ -56,21 +56,15 @@ export type GatewayCapabilityCollectorParams = {
 
 function buildRuntimeContext(params: {
   config?: OpenClawConfig;
-  agentId: string;
-  sessionKey?: string;
+  runtime: ReturnType<typeof resolveSandboxRuntimeStatus>;
 }): CapabilityResolutionInput["runtimeContext"] {
-  const runtime = resolveSandboxRuntimeStatus({
-    cfg: params.config,
-    agentId: params.agentId,
-    sessionKey: params.sessionKey,
-  });
-  const sandboxCfg = resolveSandboxConfigForAgent(params.config, params.agentId);
+  const sandboxCfg = resolveSandboxConfigForAgent(params.config, params.runtime.agentId);
   return {
-    agentId: runtime.agentId,
-    ...(runtime.sessionKey ? { sessionKey: runtime.sessionKey } : {}),
-    sandboxMode: runtime.mode,
+    agentId: params.runtime.agentId,
+    ...(params.runtime.sessionKey ? { sessionKey: params.runtime.sessionKey } : {}),
+    sandboxMode: params.runtime.mode,
     sandboxScope: sandboxCfg.scope,
-    sandboxed: runtime.sandboxed,
+    sandboxed: params.runtime.sandboxed,
   };
 }
 
@@ -196,15 +190,14 @@ export function collectGatewayCapabilityInputs(
   const agentId = params.agentId?.trim() || resolveDefaultAgentId(params.config);
   const workspaceDir = params.workspaceDir ?? resolveAgentWorkspaceDir(params.config, agentId);
   const agentDir = params.agentDir ?? resolveAgentDir(params.config, agentId);
-  const runtimeContext = buildRuntimeContext({
-    config: params.config,
-    agentId,
-    sessionKey: params.sessionKey,
-  });
   const runtime = resolveSandboxRuntimeStatus({
     cfg: params.config,
     agentId,
     sessionKey: params.sessionKey,
+  });
+  const runtimeContext = buildRuntimeContext({
+    config: params.config,
+    runtime,
   });
   const skillCollection = collectWorkspaceSkillCapabilityInputs({
     workspaceDir,

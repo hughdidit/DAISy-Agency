@@ -47,25 +47,29 @@ function selectPreferredInstallSpec(
   const downloadSpec = findKind("download");
   const brewAvailable = hasBinary("brew");
 
-  const pickers: Array<() => { spec: SkillInstallSpec; index: number } | undefined> = [
-    () => (prefs.preferBrew && brewAvailable ? brewSpec : undefined),
-    () => uvSpec,
-    () => nodeSpec,
-    () => (brewAvailable ? brewSpec : undefined),
-    () => goSpec,
-    () => downloadSpec,
-    () => brewSpec,
-    () => indexed[0],
-  ];
-
-  for (const pick of pickers) {
-    const selected = pick();
-    if (selected) {
-      return selected;
-    }
+  if (prefs.preferBrew && brewAvailable && brewSpec) {
+    return brewSpec;
+  }
+  if (uvSpec) {
+    return uvSpec;
+  }
+  if (nodeSpec) {
+    return nodeSpec;
+  }
+  if (brewAvailable && brewSpec) {
+    return brewSpec;
+  }
+  if (goSpec) {
+    return goSpec;
+  }
+  if (downloadSpec) {
+    return downloadSpec;
+  }
+  if (brewSpec) {
+    return brewSpec;
   }
 
-  return undefined;
+  return indexed[0];
 }
 
 function normalizeInstallOptions(

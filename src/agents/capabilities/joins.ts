@@ -1,4 +1,9 @@
-import type { ResolvedCapabilityManifest } from "../../shared/resolved-capability-manifest.js";
+import type {
+  ResolvedCapability,
+  ResolvedCapabilityManifest,
+  ResolvedSkillCapability,
+  ResolvedToolCapability,
+} from "../../shared/resolved-capability-manifest.js";
 import type { SkillStatusEntry, SkillStatusReport } from "../skills-status.js";
 import type {
   CapabilityManifestIndex,
@@ -15,9 +20,9 @@ import {
 export function indexResolvedCapabilityManifest(
   manifest: ResolvedCapabilityManifest,
 ): CapabilityManifestIndex {
-  const byMatchKey = new Map();
-  const skillsByMatchKey = new Map();
-  const toolsByMatchKey = new Map();
+  const byMatchKey = new Map<string, ResolvedCapability>();
+  const skillsByMatchKey = new Map<string, ResolvedSkillCapability>();
+  const toolsByMatchKey = new Map<string, ResolvedToolCapability>();
   for (const capability of manifest.capabilities) {
     const key = createResolvedCapabilityMatchKey(capability);
     byMatchKey.set(key, capability);

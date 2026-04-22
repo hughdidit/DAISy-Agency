@@ -148,6 +148,7 @@ function resolveSkillRuntimeReasonCodes(
 function resolveSkillRuntimeDetail(input: CollectedSkillCapabilityInput): string | undefined {
   const projectionDetail =
     input.availability?.projection?.missingPaths &&
+    !input.availability.projection.detail &&
     input.availability.projection.missingPaths.length > 0
       ? `Missing projection paths: ${input.availability.projection.missingPaths.join(", ")}`
       : undefined;
@@ -187,17 +188,34 @@ function resolveToolPolicy(input: CollectedToolCapabilityInput): ResolvedCapabil
   };
 }
 
+function hasProviderEvidence(availability?: CapabilityAvailabilityFacts): boolean {
+  const provider = availability?.provider;
+  if (!provider) {
+    return false;
+  }
+  return (
+    mergeReasonCodes(provider.reasonCodes).length > 0 ||
+    Boolean(
+      provider.providerId || provider.providerKind || provider.transport || provider.detail,
+    )
+  );
+}
+
 function ensureUnsupportedAvailability(input: CollectedToolCapabilityInput): CapabilityAvailabilityFacts {
   const availability = input.availability ?? {};
   const provider =
     input.intent === "gateway-brokered" || input.intent === "remote-node-assisted"
-      ? availability.provider ?? {
-          reasonCodes: ["missing-provider"],
-          detail:
-            input.intent === "remote-node-assisted"
-              ? "Remote eligibility facts are missing."
-              : "Gateway provider facts are missing.",
-        }
+      ? hasProviderEvidence(availability)
+        ? availability.provider
+        : {
+            ...availability.provider,
+            reasonCodes: mergeReasonCodes(availability.provider?.reasonCodes, ["missing-provider"]),
+            detail:
+              availability.provider?.detail ??
+              (input.intent === "remote-node-assisted"
+                ? "Remote eligibility facts are missing."
+                : "Gateway provider facts are missing."),
+          }
       : availability.provider;
   return {
     ...availability,
