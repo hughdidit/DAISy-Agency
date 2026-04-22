@@ -156,9 +156,12 @@ describe("collectReadonlyCapabilityInputs", () => {
           "projected-demo-skill",
           {
             skill: {
+              name: "projected-demo-skill",
+              description: "desc:projected-demo-skill",
               source: "openclaw-extra",
               filePath: `${projectedSkillDir}/SKILL.md`,
               baseDir: projectedSkillDir,
+              disableModelInvocation: false,
             },
           },
           {},
