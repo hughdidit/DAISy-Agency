@@ -38,6 +38,23 @@ describe("collectReadonlyCapabilityInputs", () => {
     expect(capability?.evidence?.runtime?.reasonCodes).toContain("missing-projection");
   });
 
+  it("still collects explicit readonly skill entries when workspaceDir is omitted", () => {
+    const collected = collectReadonlyCapabilityInputs({
+      agentId: "main",
+      entries: [makeSkillEntry("explicit-readonly-skill")],
+      projection: {
+        configPath: "/workspace/.openclaw-readonly/openclaw.json",
+        stateDir: "/workspace/.openclaw-readonly/state",
+        pathExists: () => false,
+      },
+    });
+    const manifest = resolveCapabilityManifest(collected);
+    const capability = manifest.capabilities.find((entry) => entry.id === "explicit-readonly-skill");
+
+    expect(capability?.capabilityClass).toBe("unsupported-in-current-runtime");
+    expect(capability?.evidence?.runtime?.reasonCodes).toContain("missing-projection");
+  });
+
   it("fails closed for local readonly tools when the workspace projection is missing", () => {
     const collected = collectReadonlyCapabilityInputs({
       agentId: "main",

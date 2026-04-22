@@ -188,19 +188,12 @@ export function collectReadonlyCapabilityInputs(
     missingProjectionPaths,
     "Readonly projection missing required paths",
   );
-  if (missingProjectionAvailability) {
-    for (const entry of params.entries ?? []) {
-      skillAvailability[entry.skill.name] = mergeAvailabilityFacts(
-        missingProjectionAvailability,
-        skillAvailability[entry.skill.name],
-      );
-    }
-  }
-
+  const hasExplicitEntries = Array.isArray(params.entries);
   const canLoadWorkspace =
     typeof params.workspaceDir === "string" &&
     (!params.projection?.pathExists || params.projection.pathExists(params.workspaceDir));
-  const skillCollection = canLoadWorkspace
+  const canCollectSkills = hasExplicitEntries || canLoadWorkspace;
+  const skillCollectionRaw = canCollectSkills
     ? collectWorkspaceSkillCapabilityInputs({
         workspaceDir: params.workspaceDir ?? "/workspace",
         runtimeContext,
@@ -211,6 +204,15 @@ export function collectReadonlyCapabilityInputs(
         overrides: skillAvailability,
       })
     : { managedSkillsDir: params.managedSkillsDir ?? "", skills: [] };
+  const skillCollection = missingProjectionAvailability
+    ? {
+        managedSkillsDir: skillCollectionRaw.managedSkillsDir,
+        skills: skillCollectionRaw.skills.map((skill) => ({
+          ...skill,
+          availability: mergeAvailabilityFacts(missingProjectionAvailability, skill.availability),
+        })),
+      }
+    : skillCollectionRaw;
 
   return {
     runtimeContext,
