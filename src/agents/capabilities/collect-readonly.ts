@@ -8,7 +8,6 @@ import {
   listCoreToolSections,
   resolveCoreToolCapabilityBoundary,
   resolveCoreToolProfiles,
-  type ToolProfileId,
 } from "../tool-catalog.js";
 import {
   buildMissingProjectionAvailability,
@@ -109,7 +108,7 @@ function collectReadonlyCoreTools(params: {
         label: tool.label,
         description: tool.description,
         source: "core",
-        defaultProfiles: resolveCoreToolProfiles(tool.id) as ToolProfileId[],
+        defaultProfiles: resolveCoreToolProfiles(tool.id),
         groupId: section.id,
         groupLabel: section.label,
         groupSource: "core",
@@ -191,7 +190,7 @@ export function collectReadonlyCapabilityInputs(
   });
   const toolPolicy = resolveSandboxToolPolicyForAgent(config, agentId);
   const missingProjectionPaths = collectMissingProjectionPaths(params.projection);
-  const skillAvailability = { ...(params.skillAvailability ?? {}) };
+  const skillAvailability = params.skillAvailability ? { ...params.skillAvailability } : {};
   const missingProjectionAvailability = buildMissingProjectionAvailability(
     missingProjectionPaths,
     "Readonly projection missing required paths",

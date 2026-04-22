@@ -13,7 +13,6 @@ import {
   listCoreToolSections,
   resolveCoreToolCapabilityBoundary,
   resolveCoreToolProfiles,
-  type ToolProfileId,
 } from "../tool-catalog.js";
 import {
   collectWorkspaceSkillCapabilityInputs,
@@ -88,7 +87,7 @@ function collectCoreToolInputs(params: {
         label: tool.label,
         description: tool.description,
         source: "core",
-        defaultProfiles: resolveCoreToolProfiles(tool.id) as ToolProfileId[],
+        defaultProfiles: resolveCoreToolProfiles(tool.id),
         groupId: section.id,
         groupLabel: section.label,
         groupSource: "core",
