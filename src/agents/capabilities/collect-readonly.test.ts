@@ -20,7 +20,7 @@ function makeSkillEntry(
       filePath: `/tmp/${name}/SKILL.md`,
       baseDir: `/tmp/${name}`,
       disableModelInvocation: false,
-      ...(skillOverrides ?? {}),
+      ...skillOverrides,
     },
     frontmatter: {},
     metadata: metadataOverrides ?? metadata,
