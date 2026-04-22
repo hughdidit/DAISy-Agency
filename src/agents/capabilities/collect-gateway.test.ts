@@ -121,4 +121,117 @@ describe("collectGatewayCapabilityInputs", () => {
     expect(filesGroup?.tools.some((tool) => tool.id === "read")).toBe(true);
     expect(pluginGroup?.tools[0]?.capability.capabilityClass).toBe("gateway-brokered");
   });
+
+  it("maps gateway skill status classes through the shared resolver and keeps ordering deterministic", () => {
+    const collected = collectGatewayCapabilityInputs({
+      agentId: "main",
+      sessionKey: "main",
+      workspaceDir: "/tmp/workspace",
+      agentDir: "/tmp/agents/main/agent",
+      entries: [
+        makeSkillEntry({
+          name: "zzz-workspace",
+          source: "openclaw-workspace",
+        }),
+        makeSkillEntry({
+          name: "aaa-plugin",
+          source: "openclaw-plugin:voice",
+          os: ["darwin"],
+          requires: { bins: ["xcodebuild"] },
+        }),
+        makeSkillEntry({
+          name: "mmm-bundled",
+          source: "openclaw-bundled",
+          requires: { env: ["MISSING_GATEWAY_TEST_ENV"] },
+        }),
+        makeSkillEntry({
+          name: "ddd-projection",
+          source: "openclaw-managed",
+        }),
+      ],
+      eligibility: {
+        remote: {
+          platforms: ["darwin"],
+          hasBin: (bin) => bin === "xcodebuild",
+          hasAnyBin: () => false,
+          note: "Remote macOS node available.",
+        },
+      },
+      skillAvailability: {
+        "ddd-projection": {
+          projection: {
+            missingPaths: ["/workspace/.openclaw-readonly/state/extensions/ddd-projection"],
+            reasonCodes: ["missing-projection"],
+            detail: "Projection missing skill assets.",
+          },
+        },
+      },
+    });
+    const manifest = resolveCapabilityManifest(collected);
+    const report = buildSkillStatusReportFromManifest({
+      workspaceDir: "/tmp/workspace",
+      managedSkillsDir: collected.managedSkillsDir,
+      skills: collected.skills,
+      manifest,
+    });
+
+    expect(report.skills.map((skill) => skill.name)).toEqual([
+      "aaa-plugin",
+      "ddd-projection",
+      "mmm-bundled",
+      "zzz-workspace",
+    ]);
+
+    const remote = report.skills.find((skill) => skill.name === "aaa-plugin");
+    const unsupported = report.skills.find((skill) => skill.name === "ddd-projection");
+    const blocked = report.skills.find((skill) => skill.name === "mmm-bundled");
+    const local = report.skills.find((skill) => skill.name === "zzz-workspace");
+
+    expect(remote).toMatchObject({
+      eligible: true,
+      capabilityClass: "remote-node-assisted",
+    });
+    expect(unsupported).toMatchObject({
+      eligible: false,
+      capabilityClass: "unsupported-in-current-runtime",
+    });
+    expect(blocked).toMatchObject({
+      eligible: false,
+      capabilityClass: "configured-but-blocked",
+    });
+    expect(local).toMatchObject({
+      eligible: true,
+      capabilityClass: "sandbox-local",
+    });
+  });
+
+  it("derives report eligible from the resolved capability instead of collected readiness", () => {
+    const collected = collectGatewayCapabilityInputs({
+      agentId: "main",
+      sessionKey: "main",
+      workspaceDir: "/tmp/workspace",
+      agentDir: "/tmp/agents/main/agent",
+      entries: [
+        makeSkillEntry({
+          name: "blocked-skill",
+          requires: { env: ["MISSING_GATEWAY_STATUS_ENV"] },
+        }),
+      ],
+    });
+    const manifest = resolveCapabilityManifest(collected);
+    const mutatedSkills = collected.skills.map((skill) =>
+      skill.name === "blocked-skill" ? { ...skill, eligible: true } : skill,
+    );
+    const report = buildSkillStatusReportFromManifest({
+      workspaceDir: "/tmp/workspace",
+      managedSkillsDir: collected.managedSkillsDir,
+      skills: mutatedSkills,
+      manifest,
+    });
+
+    expect(collected.skills[0]?.eligible).toBe(false);
+    expect(mutatedSkills[0]?.eligible).toBe(true);
+    expect(report.skills[0]?.capabilityClass).toBe("configured-but-blocked");
+    expect(report.skills[0]?.eligible).toBe(false);
+  });
 });
