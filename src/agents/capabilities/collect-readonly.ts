@@ -58,7 +58,8 @@ export type ReadonlyCapabilityCollectorParams = {
 function collectMissingProjectionPaths(
   projection?: ReadonlyCapabilityCollectorParams["projection"],
 ): string[] {
-  const pathExists = projection?.pathExists ?? ((targetPath: string) => fs.existsSync(targetPath));
+  const pathExists =
+    projection?.pathExists ?? ((targetPath: string) => fs.existsSync(targetPath));
   const missing: string[] = [];
   for (const targetPath of [projection?.configPath, projection?.stateDir, projection?.workspaceDir]) {
     if (targetPath && !pathExists(targetPath)) {
@@ -178,6 +179,8 @@ export function collectReadonlyCapabilityInputs(
 ): CapabilityResolutionInput & { managedSkillsDir: string } {
   const agentId = params.agentId?.trim() || resolveDefaultAgentId(params.config);
   const workspaceDir = params.workspaceDir ?? "/workspace";
+  const pathExists =
+    params.projection?.pathExists ?? ((targetPath: string) => fs.existsSync(targetPath));
   const runtimeContext = buildReadonlyRuntimeContext({
     config: params.config,
     agentId,
@@ -190,8 +193,7 @@ export function collectReadonlyCapabilityInputs(
     "Readonly projection missing required paths",
   );
   const hasExplicitEntries = Array.isArray(params.entries);
-  const canLoadWorkspace =
-    !params.projection?.pathExists || params.projection.pathExists(workspaceDir);
+  const canLoadWorkspace = pathExists(workspaceDir);
   const canCollectSkills = hasExplicitEntries || canLoadWorkspace;
   const skillCollectionRaw = canCollectSkills
     ? collectWorkspaceSkillCapabilityInputs({
