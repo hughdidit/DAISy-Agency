@@ -1,5 +1,15 @@
 import fs from "node:fs";
+import path from "node:path";
 import type { OpenClawConfig } from "../../config/config.js";
+import {
+  normalizePluginsConfig,
+  resolveEffectiveEnableState,
+  resolveMemorySlotDecision,
+} from "../../plugins/config-state.js";
+import {
+  loadPluginManifestRegistry,
+  type PluginManifestRecord,
+} from "../../plugins/manifest-registry.js";
 import { resolveDefaultAgentId } from "../agent-scope.js";
 import { resolveSandboxConfigForAgent } from "../sandbox/config.js";
 import { resolveSandboxToolPolicyForAgent } from "../sandbox/tool-policy.js";
@@ -21,7 +31,7 @@ import type {
   CollectedToolCapabilityInput,
   ToolResolutionIntent,
 } from "./types.js";
-import { createCollectedToolMatchKey } from "./types.js";
+import { createCollectedSkillMatchKey, createCollectedToolMatchKey } from "./types.js";
 
 export type ReadonlyCapabilityCollectorParams = {
   config?: OpenClawConfig;
@@ -52,6 +62,7 @@ export type ReadonlyCapabilityCollectorParams = {
       }
     | undefined
   >;
+  pluginManifestRecords?: PluginManifestRecord[];
 };
 
 function collectMissingProjectionPaths(
@@ -82,6 +93,162 @@ function buildReadonlyRuntimeContext(params: {
     sandboxScope: sandboxCfg.scope,
     sandboxed: true,
   };
+}
+
+function isLexicallyInsideRoot(rootDir: string, candidatePath: string): boolean {
+  const relative = path.relative(rootDir, candidatePath);
+  const escapesRoot = relative === ".." || relative.startsWith(`..${path.sep}`);
+  return relative === "" || (!escapesRoot && !path.isAbsolute(relative));
+}
+
+function buildSyntheticReadonlyPluginSkillName(params: {
+  pluginId: string;
+  candidatePath: string;
+}): string {
+  const baseName = path.basename(params.candidatePath).trim();
+  if (!baseName || baseName === "." || baseName === "..") {
+    return `${params.pluginId}:skill`;
+  }
+  if (baseName.toLowerCase() === "skills") {
+    return `${params.pluginId}:skills`;
+  }
+  return `${params.pluginId}:${baseName}`;
+}
+
+function buildSyntheticReadonlyPluginSkillInput(params: {
+  record: PluginManifestRecord;
+  candidatePath: string;
+  rawSkillPath: string;
+  runtimeContext: CapabilityResolutionInput["runtimeContext"];
+}): CapabilityResolutionInput["skills"][number] {
+  const baseDir =
+    path.basename(params.candidatePath).toLowerCase() === "skill.md"
+      ? path.dirname(params.candidatePath)
+      : params.candidatePath;
+  const filePath =
+    path.basename(params.candidatePath).toLowerCase() === "skill.md"
+      ? params.candidatePath
+      : path.join(params.candidatePath, "SKILL.md");
+  const name = buildSyntheticReadonlyPluginSkillName({
+    pluginId: params.record.id,
+    candidatePath: baseDir,
+  });
+  const description = `Readonly projection is missing plugin skill path "${params.rawSkillPath}" from plugin "${params.record.id}".`;
+  const source = `openclaw-plugin:${params.record.id}`;
+  return {
+    matchKey: createCollectedSkillMatchKey({
+      name,
+      source,
+      filePath,
+      skillKey: name,
+    }),
+    sortKey: `skill:${name.toLowerCase()}:${filePath.toLowerCase()}`,
+    name,
+    description,
+    source,
+    bundled: false,
+    filePath,
+    baseDir,
+    skillKey: name,
+    always: false,
+    disabled: false,
+    blockedByAllowlist: false,
+    eligible: false,
+    requirements: { bins: [], anyBins: [], env: [], config: [], os: [] },
+    missing: { bins: [], anyBins: [], env: [], config: [], os: [] },
+    configChecks: [],
+    remoteSatisfied: null,
+    install: [],
+    runtimeContext: params.runtimeContext,
+    availability: buildMissingProjectionAvailability(
+      [baseDir],
+      `Readonly projection missing plugin skill path declared by ${params.record.id}`,
+    ),
+  };
+}
+
+function collectMissingReadonlyPluginSkillInputs(params: {
+  config?: OpenClawConfig;
+  workspaceDir: string;
+  runtimeContext: CapabilityResolutionInput["runtimeContext"];
+  pathExists: (targetPath: string) => boolean;
+  pluginManifestRecords?: PluginManifestRecord[];
+}): CapabilityResolutionInput["skills"] {
+  const registry =
+    params.pluginManifestRecords ??
+    loadPluginManifestRegistry({
+      workspaceDir: params.workspaceDir,
+      config: params.config,
+    }).plugins;
+  if (registry.length === 0) {
+    return [];
+  }
+
+  const normalizedPlugins = normalizePluginsConfig(params.config?.plugins);
+  const acpEnabled = params.config?.acp?.enabled !== false;
+  const memorySlot = normalizedPlugins.slots.memory;
+  let selectedMemoryPluginId: string | null = null;
+  const synthetic: CapabilityResolutionInput["skills"] = [];
+  const seen = new Set<string>();
+
+  for (const record of registry) {
+    if (!record.skills || record.skills.length === 0) {
+      continue;
+    }
+    const enableState = resolveEffectiveEnableState({
+      id: record.id,
+      origin: record.origin,
+      config: normalizedPlugins,
+      rootConfig: params.config,
+    });
+    if (!enableState.enabled) {
+      continue;
+    }
+    if (!acpEnabled && record.id === "acpx") {
+      continue;
+    }
+    const memoryDecision = resolveMemorySlotDecision({
+      id: record.id,
+      kind: record.kind,
+      slot: memorySlot,
+      selectedId: selectedMemoryPluginId,
+    });
+    if (!memoryDecision.enabled) {
+      continue;
+    }
+    if (memoryDecision.selected && record.kind === "memory") {
+      selectedMemoryPluginId = record.id;
+    }
+
+    for (const rawSkillPath of record.skills) {
+      const trimmedSkillPath = rawSkillPath.trim();
+      if (!trimmedSkillPath) {
+        continue;
+      }
+      const candidatePath = path.resolve(record.rootDir, trimmedSkillPath);
+      if (!isLexicallyInsideRoot(record.rootDir, candidatePath)) {
+        continue;
+      }
+      if (params.pathExists(candidatePath)) {
+        continue;
+      }
+      const key = `${record.id}:${candidatePath}`;
+      if (seen.has(key)) {
+        continue;
+      }
+      seen.add(key);
+      synthetic.push(
+        buildSyntheticReadonlyPluginSkillInput({
+          record,
+          candidatePath,
+          rawSkillPath: trimmedSkillPath,
+          runtimeContext: params.runtimeContext,
+        }),
+      );
+    }
+  }
+
+  return synthetic.toSorted((a, b) => a.sortKey.localeCompare(b.sortKey));
 }
 
 function collectReadonlyCoreTools(params: {
@@ -209,15 +376,30 @@ export function collectReadonlyCapabilityInputs(
         overrides: skillAvailability,
       })
     : { managedSkillsDir: params.managedSkillsDir ?? "", skills: [] };
+  const syntheticPluginSkills = canLoadWorkspace
+    ? collectMissingReadonlyPluginSkillInputs({
+        config,
+        workspaceDir,
+        runtimeContext,
+        pathExists,
+        pluginManifestRecords: params.pluginManifestRecords,
+      })
+    : [];
+  const combinedSkills = [...skillCollectionRaw.skills, ...syntheticPluginSkills].toSorted((a, b) =>
+    a.sortKey.localeCompare(b.sortKey),
+  );
   const skillCollection = missingProjectionAvailability
     ? {
         managedSkillsDir: skillCollectionRaw.managedSkillsDir,
-        skills: skillCollectionRaw.skills.map((skill) => ({
+        skills: combinedSkills.map((skill) => ({
           ...skill,
           availability: mergeAvailabilityFacts(missingProjectionAvailability, skill.availability),
         })),
       }
-    : skillCollectionRaw;
+    : {
+        managedSkillsDir: skillCollectionRaw.managedSkillsDir,
+        skills: combinedSkills,
+      };
 
   return {
     runtimeContext,

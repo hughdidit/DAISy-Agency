@@ -7,8 +7,8 @@ import { isMainModule } from "../infra/is-main.js";
 import type { RuntimeEnv } from "../runtime.js";
 
 type ReadonlyLoadConfig = typeof import("../config/config.js").loadConfig;
-type ReadonlyBuildWorkspaceSkillStatus =
-  typeof import("../agents/skills-status.js").buildWorkspaceSkillStatus;
+type ReadonlyBuildReadonlySkillStatusReport =
+  typeof import("../agents/capabilities/index.js").buildReadonlySkillStatusReport;
 type ReadonlyGetRemoteSkillEligibility =
   typeof import("../infra/skills-remote.js").getRemoteSkillEligibility;
 type ReadonlyFormatSkillsList = typeof import("./skills-cli.format.js").formatSkillsList;
@@ -72,7 +72,7 @@ type OpenClawReadonlyDeps = {
   }>;
   importSkillsModules: () => Promise<{
     loadConfig: ReadonlyLoadConfig;
-    buildWorkspaceSkillStatus: ReadonlyBuildWorkspaceSkillStatus;
+    buildReadonlySkillStatusReport: ReadonlyBuildReadonlySkillStatusReport;
     getRemoteSkillEligibility: ReadonlyGetRemoteSkillEligibility;
     formatSkillsList: ReadonlyFormatSkillsList;
     formatSkillsCheck: ReadonlyFormatSkillsCheck;
@@ -261,18 +261,18 @@ function createDefaultReadonlyDeps(): OpenClawReadonlyDeps {
     importSkillsModules: async () => {
       const [
         { loadConfig },
-        { buildWorkspaceSkillStatus },
+        { buildReadonlySkillStatusReport },
         { getRemoteSkillEligibility },
         formatting,
       ] = await Promise.all([
         import("../config/config.js"),
-        import("../agents/skills-status.js"),
+        import("../agents/capabilities/index.js"),
         import("../infra/skills-remote.js"),
         import("./skills-cli.format.js"),
       ]);
       return {
         loadConfig,
-        buildWorkspaceSkillStatus,
+        buildReadonlySkillStatusReport,
         getRemoteSkillEligibility,
         formatSkillsList: formatting.formatSkillsList,
         formatSkillsCheck: formatting.formatSkillsCheck,
@@ -308,7 +308,7 @@ async function runOpenClawReadonlyResolved(
     case "skills-check": {
       const {
         loadConfig,
-        buildWorkspaceSkillStatus,
+        buildReadonlySkillStatusReport,
         getRemoteSkillEligibility,
         formatSkillsCheck,
         formatSkillsList,
@@ -317,12 +317,16 @@ async function runOpenClawReadonlyResolved(
       if (!resolved.workspaceDir) {
         throw new Error(`Missing readonly workspace mount for ${resolved.command.args.join(" ")}.`);
       }
-      const report = buildWorkspaceSkillStatus(resolved.workspaceDir, {
+      const { report } = buildReadonlySkillStatusReport({
         config,
+        agentId: resolved.agentId,
+        workspaceDir: resolved.workspaceDir,
         eligibility: { remote: getRemoteSkillEligibility() },
-        runtimeContext: {
-          agentId: resolved.agentId,
-          sandboxed: true,
+        projection: {
+          configPath: resolved.configPath,
+          stateDir: resolved.stateDir,
+          workspaceDir: resolved.workspaceDir,
+          pathExists: deps.pathExists,
         },
       });
       deps.runtime.log(

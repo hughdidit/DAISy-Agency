@@ -11,8 +11,8 @@ import {
 } from "./openclaw-readonly.js";
 
 type TestLoadConfig = typeof import("../config/config.js").loadConfig;
-type TestBuildWorkspaceSkillStatus =
-  typeof import("../agents/skills-status.js").buildWorkspaceSkillStatus;
+type TestBuildReadonlySkillStatusReport =
+  typeof import("../agents/capabilities/index.js").buildReadonlySkillStatusReport;
 type TestFormatSkillsList = typeof import("./skills-cli.format.js").formatSkillsList;
 type TestFormatSkillsCheck = typeof import("./skills-cli.format.js").formatSkillsCheck;
 
@@ -149,7 +149,26 @@ describe("openclaw-readonly CLI", () => {
         workspaceDir: "/agent",
         managedSkillsDir: "/managed-skills",
       } satisfies SkillStatusReport;
-      const buildWorkspaceSkillStatus = vi.fn<TestBuildWorkspaceSkillStatus>(() => report);
+      const buildReadonlySkillStatusReport = vi.fn<TestBuildReadonlySkillStatusReport>(() => ({
+        collected: {
+          runtimeContext: {
+            agentId: "main",
+            sandboxed: true,
+          },
+          managedSkillsDir: "/managed-skills",
+          skills: [],
+          tools: [],
+        },
+        manifest: {
+          schemaVersion: 1,
+          runtimeContext: {
+            agentId: "main",
+            sandboxed: true,
+          },
+          capabilities: [],
+        },
+        report,
+      }));
       const remoteEligibility = {
         platforms: ["darwin"],
         hasBin: vi.fn(),
@@ -177,19 +196,23 @@ describe("openclaw-readonly CLI", () => {
         }),
         importSkillsModules: async () => ({
           loadConfig,
-          buildWorkspaceSkillStatus,
+          buildReadonlySkillStatusReport,
           getRemoteSkillEligibility,
           formatSkillsList,
           formatSkillsCheck,
         }),
       });
 
-      expect(buildWorkspaceSkillStatus).toHaveBeenCalledWith("/agent", {
+      expect(buildReadonlySkillStatusReport).toHaveBeenCalledWith({
         config,
+        agentId: "main",
+        workspaceDir: "/agent",
         eligibility: { remote: remoteEligibility },
-        runtimeContext: {
-          agentId: "main",
-          sandboxed: true,
+        projection: {
+          configPath: "/readonly/openclaw.json",
+          stateDir: "/readonly/state",
+          workspaceDir: "/agent",
+          pathExists: expect.any(Function),
         },
       });
       expect(formatSkillsList).toHaveBeenCalled();
@@ -219,7 +242,7 @@ describe("openclaw-readonly CLI", () => {
       }),
       importSkillsModules: async () => ({
         loadConfig: vi.fn(),
-        buildWorkspaceSkillStatus: vi.fn(),
+        buildReadonlySkillStatusReport: vi.fn(),
         getRemoteSkillEligibility: vi.fn(),
         formatSkillsList: vi.fn(),
         formatSkillsCheck: vi.fn(),

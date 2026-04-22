@@ -1,10 +1,11 @@
+import fsSync from "node:fs";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { validateConfigObjectWithPlugins, type OpenClawConfig } from "../../config/config.js";
 import { clearPluginManifestRegistryCache } from "../../plugins/manifest-registry.js";
-import { buildWorkspaceSkillStatus } from "../skills-status.js";
+import { buildReadonlySkillStatusReport } from "../capabilities/index.js";
 import {
   OPENCLAW_READONLY_SYNTHETIC_CONTAINER_ROOT,
   resolveOpenClawReadonlyProjection,
@@ -415,8 +416,16 @@ describe("openclaw-readonly projection", () => {
       expect(validated.ok).toBe(true);
       if (validated.ok) {
         expect(validated.warnings).toEqual([]);
-        const report = buildWorkspaceSkillStatus(fixture.workspaceDir, {
+        const { report } = buildReadonlySkillStatusReport({
           config: projectedConfig,
+          agentId: "main",
+          workspaceDir: fixture.workspaceDir,
+          projection: {
+            configPath: fixture.projection.hostConfigPath,
+            stateDir: fixture.projection.hostStateDir,
+            workspaceDir: fixture.workspaceDir,
+            pathExists: (targetPath) => fsSync.existsSync(targetPath),
+          },
         });
         const projectedSkill = report.skills.find((entry) => entry.name === "projected-demo-skill");
         expect(projectedSkill).toBeDefined();
