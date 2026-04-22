@@ -180,15 +180,16 @@ function collectReadonlyPluginTools(params: {
 export function collectReadonlyCapabilityInputs(
   params: ReadonlyCapabilityCollectorParams = {},
 ): CapabilityResolutionInput & { managedSkillsDir: string } {
-  const agentId = params.agentId?.trim() || resolveDefaultAgentId(params.config);
+  const config = params.config ?? {};
+  const agentId = params.agentId?.trim() || resolveDefaultAgentId(config);
   const workspaceDir = params.workspaceDir ?? "/workspace";
   const pathExists =
     params.projection?.pathExists ?? ((targetPath: string) => fs.existsSync(targetPath));
   const runtimeContext = buildReadonlyRuntimeContext({
-    config: params.config,
+    config,
     agentId,
   });
-  const toolPolicy = resolveSandboxToolPolicyForAgent(params.config, agentId);
+  const toolPolicy = resolveSandboxToolPolicyForAgent(config, agentId);
   const missingProjectionPaths = collectMissingProjectionPaths(params.projection);
   const skillAvailability = { ...(params.skillAvailability ?? {}) };
   const missingProjectionAvailability = buildMissingProjectionAvailability(
@@ -202,7 +203,7 @@ export function collectReadonlyCapabilityInputs(
     ? collectWorkspaceSkillCapabilityInputs({
         workspaceDir,
         runtimeContext,
-        config: params.config,
+        config,
         managedSkillsDir: params.managedSkillsDir,
         entries: params.entries,
         eligibility: params.eligibility,

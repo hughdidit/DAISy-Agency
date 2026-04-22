@@ -187,22 +187,23 @@ function collectPluginToolInputs(params: {
 export function collectGatewayCapabilityInputs(
   params: GatewayCapabilityCollectorParams = {},
 ): CapabilityResolutionInput & { managedSkillsDir: string } {
-  const agentId = params.agentId?.trim() || resolveDefaultAgentId(params.config);
-  const workspaceDir = params.workspaceDir ?? resolveAgentWorkspaceDir(params.config, agentId);
-  const agentDir = params.agentDir ?? resolveAgentDir(params.config, agentId);
+  const config = params.config ?? {};
+  const agentId = params.agentId?.trim() || resolveDefaultAgentId(config);
+  const workspaceDir = params.workspaceDir ?? resolveAgentWorkspaceDir(config, agentId);
+  const agentDir = params.agentDir ?? resolveAgentDir(config, agentId);
   const runtime = resolveSandboxRuntimeStatus({
-    cfg: params.config,
+    cfg: config,
     agentId,
     sessionKey: params.sessionKey,
   });
   const runtimeContext = buildRuntimeContext({
-    config: params.config,
+    config,
     runtime,
   });
   const skillCollection = collectWorkspaceSkillCapabilityInputs({
     workspaceDir,
     runtimeContext,
-    config: params.config,
+    config,
     managedSkillsDir: params.managedSkillsDir,
     entries: params.entries,
     eligibility: params.eligibility ?? { remote: getRemoteSkillEligibility() },
@@ -217,7 +218,7 @@ export function collectGatewayCapabilityInputs(
     params.includePlugins === false
       ? []
       : collectPluginToolInputs({
-          config: params.config,
+          config,
           agentId,
           workspaceDir,
           agentDir,
