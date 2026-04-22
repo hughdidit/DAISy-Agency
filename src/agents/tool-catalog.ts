@@ -1,4 +1,5 @@
 export type ToolProfileId = "minimal" | "coding" | "messaging" | "full";
+export type CoreToolCapabilityBoundary = "sandbox-local" | "gateway-brokered";
 
 type ToolProfilePolicy = {
   allow?: string[];
@@ -247,6 +248,15 @@ const CORE_TOOL_BY_ID = new Map<string, CoreToolDefinition>(
   CORE_TOOL_DEFINITIONS.map((tool) => [tool.id, tool]),
 );
 
+const SANDBOX_LOCAL_CORE_TOOL_IDS = new Set<string>([
+  "read",
+  "write",
+  "edit",
+  "apply_patch",
+  "exec",
+  "process",
+]);
+
 function listCoreToolIdsForProfile(profile: ToolProfileId): string[] {
   return CORE_TOOL_DEFINITIONS.filter((tool) => tool.profiles.includes(profile)).map(
     (tool) => tool.id,
@@ -327,6 +337,10 @@ export function resolveCoreToolProfiles(toolId: string): ToolProfileId[] {
     return [];
   }
   return [...tool.profiles];
+}
+
+export function resolveCoreToolCapabilityBoundary(toolId: string): CoreToolCapabilityBoundary {
+  return SANDBOX_LOCAL_CORE_TOOL_IDS.has(toolId) ? "sandbox-local" : "gateway-brokered";
 }
 
 export function isKnownCoreToolId(toolId: string): boolean {

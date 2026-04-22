@@ -151,6 +151,35 @@ describe("resolved capability manifest", () => {
     expect(capability.evidence?.remote?.satisfiedBins).toEqual(["xcodebuild"]);
   });
 
+  it("supports explicit runtime profile and projection-derived reasons for skills", () => {
+    const capability = buildResolvedSkillCapability({
+      name: "profiled-skill",
+      description: "profiled skill",
+      source: "openclaw-bundled",
+      skillKey: "profiled-skill",
+      bundled: true,
+      filePath: "/tmp/profiled-skill/SKILL.md",
+      requirements: { bins: [], anyBins: [], env: [], config: [], os: [] },
+      missing: { bins: [], anyBins: [], env: [], config: [], os: [] },
+      configChecks: [],
+      disabled: false,
+      blockedByAllowlist: false,
+      remoteSatisfied: null,
+      runtimeContext: { agentId: "main", sandboxed: true },
+      runtimeProfile: "ops-readonly",
+      runtimeReasonCodes: ["missing-runtime-profile", "missing-projection"],
+      runtimeDetail: "Readonly projection incomplete.",
+    });
+
+    expect(capability.capabilityClass).toBe("unsupported-in-current-runtime");
+    expect(capability.evidence?.runtime?.profile).toBe("ops-readonly");
+    expect(capability.evidence?.runtime?.reasonCodes).toEqual([
+      "missing-runtime-profile",
+      "missing-projection",
+    ]);
+    expect(capability.evidence?.runtime?.detail).toBe("Readonly projection incomplete.");
+  });
+
   it("requires remote evidence for remote-assisted tool capabilities", () => {
     expect(() =>
       buildResolvedToolCapability({

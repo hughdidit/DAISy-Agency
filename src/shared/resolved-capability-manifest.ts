@@ -232,6 +232,9 @@ export type ResolvedSkillCapabilityAdapterInput = {
   blockedByAllowlist: boolean;
   remoteSatisfied: RequirementRemoteSatisfied | null;
   runtimeContext: ResolvedCapabilityRuntimeContext;
+  runtimeProfile?: string;
+  runtimeReasonCodes?: ResolvedCapabilityUnavailableReason[];
+  runtimeDetail?: string;
 };
 
 export type ResolvedToolCapabilityAdapterInput = Omit<ResolvedToolCapability, "kind">;
@@ -502,7 +505,12 @@ export function buildResolvedSkillCapability(
   input: ResolvedSkillCapabilityAdapterInput,
 ): ResolvedSkillCapability {
   const remoteEvidence = toRemoteEvidence(input.remoteSatisfied);
-  const runtimeEvidence = toRuntimeEvidence(input.missing);
+  const runtimeEvidence = toRuntimeEvidence({
+    missing: input.missing,
+    profile: input.runtimeProfile,
+    extraReasonCodes: input.runtimeReasonCodes,
+    detail: input.runtimeDetail,
+  });
   const sharedBase = {
     id: input.name,
     label: input.name,
@@ -613,25 +621,37 @@ function toRemoteEvidence(
   };
 }
 
-function toRuntimeEvidence(missing: Requirements): ResolvedCapabilityRuntimeEvidence | undefined {
+function toRuntimeEvidence(params: {
+  missing: Requirements;
+  profile?: string;
+  extraReasonCodes?: ResolvedCapabilityUnavailableReason[];
+  detail?: string;
+}): ResolvedCapabilityRuntimeEvidence | undefined {
   const reasonCodes: ResolvedCapabilityUnavailableReason[] = [];
-  if (missing.bins.length > 0) {
+  if (params.missing.bins.length > 0) {
     reasonCodes.push("missing-runtime-binaries");
   }
-  if (missing.anyBins.length > 0) {
+  if (params.missing.anyBins.length > 0) {
     reasonCodes.push("missing-runtime-any-binaries");
   }
-  if (missing.os.length > 0) {
+  if (params.missing.os.length > 0) {
     reasonCodes.push("unsupported-os");
   }
-  if (reasonCodes.length === 0) {
+  for (const code of params.extraReasonCodes ?? []) {
+    if (!reasonCodes.includes(code)) {
+      reasonCodes.push(code);
+    }
+  }
+  if (reasonCodes.length === 0 && !params.profile && !params.detail) {
     return undefined;
   }
   return {
-    missingBins: missing.bins,
-    missingAnyBins: missing.anyBins,
-    missingOs: missing.os,
+    ...(params.profile ? { profile: params.profile } : {}),
+    missingBins: params.missing.bins,
+    missingAnyBins: params.missing.anyBins,
+    missingOs: params.missing.os,
     reasonCodes,
+    ...(params.detail ? { detail: params.detail } : {}),
   };
 }
 
