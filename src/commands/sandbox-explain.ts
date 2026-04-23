@@ -20,14 +20,23 @@ import {
   resolveAgentIdFromSessionKey,
 } from "../routing/session-key.js";
 import type { RuntimeEnv } from "../runtime.js";
+import { RESOLVED_CAPABILITY_CLASSES } from "../shared/resolved-capability-manifest.js";
 import { formatDocsLink } from "../terminal/links.js";
 import { colorize, isRich, theme } from "../terminal/theme.js";
 import { INTERNAL_MESSAGE_CHANNEL } from "../utils/message-channel.js";
+import {
+  collectCommandCapabilitySnapshot,
+  formatCapabilityClassLabel,
+  pickCapabilityFindings,
+} from "./capability-readiness.js";
 
 type SandboxExplainOptions = {
   session?: string;
   agent?: string;
   json: boolean;
+  readonlyRuntime?: {
+    workspaceDir?: string;
+  };
 };
 
 const SANDBOX_DOCS_URL = "https://docs.openclaw.ai/sandbox";
@@ -228,6 +237,13 @@ export async function sandboxExplainCommand(
   if (channel) {
     fixIt.push(`tools.elevated.allowFrom.${channel}`);
   }
+  const capabilities = collectCommandCapabilitySnapshot({
+    config: cfg,
+    agentId: resolvedAgentId,
+    sessionKey,
+    mode: opts.readonlyRuntime ? "readonly-sandbox" : "gateway",
+    workspaceDir: opts.readonlyRuntime?.workspaceDir,
+  });
 
   const payload = {
     docsUrl: SANDBOX_DOCS_URL,
@@ -265,6 +281,7 @@ export async function sandboxExplainCommand(
       },
       failures: elevatedFailures,
     },
+    capabilities,
     fixIt,
   } as const;
 
@@ -331,6 +348,37 @@ export async function sandboxExplainCommand(
         payload.mainSessionKey,
       )}`,
     );
+  }
+  lines.push("");
+  lines.push(heading("Effective capabilities:"));
+  for (const capabilityClass of RESOLVED_CAPABILITY_CLASSES) {
+    lines.push(
+      `  ${key(`${formatCapabilityClassLabel(capabilityClass)}:`)} ${value(
+        String(payload.capabilities.counts.byClass[capabilityClass]),
+      )}`,
+    );
+  }
+  const capabilityFindings = pickCapabilityFindings(payload.capabilities, {
+    capabilityClasses: [
+      "configured-but-blocked",
+      "unsupported-in-current-runtime",
+      "remote-node-assisted",
+      "gateway-brokered",
+    ],
+    limit: 8,
+  });
+  if (capabilityFindings.length === 0) {
+    lines.push(`  ${ok("All resolved capabilities are sandbox-local.")}`);
+  } else {
+    for (const finding of capabilityFindings) {
+      lines.push(
+        `  - ${finding.kind} ${finding.label} · ${finding.capabilityClass} · ${finding.primaryReasonCategory}`,
+      );
+      lines.push(`    ${finding.summary}${finding.detail ? `: ${finding.detail}` : ""}`);
+      if (finding.remediation) {
+        lines.push(`    ${key("Fix:")} ${finding.remediation}`);
+      }
+    }
   }
   lines.push("");
   lines.push(heading("Fix-it:"));

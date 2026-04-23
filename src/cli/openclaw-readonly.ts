@@ -66,7 +66,14 @@ type OpenClawReadonlyDeps = {
   }>;
   importSandboxExplainCommand: () => Promise<{
     sandboxExplainCommand: (
-      opts: { session?: string; agent?: string; json: boolean },
+      opts: {
+        session?: string;
+        agent?: string;
+        json: boolean;
+        readonlyRuntime?: {
+          workspaceDir?: string;
+        };
+      },
       runtime: OpenClawReadonlyRuntime,
     ) => Promise<void>;
   }>;
@@ -301,7 +308,16 @@ async function runOpenClawReadonlyResolved(
     }
     case "sandbox-explain": {
       const { sandboxExplainCommand } = await deps.importSandboxExplainCommand();
-      await sandboxExplainCommand({ agent: resolved.agentId, json: false }, deps.runtime);
+      await sandboxExplainCommand(
+        {
+          agent: resolved.agentId,
+          json: false,
+          readonlyRuntime: {
+            workspaceDir: resolved.workspaceDir,
+          },
+        },
+        deps.runtime,
+      );
       return;
     }
     case "skills-list":

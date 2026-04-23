@@ -1,28 +1,53 @@
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
-import { buildWorkspaceSkillStatus } from "../agents/skills-status.js";
 import type { OpenClawConfig } from "../config/config.js";
 import { loadOpenClawPlugins } from "../plugins/loader.js";
+import { RESOLVED_CAPABILITY_CLASSES } from "../shared/resolved-capability-manifest.js";
 import { note } from "../terminal/note.js";
+import {
+  collectCommandCapabilitySnapshot,
+  pickCapabilityFindings,
+} from "./capability-readiness.js";
 import { detectLegacyWorkspaceDirs, formatLegacyWorkspaceWarning } from "./doctor-workspace.js";
 
 export function noteWorkspaceStatus(cfg: OpenClawConfig) {
-  const workspaceDir = resolveAgentWorkspaceDir(cfg, resolveDefaultAgentId(cfg));
+  const agentId = resolveDefaultAgentId(cfg);
+  const workspaceDir = resolveAgentWorkspaceDir(cfg, agentId);
   const legacyWorkspace = detectLegacyWorkspaceDirs({ workspaceDir });
   if (legacyWorkspace.legacyDirs.length > 0) {
     note(formatLegacyWorkspaceWarning(legacyWorkspace), "Extra workspace");
   }
 
-  const skillsReport = buildWorkspaceSkillStatus(workspaceDir, { config: cfg });
+  const capabilities = collectCommandCapabilitySnapshot({
+    config: cfg,
+    agentId,
+  });
+  const readinessLines = RESOLVED_CAPABILITY_CLASSES.map(
+    (capabilityClass) => `${capabilityClass}: ${capabilities.counts.byClass[capabilityClass]}`,
+  );
+  const findings = pickCapabilityFindings(capabilities, {
+    capabilityClasses: [
+      "configured-but-blocked",
+      "unsupported-in-current-runtime",
+      "remote-node-assisted",
+      "gateway-brokered",
+    ],
+    limit: 6,
+  });
   note(
     [
-      `Eligible: ${skillsReport.skills.filter((s) => s.eligible).length}`,
-      `Missing requirements: ${
-        skillsReport.skills.filter((s) => !s.eligible && !s.disabled && !s.blockedByAllowlist)
-          .length
-      }`,
-      `Blocked by allowlist: ${skillsReport.skills.filter((s) => s.blockedByAllowlist).length}`,
+      ...readinessLines,
+      ...(findings.length > 0
+        ? [
+            "",
+            ...findings.flatMap((finding) => [
+              `- ${finding.kind} ${finding.label}: ${finding.capabilityClass} (${finding.primaryReasonCategory})`,
+              `  ${finding.summary}${finding.detail ? `: ${finding.detail}` : ""}`,
+              ...(finding.remediation ? [`  Fix: ${finding.remediation}`] : []),
+            ]),
+          ]
+        : ["", "All resolved capabilities are sandbox-local."]),
     ].join("\n"),
-    "Skills status",
+    "Capability readiness",
   );
 
   const pluginRegistry = loadOpenClawPlugins({

@@ -69,7 +69,7 @@ cat ~/.openclaw/openclaw.json
 - Optional pre-flight update for git installs (interactive only).
 - UI protocol freshness check (rebuilds Control UI when the protocol schema is newer).
 - Health check + restart prompt.
-- Skills status summary (eligible/missing/blocked).
+- Capability readiness summary (shared with `status` and `sandbox explain`).
 - Config normalization for legacy values.
 - OpenCode Zen provider override warnings (`models.providers.opencode`).
 - Legacy on-disk state migration (sessions/agent dir/WhatsApp auth).
@@ -234,10 +234,23 @@ when a policy is configured in a dangerous way.
 If running as a systemd user service, doctor ensures lingering is enabled so the
 gateway stays alive after logout.
 
-### 11) Skills status
+### 11) Capability readiness
 
-Doctor prints a quick summary of eligible/missing/blocked skills for the current
-workspace.
+Doctor now prints a shared capability-readiness summary for the current
+workspace/agent runtime instead of a standalone eligible/missing/blocked skill
+count.
+
+The summary uses the same readiness model as `openclaw status` and
+`openclaw sandbox explain`, including:
+
+- `sandbox-local`
+- `gateway-brokered`
+- `remote-node-assisted`
+- `configured-but-blocked`
+- `unsupported-in-current-runtime`
+
+Findings also distinguish the primary reason category, such as policy block,
+config gap, projection defect, runtime/profile gap, or assisted availability.
 
 ### 12) Gateway auth checks (local token)
 

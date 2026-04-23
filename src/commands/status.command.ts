@@ -16,8 +16,10 @@ import {
 } from "../memory/status-format.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { runSecurityAudit } from "../security/audit.js";
+import { RESOLVED_CAPABILITY_CLASSES } from "../shared/resolved-capability-manifest.js";
 import { renderTable } from "../terminal/table.js";
 import { theme } from "../terminal/theme.js";
+import { formatCapabilityClassLabel, pickCapabilityFindings } from "./capability-readiness.js";
 import { formatHealthChannelLines, type HealthSummary } from "./health.js";
 import { resolveControlUiLinks } from "./onboard-helpers.js";
 import { statusAllCommand } from "./status-all.js";
@@ -161,6 +163,7 @@ export async function statusCommand(
     summary,
     memory,
     memoryPlugin,
+    capabilities,
   } = scan;
 
   const usage = opts.usage
@@ -239,6 +242,7 @@ export async function statusCommand(
           nodeService: nodeDaemon,
           agents: agentStatus,
           securityAudit,
+          capabilities,
           ...(health || usage || lastHeartbeat ? { health, usage, lastHeartbeat } : {}),
         },
         null,
@@ -547,6 +551,44 @@ export async function statusCommand(
   }
   runtime.log(theme.muted(`Full report: ${formatCliCommand("openclaw security audit")}`));
   runtime.log(theme.muted(`Deep probe: ${formatCliCommand("openclaw security audit --deep")}`));
+
+  runtime.log("");
+  runtime.log(theme.heading("Capabilities"));
+  runtime.log(
+    renderTable({
+      width: tableWidth,
+      columns: [
+        { key: "Class", header: "Class", minWidth: 30 },
+        { key: "Count", header: "Count", minWidth: 5 },
+      ],
+      rows: RESOLVED_CAPABILITY_CLASSES.map((capabilityClass) => ({
+        Class: formatCapabilityClassLabel(capabilityClass),
+        Count: String(capabilities.counts.byClass[capabilityClass]),
+      })),
+    }).trimEnd(),
+  );
+  const capabilityFindings = pickCapabilityFindings(capabilities, {
+    capabilityClasses: [
+      "configured-but-blocked",
+      "unsupported-in-current-runtime",
+      "remote-node-assisted",
+      "gateway-brokered",
+    ],
+    limit: 8,
+  });
+  if (capabilityFindings.length === 0) {
+    runtime.log(theme.muted("All resolved capabilities are sandbox-local."));
+  } else {
+    for (const finding of capabilityFindings) {
+      runtime.log(
+        `  ${finding.kind} ${finding.label} · ${finding.capabilityClass} · ${finding.primaryReasonCategory}`,
+      );
+      runtime.log(`    ${finding.summary}${finding.detail ? `: ${finding.detail}` : ""}`);
+      if (finding.remediation) {
+        runtime.log(`    ${theme.muted(`Fix: ${finding.remediation}`)}`);
+      }
+    }
+  }
 
   runtime.log("");
   runtime.log(theme.heading("Channels"));
