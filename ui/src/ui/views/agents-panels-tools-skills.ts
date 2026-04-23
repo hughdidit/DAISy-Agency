@@ -14,17 +14,14 @@ import {
   resolveToolProfile,
   TOOL_SECTIONS,
 } from "./agents-utils.ts";
+import { computeCapabilityDetails, renderCapabilityClassChip } from "./capability-readiness.ts";
 import type { SkillGroup } from "./skills-grouping.ts";
 import { groupSkills } from "./skills-grouping.ts";
 import {
+  computeSkillDetails,
   computeSkillMissing,
-  computeSkillReasons,
   renderSkillStatusChips,
 } from "./skills-shared.ts";
-import {
-  computeCapabilityDetails,
-  renderCapabilityClassChip,
-} from "./capability-readiness.ts";
 
 type ToolViewEntry = Omit<ToolCatalogEntry, "capabilityClass" | "capability"> & {
   capabilityClass?: ToolCatalogEntry["capabilityClass"];
@@ -297,8 +294,9 @@ export function renderAgentTools(params: {
                           : "plugin"
                         : "core";
                     const isOptional = catalogTool.optional === true;
-                    const capabilityDetails =
-                      tool.capability ? computeCapabilityDetails(tool.capability) : [];
+                    const capabilityDetails = tool.capability
+                      ? computeCapabilityDetails(tool.capability)
+                      : [];
                     return html`
                       <div class="agent-tool-row">
                         <div>
@@ -555,7 +553,7 @@ function renderAgentSkillRow(
 ) {
   const enabled = params.usingAllowlist ? params.allowSet.has(skill.name) : true;
   const missing = computeSkillMissing(skill);
-  const details = computeSkillReasons(skill);
+  const details = computeSkillDetails(skill);
   return html`
     <div class="list-item agent-skill-row">
       <div class="list-main">

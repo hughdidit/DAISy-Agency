@@ -18,6 +18,7 @@ import {
   collectWorkspaceSkillCapabilityInputs,
   createGatewayProviderAvailability,
   mergeAvailabilityFacts,
+  resolveManagedSkillsDir,
 } from "./collect-shared.js";
 import type {
   CapabilityAvailabilityFacts,
@@ -39,6 +40,7 @@ export type GatewayCapabilityCollectorParams = {
   workspaceDir?: string;
   agentDir?: string;
   includePlugins?: boolean;
+  includeSkills?: boolean;
   managedSkillsDir?: string;
   entries?: SkillEntry[];
   eligibility?: SkillEligibilityContext;
@@ -199,15 +201,18 @@ export function collectGatewayCapabilityInputs(
     config,
     runtime,
   });
-  const skillCollection = collectWorkspaceSkillCapabilityInputs({
-    workspaceDir,
-    runtimeContext,
-    config,
-    managedSkillsDir: params.managedSkillsDir,
-    entries: params.entries,
-    eligibility: params.eligibility ?? { remote: getRemoteSkillEligibility() },
-    overrides: params.skillAvailability,
-  });
+  const skillCollection =
+    params.includeSkills === false
+      ? { managedSkillsDir: resolveManagedSkillsDir(params.managedSkillsDir), skills: [] }
+      : collectWorkspaceSkillCapabilityInputs({
+          workspaceDir,
+          runtimeContext,
+          config,
+          managedSkillsDir: params.managedSkillsDir,
+          entries: params.entries,
+          eligibility: params.eligibility ?? { remote: getRemoteSkillEligibility() },
+          overrides: params.skillAvailability,
+        });
   const coreTools = collectCoreToolInputs({
     runtimeContext,
     toolPolicy: runtime.toolPolicy,

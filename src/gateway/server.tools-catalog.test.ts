@@ -27,8 +27,8 @@ describe("gateway tools.catalog", () => {
       const mediaGroup = res.payload?.groups?.find((group) => group.id === "media");
       const tts = mediaGroup?.tools?.find((tool) => tool.id === "tts");
       expect(tts?.source).toBe("core");
-      expect(tts?.capabilityClass).toBeTruthy();
-      expect(tts?.capability?.capabilityClass).toBe(tts?.capabilityClass);
+      expect(tts?.capabilityClass).toBe("sandbox-local");
+      expect(tts?.capability?.capabilityClass).toBe("sandbox-local");
     });
   });
 

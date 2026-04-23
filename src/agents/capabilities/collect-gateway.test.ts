@@ -84,6 +84,35 @@ describe("collectGatewayCapabilityInputs", () => {
     });
   });
 
+  it("can collect tool facts without scanning workspace skills for tools-only callers", () => {
+    const collected = collectGatewayCapabilityInputs({
+      agentId: "main",
+      sessionKey: "main",
+      workspaceDir: "/tmp/workspace",
+      agentDir: "/tmp/agents/main/agent",
+      includeSkills: false,
+      entries: [makeSkillEntry({ name: "should-not-load" })],
+      pluginTools: [
+        {
+          name: "voice_call",
+          label: "voice_call",
+          description: "Voice call helper",
+          pluginId: "voice-call",
+          optional: true,
+        },
+      ],
+    });
+
+    expect(collected.skills).toEqual([]);
+    expect(collected.managedSkillsDir).toBeTruthy();
+    expect(collected.tools.some((tool) => tool.id === "read")).toBe(true);
+    expect(collected.tools.find((tool) => tool.id === "voice_call")).toMatchObject({
+      source: "plugin",
+      pluginId: "voice-call",
+      intent: "gateway-brokered",
+    });
+  });
+
   it("provides enough data to rebuild skill status and grouped tool views later", () => {
     const collected = collectGatewayCapabilityInputs({
       agentId: "main",

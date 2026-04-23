@@ -52,6 +52,7 @@ export const toolsCatalogHandlers: GatewayRequestHandlers = {
       config: resolved.cfg,
       agentId: resolved.agentId,
       includePlugins,
+      includeSkills: false,
     });
     const manifest = resolveCapabilityManifest(collected);
     const groups = buildResolvedToolCatalogGroupsFromManifest({

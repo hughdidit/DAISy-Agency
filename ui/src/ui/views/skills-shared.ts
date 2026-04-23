@@ -1,9 +1,6 @@
 import { html, nothing } from "lit";
 import type { SkillStatusEntry } from "../types.ts";
-import {
-  computeCapabilityDetails,
-  renderCapabilityClassChip,
-} from "./capability-readiness.ts";
+import { computeCapabilityDetails, renderCapabilityClassChip } from "./capability-readiness.ts";
 
 export function computeSkillMissing(skill: SkillStatusEntry): string[] {
   return [
@@ -14,7 +11,7 @@ export function computeSkillMissing(skill: SkillStatusEntry): string[] {
   ];
 }
 
-export function computeSkillReasons(skill: SkillStatusEntry): string[] {
+export function computeSkillDetails(skill: SkillStatusEntry): string[] {
   return computeCapabilityDetails(skill.capability);
 }
 

@@ -4,8 +4,8 @@ import { clampText } from "../format.ts";
 import type { SkillStatusEntry, SkillStatusReport } from "../types.ts";
 import { groupSkills } from "./skills-grouping.ts";
 import {
+  computeSkillDetails,
   computeSkillMissing,
-  computeSkillReasons,
   renderSkillStatusChips,
 } from "./skills-shared.ts";
 
@@ -100,7 +100,7 @@ function renderSkill(skill: SkillStatusEntry, props: SkillsProps) {
   const canInstall = skill.install.length > 0 && skill.missing.bins.length > 0;
   const showBundledBadge = Boolean(skill.bundled && skill.source !== "openclaw-bundled");
   const missing = computeSkillMissing(skill);
-  const details = computeSkillReasons(skill);
+  const details = computeSkillDetails(skill);
   return html`
     <div class="list-item">
       <div class="list-main">

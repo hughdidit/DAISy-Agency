@@ -83,7 +83,11 @@ describe("loadAgentSkills", () => {
     await loadAgentSkills(state, "main");
 
     expect(state.agentSkillsError).toContain("gateway unavailable");
-    expect(state.agentSkillsReport).toEqual({ workspaceDir: "x", managedSkillsDir: "y", skills: [] });
+    expect(state.agentSkillsReport).toEqual({
+      workspaceDir: "x",
+      managedSkillsDir: "y",
+      skills: [],
+    });
     expect(state.agentSkillsLoading).toBe(false);
   });
 });

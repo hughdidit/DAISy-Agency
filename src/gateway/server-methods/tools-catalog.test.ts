@@ -11,9 +11,15 @@ vi.mock("../../agents/agent-scope.js", () => ({
   resolveDefaultAgentId: vi.fn(() => "main"),
 }));
 
-const collectGatewayCapabilityInputs = vi.fn();
-const resolveCapabilityManifest = vi.fn();
-const buildResolvedToolCatalogGroupsFromManifest = vi.fn();
+const {
+  collectGatewayCapabilityInputs,
+  resolveCapabilityManifest,
+  buildResolvedToolCatalogGroupsFromManifest,
+} = vi.hoisted(() => ({
+  collectGatewayCapabilityInputs: vi.fn(),
+  resolveCapabilityManifest: vi.fn(),
+  buildResolvedToolCatalogGroupsFromManifest: vi.fn(),
+}));
 
 vi.mock("../../agents/capabilities/index.js", () => ({
   collectGatewayCapabilityInputs,
@@ -43,8 +49,8 @@ function createToolCapability(
     defaultProfiles: overrides.defaultProfiles ?? [],
     ...(overrides.pluginId ? { pluginId: String(overrides.pluginId) } : {}),
     ...(overrides.optional !== undefined ? { optional: Boolean(overrides.optional) } : {}),
-    ...(("policy" in overrides && overrides.policy) ? { policy: overrides.policy } : {}),
-    ...(("evidence" in overrides && overrides.evidence) ? { evidence: overrides.evidence } : {}),
+    ...("policy" in overrides && overrides.policy ? { policy: overrides.policy } : {}),
+    ...("evidence" in overrides && overrides.evidence ? { evidence: overrides.evidence } : {}),
   };
 }
 
@@ -73,7 +79,11 @@ describe("tools.catalog handler", () => {
       skills: [],
       tools: [{ id: "tts" }],
     });
-    resolveCapabilityManifest.mockReturnValue({ schemaVersion: 1, runtimeContext: {}, capabilities: [] });
+    resolveCapabilityManifest.mockReturnValue({
+      schemaVersion: 1,
+      runtimeContext: {},
+      capabilities: [],
+    });
     buildResolvedToolCatalogGroupsFromManifest.mockReturnValue([
       {
         id: "media",
@@ -148,6 +158,7 @@ describe("tools.catalog handler", () => {
       config: {},
       agentId: "main",
       includePlugins: false,
+      includeSkills: false,
     });
   });
 

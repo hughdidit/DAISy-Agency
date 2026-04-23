@@ -87,10 +87,7 @@ function describeProvider(capability: CapabilityDetails) {
     provider.providerId,
     provider.transport ? `via ${provider.transport}` : undefined,
   ].filter((value): value is string => Boolean(value && value.trim()));
-  pushUnique(
-    details,
-    providerBits.length > 0 ? `Brokered by ${providerBits.join(" ")}` : null,
-  );
+  pushUnique(details, providerBits.length > 0 ? `Brokered by ${providerBits.join(" ")}` : null);
   for (const code of provider.reasonCodes) {
     pushUnique(details, UNAVAILABLE_REASON_LABELS[code]);
   }
@@ -147,6 +144,8 @@ export function computeCapabilityDetails(capability: CapabilityDetails): string[
 function resolveCapabilityChipClass(capabilityClass: CapabilityClass) {
   switch (capabilityClass) {
     case "sandbox-local":
+    case "gateway-brokered":
+    case "remote-node-assisted":
       return "chip-ok";
     case "configured-but-blocked":
     case "unsupported-in-current-runtime":

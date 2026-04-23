@@ -22,8 +22,8 @@ function createToolCapability(
     defaultProfiles: overrides.defaultProfiles ?? [],
     ...(overrides.pluginId ? { pluginId: String(overrides.pluginId) } : {}),
     ...(overrides.optional !== undefined ? { optional: Boolean(overrides.optional) } : {}),
-    ...(("policy" in overrides && overrides.policy) ? { policy: overrides.policy } : {}),
-    ...(("evidence" in overrides && overrides.evidence) ? { evidence: overrides.evidence } : {}),
+    ...("policy" in overrides && overrides.policy ? { policy: overrides.policy } : {}),
+    ...("evidence" in overrides && overrides.evidence ? { evidence: overrides.evidence } : {}),
   };
 }
 
@@ -45,12 +45,14 @@ function createSkillCapability(
     skillKey: String(overrides.skillKey ?? capabilityClass),
     source: String(overrides.source ?? "workspace"),
     bundled: Boolean(overrides.bundled ?? false),
-    filePath: String(overrides.filePath ?? `/tmp/${String(overrides.skillKey ?? capabilityClass)}/SKILL.md`),
+    filePath: String(
+      overrides.filePath ?? `/tmp/${String(overrides.skillKey ?? capabilityClass)}/SKILL.md`,
+    ),
     requirements: overrides.requirements ?? { bins: [], anyBins: [], env: [], config: [], os: [] },
     missing: overrides.missing ?? { bins: [], anyBins: [], env: [], config: [], os: [] },
     configChecks: overrides.configChecks ?? [],
-    ...(("policy" in overrides && overrides.policy) ? { policy: overrides.policy } : {}),
-    ...(("evidence" in overrides && overrides.evidence) ? { evidence: overrides.evidence } : {}),
+    ...("policy" in overrides && overrides.policy ? { policy: overrides.policy } : {}),
+    ...("evidence" in overrides && overrides.evidence ? { evidence: overrides.evidence } : {}),
   };
 }
 
