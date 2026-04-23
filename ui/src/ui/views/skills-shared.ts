@@ -1,5 +1,6 @@
 import { html, nothing } from "lit";
 import type { SkillStatusEntry } from "../types.ts";
+import { computeCapabilityDetails, renderCapabilityClassChip } from "./capability-readiness.ts";
 
 export function computeSkillMissing(skill: SkillStatusEntry): string[] {
   return [
@@ -10,15 +11,8 @@ export function computeSkillMissing(skill: SkillStatusEntry): string[] {
   ];
 }
 
-export function computeSkillReasons(skill: SkillStatusEntry): string[] {
-  const reasons: string[] = [];
-  if (skill.disabled) {
-    reasons.push("disabled");
-  }
-  if (skill.blockedByAllowlist) {
-    reasons.push("blocked by allowlist");
-  }
-  return reasons;
+export function computeSkillDetails(skill: SkillStatusEntry): string[] {
+  return computeCapabilityDetails(skill.capability);
 }
 
 export function renderSkillStatusChips(params: {
@@ -37,9 +31,7 @@ export function renderSkillStatusChips(params: {
             `
           : nothing
       }
-      <span class="chip ${skill.eligible ? "chip-ok" : "chip-warn"}">
-        ${skill.eligible ? "eligible" : "blocked"}
-      </span>
+      ${renderCapabilityClassChip(skill.capabilityClass)}
       ${
         skill.disabled
           ? html`

@@ -146,6 +146,10 @@ function buildSkillSortKey(entry: SkillEntry): string {
   return `skill:${entry.skill.name.toLowerCase()}:${entry.skill.filePath.toLowerCase()}`;
 }
 
+export function resolveManagedSkillsDir(managedSkillsDir?: string): string {
+  return managedSkillsDir ?? path.join(CONFIG_DIR, "skills");
+}
+
 export function mergeAvailabilityFacts(
   base?: CapabilityAvailabilityFacts,
   override?: CapabilityAvailabilityFacts,
@@ -173,7 +177,7 @@ export function collectWorkspaceSkillCapabilityInputs(params: {
   managedSkillsDir: string;
   skills: CollectedSkillCapabilityInput[];
 } {
-  const managedSkillsDir = params.managedSkillsDir ?? path.join(CONFIG_DIR, "skills");
+  const managedSkillsDir = resolveManagedSkillsDir(params.managedSkillsDir);
   const bundledContext = resolveBundledSkillsContext();
   const entries =
     params.entries ??

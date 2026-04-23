@@ -31,7 +31,26 @@ describe("loadToolsCatalog", () => {
           id: "media",
           label: "Media",
           source: "core",
-          tools: [{ id: "tts", label: "tts", description: "Text-to-speech", source: "core" }],
+          tools: [
+            {
+              id: "tts",
+              label: "tts",
+              description: "Text-to-speech",
+              source: "core",
+              defaultProfiles: [],
+              capabilityClass: "sandbox-local",
+              capability: {
+                id: "tts",
+                label: "tts",
+                description: "Text-to-speech",
+                kind: "tool",
+                capabilityClass: "sandbox-local",
+                runtimeContext: { agentId: "main", sandboxMode: "all", sandboxed: true },
+                source: "core",
+                defaultProfiles: [],
+              },
+            },
+          ],
         },
       ],
     };

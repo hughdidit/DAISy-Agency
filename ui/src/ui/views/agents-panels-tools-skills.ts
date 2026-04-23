@@ -1,6 +1,11 @@
 import { html, nothing } from "lit";
 import { normalizeToolName } from "../../../../src/agents/tool-policy-shared.js";
-import type { SkillStatusEntry, SkillStatusReport, ToolsCatalogResult } from "../types.ts";
+import type {
+  SkillStatusEntry,
+  SkillStatusReport,
+  ToolCatalogEntry,
+  ToolsCatalogResult,
+} from "../types.ts";
 import {
   isAllowedByPolicy,
   matchesList,
@@ -9,13 +14,38 @@ import {
   resolveToolProfile,
   TOOL_SECTIONS,
 } from "./agents-utils.ts";
+import { computeCapabilityDetails, renderCapabilityClassChip } from "./capability-readiness.ts";
 import type { SkillGroup } from "./skills-grouping.ts";
 import { groupSkills } from "./skills-grouping.ts";
 import {
+  computeSkillDetails,
   computeSkillMissing,
-  computeSkillReasons,
   renderSkillStatusChips,
 } from "./skills-shared.ts";
+
+type ToolViewEntry = Omit<ToolCatalogEntry, "capabilityClass" | "capability"> & {
+  capabilityClass?: ToolCatalogEntry["capabilityClass"];
+  capability?: ToolCatalogEntry["capability"];
+};
+
+type ToolViewGroup = Omit<ToolsCatalogResult["groups"][number], "tools"> & {
+  tools: ToolViewEntry[];
+};
+
+function buildFallbackToolSections(): ToolViewGroup[] {
+  return TOOL_SECTIONS.map((section) => ({
+    id: section.id,
+    label: section.label,
+    source: "core",
+    tools: section.tools.map((tool) => ({
+      id: tool.id,
+      label: tool.label,
+      description: tool.description,
+      source: "core",
+      defaultProfiles: [],
+    })),
+  }));
+}
 
 export function renderAgentTools(params: {
   agentId: string;
@@ -57,7 +87,7 @@ export function renderAgentTools(params: {
     params.toolsCatalogResult?.groups?.length &&
     params.toolsCatalogResult.agentId === params.agentId
       ? params.toolsCatalogResult.groups
-      : TOOL_SECTIONS;
+      : buildFallbackToolSections();
   const profileOptions =
     params.toolsCatalogResult?.profiles?.length &&
     params.toolsCatalogResult.agentId === params.agentId
@@ -156,7 +186,7 @@ export function renderAgentTools(params: {
         params.toolsCatalogError
           ? html`
               <div class="callout warn" style="margin-top: 12px">
-                Could not load runtime tool catalog. Showing fallback list.
+                Could not load runtime tool catalog. Showing fallback list without runtime readiness details.
               </div>
             `
           : nothing
@@ -264,6 +294,9 @@ export function renderAgentTools(params: {
                           : "plugin"
                         : "core";
                     const isOptional = catalogTool.optional === true;
+                    const capabilityDetails = tool.capability
+                      ? computeCapabilityDetails(tool.capability)
+                      : [];
                     return html`
                       <div class="agent-tool-row">
                         <div>
@@ -279,6 +312,24 @@ export function renderAgentTools(params: {
                             }
                           </div>
                           <div class="agent-tool-sub">${tool.description}</div>
+                          ${
+                            tool.capabilityClass
+                              ? html`
+                                  <div class="chip-row" style="margin-top: 6px;">
+                                    ${renderCapabilityClassChip(tool.capabilityClass)}
+                                  </div>
+                                `
+                              : nothing
+                          }
+                          ${
+                            capabilityDetails.length > 0
+                              ? html`
+                                  <div class="muted" style="margin-top: 6px;">
+                                    Details: ${capabilityDetails.join("; ")}
+                                  </div>
+                                `
+                              : nothing
+                          }
                         </div>
                         <label class="cfg-toggle">
                           <input
@@ -502,7 +553,7 @@ function renderAgentSkillRow(
 ) {
   const enabled = params.usingAllowlist ? params.allowSet.has(skill.name) : true;
   const missing = computeSkillMissing(skill);
-  const reasons = computeSkillReasons(skill);
+  const details = computeSkillDetails(skill);
   return html`
     <div class="list-item agent-skill-row">
       <div class="list-main">
@@ -515,8 +566,8 @@ function renderAgentSkillRow(
             : nothing
         }
         ${
-          reasons.length > 0
-            ? html`<div class="muted" style="margin-top: 6px;">Reason: ${reasons.join(", ")}</div>`
+          details.length > 0
+            ? html`<div class="muted" style="margin-top: 6px;">Details: ${details.join("; ")}</div>`
             : nothing
         }
       </div>

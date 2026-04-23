@@ -9,7 +9,10 @@ import type {
   SkillsStatusResult as GatewaySkillsStatusResult,
   ToolsCatalogResult as GatewayToolsCatalogResult,
 } from "../gateway/protocol/schema/types.js";
-import type { ResolvedSkillCapability } from "./resolved-capability-manifest.js";
+import type {
+  ResolvedSkillCapability,
+  ResolvedToolCapability,
+} from "./resolved-capability-manifest.js";
 
 describe("ui type contracts", () => {
   it("keeps UI skills.status types aligned with the gateway protocol result", () => {
@@ -24,5 +27,11 @@ describe("ui type contracts", () => {
 
   it("keeps UI tools catalog types aligned with the gateway protocol result", () => {
     expectTypeOf<UiToolsCatalogResult>().toEqualTypeOf<GatewayToolsCatalogResult>();
+  });
+
+  it("exposes the shared resolved tool capability through the UI tools catalog entry type", () => {
+    type UiToolCapability = UiToolsCatalogResult["groups"][number]["tools"][number]["capability"];
+    expectTypeOf<UiToolCapability>().toMatchTypeOf<ResolvedToolCapability>();
+    expectTypeOf<ResolvedToolCapability>().toMatchTypeOf<UiToolCapability>();
   });
 });

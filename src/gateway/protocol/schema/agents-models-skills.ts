@@ -800,6 +800,8 @@ export const ToolCatalogEntrySchema = Type.Object(
         Type.Literal("full"),
       ]),
     ),
+    capabilityClass: ResolvedCapabilityClassSchema,
+    capability: ResolvedToolCapabilitySchema,
   },
   { additionalProperties: false },
 );

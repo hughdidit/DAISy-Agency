@@ -13,8 +13,10 @@ import type {
 } from "../../../src/gateway/protocol/schema/types.js";
 import type { ConfigUiHints } from "../../../src/shared/config-ui-hints-types.js";
 import type {
+  ResolvedCapabilityEvidence as SharedResolvedCapabilityEvidence,
   ResolvedCapabilityManifest as SharedResolvedCapabilityManifest,
   ResolvedSkillCapability as SharedResolvedSkillCapability,
+  ResolvedToolCapability as SharedResolvedToolCapability,
 } from "../../../src/shared/resolved-capability-manifest.js";
 import type {
   GatewayAgentRow as SharedGatewayAgentRow,
@@ -609,6 +611,10 @@ export type SkillStatusEntry = GatewaySkillStatusEntry;
 export type SkillStatusReport = GatewaySkillsStatusResult;
 
 export type ResolvedSkillCapability = SharedResolvedSkillCapability;
+
+export type ResolvedToolCapability = SharedResolvedToolCapability;
+
+export type ResolvedCapabilityEvidence = SharedResolvedCapabilityEvidence;
 
 export type ResolvedCapabilityManifest = SharedResolvedCapabilityManifest;
 
