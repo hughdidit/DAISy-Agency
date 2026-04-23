@@ -24,3 +24,11 @@ Notes:
 - Overview includes Gateway + node host service install/runtime status when available.
 - Overview includes update channel + git SHA (for source checkouts).
 - Update info surfaces in the Overview; if an update is available, status prints a hint to run `openclaw update` (see [Updating](/install/updating)).
+- Status now includes a shared `Capabilities` section sourced from the same readiness model used by `sandbox explain` and doctor.
+- Capability classes are reported as:
+  - `sandbox-local`
+  - `gateway-brokered`
+  - `remote-node-assisted`
+  - `configured-but-blocked`
+  - `unsupported-in-current-runtime`
+- `status --json` now includes an additive top-level `capabilities` object with counts, findings, tool groups, skills, and the resolved manifest.

@@ -1,6 +1,7 @@
 import type { Mock } from "vitest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { captureEnv } from "../test-utils/env.js";
+import { createCapabilitySnapshotFixture } from "./capability-readiness.test-helpers.js";
 
 let envSnapshot: ReturnType<typeof captureEnv>;
 
@@ -378,6 +379,16 @@ vi.mock("../security/audit.js", () => ({
   runSecurityAudit: mocks.runSecurityAudit,
 }));
 
+const collectCommandCapabilitySnapshot = vi.fn(() => createCapabilitySnapshotFixture());
+
+vi.mock("./capability-readiness.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./capability-readiness.js")>();
+  return {
+    ...actual,
+    collectCommandCapabilitySnapshot,
+  };
+});
+
 import { statusCommand } from "./status.js";
 
 const runtime = {
@@ -411,6 +422,25 @@ describe("statusCommand", () => {
     expect(payload.securityAudit.summary.warn).toBe(1);
     expect(payload.gatewayService.label).toBe("LaunchAgent");
     expect(payload.nodeService.label).toBe("LaunchAgent");
+    expect(payload.capabilities.counts.byClass["sandbox-local"]).toBe(1);
+    expect(payload.capabilities.counts.byClass["gateway-brokered"]).toBe(1);
+    expect(payload.capabilities.counts.byClass["configured-but-blocked"]).toBe(2);
+    expect(payload.capabilities.findings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          capabilityClass: "configured-but-blocked",
+          primaryReasonCategory: "policy-block",
+        }),
+        expect.objectContaining({
+          capabilityClass: "configured-but-blocked",
+          primaryReasonCategory: "config-gap",
+        }),
+        expect.objectContaining({
+          capabilityClass: "unsupported-in-current-runtime",
+          primaryReasonCategory: "projection-defect",
+        }),
+      ]),
+    );
   });
 
   it("surfaces unknown usage when totalTokens is missing", async () => {
@@ -438,6 +468,7 @@ describe("statusCommand", () => {
       "OpenClaw status",
       "Overview",
       "Security audit",
+      "Capabilities",
       "Summary:",
       "CRITICAL",
       "Dashboard",
@@ -451,6 +482,11 @@ describe("statusCommand", () => {
       "50%",
       "40% cached",
       "LaunchAgent",
+      "policy-block",
+      "config-gap",
+      "projection-defect",
+      "remote-assisted-availability",
+      "gateway-brokered-availability",
       "FAQ:",
       "Troubleshooting:",
       "Next steps:",

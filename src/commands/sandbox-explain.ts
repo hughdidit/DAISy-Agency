@@ -20,9 +20,17 @@ import {
   resolveAgentIdFromSessionKey,
 } from "../routing/session-key.js";
 import type { RuntimeEnv } from "../runtime.js";
+import {
+  RESOLVED_CAPABILITY_CLASSES,
+  type ResolvedCapabilityClass,
+} from "../shared/resolved-capability-manifest.js";
 import { formatDocsLink } from "../terminal/links.js";
 import { colorize, isRich, theme } from "../terminal/theme.js";
 import { INTERNAL_MESSAGE_CHANNEL } from "../utils/message-channel.js";
+import {
+  collectCommandCapabilitySnapshot,
+  pickCapabilityFindings,
+} from "./capability-readiness.js";
 
 type SandboxExplainOptions = {
   session?: string;
@@ -31,6 +39,21 @@ type SandboxExplainOptions = {
 };
 
 const SANDBOX_DOCS_URL = "https://docs.openclaw.ai/sandbox";
+
+function formatCapabilityClassLabel(capabilityClass: ResolvedCapabilityClass): string {
+  switch (capabilityClass) {
+    case "sandbox-local":
+      return "sandbox-local";
+    case "gateway-brokered":
+      return "gateway-brokered";
+    case "remote-node-assisted":
+      return "remote-node-assisted";
+    case "configured-but-blocked":
+      return "configured-but-blocked";
+    case "unsupported-in-current-runtime":
+      return "unsupported-in-current-runtime";
+  }
+}
 
 function normalizeExplainSessionKey(params: {
   cfg: OpenClawConfig;
@@ -228,6 +251,11 @@ export async function sandboxExplainCommand(
   if (channel) {
     fixIt.push(`tools.elevated.allowFrom.${channel}`);
   }
+  const capabilities = collectCommandCapabilitySnapshot({
+    config: cfg,
+    agentId: resolvedAgentId,
+    sessionKey,
+  });
 
   const payload = {
     docsUrl: SANDBOX_DOCS_URL,
@@ -265,6 +293,7 @@ export async function sandboxExplainCommand(
       },
       failures: elevatedFailures,
     },
+    capabilities,
     fixIt,
   } as const;
 
@@ -331,6 +360,37 @@ export async function sandboxExplainCommand(
         payload.mainSessionKey,
       )}`,
     );
+  }
+  lines.push("");
+  lines.push(heading("Effective capabilities:"));
+  for (const capabilityClass of RESOLVED_CAPABILITY_CLASSES) {
+    lines.push(
+      `  ${key(`${formatCapabilityClassLabel(capabilityClass)}:`)} ${value(
+        String(payload.capabilities.counts.byClass[capabilityClass]),
+      )}`,
+    );
+  }
+  const capabilityFindings = pickCapabilityFindings(payload.capabilities, {
+    capabilityClasses: [
+      "configured-but-blocked",
+      "unsupported-in-current-runtime",
+      "remote-node-assisted",
+      "gateway-brokered",
+    ],
+    limit: 8,
+  });
+  if (capabilityFindings.length === 0) {
+    lines.push(`  ${ok("All resolved capabilities are sandbox-local.")}`);
+  } else {
+    for (const finding of capabilityFindings) {
+      lines.push(
+        `  - ${finding.kind} ${finding.label} · ${finding.capabilityClass} · ${finding.primaryReasonCategory}`,
+      );
+      lines.push(`    ${finding.summary}${finding.detail ? `: ${finding.detail}` : ""}`);
+      if (finding.remediation) {
+        lines.push(`    ${key("Fix:")} ${finding.remediation}`);
+      }
+    }
   }
   lines.push("");
   lines.push(heading("Fix-it:"));

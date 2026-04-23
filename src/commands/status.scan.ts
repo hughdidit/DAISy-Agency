@@ -13,6 +13,8 @@ import { getMemorySearchManager } from "../memory/index.js";
 import type { MemoryProviderStatus } from "../memory/types.js";
 import { runExec } from "../process/exec.js";
 import type { RuntimeEnv } from "../runtime.js";
+import type { CommandCapabilitySnapshot } from "./capability-readiness.js";
+import { collectCommandCapabilitySnapshot } from "./capability-readiness.js";
 import { buildChannelsTable } from "./status-all/channels.js";
 import { getAgentLocalStatuses } from "./status.agent-local.js";
 import { pickGatewaySelfPresence, resolveGatewayProbeAuth } from "./status.gateway-probe.js";
@@ -188,6 +190,7 @@ export type StatusScanResult = {
   summary: Awaited<ReturnType<typeof getStatusSummary>>;
   memory: MemoryStatusSnapshot | null;
   memoryPlugin: MemoryPluginStatus;
+  capabilities: CommandCapabilitySnapshot;
 };
 
 async function resolveMemoryStatusSnapshot(params: {
@@ -274,6 +277,12 @@ async function scanStatusJsonFast(opts: {
   const channelsStatusPromise = resolveChannelsStatus({ gatewayReachability, opts });
   const memoryPlugin = resolveMemoryPluginStatus(cfg);
   const memoryPromise = resolveMemoryStatusSnapshot({ cfg, agentStatus, memoryPlugin });
+  const capabilities = collectCommandCapabilitySnapshot({
+    config: cfg,
+    agentId:
+      opts.runtimeContext?.kind === "readonly-sandbox" ? opts.runtimeContext.agentId : undefined,
+    mode: opts.runtimeContext?.kind === "readonly-sandbox" ? "readonly-sandbox" : "gateway",
+  });
   const [channelsStatus, memory] = await Promise.all([channelsStatusPromise, memoryPromise]);
   const channelIssues = channelsStatus ? collectChannelStatusIssues(channelsStatus) : [];
 
@@ -299,6 +308,7 @@ async function scanStatusJsonFast(opts: {
     summary,
     memory,
     memoryPlugin,
+    capabilities,
   };
 }
 
@@ -321,7 +331,7 @@ export async function scanStatus(
   return await withProgress(
     {
       label: "Scanning status…",
-      total: 10,
+      total: 11,
       enabled: true,
     },
     async (progress) => {
@@ -402,6 +412,17 @@ export async function scanStatus(
       const memory = await resolveMemoryStatusSnapshot({ cfg, agentStatus, memoryPlugin });
       progress.tick();
 
+      progress.setLabel("Resolving capabilities…");
+      const capabilities = collectCommandCapabilitySnapshot({
+        config: cfg,
+        agentId:
+          opts.runtimeContext?.kind === "readonly-sandbox"
+            ? opts.runtimeContext.agentId
+            : undefined,
+        mode: opts.runtimeContext?.kind === "readonly-sandbox" ? "readonly-sandbox" : "gateway",
+      });
+      progress.tick();
+
       progress.setLabel("Reading sessions…");
       const summary = unwrapDeferredResult(await summaryPromise);
       progress.tick();
@@ -431,6 +452,7 @@ export async function scanStatus(
         summary,
         memory,
         memoryPlugin,
+        capabilities,
       };
     },
   );

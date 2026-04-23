@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, vi } from "vitest";
 import type { MockFn } from "../test-utils/vitest-mock-fn.js";
+import { createEmptyCapabilitySnapshotFixture } from "./capability-readiness.test-helpers.js";
 
 let originalIsTTY: boolean | undefined;
 let originalStateDir: string | undefined;
@@ -178,6 +179,17 @@ vi.mock("@clack/prompts", () => ({
 vi.mock("../agents/skills-status.js", () => ({
   buildWorkspaceSkillStatus: () => ({ skills: [] }),
 }));
+
+export const collectCommandCapabilitySnapshot = vi
+  .fn(() => createEmptyCapabilitySnapshotFixture()) as unknown as MockFn;
+
+vi.mock("./capability-readiness.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./capability-readiness.js")>();
+  return {
+    ...actual,
+    collectCommandCapabilitySnapshot,
+  };
+});
 
 vi.mock("../plugins/loader.js", () => ({
   loadOpenClawPlugins: () => ({ plugins: [], diagnostics: [] }),
@@ -364,6 +376,9 @@ beforeEach(() => {
   confirm.mockReset().mockResolvedValue(true);
   select.mockReset().mockResolvedValue("node");
   note.mockClear();
+  collectCommandCapabilitySnapshot.mockReset().mockImplementation(() =>
+    createEmptyCapabilitySnapshotFixture(),
+  );
 
   readConfigFileSnapshot.mockReset();
   writeConfigFile.mockReset().mockResolvedValue(undefined);
