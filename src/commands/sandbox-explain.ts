@@ -12,6 +12,7 @@ import {
   resolveMainSessionKey,
   resolveStorePath,
 } from "../config/sessions.js";
+import { routeLogsToStderr } from "../logging/console.js";
 import {
   buildAgentMainSessionKey,
   normalizeAgentId,
@@ -139,6 +140,9 @@ export async function sandboxExplainCommand(
   opts: SandboxExplainOptions,
   runtime: RuntimeEnv,
 ): Promise<void> {
+  if (opts.json) {
+    routeLogsToStderr();
+  }
   const cfg = loadConfig();
 
   const defaultAgentId = resolveAgentIdFromSessionKey(resolveMainSessionKey(cfg));
@@ -286,7 +290,7 @@ export async function sandboxExplainCommand(
   } as const;
 
   if (opts.json) {
-    runtime.log(`${JSON.stringify(payload, null, 2)}\n`);
+    process.stdout.write(`${JSON.stringify(payload, null, 2)}\n`);
     return;
   }
 
