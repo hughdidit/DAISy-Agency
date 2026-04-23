@@ -16,15 +16,10 @@ import {
 } from "../memory/status-format.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { runSecurityAudit } from "../security/audit.js";
+import { RESOLVED_CAPABILITY_CLASSES } from "../shared/resolved-capability-manifest.js";
 import { renderTable } from "../terminal/table.js";
 import { theme } from "../terminal/theme.js";
-import {
-  RESOLVED_CAPABILITY_CLASSES,
-} from "../shared/resolved-capability-manifest.js";
-import {
-  formatCapabilityClassLabel,
-  pickCapabilityFindings,
-} from "./capability-readiness.js";
+import { formatCapabilityClassLabel, pickCapabilityFindings } from "./capability-readiness.js";
 import { formatHealthChannelLines, type HealthSummary } from "./health.js";
 import { resolveControlUiLinks } from "./onboard-helpers.js";
 import { statusAllCommand } from "./status-all.js";

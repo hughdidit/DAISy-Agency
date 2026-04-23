@@ -1,3 +1,4 @@
+import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import {
   collectGatewayCapabilityInputs,
   collectReadonlyCapabilityInputs,
@@ -6,10 +7,7 @@ import {
   resolveCapabilityManifest,
   type ResolvedToolCatalogGroup,
 } from "../agents/capabilities/index.js";
-import {
-  resolveAgentWorkspaceDir,
-  resolveDefaultAgentId,
-} from "../agents/agent-scope.js";
+import type { SkillStatusReport } from "../agents/skills-status.js";
 import type { OpenClawConfig } from "../config/config.js";
 import {
   RESOLVED_CAPABILITY_CLASSES,
@@ -20,7 +18,6 @@ import {
   type ResolvedCapabilityPolicy,
   type ResolvedCapabilityRuntimeContext,
 } from "../shared/resolved-capability-manifest.js";
-import type { SkillStatusReport } from "../agents/skills-status.js";
 
 export const COMMAND_CAPABILITY_REASON_CATEGORIES = [
   "policy-block",
@@ -31,8 +28,7 @@ export const COMMAND_CAPABILITY_REASON_CATEGORIES = [
   "gateway-brokered-availability",
 ] as const;
 
-export type CommandCapabilityReasonCategory =
-  (typeof COMMAND_CAPABILITY_REASON_CATEGORIES)[number];
+export type CommandCapabilityReasonCategory = (typeof COMMAND_CAPABILITY_REASON_CATEGORIES)[number];
 
 export type CommandCapabilityFinding = {
   id: string;
@@ -169,8 +165,8 @@ function formatPolicyDetail(policy?: ResolvedCapabilityPolicy): string | undefin
 function hasProjectionGap(evidence?: ResolvedCapabilityEvidence): boolean {
   return Boolean(
     evidence?.runtime?.reasonCodes.includes("missing-projection") ||
-      evidence?.projection?.reasonCodes.includes("missing-projection") ||
-      (evidence?.projection?.missingPaths?.length ?? 0) > 0,
+    evidence?.projection?.reasonCodes.includes("missing-projection") ||
+    (evidence?.projection?.missingPaths?.length ?? 0) > 0,
   );
 }
 
@@ -178,7 +174,9 @@ function hasProviderGap(evidence?: ResolvedCapabilityEvidence): boolean {
   return Boolean(evidence?.provider?.reasonCodes.includes("missing-provider"));
 }
 
-function determineReasonCategory(capability: ResolvedCapability): CommandCapabilityReasonCategory | null {
+function determineReasonCategory(
+  capability: ResolvedCapability,
+): CommandCapabilityReasonCategory | null {
   switch (capability.capabilityClass) {
     case "sandbox-local":
       return null;
@@ -202,10 +200,9 @@ function determineReasonCategory(capability: ResolvedCapability): CommandCapabil
   }
 }
 
-function summarizeBlockedCapability(capability: ResolvedCapability): Pick<
-  CommandCapabilityFinding,
-  "summary" | "detail" | "remediation"
-> {
+function summarizeBlockedCapability(
+  capability: ResolvedCapability,
+): Pick<CommandCapabilityFinding, "summary" | "detail" | "remediation"> {
   const policyKey = capability.policy?.source.key ?? "config";
   switch (capability.policy?.denyReason) {
     case "missing-required-env":
@@ -230,7 +227,8 @@ function summarizeBlockedCapability(capability: ResolvedCapability): Pick<
       return {
         summary: "Blocked by bundled skill allowlist",
         detail: formatPolicyDetail(capability.policy),
-        remediation: "Allowlist the bundled skill via skills.allowBundled if it should be available.",
+        remediation:
+          "Allowlist the bundled skill via skills.allowBundled if it should be available.",
       };
     case "tool-denied-by-sandbox-policy":
       return {
@@ -252,10 +250,9 @@ function summarizeBlockedCapability(capability: ResolvedCapability): Pick<
   }
 }
 
-function summarizeUnsupportedCapability(capability: ResolvedCapability): Pick<
-  CommandCapabilityFinding,
-  "summary" | "detail" | "remediation"
-> {
+function summarizeUnsupportedCapability(
+  capability: ResolvedCapability,
+): Pick<CommandCapabilityFinding, "summary" | "detail" | "remediation"> {
   if (hasProjectionGap(capability.evidence)) {
     return {
       summary: "Missing projected runtime material",
@@ -273,14 +270,14 @@ function summarizeUnsupportedCapability(capability: ResolvedCapability): Pick<
   return {
     summary: "Unsupported in the current runtime/profile",
     detail: formatEvidenceDetail(capability.evidence),
-    remediation: "Use or configure a runtime/profile that includes the required binaries, OS support, or declared capability support.",
+    remediation:
+      "Use or configure a runtime/profile that includes the required binaries, OS support, or declared capability support.",
   };
 }
 
-function summarizeAvailabilityCapability(capability: ResolvedCapability): Pick<
-  CommandCapabilityFinding,
-  "summary" | "detail" | "remediation"
-> {
+function summarizeAvailabilityCapability(
+  capability: ResolvedCapability,
+): Pick<CommandCapabilityFinding, "summary" | "detail" | "remediation"> {
   if (capability.capabilityClass === "remote-node-assisted") {
     return {
       summary: "Available via remote node assistance",
@@ -352,9 +349,7 @@ export function pickCapabilityFindings(
     limit?: number;
   } = {},
 ): CommandCapabilityFinding[] {
-  const allowed = options.capabilityClasses
-    ? new Set(options.capabilityClasses)
-    : null;
+  const allowed = options.capabilityClasses ? new Set(options.capabilityClasses) : null;
   const findings = snapshot.findings.filter(
     (finding) => !allowed || allowed.has(finding.capabilityClass),
   );
@@ -372,9 +367,7 @@ export function collectCommandCapabilitySnapshot(params: {
   const mode = params.mode ?? "gateway";
   const workspaceDir =
     params.workspaceDir ??
-    (mode === "readonly-sandbox"
-      ? "/workspace"
-      : resolveAgentWorkspaceDir(params.config, agentId));
+    (mode === "readonly-sandbox" ? "/workspace" : resolveAgentWorkspaceDir(params.config, agentId));
   const collected =
     mode === "readonly-sandbox"
       ? collectReadonlyCapabilityInputs({

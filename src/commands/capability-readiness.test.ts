@@ -29,10 +29,8 @@ vi.mock("../agents/agent-scope.js", () => ({
   resolveDefaultAgentId: mocks.resolveDefaultAgentId,
 }));
 
-const {
-  collectCommandCapabilitySnapshot,
-  formatCapabilityClassLabel,
-} = await import("./capability-readiness.js");
+const { collectCommandCapabilitySnapshot, formatCapabilityClassLabel } =
+  await import("./capability-readiness.js");
 
 function createCollectedInputs() {
   return {

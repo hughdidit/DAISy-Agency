@@ -20,9 +20,7 @@ import {
   resolveAgentIdFromSessionKey,
 } from "../routing/session-key.js";
 import type { RuntimeEnv } from "../runtime.js";
-import {
-  RESOLVED_CAPABILITY_CLASSES,
-} from "../shared/resolved-capability-manifest.js";
+import { RESOLVED_CAPABILITY_CLASSES } from "../shared/resolved-capability-manifest.js";
 import { formatDocsLink } from "../terminal/links.js";
 import { colorize, isRich, theme } from "../terminal/theme.js";
 import { INTERNAL_MESSAGE_CHANNEL } from "../utils/message-channel.js";

@@ -22,8 +22,7 @@ export function noteWorkspaceStatus(cfg: OpenClawConfig) {
     agentId,
   });
   const readinessLines = RESOLVED_CAPABILITY_CLASSES.map(
-    (capabilityClass) =>
-      `${capabilityClass}: ${capabilities.counts.byClass[capabilityClass]}`,
+    (capabilityClass) => `${capabilityClass}: ${capabilities.counts.byClass[capabilityClass]}`,
   );
   const findings = pickCapabilityFindings(capabilities, {
     capabilityClasses: [

@@ -1,7 +1,3 @@
-import type {
-  CommandCapabilityFinding,
-  CommandCapabilitySnapshot,
-} from "./capability-readiness.js";
 import {
   RESOLVED_CAPABILITY_CLASSES,
   buildResolvedSkillCapability,
@@ -11,6 +7,10 @@ import {
   type ResolvedCapabilityClass,
   type ResolvedCapabilityRuntimeContext,
 } from "../shared/resolved-capability-manifest.js";
+import type {
+  CommandCapabilityFinding,
+  CommandCapabilitySnapshot,
+} from "./capability-readiness.js";
 
 const runtimeContext: ResolvedCapabilityRuntimeContext = {
   agentId: "main",
@@ -40,12 +40,14 @@ function buildSkillEntry(capability: ReturnType<typeof buildResolvedSkillCapabil
     skillKey: capability.skillKey,
     primaryEnv: capability.primaryEnv,
     always: false,
-    disabled: capability.capabilityClass === "configured-but-blocked"
-      ? capability.policy?.denyReason === "skill-disabled"
-      : false,
-    blockedByAllowlist: capability.capabilityClass === "configured-but-blocked"
-      ? capability.policy?.denyReason === "bundled-skill-not-allowlisted"
-      : false,
+    disabled:
+      capability.capabilityClass === "configured-but-blocked"
+        ? capability.policy?.denyReason === "skill-disabled"
+        : false,
+    blockedByAllowlist:
+      capability.capabilityClass === "configured-but-blocked"
+        ? capability.policy?.denyReason === "bundled-skill-not-allowlisted"
+        : false,
     eligible:
       capability.capabilityClass === "sandbox-local" ||
       capability.capabilityClass === "remote-node-assisted",
@@ -71,8 +73,9 @@ function buildFindings(capabilities: ResolvedCapability[]): CommandCapabilityFin
       detail: "tools.sandbox.tools.deny",
       remediation:
         "Adjust sandbox tool deny rules in tools.sandbox.tools.deny if this tool should be allowed.",
-      policy: capabilities.find((capability) => capability.id === "browser" && capability.kind === "tool")
-        ?.policy,
+      policy: capabilities.find(
+        (capability) => capability.id === "browser" && capability.kind === "tool",
+      )?.policy,
     },
     {
       id: "gws-toolkit",
@@ -84,8 +87,9 @@ function buildFindings(capabilities: ResolvedCapability[]): CommandCapabilityFin
       detail: "GOOGLE_APPLICATION_CREDENTIALS",
       remediation:
         "Configure the missing environment for this capability via skills.entries.gws-toolkit.",
-      policy: capabilities.find((capability) => capability.id === "gws-toolkit" && capability.kind === "skill")
-        ?.policy,
+      policy: capabilities.find(
+        (capability) => capability.id === "gws-toolkit" && capability.kind === "skill",
+      )?.policy,
     },
     {
       id: "memory-mongodb",
@@ -94,7 +98,8 @@ function buildFindings(capabilities: ResolvedCapability[]): CommandCapabilityFin
       capabilityClass: "unsupported-in-current-runtime",
       primaryReasonCategory: "projection-defect",
       summary: "Missing projected runtime material",
-      detail: "Readonly projection missing required paths: /workspace/.openclaw-readonly/state/extensions",
+      detail:
+        "Readonly projection missing required paths: /workspace/.openclaw-readonly/state/extensions",
       remediation: "Repair the sandbox projection so the required files and manifests are present.",
       evidence: capabilities.find(
         (capability) => capability.id === "memory-mongodb" && capability.kind === "skill",

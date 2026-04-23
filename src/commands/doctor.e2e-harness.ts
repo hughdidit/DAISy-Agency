@@ -180,8 +180,9 @@ vi.mock("../agents/skills-status.js", () => ({
   buildWorkspaceSkillStatus: () => ({ skills: [] }),
 }));
 
-export const collectCommandCapabilitySnapshot = vi
-  .fn(() => createEmptyCapabilitySnapshotFixture()) as unknown as MockFn;
+export const collectCommandCapabilitySnapshot = vi.fn(() =>
+  createEmptyCapabilitySnapshotFixture(),
+) as unknown as MockFn;
 
 vi.mock("./capability-readiness.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("./capability-readiness.js")>();
@@ -376,9 +377,9 @@ beforeEach(() => {
   confirm.mockReset().mockResolvedValue(true);
   select.mockReset().mockResolvedValue("node");
   note.mockClear();
-  collectCommandCapabilitySnapshot.mockReset().mockImplementation(() =>
-    createEmptyCapabilitySnapshotFixture(),
-  );
+  collectCommandCapabilitySnapshot
+    .mockReset()
+    .mockImplementation(() => createEmptyCapabilitySnapshotFixture());
 
   readConfigFileSnapshot.mockReset();
   writeConfigFile.mockReset().mockResolvedValue(undefined);

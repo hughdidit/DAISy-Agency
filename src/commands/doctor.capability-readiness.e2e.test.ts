@@ -1,11 +1,11 @@
 import { beforeAll, describe, expect, it } from "vitest";
+import { createCapabilitySnapshotFixture } from "./capability-readiness.test-helpers.js";
 import {
   collectCommandCapabilitySnapshot,
   createDoctorRuntime,
   mockDoctorConfigSnapshot,
   note,
 } from "./doctor.e2e-harness.js";
-import { createCapabilitySnapshotFixture } from "./capability-readiness.test-helpers.js";
 import "./doctor.fast-path-mocks.js";
 
 let doctorCommand: typeof import("./doctor.js").doctorCommand;
