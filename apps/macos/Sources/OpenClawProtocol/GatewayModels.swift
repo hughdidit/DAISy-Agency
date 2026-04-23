@@ -3656,6 +3656,8 @@ public struct ToolCatalogEntry: Codable, Sendable {
     public let pluginid: String?
     public let optional: Bool?
     public let defaultprofiles: [AnyCodable]
+    public let capabilityclass: ResolvedCapabilityClass
+    public let capability: ResolvedToolCapability
 
     public init(
         id: String,
@@ -3664,7 +3666,9 @@ public struct ToolCatalogEntry: Codable, Sendable {
         source: AnyCodable,
         pluginid: String?,
         optional: Bool?,
-        defaultprofiles: [AnyCodable])
+        defaultprofiles: [AnyCodable],
+        capabilityclass: ResolvedCapabilityClass,
+        capability: ResolvedToolCapability)
     {
         self.id = id
         self.label = label
@@ -3673,6 +3677,8 @@ public struct ToolCatalogEntry: Codable, Sendable {
         self.pluginid = pluginid
         self.optional = optional
         self.defaultprofiles = defaultprofiles
+        self.capabilityclass = capabilityclass
+        self.capability = capability
     }
 
     private enum CodingKeys: String, CodingKey {
@@ -3683,6 +3689,8 @@ public struct ToolCatalogEntry: Codable, Sendable {
         case pluginid = "pluginId"
         case optional
         case defaultprofiles = "defaultProfiles"
+        case capabilityclass = "capabilityClass"
+        case capability
     }
 }
 
