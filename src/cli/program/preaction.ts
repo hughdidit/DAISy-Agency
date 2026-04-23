@@ -104,8 +104,10 @@ export function registerPreActionHooks(program: Command, programVersion: string)
       return;
     }
     const commandPath = getCommandPathWithRootOptions(argv, 2);
+    const jsonOutputMode = isJsonOutputMode(commandPath, argv);
     const hideBanner =
       isTruthyEnvValue(process.env.OPENCLAW_HIDE_BANNER) ||
+      jsonOutputMode ||
       commandPath[0] === "update" ||
       commandPath[0] === "completion" ||
       (commandPath[0] === "plugins" && commandPath[1] === "update");
@@ -124,12 +126,11 @@ export function registerPreActionHooks(program: Command, programVersion: string)
     if (shouldBypassConfigGuard(commandPath)) {
       return;
     }
-    const suppressDoctorStdout = isJsonOutputMode(commandPath, argv);
     const { ensureConfigReady } = await loadConfigGuardModule();
     await ensureConfigReady({
       runtime: defaultRuntime,
       commandPath,
-      ...(suppressDoctorStdout ? { suppressDoctorStdout: true } : {}),
+      ...(jsonOutputMode ? { suppressDoctorStdout: true } : {}),
     });
     // Load plugins for commands that need channel access
     if (PLUGIN_REQUIRED_COMMANDS.has(commandPath[0])) {
