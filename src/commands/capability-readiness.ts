@@ -409,6 +409,6 @@ export function collectCommandCapabilitySnapshot(params: {
     skills,
     toolGroups,
     manifest,
-    findings: [...findings].sort(sortFindings),
+    findings: findings.toSorted(sortFindings),
   };
 }
