@@ -3,12 +3,7 @@ import { setVerbose } from "../../globals.js";
 import { isTruthyEnvValue } from "../../infra/env.js";
 import type { LogLevel } from "../../logging/levels.js";
 import { defaultRuntime } from "../../runtime.js";
-import {
-  getCommandPathWithRootOptions,
-  getVerboseFlag,
-  hasFlag,
-  hasHelpOrVersion,
-} from "../argv.js";
+import { getCommandPathWithRootOptions, getVerboseFlag, hasHelpOrVersion } from "../argv.js";
 import { emitCliBanner } from "../banner.js";
 import { resolveCliName } from "../cli-name.js";
 
@@ -86,7 +81,7 @@ function getCliLogLevel(actionCommand: Command): LogLevel | undefined {
 }
 
 function isJsonOutputMode(commandPath: string[], argv: string[]): boolean {
-  if (!hasFlag(argv, "--json")) {
+  if (!argv.some((arg) => arg === "--json" || arg.startsWith("--json="))) {
     return false;
   }
   const key = `${commandPath[0] ?? ""} ${commandPath[1] ?? ""}`.trim();
@@ -104,8 +99,10 @@ export function registerPreActionHooks(program: Command, programVersion: string)
       return;
     }
     const commandPath = getCommandPathWithRootOptions(argv, 2);
+    const jsonOutputMode = isJsonOutputMode(commandPath, argv);
     const hideBanner =
       isTruthyEnvValue(process.env.OPENCLAW_HIDE_BANNER) ||
+      jsonOutputMode ||
       commandPath[0] === "update" ||
       commandPath[0] === "completion" ||
       (commandPath[0] === "plugins" && commandPath[1] === "update");
@@ -124,12 +121,11 @@ export function registerPreActionHooks(program: Command, programVersion: string)
     if (shouldBypassConfigGuard(commandPath)) {
       return;
     }
-    const suppressDoctorStdout = isJsonOutputMode(commandPath, argv);
     const { ensureConfigReady } = await loadConfigGuardModule();
     await ensureConfigReady({
       runtime: defaultRuntime,
       commandPath,
-      ...(suppressDoctorStdout ? { suppressDoctorStdout: true } : {}),
+      ...(jsonOutputMode ? { suppressDoctorStdout: true } : {}),
     });
     // Load plugins for commands that need channel access
     if (PLUGIN_REQUIRED_COMMANDS.has(commandPath[0])) {
