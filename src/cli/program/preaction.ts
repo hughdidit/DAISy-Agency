@@ -3,12 +3,7 @@ import { setVerbose } from "../../globals.js";
 import { isTruthyEnvValue } from "../../infra/env.js";
 import type { LogLevel } from "../../logging/levels.js";
 import { defaultRuntime } from "../../runtime.js";
-import {
-  getCommandPathWithRootOptions,
-  getVerboseFlag,
-  hasFlag,
-  hasHelpOrVersion,
-} from "../argv.js";
+import { getCommandPathWithRootOptions, getVerboseFlag, hasHelpOrVersion } from "../argv.js";
 import { emitCliBanner } from "../banner.js";
 import { resolveCliName } from "../cli-name.js";
 
@@ -86,7 +81,7 @@ function getCliLogLevel(actionCommand: Command): LogLevel | undefined {
 }
 
 function isJsonOutputMode(commandPath: string[], argv: string[]): boolean {
-  if (!hasFlag(argv, "--json")) {
+  if (!argv.some((arg) => arg === "--json" || arg.startsWith("--json="))) {
     return false;
   }
   const key = `${commandPath[0] ?? ""} ${commandPath[1] ?? ""}`.trim();
