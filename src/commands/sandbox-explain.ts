@@ -22,13 +22,13 @@ import {
 import type { RuntimeEnv } from "../runtime.js";
 import {
   RESOLVED_CAPABILITY_CLASSES,
-  type ResolvedCapabilityClass,
 } from "../shared/resolved-capability-manifest.js";
 import { formatDocsLink } from "../terminal/links.js";
 import { colorize, isRich, theme } from "../terminal/theme.js";
 import { INTERNAL_MESSAGE_CHANNEL } from "../utils/message-channel.js";
 import {
   collectCommandCapabilitySnapshot,
+  formatCapabilityClassLabel,
   pickCapabilityFindings,
 } from "./capability-readiness.js";
 
@@ -36,24 +36,12 @@ type SandboxExplainOptions = {
   session?: string;
   agent?: string;
   json: boolean;
+  readonlyRuntime?: {
+    workspaceDir?: string;
+  };
 };
 
 const SANDBOX_DOCS_URL = "https://docs.openclaw.ai/sandbox";
-
-function formatCapabilityClassLabel(capabilityClass: ResolvedCapabilityClass): string {
-  switch (capabilityClass) {
-    case "sandbox-local":
-      return "sandbox-local";
-    case "gateway-brokered":
-      return "gateway-brokered";
-    case "remote-node-assisted":
-      return "remote-node-assisted";
-    case "configured-but-blocked":
-      return "configured-but-blocked";
-    case "unsupported-in-current-runtime":
-      return "unsupported-in-current-runtime";
-  }
-}
 
 function normalizeExplainSessionKey(params: {
   cfg: OpenClawConfig;
@@ -255,6 +243,8 @@ export async function sandboxExplainCommand(
     config: cfg,
     agentId: resolvedAgentId,
     sessionKey,
+    mode: opts.readonlyRuntime ? "readonly-sandbox" : "gateway",
+    workspaceDir: opts.readonlyRuntime?.workspaceDir,
   });
 
   const payload = {

@@ -25,6 +25,39 @@ vi.mock("./capability-readiness.js", async (importOriginal) => {
 const { sandboxExplainCommand } = await import("./sandbox-explain.js");
 
 describe("sandbox explain command", () => {
+  it("uses readonly capability resolution when invoked from the readonly runtime", async () => {
+    mockCfg = {
+      agents: {
+        defaults: {
+          sandbox: { mode: "all", scope: "session", workspaceAccess: "none" },
+        },
+      },
+      session: { store: "/tmp/openclaw-test-sessions-{agentId}.json" },
+    };
+    collectCommandCapabilitySnapshot.mockClear();
+
+    await sandboxExplainCommand(
+      {
+        json: true,
+        agent: "readonly-agent",
+        readonlyRuntime: { workspaceDir: "/workspace" },
+      },
+      {
+        log: vi.fn(),
+        error: vi.fn(),
+        exit: vi.fn(),
+      } as unknown as Parameters<typeof sandboxExplainCommand>[1],
+    );
+
+    expect(collectCommandCapabilitySnapshot).toHaveBeenCalledWith(
+      expect.objectContaining({
+        agentId: "readonly-agent",
+        mode: "readonly-sandbox",
+        workspaceDir: "/workspace",
+      }),
+    );
+  });
+
   it("prints JSON shape + fix-it keys", { timeout: SANDBOX_EXPLAIN_TEST_TIMEOUT_MS }, async () => {
     mockCfg = {
       agents: {

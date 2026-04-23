@@ -20,9 +20,11 @@ import { renderTable } from "../terminal/table.js";
 import { theme } from "../terminal/theme.js";
 import {
   RESOLVED_CAPABILITY_CLASSES,
-  type ResolvedCapabilityClass,
 } from "../shared/resolved-capability-manifest.js";
-import { pickCapabilityFindings } from "./capability-readiness.js";
+import {
+  formatCapabilityClassLabel,
+  pickCapabilityFindings,
+} from "./capability-readiness.js";
 import { formatHealthChannelLines, type HealthSummary } from "./health.js";
 import { resolveControlUiLinks } from "./onboard-helpers.js";
 import { statusAllCommand } from "./status-all.js";
@@ -82,21 +84,6 @@ function resolvePairingRecoveryContext(params: {
   const requestId =
     requestIdMatch && requestIdMatch[1] ? sanitizeRequestId(requestIdMatch[1]) : null;
   return { requestId: requestId || null };
-}
-
-function formatCapabilityClassLabel(capabilityClass: ResolvedCapabilityClass): string {
-  switch (capabilityClass) {
-    case "sandbox-local":
-      return "sandbox-local";
-    case "gateway-brokered":
-      return "gateway-brokered";
-    case "remote-node-assisted":
-      return "remote-node-assisted";
-    case "configured-but-blocked":
-      return "configured-but-blocked";
-    case "unsupported-in-current-runtime":
-      return "unsupported-in-current-runtime";
-  }
 }
 
 export async function statusCommand(

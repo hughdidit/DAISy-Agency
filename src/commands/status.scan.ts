@@ -218,7 +218,7 @@ async function resolveMemoryStatusSnapshot(params: {
   return { agentId, ...status };
 }
 
-async function scanStatusJsonFast(opts: {
+async function scanStatusJsonWithCapabilities(opts: {
   timeoutMs?: number;
   all?: boolean;
   runtimeContext?: StatusRuntimeContext;
@@ -322,7 +322,7 @@ export async function scanStatus(
   _runtime: RuntimeEnv,
 ): Promise<StatusScanResult> {
   if (opts.json) {
-    return await scanStatusJsonFast({
+    return await scanStatusJsonWithCapabilities({
       timeoutMs: opts.timeoutMs,
       all: opts.all,
       runtimeContext: opts.runtimeContext,

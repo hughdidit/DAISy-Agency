@@ -63,6 +63,12 @@ export type CommandCapabilitySnapshot = {
 
 type CommandCapabilityMode = "gateway" | "readonly-sandbox";
 
+export function formatCapabilityClassLabel(
+  capabilityClass: ResolvedCapabilityClass,
+): ResolvedCapabilityClass {
+  return capabilityClass;
+}
+
 function initializeCapabilityCounts(): CommandCapabilityCounts {
   return {
     total: 0,
@@ -360,16 +366,21 @@ export function collectCommandCapabilitySnapshot(params: {
   agentId?: string;
   sessionKey?: string;
   mode?: CommandCapabilityMode;
+  workspaceDir?: string;
 }): CommandCapabilitySnapshot {
   const agentId = params.agentId?.trim() || resolveDefaultAgentId(params.config);
-  const workspaceDir = resolveAgentWorkspaceDir(params.config, agentId);
   const mode = params.mode ?? "gateway";
+  const workspaceDir =
+    params.workspaceDir ??
+    (mode === "readonly-sandbox"
+      ? "/workspace"
+      : resolveAgentWorkspaceDir(params.config, agentId));
   const collected =
     mode === "readonly-sandbox"
       ? collectReadonlyCapabilityInputs({
           config: params.config,
           agentId,
-          workspaceDir,
+          ...(params.workspaceDir ? { workspaceDir: params.workspaceDir } : {}),
         })
       : collectGatewayCapabilityInputs({
           config: params.config,
@@ -389,14 +400,15 @@ export function collectCommandCapabilitySnapshot(params: {
     manifest,
   });
   const counts = initializeCapabilityCounts();
-  const findings = manifest.capabilities
-    .map((capability) => {
-      counts.total += 1;
-      counts.byClass[capability.capabilityClass] += 1;
-      return createCapabilityFinding(capability);
-    })
-    .filter((finding): finding is CommandCapabilityFinding => Boolean(finding))
-    .toSorted(sortFindings);
+  const findings: CommandCapabilityFinding[] = [];
+  for (const capability of manifest.capabilities) {
+    counts.total += 1;
+    counts.byClass[capability.capabilityClass] += 1;
+    const finding = createCapabilityFinding(capability);
+    if (finding) {
+      findings.push(finding);
+    }
+  }
 
   return {
     runtimeContext: manifest.runtimeContext,
@@ -404,6 +416,6 @@ export function collectCommandCapabilitySnapshot(params: {
     skills,
     toolGroups,
     manifest,
-    findings,
+    findings: [...findings].sort(sortFindings),
   };
 }
