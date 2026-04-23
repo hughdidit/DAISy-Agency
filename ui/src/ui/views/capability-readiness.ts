@@ -1,5 +1,5 @@
 import { html } from "lit";
-import type { SkillStatusEntry, ToolCatalogEntry } from "../types.ts";
+import type { ResolvedCapabilityEvidence, SkillStatusEntry, ToolCatalogEntry } from "../types.ts";
 
 type CapabilityDetails = SkillStatusEntry["capability"] | ToolCatalogEntry["capability"];
 type CapabilityClass = SkillStatusEntry["capabilityClass"] | ToolCatalogEntry["capabilityClass"];
@@ -59,7 +59,7 @@ function describePolicy(capability: CapabilityDetails) {
 }
 
 function describeRuntime(capability: CapabilityDetails) {
-  const runtime = capability.evidence?.runtime;
+  const runtime = getCapabilityEvidence(capability)?.runtime;
   if (!runtime) {
     return [];
   }
@@ -76,7 +76,7 @@ function describeRuntime(capability: CapabilityDetails) {
 }
 
 function describeProvider(capability: CapabilityDetails) {
-  const provider = capability.evidence?.provider;
+  const provider = getCapabilityEvidence(capability)?.provider;
   if (!provider) {
     return [];
   }
@@ -95,7 +95,7 @@ function describeProvider(capability: CapabilityDetails) {
 }
 
 function describeProjection(capability: CapabilityDetails) {
-  const projection = capability.evidence?.projection;
+  const projection = getCapabilityEvidence(capability)?.projection;
   if (!projection) {
     return [];
   }
@@ -109,7 +109,7 @@ function describeProjection(capability: CapabilityDetails) {
 }
 
 function describeRemote(capability: CapabilityDetails) {
-  const remote = capability.evidence?.remote;
+  const remote = getCapabilityEvidence(capability)?.remote;
   if (!remote) {
     return [];
   }
@@ -119,6 +119,12 @@ function describeRemote(capability: CapabilityDetails) {
   pushUnique(details, formatList("Remote satisfies any of: ", remote.satisfiedAnyBins));
   pushUnique(details, formatList("Remote satisfies OS: ", remote.satisfiedOs));
   return details;
+}
+
+function getCapabilityEvidence(
+  capability: CapabilityDetails,
+): ResolvedCapabilityEvidence | undefined {
+  return "evidence" in capability ? capability.evidence : undefined;
 }
 
 export function computeCapabilityDetails(capability: CapabilityDetails): string[] {

@@ -1,5 +1,6 @@
 import { render } from "lit";
 import { describe, expect, it } from "vitest";
+import type { ResolvedSkillCapability, ResolvedToolCapability } from "../types.ts";
 import { renderAgentSkills, renderAgentTools } from "./agents-panels-tools-skills.ts";
 
 function createToolCapability(
@@ -10,12 +11,12 @@ function createToolCapability(
     | "configured-but-blocked"
     | "unsupported-in-current-runtime",
   overrides: Record<string, unknown> = {},
-) {
+): ResolvedToolCapability {
   return {
     id: String(overrides.id ?? capabilityClass),
     label: String(overrides.label ?? capabilityClass),
     description: String(overrides.description ?? capabilityClass),
-    kind: "tool",
+    kind: "tool" as const,
     capabilityClass,
     runtimeContext: { agentId: "main", sandboxMode: "all", sandboxed: true },
     source: (overrides.source as "core" | "plugin" | undefined) ?? "core",
@@ -24,7 +25,7 @@ function createToolCapability(
     ...(overrides.optional !== undefined ? { optional: Boolean(overrides.optional) } : {}),
     ...("policy" in overrides && overrides.policy ? { policy: overrides.policy } : {}),
     ...("evidence" in overrides && overrides.evidence ? { evidence: overrides.evidence } : {}),
-  };
+  } as ResolvedToolCapability;
 }
 
 function createSkillCapability(
@@ -34,12 +35,12 @@ function createSkillCapability(
     | "configured-but-blocked"
     | "unsupported-in-current-runtime",
   overrides: Record<string, unknown> = {},
-) {
+): ResolvedSkillCapability {
   return {
     id: String(overrides.id ?? capabilityClass),
     label: String(overrides.label ?? capabilityClass),
     description: String(overrides.description ?? capabilityClass),
-    kind: "skill",
+    kind: "skill" as const,
     capabilityClass,
     runtimeContext: { agentId: "main", sandboxMode: "all", sandboxed: true },
     skillKey: String(overrides.skillKey ?? capabilityClass),
@@ -53,7 +54,7 @@ function createSkillCapability(
     configChecks: overrides.configChecks ?? [],
     ...("policy" in overrides && overrides.policy ? { policy: overrides.policy } : {}),
     ...("evidence" in overrides && overrides.evidence ? { evidence: overrides.evidence } : {}),
-  };
+  } as ResolvedSkillCapability;
 }
 
 function createBaseParams(overrides: Partial<Parameters<typeof renderAgentTools>[0]> = {}) {
