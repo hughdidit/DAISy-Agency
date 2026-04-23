@@ -1,4 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type {
+  ResolvedCapabilityEvidence,
+  ResolvedToolCapability,
+} from "../../shared/resolved-capability-manifest.js";
 import { ErrorCodes } from "../protocol/index.js";
 import { toolsCatalogHandlers } from "./tools-catalog.js";
 
@@ -28,30 +32,37 @@ vi.mock("../../agents/capabilities/index.js", () => ({
 }));
 
 type RespondCall = [boolean, unknown?, { code: number; message: string }?];
+type ToolCapabilityPolicy = Extract<ResolvedToolCapability, { policy: unknown }>["policy"];
+type ToolCapabilityOverrides = {
+  id?: string;
+  label?: string;
+  description?: string;
+  source?: "core" | "plugin";
+  defaultProfiles?: string[];
+  pluginId?: string;
+  optional?: boolean;
+  policy?: ToolCapabilityPolicy;
+  evidence?: ResolvedCapabilityEvidence;
+};
 
 function createToolCapability(
-  capabilityClass:
-    | "sandbox-local"
-    | "gateway-brokered"
-    | "remote-node-assisted"
-    | "configured-but-blocked"
-    | "unsupported-in-current-runtime",
-  overrides: Record<string, unknown> = {},
-) {
+  capabilityClass: ResolvedToolCapability["capabilityClass"],
+  overrides: ToolCapabilityOverrides = {},
+): ResolvedToolCapability {
   return {
-    id: String(overrides.id ?? `tool:${capabilityClass}`),
-    label: String(overrides.label ?? capabilityClass),
-    description: String(overrides.description ?? `${capabilityClass} tool`),
-    kind: "tool",
+    id: overrides.id ?? `tool:${capabilityClass}`,
+    label: overrides.label ?? capabilityClass,
+    description: overrides.description ?? `${capabilityClass} tool`,
+    kind: "tool" as const,
     capabilityClass,
     runtimeContext: { agentId: "main", sandboxMode: "all", sandboxed: true },
-    source: (overrides.source as "core" | "plugin" | undefined) ?? "core",
+    source: overrides.source ?? "core",
     defaultProfiles: overrides.defaultProfiles ?? [],
-    ...(overrides.pluginId ? { pluginId: String(overrides.pluginId) } : {}),
+    ...(overrides.pluginId ? { pluginId: overrides.pluginId } : {}),
     ...(overrides.optional !== undefined ? { optional: Boolean(overrides.optional) } : {}),
     ...("policy" in overrides && overrides.policy ? { policy: overrides.policy } : {}),
     ...("evidence" in overrides && overrides.evidence ? { evidence: overrides.evidence } : {}),
-  };
+  } as ResolvedToolCapability;
 }
 
 function createInvokeParams(params: Record<string, unknown>) {
