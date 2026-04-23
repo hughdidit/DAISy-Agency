@@ -2,7 +2,7 @@ import { html } from "lit";
 import type { ResolvedCapabilityEvidence, SkillStatusEntry, ToolCatalogEntry } from "../types.ts";
 
 type CapabilityDetails = SkillStatusEntry["capability"] | ToolCatalogEntry["capability"];
-type CapabilityClass = SkillStatusEntry["capabilityClass"] | ToolCatalogEntry["capabilityClass"];
+type CapabilityClass = ToolCatalogEntry["capabilityClass"];
 
 const CAPABILITY_CLASS_LABELS: Record<CapabilityClass, string> = {
   "sandbox-local": "sandbox-local",

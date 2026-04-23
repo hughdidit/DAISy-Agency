@@ -1,27 +1,58 @@
 import { render } from "lit";
 import { describe, expect, it } from "vitest";
-import type { ResolvedSkillCapability, ResolvedToolCapability } from "../types.ts";
+import type {
+  ResolvedCapabilityEvidence,
+  ResolvedSkillCapability,
+  ResolvedToolCapability,
+} from "../types.ts";
 import { renderAgentSkills, renderAgentTools } from "./agents-panels-tools-skills.ts";
 
+type CapabilityPolicy = Extract<
+  ResolvedSkillCapability | ResolvedToolCapability,
+  { policy: unknown }
+>["policy"];
+
+type ToolCapabilityOverrides = {
+  id?: string;
+  label?: string;
+  description?: string;
+  source?: "core" | "plugin";
+  defaultProfiles?: string[];
+  pluginId?: string;
+  optional?: boolean;
+  policy?: CapabilityPolicy;
+  evidence?: ResolvedCapabilityEvidence;
+};
+
+type SkillCapabilityOverrides = {
+  id?: string;
+  label?: string;
+  description?: string;
+  skillKey?: string;
+  source?: string;
+  bundled?: boolean;
+  filePath?: string;
+  requirements?: ResolvedSkillCapability["requirements"];
+  missing?: ResolvedSkillCapability["missing"];
+  configChecks?: ResolvedSkillCapability["configChecks"];
+  policy?: CapabilityPolicy;
+  evidence?: ResolvedCapabilityEvidence;
+};
+
 function createToolCapability(
-  capabilityClass:
-    | "sandbox-local"
-    | "gateway-brokered"
-    | "remote-node-assisted"
-    | "configured-but-blocked"
-    | "unsupported-in-current-runtime",
-  overrides: Record<string, unknown> = {},
+  capabilityClass: ResolvedToolCapability["capabilityClass"],
+  overrides: ToolCapabilityOverrides = {},
 ): ResolvedToolCapability {
   return {
-    id: String(overrides.id ?? capabilityClass),
-    label: String(overrides.label ?? capabilityClass),
-    description: String(overrides.description ?? capabilityClass),
+    id: overrides.id ?? capabilityClass,
+    label: overrides.label ?? capabilityClass,
+    description: overrides.description ?? capabilityClass,
     kind: "tool" as const,
     capabilityClass,
     runtimeContext: { agentId: "main", sandboxMode: "all", sandboxed: true },
-    source: (overrides.source as "core" | "plugin" | undefined) ?? "core",
+    source: overrides.source ?? "core",
     defaultProfiles: overrides.defaultProfiles ?? [],
-    ...(overrides.pluginId ? { pluginId: String(overrides.pluginId) } : {}),
+    ...(overrides.pluginId ? { pluginId: overrides.pluginId } : {}),
     ...(overrides.optional !== undefined ? { optional: Boolean(overrides.optional) } : {}),
     ...("policy" in overrides && overrides.policy ? { policy: overrides.policy } : {}),
     ...("evidence" in overrides && overrides.evidence ? { evidence: overrides.evidence } : {}),
@@ -29,26 +60,21 @@ function createToolCapability(
 }
 
 function createSkillCapability(
-  capabilityClass:
-    | "sandbox-local"
-    | "remote-node-assisted"
-    | "configured-but-blocked"
-    | "unsupported-in-current-runtime",
-  overrides: Record<string, unknown> = {},
+  capabilityClass: ResolvedSkillCapability["capabilityClass"],
+  overrides: SkillCapabilityOverrides = {},
 ): ResolvedSkillCapability {
+  const skillKey = overrides.skillKey ?? capabilityClass;
   return {
-    id: String(overrides.id ?? capabilityClass),
-    label: String(overrides.label ?? capabilityClass),
-    description: String(overrides.description ?? capabilityClass),
+    id: overrides.id ?? capabilityClass,
+    label: overrides.label ?? capabilityClass,
+    description: overrides.description ?? capabilityClass,
     kind: "skill" as const,
     capabilityClass,
     runtimeContext: { agentId: "main", sandboxMode: "all", sandboxed: true },
-    skillKey: String(overrides.skillKey ?? capabilityClass),
-    source: String(overrides.source ?? "workspace"),
-    bundled: Boolean(overrides.bundled ?? false),
-    filePath: String(
-      overrides.filePath ?? `/tmp/${String(overrides.skillKey ?? capabilityClass)}/SKILL.md`,
-    ),
+    skillKey,
+    source: overrides.source ?? "workspace",
+    bundled: overrides.bundled ?? false,
+    filePath: overrides.filePath ?? `/tmp/${skillKey}/SKILL.md`,
     requirements: overrides.requirements ?? { bins: [], anyBins: [], env: [], config: [], os: [] },
     missing: overrides.missing ?? { bins: [], anyBins: [], env: [], config: [], os: [] },
     configChecks: overrides.configChecks ?? [],
