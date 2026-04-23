@@ -12,6 +12,7 @@ import {
   resolveMainSessionKey,
   resolveStorePath,
 } from "../config/sessions.js";
+import { temporarilyRouteLogsToStderr } from "../logging/console.js";
 import {
   buildAgentMainSessionKey,
   normalizeAgentId,
@@ -139,254 +140,269 @@ export async function sandboxExplainCommand(
   opts: SandboxExplainOptions,
   runtime: RuntimeEnv,
 ): Promise<void> {
-  const cfg = loadConfig();
+  const restoreConsoleRouting = opts.json ? temporarilyRouteLogsToStderr() : null;
+  let consoleRoutingRestored = false;
+  const restoreConsoleLogs = () => {
+    if (consoleRoutingRestored) {
+      return;
+    }
+    consoleRoutingRestored = true;
+    restoreConsoleRouting?.();
+  };
 
-  const defaultAgentId = resolveAgentIdFromSessionKey(resolveMainSessionKey(cfg));
-  const resolvedAgentId = normalizeAgentId(
-    opts.agent?.trim()
-      ? opts.agent
-      : opts.session?.trim()
-        ? resolveAgentIdFromSessionKey(opts.session)
-        : defaultAgentId,
-  );
+  try {
+    const cfg = loadConfig();
 
-  const sessionKey = normalizeExplainSessionKey({
-    cfg,
-    agentId: resolvedAgentId,
-    session: opts.session,
-  });
-
-  const sandboxCfg = resolveSandboxConfigForAgent(cfg, resolvedAgentId);
-  const toolPolicy = resolveSandboxToolPolicyForAgent(cfg, resolvedAgentId);
-  const mainSessionKey = resolveAgentMainSessionKey({
-    cfg,
-    agentId: resolvedAgentId,
-  });
-  const sessionIsSandboxed =
-    sandboxCfg.mode === "all"
-      ? true
-      : sandboxCfg.mode === "off"
-        ? false
-        : sessionKey.trim() !== mainSessionKey.trim();
-
-  const channel = resolveActiveChannel({
-    cfg,
-    agentId: resolvedAgentId,
-    sessionKey,
-  });
-
-  const agentConfig = resolveAgentConfig(cfg, resolvedAgentId);
-  const elevatedGlobal = cfg.tools?.elevated;
-  const elevatedAgent = agentConfig?.tools?.elevated;
-  const elevatedGlobalEnabled = elevatedGlobal?.enabled !== false;
-  const elevatedAgentEnabled = elevatedAgent?.enabled !== false;
-  const elevatedEnabled = elevatedGlobalEnabled && elevatedAgentEnabled;
-
-  const globalAllow = channel ? elevatedGlobal?.allowFrom?.[channel] : undefined;
-  const agentAllow = channel ? elevatedAgent?.allowFrom?.[channel] : undefined;
-
-  const allowTokens = (values?: Array<string | number>) =>
-    (values ?? []).map((v) => String(v).trim()).filter(Boolean);
-  const globalAllowTokens = allowTokens(globalAllow);
-  const agentAllowTokens = allowTokens(agentAllow);
-
-  const elevatedAllowedByConfig =
-    elevatedEnabled &&
-    Boolean(channel) &&
-    globalAllowTokens.length > 0 &&
-    (elevatedAgent?.allowFrom ? agentAllowTokens.length > 0 : true);
-
-  const elevatedAlwaysAllowedByConfig =
-    elevatedAllowedByConfig &&
-    globalAllowTokens.includes("*") &&
-    (elevatedAgent?.allowFrom ? agentAllowTokens.includes("*") : true);
-
-  const elevatedFailures: Array<{ gate: string; key: string }> = [];
-  if (!elevatedGlobalEnabled) {
-    elevatedFailures.push({ gate: "enabled", key: "tools.elevated.enabled" });
-  }
-  if (!elevatedAgentEnabled) {
-    elevatedFailures.push({
-      gate: "enabled",
-      key: "agents.list[].tools.elevated.enabled",
-    });
-  }
-  if (channel && globalAllowTokens.length === 0) {
-    elevatedFailures.push({
-      gate: "allowFrom",
-      key: `tools.elevated.allowFrom.${channel}`,
-    });
-  }
-  if (channel && elevatedAgent?.allowFrom && agentAllowTokens.length === 0) {
-    elevatedFailures.push({
-      gate: "allowFrom",
-      key: `agents.list[].tools.elevated.allowFrom.${channel}`,
-    });
-  }
-
-  const fixIt: string[] = [];
-  if (sandboxCfg.mode !== "off") {
-    fixIt.push("agents.defaults.sandbox.mode=off");
-    fixIt.push("agents.list[].sandbox.mode=off");
-  }
-  fixIt.push("tools.sandbox.tools.allow");
-  fixIt.push("tools.sandbox.tools.deny");
-  fixIt.push("agents.list[].tools.sandbox.tools.allow");
-  fixIt.push("agents.list[].tools.sandbox.tools.deny");
-  fixIt.push("tools.elevated.enabled");
-  if (channel) {
-    fixIt.push(`tools.elevated.allowFrom.${channel}`);
-  }
-  const capabilities = collectCommandCapabilitySnapshot({
-    config: cfg,
-    agentId: resolvedAgentId,
-    sessionKey,
-    mode: opts.readonlyRuntime ? "readonly-sandbox" : "gateway",
-    workspaceDir: opts.readonlyRuntime?.workspaceDir,
-  });
-
-  const payload = {
-    docsUrl: SANDBOX_DOCS_URL,
-    agentId: resolvedAgentId,
-    sessionKey,
-    mainSessionKey,
-    sandbox: {
-      mode: sandboxCfg.mode,
-      scope: sandboxCfg.scope,
-      perSession: sandboxCfg.scope === "session",
-      workspaceAccess: sandboxCfg.workspaceAccess,
-      workspaceRoot: sandboxCfg.workspaceRoot,
-      sessionIsSandboxed,
-      docker: {
-        image: sandboxCfg.docker.image,
-      },
-      browser: {
-        enabled: sandboxCfg.browser.enabled,
-        image: sandboxCfg.browser.image,
-      },
-      tools: {
-        allow: toolPolicy.allow,
-        deny: toolPolicy.deny,
-        sources: toolPolicy.sources,
-      },
-    },
-    elevated: {
-      enabled: elevatedEnabled,
-      channel,
-      allowedByConfig: elevatedAllowedByConfig,
-      alwaysAllowedByConfig: elevatedAlwaysAllowedByConfig,
-      allowFrom: {
-        global: channel ? globalAllowTokens : undefined,
-        agent: elevatedAgent?.allowFrom && channel ? agentAllowTokens : undefined,
-      },
-      failures: elevatedFailures,
-    },
-    capabilities,
-    fixIt,
-  } as const;
-
-  if (opts.json) {
-    runtime.log(`${JSON.stringify(payload, null, 2)}\n`);
-    return;
-  }
-
-  const rich = isRich();
-  const heading = (value: string) => colorize(rich, theme.heading, value);
-  const key = (value: string) => colorize(rich, theme.muted, value);
-  const value = (val: string) => colorize(rich, theme.info, val);
-  const ok = (val: string) => colorize(rich, theme.success, val);
-  const warn = (val: string) => colorize(rich, theme.warn, val);
-  const err = (val: string) => colorize(rich, theme.error, val);
-  const bool = (flag: boolean) => (flag ? ok("true") : err("false"));
-
-  const lines: string[] = [];
-  lines.push(heading("Effective sandbox:"));
-  lines.push(`  ${key("agentId:")} ${value(payload.agentId)}`);
-  lines.push(`  ${key("sessionKey:")} ${value(payload.sessionKey)}`);
-  lines.push(`  ${key("mainSessionKey:")} ${value(payload.mainSessionKey)}`);
-  lines.push(
-    `  ${key("runtime:")} ${payload.sandbox.sessionIsSandboxed ? warn("sandboxed") : ok("direct")}`,
-  );
-  lines.push(
-    `  ${key("mode:")} ${value(payload.sandbox.mode)} ${key("scope:")} ${value(
-      payload.sandbox.scope,
-    )} ${key("perSession:")} ${bool(payload.sandbox.perSession)}`,
-  );
-  lines.push(
-    `  ${key("workspaceAccess:")} ${value(
-      payload.sandbox.workspaceAccess,
-    )} ${key("workspaceRoot:")} ${value(payload.sandbox.workspaceRoot)}`,
-  );
-  lines.push("");
-  lines.push(heading("Sandbox tool policy:"));
-  lines.push(
-    `  ${key(`allow (${payload.sandbox.tools.sources.allow.source}):`)} ${value(
-      payload.sandbox.tools.allow.join(", ") || "(empty)",
-    )}`,
-  );
-  lines.push(
-    `  ${key(`deny  (${payload.sandbox.tools.sources.deny.source}):`)} ${value(
-      payload.sandbox.tools.deny.join(", ") || "(empty)",
-    )}`,
-  );
-  lines.push("");
-  lines.push(heading("Elevated:"));
-  lines.push(`  ${key("enabled:")} ${bool(payload.elevated.enabled)}`);
-  lines.push(`  ${key("channel:")} ${value(payload.elevated.channel ?? "(unknown)")}`);
-  lines.push(`  ${key("allowedByConfig:")} ${bool(payload.elevated.allowedByConfig)}`);
-  if (payload.elevated.failures.length > 0) {
-    lines.push(
-      `  ${key("failing gates:")} ${warn(
-        payload.elevated.failures.map((f) => `${f.gate} (${f.key})`).join(", "),
-      )}`,
+    const defaultAgentId = resolveAgentIdFromSessionKey(resolveMainSessionKey(cfg));
+    const resolvedAgentId = normalizeAgentId(
+      opts.agent?.trim()
+        ? opts.agent
+        : opts.session?.trim()
+          ? resolveAgentIdFromSessionKey(opts.session)
+          : defaultAgentId,
     );
-  }
-  if (payload.sandbox.mode === "non-main" && payload.sandbox.sessionIsSandboxed) {
+
+    const sessionKey = normalizeExplainSessionKey({
+      cfg,
+      agentId: resolvedAgentId,
+      session: opts.session,
+    });
+
+    const sandboxCfg = resolveSandboxConfigForAgent(cfg, resolvedAgentId);
+    const toolPolicy = resolveSandboxToolPolicyForAgent(cfg, resolvedAgentId);
+    const mainSessionKey = resolveAgentMainSessionKey({
+      cfg,
+      agentId: resolvedAgentId,
+    });
+    const sessionIsSandboxed =
+      sandboxCfg.mode === "all"
+        ? true
+        : sandboxCfg.mode === "off"
+          ? false
+          : sessionKey.trim() !== mainSessionKey.trim();
+
+    const channel = resolveActiveChannel({
+      cfg,
+      agentId: resolvedAgentId,
+      sessionKey,
+    });
+
+    const agentConfig = resolveAgentConfig(cfg, resolvedAgentId);
+    const elevatedGlobal = cfg.tools?.elevated;
+    const elevatedAgent = agentConfig?.tools?.elevated;
+    const elevatedGlobalEnabled = elevatedGlobal?.enabled !== false;
+    const elevatedAgentEnabled = elevatedAgent?.enabled !== false;
+    const elevatedEnabled = elevatedGlobalEnabled && elevatedAgentEnabled;
+
+    const globalAllow = channel ? elevatedGlobal?.allowFrom?.[channel] : undefined;
+    const agentAllow = channel ? elevatedAgent?.allowFrom?.[channel] : undefined;
+
+    const allowTokens = (values?: Array<string | number>) =>
+      (values ?? []).map((v) => String(v).trim()).filter(Boolean);
+    const globalAllowTokens = allowTokens(globalAllow);
+    const agentAllowTokens = allowTokens(agentAllow);
+
+    const elevatedAllowedByConfig =
+      elevatedEnabled &&
+      Boolean(channel) &&
+      globalAllowTokens.length > 0 &&
+      (elevatedAgent?.allowFrom ? agentAllowTokens.length > 0 : true);
+
+    const elevatedAlwaysAllowedByConfig =
+      elevatedAllowedByConfig &&
+      globalAllowTokens.includes("*") &&
+      (elevatedAgent?.allowFrom ? agentAllowTokens.includes("*") : true);
+
+    const elevatedFailures: Array<{ gate: string; key: string }> = [];
+    if (!elevatedGlobalEnabled) {
+      elevatedFailures.push({ gate: "enabled", key: "tools.elevated.enabled" });
+    }
+    if (!elevatedAgentEnabled) {
+      elevatedFailures.push({
+        gate: "enabled",
+        key: "agents.list[].tools.elevated.enabled",
+      });
+    }
+    if (channel && globalAllowTokens.length === 0) {
+      elevatedFailures.push({
+        gate: "allowFrom",
+        key: `tools.elevated.allowFrom.${channel}`,
+      });
+    }
+    if (channel && elevatedAgent?.allowFrom && agentAllowTokens.length === 0) {
+      elevatedFailures.push({
+        gate: "allowFrom",
+        key: `agents.list[].tools.elevated.allowFrom.${channel}`,
+      });
+    }
+
+    const fixIt: string[] = [];
+    if (sandboxCfg.mode !== "off") {
+      fixIt.push("agents.defaults.sandbox.mode=off");
+      fixIt.push("agents.list[].sandbox.mode=off");
+    }
+    fixIt.push("tools.sandbox.tools.allow");
+    fixIt.push("tools.sandbox.tools.deny");
+    fixIt.push("agents.list[].tools.sandbox.tools.allow");
+    fixIt.push("agents.list[].tools.sandbox.tools.deny");
+    fixIt.push("tools.elevated.enabled");
+    if (channel) {
+      fixIt.push(`tools.elevated.allowFrom.${channel}`);
+    }
+    const capabilities = collectCommandCapabilitySnapshot({
+      config: cfg,
+      agentId: resolvedAgentId,
+      sessionKey,
+      mode: opts.readonlyRuntime ? "readonly-sandbox" : "gateway",
+      workspaceDir: opts.readonlyRuntime?.workspaceDir,
+    });
+
+    const payload = {
+      docsUrl: SANDBOX_DOCS_URL,
+      agentId: resolvedAgentId,
+      sessionKey,
+      mainSessionKey,
+      sandbox: {
+        mode: sandboxCfg.mode,
+        scope: sandboxCfg.scope,
+        perSession: sandboxCfg.scope === "session",
+        workspaceAccess: sandboxCfg.workspaceAccess,
+        workspaceRoot: sandboxCfg.workspaceRoot,
+        sessionIsSandboxed,
+        docker: {
+          image: sandboxCfg.docker.image,
+        },
+        browser: {
+          enabled: sandboxCfg.browser.enabled,
+          image: sandboxCfg.browser.image,
+        },
+        tools: {
+          allow: toolPolicy.allow,
+          deny: toolPolicy.deny,
+          sources: toolPolicy.sources,
+        },
+      },
+      elevated: {
+        enabled: elevatedEnabled,
+        channel,
+        allowedByConfig: elevatedAllowedByConfig,
+        alwaysAllowedByConfig: elevatedAlwaysAllowedByConfig,
+        allowFrom: {
+          global: channel ? globalAllowTokens : undefined,
+          agent: elevatedAgent?.allowFrom && channel ? agentAllowTokens : undefined,
+        },
+        failures: elevatedFailures,
+      },
+      capabilities,
+      fixIt,
+    } as const;
+
+    if (opts.json) {
+      restoreConsoleLogs();
+      runtime.log(`${JSON.stringify(payload, null, 2)}\n`);
+      return;
+    }
+
+    const rich = isRich();
+    const heading = (value: string) => colorize(rich, theme.heading, value);
+    const key = (value: string) => colorize(rich, theme.muted, value);
+    const value = (val: string) => colorize(rich, theme.info, val);
+    const ok = (val: string) => colorize(rich, theme.success, val);
+    const warn = (val: string) => colorize(rich, theme.warn, val);
+    const err = (val: string) => colorize(rich, theme.error, val);
+    const bool = (flag: boolean) => (flag ? ok("true") : err("false"));
+
+    const lines: string[] = [];
+    lines.push(heading("Effective sandbox:"));
+    lines.push(`  ${key("agentId:")} ${value(payload.agentId)}`);
+    lines.push(`  ${key("sessionKey:")} ${value(payload.sessionKey)}`);
+    lines.push(`  ${key("mainSessionKey:")} ${value(payload.mainSessionKey)}`);
+    lines.push(
+      `  ${key("runtime:")} ${payload.sandbox.sessionIsSandboxed ? warn("sandboxed") : ok("direct")}`,
+    );
+    lines.push(
+      `  ${key("mode:")} ${value(payload.sandbox.mode)} ${key("scope:")} ${value(
+        payload.sandbox.scope,
+      )} ${key("perSession:")} ${bool(payload.sandbox.perSession)}`,
+    );
+    lines.push(
+      `  ${key("workspaceAccess:")} ${value(
+        payload.sandbox.workspaceAccess,
+      )} ${key("workspaceRoot:")} ${value(payload.sandbox.workspaceRoot)}`,
+    );
     lines.push("");
+    lines.push(heading("Sandbox tool policy:"));
     lines.push(
-      `${warn("Hint:")} sandbox mode is non-main; use main session key to run direct: ${value(
-        payload.mainSessionKey,
+      `  ${key(`allow (${payload.sandbox.tools.sources.allow.source}):`)} ${value(
+        payload.sandbox.tools.allow.join(", ") || "(empty)",
       )}`,
     );
-  }
-  lines.push("");
-  lines.push(heading("Effective capabilities:"));
-  for (const capabilityClass of RESOLVED_CAPABILITY_CLASSES) {
     lines.push(
-      `  ${key(`${formatCapabilityClassLabel(capabilityClass)}:`)} ${value(
-        String(payload.capabilities.counts.byClass[capabilityClass]),
+      `  ${key(`deny  (${payload.sandbox.tools.sources.deny.source}):`)} ${value(
+        payload.sandbox.tools.deny.join(", ") || "(empty)",
       )}`,
     );
-  }
-  const capabilityFindings = pickCapabilityFindings(payload.capabilities, {
-    capabilityClasses: [
-      "configured-but-blocked",
-      "unsupported-in-current-runtime",
-      "remote-node-assisted",
-      "gateway-brokered",
-    ],
-    limit: 8,
-  });
-  if (capabilityFindings.length === 0) {
-    lines.push(`  ${ok("All resolved capabilities are sandbox-local.")}`);
-  } else {
-    for (const finding of capabilityFindings) {
+    lines.push("");
+    lines.push(heading("Elevated:"));
+    lines.push(`  ${key("enabled:")} ${bool(payload.elevated.enabled)}`);
+    lines.push(`  ${key("channel:")} ${value(payload.elevated.channel ?? "(unknown)")}`);
+    lines.push(`  ${key("allowedByConfig:")} ${bool(payload.elevated.allowedByConfig)}`);
+    if (payload.elevated.failures.length > 0) {
       lines.push(
-        `  - ${finding.kind} ${finding.label} · ${finding.capabilityClass} · ${finding.primaryReasonCategory}`,
+        `  ${key("failing gates:")} ${warn(
+          payload.elevated.failures.map((f) => `${f.gate} (${f.key})`).join(", "),
+        )}`,
       );
-      lines.push(`    ${finding.summary}${finding.detail ? `: ${finding.detail}` : ""}`);
-      if (finding.remediation) {
-        lines.push(`    ${key("Fix:")} ${finding.remediation}`);
+    }
+    if (payload.sandbox.mode === "non-main" && payload.sandbox.sessionIsSandboxed) {
+      lines.push("");
+      lines.push(
+        `${warn("Hint:")} sandbox mode is non-main; use main session key to run direct: ${value(
+          payload.mainSessionKey,
+        )}`,
+      );
+    }
+    lines.push("");
+    lines.push(heading("Effective capabilities:"));
+    for (const capabilityClass of RESOLVED_CAPABILITY_CLASSES) {
+      lines.push(
+        `  ${key(`${formatCapabilityClassLabel(capabilityClass)}:`)} ${value(
+          String(payload.capabilities.counts.byClass[capabilityClass]),
+        )}`,
+      );
+    }
+    const capabilityFindings = pickCapabilityFindings(payload.capabilities, {
+      capabilityClasses: [
+        "configured-but-blocked",
+        "unsupported-in-current-runtime",
+        "remote-node-assisted",
+        "gateway-brokered",
+      ],
+      limit: 8,
+    });
+    if (capabilityFindings.length === 0) {
+      lines.push(`  ${ok("All resolved capabilities are sandbox-local.")}`);
+    } else {
+      for (const finding of capabilityFindings) {
+        lines.push(
+          `  - ${finding.kind} ${finding.label} · ${finding.capabilityClass} · ${finding.primaryReasonCategory}`,
+        );
+        lines.push(`    ${finding.summary}${finding.detail ? `: ${finding.detail}` : ""}`);
+        if (finding.remediation) {
+          lines.push(`    ${key("Fix:")} ${finding.remediation}`);
+        }
       }
     }
-  }
-  lines.push("");
-  lines.push(heading("Fix-it:"));
-  for (const key of payload.fixIt) {
-    lines.push(`  - ${key}`);
-  }
-  lines.push("");
-  lines.push(`${key("Docs:")} ${formatDocsLink("/sandbox", "docs.openclaw.ai/sandbox")}`);
+    lines.push("");
+    lines.push(heading("Fix-it:"));
+    for (const key of payload.fixIt) {
+      lines.push(`  - ${key}`);
+    }
+    lines.push("");
+    lines.push(`${key("Docs:")} ${formatDocsLink("/sandbox", "docs.openclaw.ai/sandbox")}`);
 
-  runtime.log(`${lines.join("\n")}\n`);
+    runtime.log(`${lines.join("\n")}\n`);
+  } finally {
+    restoreConsoleLogs();
+  }
 }

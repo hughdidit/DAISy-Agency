@@ -116,6 +116,14 @@ export function routeLogsToStderr(): void {
   loggingState.forceConsoleToStderr = true;
 }
 
+export function temporarilyRouteLogsToStderr(): () => void {
+  const previous = loggingState.forceConsoleToStderr;
+  loggingState.forceConsoleToStderr = true;
+  return () => {
+    loggingState.forceConsoleToStderr = previous;
+  };
+}
+
 export function setConsoleSubsystemFilter(filters?: string[] | null): void {
   if (!filters || filters.length === 0) {
     loggingState.consoleSubsystemFilter = null;
