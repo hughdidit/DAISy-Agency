@@ -1,3 +1,4 @@
+import type { ToolProfileId } from "../agents/tool-catalog.js";
 import {
   RESOLVED_CAPABILITY_CLASSES,
   buildResolvedSkillCapability,
@@ -310,7 +311,7 @@ export function createCapabilitySnapshotFixture(): CommandCapabilitySnapshot {
             label: gatewayBrokeredTool.label,
             description: gatewayBrokeredTool.description,
             source: gatewayBrokeredTool.source,
-            defaultProfiles: gatewayBrokeredTool.defaultProfiles ?? [],
+            defaultProfiles: (gatewayBrokeredTool.defaultProfiles ?? []) as ToolProfileId[],
             capabilityClass: gatewayBrokeredTool.capabilityClass,
             capability: gatewayBrokeredTool,
           },
@@ -326,7 +327,7 @@ export function createCapabilitySnapshotFixture(): CommandCapabilitySnapshot {
             label: blockedTool.label,
             description: blockedTool.description,
             source: blockedTool.source,
-            defaultProfiles: blockedTool.defaultProfiles ?? [],
+            defaultProfiles: (blockedTool.defaultProfiles ?? []) as ToolProfileId[],
             capabilityClass: blockedTool.capabilityClass,
             capability: blockedTool,
           },
