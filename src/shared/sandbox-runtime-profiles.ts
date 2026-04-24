@@ -1,6 +1,6 @@
-const OFFICIAL_SANDBOX_BASE_IMAGE = "openclaw-sandbox:bookworm-slim";
-const OFFICIAL_SANDBOX_COMMON_IMAGE = "openclaw-sandbox-common:bookworm-slim";
-const OFFICIAL_SANDBOX_BROWSER_IMAGE = "openclaw-sandbox-browser:bookworm-slim";
+export const OFFICIAL_SANDBOX_BASE_IMAGE = "openclaw-sandbox:bookworm-slim";
+export const OFFICIAL_SANDBOX_COMMON_IMAGE = "openclaw-sandbox-common:bookworm-slim";
+export const OFFICIAL_SANDBOX_BROWSER_IMAGE = "openclaw-sandbox-browser:bookworm-slim";
 
 export const SUPPORTED_SANDBOX_RUNTIME_PROFILE_IDS = [
   "ops-readonly",

@@ -393,6 +393,46 @@ describe("resolved capability manifest", () => {
     expect(isResolvedCapabilityManifest(invalid)).toBe(false);
   });
 
+  it("rejects runtime evidence with empty image identifiers that violate the schema contract", () => {
+    const invalid = {
+      schemaVersion: 1,
+      runtimeContext: {
+        agentId: "main",
+        sandboxMode: "all",
+        runtimeProfile: "coding-base",
+        sandboxed: true,
+      },
+      capabilities: [
+        {
+          id: "read",
+          label: "read",
+          description: "read",
+          kind: "tool",
+          capabilityClass: "sandbox-local",
+          runtimeContext: {
+            agentId: "main",
+            sandboxMode: "all",
+            runtimeProfile: "coding-base",
+            sandboxed: true,
+          },
+          source: "core",
+          evidence: {
+            runtime: {
+              profile: "coding-base",
+              declaredImage: "",
+              missingBins: [],
+              missingAnyBins: [],
+              missingOs: [],
+              reasonCodes: [],
+            },
+          },
+        },
+      ],
+    };
+
+    expect(isResolvedCapabilityManifest(invalid)).toBe(false);
+  });
+
   it("rejects unsupported skill manifests that omit runtime evidence", () => {
     const invalid = {
       schemaVersion: 1,

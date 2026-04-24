@@ -2,14 +2,15 @@ import {
   buildResolvedSkillCapability,
   buildResolvedToolCapability,
   createResolvedCapabilityManifest,
+  hasBlockingRuntimeGap,
   type ResolvedCapabilityEvidence,
   type ResolvedCapabilityPolicy,
   type ResolvedCapabilityRemoteEvidence,
-  type ResolvedCapabilityRuntimeEvidence,
   type ResolvedCapabilityRuntimeContext,
   type ResolvedCapabilityUnavailableReason,
   type ResolvedSkillCapability,
   type ResolvedToolCapability,
+  runtimeEvidenceCanBeSatisfiedRemotely,
 } from "../../shared/resolved-capability-manifest.js";
 import { resolveSandboxToolPolicyDecision } from "../sandbox/tool-policy.js";
 import type {
@@ -180,40 +181,6 @@ function resolveSkillRuntimeDetail(input: CollectedSkillCapabilityInput): string
   ]);
 }
 
-const NON_BLOCKING_RUNTIME_REASON_CODES: ReadonlySet<ResolvedCapabilityUnavailableReason> = new Set([
-  "custom-runtime-image",
-]);
-
-function hasBlockingRuntimeGap(runtime?: ResolvedCapabilityRuntimeEvidence): boolean {
-  if (!runtime) {
-    return false;
-  }
-  if (runtime.missingBins.length > 0 || runtime.missingAnyBins.length > 0 || runtime.missingOs.length > 0) {
-    return true;
-  }
-  return runtime.reasonCodes.some((code) => !NON_BLOCKING_RUNTIME_REASON_CODES.has(code));
-}
-
-function canUseRemoteRuntime(runtime?: ResolvedCapabilityRuntimeEvidence): boolean {
-  if (!runtime) {
-    return true;
-  }
-  if (
-    runtime.reasonCodes.some(
-      (code) =>
-        ![
-          "missing-runtime-binaries",
-          "missing-runtime-any-binaries",
-          "unsupported-os",
-          "custom-runtime-image",
-        ].includes(code),
-    )
-  ) {
-    return false;
-  }
-  return runtime.missingBins.length > 0 || runtime.missingAnyBins.length > 0 || runtime.missingOs.length > 0;
-}
-
 function resolveToolPolicy(
   input: CollectedToolCapabilityInput,
 ): ResolvedCapabilityPolicy | undefined {
@@ -331,7 +298,11 @@ export function resolveCollectedToolCapability(
   }
 
   const remoteEvidence = toRemoteEvidence(input.availability);
-  if (input.intent === "remote-node-assisted" && remoteEvidence && canUseRemoteRuntime(evidence?.runtime)) {
+  if (
+    input.intent === "remote-node-assisted" &&
+    remoteEvidence &&
+    runtimeEvidenceCanBeSatisfiedRemotely(evidence?.runtime)
+  ) {
     return buildResolvedToolCapability({
       id: input.id,
       label: input.label,

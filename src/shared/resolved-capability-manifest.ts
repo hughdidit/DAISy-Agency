@@ -291,6 +291,10 @@ function isOptionalString(value: unknown): value is string | undefined {
   return value === undefined || typeof value === "string";
 }
 
+function isOptionalNonEmptyTrimmedString(value: unknown): value is string | undefined {
+  return value === undefined || (typeof value === "string" && value.trim().length > 0);
+}
+
 function isOptionalBoolean(value: unknown): value is boolean | undefined {
   return value === undefined || typeof value === "boolean";
 }
@@ -440,9 +444,9 @@ export function isResolvedRuntimeEvidence(
     value.reasonCodes.every(isResolvedCapabilityUnavailableReason) &&
     (value.profile === undefined || isSandboxRuntimeProfileId(value.profile)) &&
     (value.supportStatus === undefined || isSandboxRuntimeSupportStatus(value.supportStatus)) &&
-    isOptionalString(value.declaredImage) &&
-    isOptionalString(value.matchedImage) &&
-    isOptionalString(value.customImage) &&
+    isOptionalNonEmptyTrimmedString(value.declaredImage) &&
+    isOptionalNonEmptyTrimmedString(value.matchedImage) &&
+    isOptionalNonEmptyTrimmedString(value.customImage) &&
     isOptionalString(value.detail)
   );
 }
@@ -706,11 +710,11 @@ function toRuntimeEvidence(params: {
   };
 }
 
-const NON_BLOCKING_RUNTIME_REASON_CODES: ReadonlySet<ResolvedCapabilityUnavailableReason> = new Set([
+export const NON_BLOCKING_RUNTIME_REASON_CODES: ReadonlySet<ResolvedCapabilityUnavailableReason> = new Set([
   "custom-runtime-image",
 ]);
 
-function hasBlockingRuntimeGap(evidence?: ResolvedCapabilityRuntimeEvidence): boolean {
+export function hasBlockingRuntimeGap(evidence?: ResolvedCapabilityRuntimeEvidence): boolean {
   if (!evidence) {
     return false;
   }
@@ -720,7 +724,7 @@ function hasBlockingRuntimeGap(evidence?: ResolvedCapabilityRuntimeEvidence): bo
   return evidence.reasonCodes.some((code) => !NON_BLOCKING_RUNTIME_REASON_CODES.has(code));
 }
 
-function runtimeEvidenceCanBeSatisfiedRemotely(
+export function runtimeEvidenceCanBeSatisfiedRemotely(
   evidence?: ResolvedCapabilityRuntimeEvidence,
 ): boolean {
   if (!evidence) {
