@@ -2,6 +2,7 @@ import {
   buildResolvedSkillCapability,
   buildResolvedToolCapability,
   createResolvedCapabilityManifest,
+  hasBlockingRuntimeGap,
   type ResolvedCapabilityEvidence,
   type ResolvedCapabilityPolicy,
   type ResolvedCapabilityRemoteEvidence,
@@ -9,6 +10,7 @@ import {
   type ResolvedCapabilityUnavailableReason,
   type ResolvedSkillCapability,
   type ResolvedToolCapability,
+  runtimeEvidenceCanBeSatisfiedRemotely,
 } from "../../shared/resolved-capability-manifest.js";
 import { resolveSandboxToolPolicyDecision } from "../sandbox/tool-policy.js";
 import type {
@@ -86,9 +88,25 @@ function toResolvedEvidence(
       uniqueStrings(availability.runtime.missingAnyBins).length > 0 ||
       uniqueStrings(availability.runtime.missingOs).length > 0 ||
       availability.runtime.profile ||
+      availability.runtime.supportStatus ||
+      availability.runtime.declaredImage ||
+      availability.runtime.matchedImage ||
+      availability.runtime.customImage ||
       availability.runtime.detail)
       ? {
           ...(availability.runtime.profile ? { profile: availability.runtime.profile } : {}),
+          ...(availability.runtime.supportStatus
+            ? { supportStatus: availability.runtime.supportStatus }
+            : {}),
+          ...(availability.runtime.declaredImage
+            ? { declaredImage: availability.runtime.declaredImage }
+            : {}),
+          ...(availability.runtime.matchedImage
+            ? { matchedImage: availability.runtime.matchedImage }
+            : {}),
+          ...(availability.runtime.customImage
+            ? { customImage: availability.runtime.customImage }
+            : {}),
           missingBins: uniqueStrings(availability.runtime.missingBins),
           missingAnyBins: uniqueStrings(availability.runtime.missingAnyBins),
           missingOs: uniqueStrings(availability.runtime.missingOs),
@@ -248,6 +266,10 @@ export function resolveCollectedSkillCapability(
     remoteSatisfied: input.remoteSatisfied,
     runtimeContext: input.runtimeContext,
     runtimeProfile: input.availability?.runtime?.profile,
+    runtimeSupportStatus: input.availability?.runtime?.supportStatus,
+    runtimeDeclaredImage: input.availability?.runtime?.declaredImage,
+    runtimeMatchedImage: input.availability?.runtime?.matchedImage,
+    runtimeCustomImage: input.availability?.runtime?.customImage,
     runtimeReasonCodes: resolveSkillRuntimeReasonCodes(input),
     runtimeDetail: resolveSkillRuntimeDetail(input),
   });
@@ -276,7 +298,11 @@ export function resolveCollectedToolCapability(
   }
 
   const remoteEvidence = toRemoteEvidence(input.availability);
-  if (input.intent === "remote-node-assisted" && remoteEvidence) {
+  if (
+    input.intent === "remote-node-assisted" &&
+    remoteEvidence &&
+    runtimeEvidenceCanBeSatisfiedRemotely(evidence?.runtime)
+  ) {
     return buildResolvedToolCapability({
       id: input.id,
       label: input.label,
@@ -300,7 +326,9 @@ export function resolveCollectedToolCapability(
   const providerReady =
     input.intent === "gateway-brokered" &&
     input.availability?.provider &&
-    providerReasonCodes.length === 0;
+    providerReasonCodes.length === 0 &&
+    !hasBlockingRuntimeGap(evidence?.runtime) &&
+    !evidence?.projection?.reasonCodes?.includes("missing-projection");
   if (providerReady && evidence?.provider) {
     return buildResolvedToolCapability({
       id: input.id,
@@ -323,7 +351,7 @@ export function resolveCollectedToolCapability(
   const unsupportedAvailability = ensureUnsupportedAvailability(input);
   const unsupportedEvidence = toResolvedEvidence(unsupportedAvailability);
   const hasUnsupportedEvidence =
-    unsupportedEvidence?.runtime ||
+    hasBlockingRuntimeGap(unsupportedEvidence?.runtime) ||
     unsupportedEvidence?.projection ||
     unsupportedEvidence?.provider;
   if (hasUnsupportedEvidence) {
@@ -355,6 +383,7 @@ export function resolveCollectedToolCapability(
     defaultProfiles: input.defaultProfiles,
     runtimeContext: input.runtimeContext,
     capabilityClass: "sandbox-local",
+    ...(evidence ? { evidence } : {}),
   });
 }
 

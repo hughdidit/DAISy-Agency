@@ -20,6 +20,7 @@ OpenClaw 只支持一小组明确命名的沙箱运行时配置档。这些配�
 | -------------------- | ------------------------------------------------ | --------------------------------------------------------------------------- | ------------------------------------------------------- |
 | `ops-readonly`       | 只读诊断、检查与沙箱安全的运维排障               | 最小权限、以只读投影为中心的运行时                                          | sandbox-local + gateway-brokered                        |
 | `coding-base`        | 在声明的工作区边界内进行常规编码、编辑和命令执行 | 默认的 sandbox-first 编码运行时，工作区访问显式配置，不默认保证直接网络能力 | sandbox-local + gateway-brokered + remote-node-assisted |
+| `coding-extended`    | 依赖受维护的 common 沙箱镜像的编码工作流         | 与 coding-base 相同的 sandbox-first 信任边界，但官方声明的运行时更宽        | sandbox-local + gateway-brokered + remote-node-assisted |
 | `browser-automation` | 启用沙箱浏览器支持时的浏览器/CDP 工作流          | 与专用浏览器运行时配对的沙箱运行时；浏览器支持必须显式启用                  | sandbox-local + gateway-brokered + browser              |
 
 ## 配置档说明
@@ -54,6 +55,16 @@ OpenClaw 只支持一小组明确命名的沙箱运行时配置档。这些配�
 - 通过 `agents.defaults.sandbox.browser` 启用浏览器支持
 - 浏览器能力依赖专用沙箱浏览器运行时，而不是基础镜像中的偶然软件包
 - 非浏览器能力仍然遵守正常的沙箱与网关策略
+
+### `coding-extended`
+
+当运行时明确使用受维护的 common 沙箱镜像，而不是较小的基础镜像时，使用此配置档。
+
+基础预期：
+
+- 声明的 docker 镜像匹配 `openclaw-sandbox-common:bookworm-slim`
+- 信任边界与 `coding-base` 相同
+- 更宽的受维护运行时也不会自动带来浏览器支持
 
 ## 自定义镜像与 setupCommand
 

@@ -1,5 +1,8 @@
 import { Type } from "@sinclair/typebox";
-import { SUPPORTED_SANDBOX_RUNTIME_PROFILE_IDS } from "../../../shared/sandbox-runtime-profiles.js";
+import {
+  SANDBOX_RUNTIME_SUPPORT_STATUSES,
+  SUPPORTED_SANDBOX_RUNTIME_PROFILE_IDS,
+} from "../../../shared/sandbox-runtime-profiles.js";
 import { NonEmptyString } from "./primitives.js";
 
 export const ModelChoiceSchema = Type.Object(
@@ -367,6 +370,10 @@ export const ResolvedCapabilityUnavailableReasonSchema = Type.Union(
     Type.Literal("missing-runtime-any-binaries"),
     Type.Literal("unsupported-os"),
     Type.Literal("missing-runtime-profile"),
+    Type.Literal("unsupported-runtime-family"),
+    Type.Literal("runtime-profile-image-mismatch"),
+    Type.Literal("custom-runtime-image"),
+    Type.Literal("browser-runtime-disabled"),
     Type.Literal("missing-projection"),
     Type.Literal("missing-provider"),
   ],
@@ -375,6 +382,10 @@ export const ResolvedCapabilityUnavailableReasonSchema = Type.Union(
 
 const SandboxRuntimeProfileIdSchema = Type.String({
   enum: [...SUPPORTED_SANDBOX_RUNTIME_PROFILE_IDS],
+});
+
+const SandboxRuntimeSupportStatusSchema = Type.String({
+  enum: [...SANDBOX_RUNTIME_SUPPORT_STATUSES],
 });
 
 export const ResolvedCapabilityRuntimeContextSchema = Type.Object(
@@ -414,13 +425,35 @@ export const ResolvedCapabilityPolicySchema = Type.Object(
 export const ResolvedCapabilityRuntimeEvidenceSchema = Type.Object(
   {
     profile: Type.Optional(SandboxRuntimeProfileIdSchema),
+    supportStatus: Type.Optional(SandboxRuntimeSupportStatusSchema),
+    declaredImage: Type.Optional(NonEmptyString),
+    matchedImage: Type.Optional(NonEmptyString),
+    customImage: Type.Optional(NonEmptyString),
     missingBins: Type.Array(NonEmptyString),
     missingAnyBins: Type.Array(NonEmptyString),
     missingOs: Type.Array(NonEmptyString),
     reasonCodes: Type.Array(ResolvedCapabilityUnavailableReasonSchema),
     detail: Type.Optional(Type.String()),
   },
-  { additionalProperties: false, $id: "ResolvedCapabilityRuntimeEvidence" },
+  {
+    additionalProperties: false,
+    $id: "ResolvedCapabilityRuntimeEvidence",
+    allOf: [
+      {
+        if: {
+          properties: {
+            supportStatus: {
+              const: "custom-image",
+            },
+          },
+          required: ["supportStatus"],
+        },
+        then: {
+          required: ["customImage"],
+        },
+      },
+    ],
+  },
 );
 
 export const ResolvedCapabilityProjectionEvidenceSchema = Type.Object(
@@ -528,6 +561,7 @@ export const ResolvedSkillLocalCapabilitySchema = Type.Object(
   {
     ...ResolvedSkillCapabilitySharedSchema,
     capabilityClass: Type.Literal("sandbox-local"),
+    evidence: Type.Optional(ResolvedCapabilityEvidenceSchema),
   },
   { additionalProperties: false, $id: "ResolvedSkillLocalCapability" },
 );
@@ -611,6 +645,7 @@ export const ResolvedToolLocalCapabilitySchema = Type.Object(
   {
     ...ResolvedToolCapabilitySharedSchema,
     capabilityClass: Type.Literal("sandbox-local"),
+    evidence: Type.Optional(ResolvedCapabilityEvidenceSchema),
   },
   { additionalProperties: false, $id: "ResolvedToolLocalCapability" },
 );

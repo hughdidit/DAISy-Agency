@@ -23,6 +23,7 @@ describe("resolved capability manifest", () => {
     expect(RESOLVED_CAPABILITY_DENY_REASONS).toContain("tool-denied-by-sandbox-policy");
     expect(RESOLVED_CAPABILITY_POLICY_SOURCE_KINDS).toContain("bundled-skill-allowlist");
     expect(RESOLVED_CAPABILITY_UNAVAILABLE_REASONS).toContain("missing-runtime-binaries");
+    expect(RESOLVED_CAPABILITY_UNAVAILABLE_REASONS).toContain("custom-runtime-image");
   });
 
   it("creates JSON-serializable manifests that round-trip through the runtime guard", () => {
@@ -186,6 +187,36 @@ describe("resolved capability manifest", () => {
     expect(capability.evidence?.runtime?.detail).toBe("Readonly projection incomplete.");
   });
 
+  it("preserves non-blocking runtime profile metadata on sandbox-local skills", () => {
+    const capability = buildResolvedSkillCapability({
+      name: "custom-runtime-skill",
+      description: "custom runtime skill",
+      source: "openclaw-bundled",
+      skillKey: "custom-runtime-skill",
+      bundled: true,
+      filePath: "/tmp/custom-runtime-skill/SKILL.md",
+      requirements: { bins: [], anyBins: [], env: [], config: [], os: [] },
+      missing: { bins: [], anyBins: [], env: [], config: [], os: [] },
+      configChecks: [],
+      disabled: false,
+      blockedByAllowlist: false,
+      remoteSatisfied: null,
+      runtimeContext: { agentId: "main", sandboxed: true, runtimeProfile: "coding-base" },
+      runtimeProfile: "coding-base",
+      runtimeSupportStatus: "custom-image",
+      runtimeCustomImage: "ghcr.io/example/custom-sandbox:latest",
+      runtimeReasonCodes: ["custom-runtime-image"],
+      runtimeDetail: "Custom sandbox image declared for coding-base.",
+    });
+
+    expect(capability.capabilityClass).toBe("sandbox-local");
+    expect(capability.evidence?.runtime).toMatchObject({
+      profile: "coding-base",
+      supportStatus: "custom-image",
+      customImage: "ghcr.io/example/custom-sandbox:latest",
+    });
+  });
+
   it("requires remote evidence for remote-assisted tool capabilities", () => {
     expect(() =>
       buildResolvedToolCapability({
@@ -273,10 +304,130 @@ describe("resolved capability manifest", () => {
       runtimeContext: {
         agentId: "main",
         sandboxMode: "all",
-        runtimeProfile: "coding-extended",
+        runtimeProfile: "data-processing",
         sandboxed: true,
       },
       capabilities: [],
+    };
+
+    expect(isResolvedCapabilityManifest(invalid)).toBe(false);
+  });
+
+  it("accepts extended runtime evidence fields on supported profiles", () => {
+    const manifest = createResolvedCapabilityManifest({
+      runtimeContext: {
+        agentId: "main",
+        sandboxMode: "all",
+        runtimeProfile: "coding-extended",
+        sandboxed: true,
+      },
+      capabilities: [
+        buildResolvedToolCapability({
+          id: "read",
+          label: "read",
+          description: "read",
+          source: "core",
+          capabilityClass: "sandbox-local",
+          runtimeContext: {
+            agentId: "main",
+            sandboxMode: "all",
+            runtimeProfile: "coding-extended",
+            sandboxed: true,
+          },
+          evidence: {
+            runtime: {
+              profile: "coding-extended",
+              supportStatus: "custom-image",
+              declaredImage: "ghcr.io/example/custom-sandbox:latest",
+              customImage: "ghcr.io/example/custom-sandbox:latest",
+              missingBins: [],
+              missingAnyBins: [],
+              missingOs: [],
+              reasonCodes: ["custom-runtime-image"],
+            },
+          },
+        }),
+      ],
+    });
+
+    expect(isResolvedCapabilityManifest(JSON.parse(JSON.stringify(manifest)))).toBe(true);
+  });
+
+  it("rejects custom-image runtime evidence that omits the custom image value", () => {
+    const invalid = {
+      schemaVersion: 1,
+      runtimeContext: {
+        agentId: "main",
+        sandboxMode: "all",
+        runtimeProfile: "coding-base",
+        sandboxed: true,
+      },
+      capabilities: [
+        {
+          id: "read",
+          label: "read",
+          description: "read",
+          kind: "tool",
+          capabilityClass: "sandbox-local",
+          runtimeContext: {
+            agentId: "main",
+            sandboxMode: "all",
+            runtimeProfile: "coding-base",
+            sandboxed: true,
+          },
+          source: "core",
+          evidence: {
+            runtime: {
+              profile: "coding-base",
+              supportStatus: "custom-image",
+              missingBins: [],
+              missingAnyBins: [],
+              missingOs: [],
+              reasonCodes: ["custom-runtime-image"],
+            },
+          },
+        },
+      ],
+    };
+
+    expect(isResolvedCapabilityManifest(invalid)).toBe(false);
+  });
+
+  it("rejects runtime evidence with empty image identifiers that violate the schema contract", () => {
+    const invalid = {
+      schemaVersion: 1,
+      runtimeContext: {
+        agentId: "main",
+        sandboxMode: "all",
+        runtimeProfile: "coding-base",
+        sandboxed: true,
+      },
+      capabilities: [
+        {
+          id: "read",
+          label: "read",
+          description: "read",
+          kind: "tool",
+          capabilityClass: "sandbox-local",
+          runtimeContext: {
+            agentId: "main",
+            sandboxMode: "all",
+            runtimeProfile: "coding-base",
+            sandboxed: true,
+          },
+          source: "core",
+          evidence: {
+            runtime: {
+              profile: "coding-base",
+              declaredImage: "",
+              missingBins: [],
+              missingAnyBins: [],
+              missingOs: [],
+              reasonCodes: [],
+            },
+          },
+        },
+      ],
     };
 
     expect(isResolvedCapabilityManifest(invalid)).toBe(false);

@@ -1,8 +1,13 @@
 import path from "node:path";
 import type { OpenClawConfig } from "../../config/config.js";
 import { evaluateEntryRequirementsForCurrentPlatform } from "../../shared/entry-status.js";
+import { inferSandboxSkillFamily } from "../../shared/sandbox-runtime-profiles.js";
 import type { RequirementRemoteSatisfied } from "../../shared/requirements.js";
 import { CONFIG_DIR } from "../../utils.js";
+import {
+  resolveSandboxRuntimeSkillSupport,
+  type ResolvedSandboxRuntimeProfile,
+} from "../sandbox/runtime-profile-resolution.js";
 import {
   hasBinary,
   isBundledSkillAllowed,
@@ -146,8 +151,48 @@ function buildSkillSortKey(entry: SkillEntry): string {
   return `skill:${entry.skill.name.toLowerCase()}:${entry.skill.filePath.toLowerCase()}`;
 }
 
+function createRuntimeAvailabilityForSkill(params: {
+  entry: SkillEntry;
+  runtimeProfileResolution?: ResolvedSandboxRuntimeProfile;
+}): CapabilityAvailabilityFacts | undefined {
+  const resolvedProfile = params.runtimeProfileResolution;
+  if (!resolvedProfile) {
+    return undefined;
+  }
+  const family = inferSandboxSkillFamily({
+    name: params.entry.skill.name,
+    source: params.entry.skill.source,
+    skillKey: resolveSkillKey(params.entry),
+    primaryEnv: params.entry.metadata?.primaryEnv,
+    requirements: {
+      env: params.entry.metadata?.requires?.env,
+      config: params.entry.metadata?.requires?.config,
+    },
+  });
+  const support = resolveSandboxRuntimeSkillSupport({
+    resolvedProfile,
+    family,
+  });
+  return {
+    runtime: {
+      profile: resolvedProfile.declaredProfileId,
+      supportStatus: resolvedProfile.supportStatus,
+      declaredImage: resolvedProfile.declaredImage,
+      matchedImage: resolvedProfile.matchedImage,
+      customImage: resolvedProfile.customImage,
+      reasonCodes: support.reasonCodes,
+      detail: support.detail,
+    },
+  };
+}
+
 export function resolveManagedSkillsDir(managedSkillsDir?: string): string {
   return managedSkillsDir ?? path.join(CONFIG_DIR, "skills");
+}
+
+function mergeStringArrays<T extends string>(base?: T[], override?: T[]): T[] | undefined {
+  const merged = Array.from(new Set([...(base ?? []), ...(override ?? [])]));
+  return merged.length > 0 ? merged : undefined;
 }
 
 export function mergeAvailabilityFacts(
@@ -158,10 +203,120 @@ export function mergeAvailabilityFacts(
     return undefined;
   }
   return {
-    runtime: override?.runtime ?? base?.runtime,
-    projection: override?.projection ?? base?.projection,
-    provider: override?.provider ?? base?.provider,
-    remote: override?.remote ?? base?.remote,
+    runtime:
+      base?.runtime || override?.runtime
+        ? {
+            ...(base?.runtime ?? {}),
+            ...(override?.runtime ?? {}),
+            ...(mergeStringArrays(base?.runtime?.missingBins, override?.runtime?.missingBins)
+              ? {
+                  missingBins: mergeStringArrays(
+                    base?.runtime?.missingBins,
+                    override?.runtime?.missingBins,
+                  ),
+                }
+              : {}),
+            ...(mergeStringArrays(
+              base?.runtime?.missingAnyBins,
+              override?.runtime?.missingAnyBins,
+            )
+              ? {
+                  missingAnyBins: mergeStringArrays(
+                    base?.runtime?.missingAnyBins,
+                    override?.runtime?.missingAnyBins,
+                  ),
+                }
+              : {}),
+            ...(mergeStringArrays(base?.runtime?.missingOs, override?.runtime?.missingOs)
+              ? {
+                  missingOs: mergeStringArrays(base?.runtime?.missingOs, override?.runtime?.missingOs),
+                }
+              : {}),
+            ...(mergeStringArrays(base?.runtime?.reasonCodes, override?.runtime?.reasonCodes)
+              ? {
+                  reasonCodes: mergeStringArrays(
+                    base?.runtime?.reasonCodes,
+                    override?.runtime?.reasonCodes,
+                  ),
+                }
+              : {}),
+          }
+        : undefined,
+    projection:
+      base?.projection || override?.projection
+        ? {
+            ...(base?.projection ?? {}),
+            ...(override?.projection ?? {}),
+            ...(mergeStringArrays(
+              base?.projection?.missingPaths,
+              override?.projection?.missingPaths,
+            )
+              ? {
+                  missingPaths: mergeStringArrays(
+                    base?.projection?.missingPaths,
+                    override?.projection?.missingPaths,
+                  ),
+                }
+              : {}),
+            ...(mergeStringArrays(
+              base?.projection?.reasonCodes,
+              override?.projection?.reasonCodes,
+            )
+              ? {
+                  reasonCodes: mergeStringArrays(
+                    base?.projection?.reasonCodes,
+                    override?.projection?.reasonCodes,
+                  ),
+                }
+              : {}),
+          }
+        : undefined,
+    provider:
+      base?.provider || override?.provider
+        ? {
+            ...(base?.provider ?? {}),
+            ...(override?.provider ?? {}),
+            ...(mergeStringArrays(base?.provider?.reasonCodes, override?.provider?.reasonCodes)
+              ? {
+                  reasonCodes: mergeStringArrays(
+                    base?.provider?.reasonCodes,
+                    override?.provider?.reasonCodes,
+                  ),
+                }
+              : {}),
+          }
+        : undefined,
+    remote:
+      base?.remote || override?.remote
+        ? {
+            ...(base?.remote ?? {}),
+            ...(override?.remote ?? {}),
+            ...(mergeStringArrays(base?.remote?.satisfiedBins, override?.remote?.satisfiedBins)
+              ? {
+                  satisfiedBins: mergeStringArrays(
+                    base?.remote?.satisfiedBins,
+                    override?.remote?.satisfiedBins,
+                  ),
+                }
+              : {}),
+            ...(mergeStringArrays(
+              base?.remote?.satisfiedAnyBins,
+              override?.remote?.satisfiedAnyBins,
+            )
+              ? {
+                  satisfiedAnyBins: mergeStringArrays(
+                    base?.remote?.satisfiedAnyBins,
+                    override?.remote?.satisfiedAnyBins,
+                  ),
+                }
+              : {}),
+            ...(mergeStringArrays(base?.remote?.satisfiedOs, override?.remote?.satisfiedOs)
+              ? {
+                  satisfiedOs: mergeStringArrays(base?.remote?.satisfiedOs, override?.remote?.satisfiedOs),
+                }
+              : {}),
+          }
+        : undefined,
   };
 }
 
@@ -173,6 +328,7 @@ export function collectWorkspaceSkillCapabilityInputs(params: {
   entries?: SkillEntry[];
   eligibility?: SkillEligibilityContext;
   overrides?: Record<string, CapabilityAvailabilityFacts | undefined>;
+  runtimeProfileResolution?: ResolvedSandboxRuntimeProfile;
 }): {
   managedSkillsDir: string;
   skills: CollectedSkillCapabilityInput[];
@@ -256,7 +412,13 @@ export function collectWorkspaceSkillCapabilityInputs(params: {
         remoteSatisfied: hasRemoteSatisfaction(remoteSatisfied) ? remoteSatisfied : null,
         install: normalizeInstallOptions(entry, prefs),
         runtimeContext: params.runtimeContext,
-        availability: params.overrides?.[entry.skill.name],
+        availability: mergeAvailabilityFacts(
+          createRuntimeAvailabilityForSkill({
+            entry,
+            runtimeProfileResolution: params.runtimeProfileResolution,
+          }),
+          params.overrides?.[entry.skill.name],
+        ),
       } satisfies CollectedSkillCapabilityInput;
     })
     .toSorted((a, b) => a.sortKey.localeCompare(b.sortKey));

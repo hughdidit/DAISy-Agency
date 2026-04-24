@@ -20,6 +20,7 @@ Set the profile with `agents.defaults.sandbox.profile` or
 | -------------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
 | `ops-readonly`       | Read-only diagnostics, inspection, and sandbox-safe operator triage                  | Minimal authority, read-only projection-focused runtime                                                     | sandbox-local + gateway-brokered                        |
 | `coding-base`        | Normal coding, editing, and command execution inside the declared workspace boundary | Default sandbox-first coding runtime with explicit workspace access and no implied direct network guarantee | sandbox-local + gateway-brokered + remote-node-assisted |
+| `coding-extended`    | Coding workflows that depend on the maintained common sandbox image                  | Same sandbox-first trust boundary as coding-base, but with a broader official runtime footprint            | sandbox-local + gateway-brokered + remote-node-assisted |
 | `browser-automation` | Browser and CDP-driven workflows when sandbox browser support is enabled             | Sandbox runtime paired with the dedicated browser runtime; browser support must be explicitly enabled       | sandbox-local + gateway-brokered + browser              |
 
 ## Profile details
@@ -58,6 +59,17 @@ Baseline expectations:
 - browser capability depends on the dedicated sandbox browser runtime, not on
   arbitrary packages in the base sandbox image
 - non-browser capabilities still follow normal sandbox and gateway policy
+
+### `coding-extended`
+
+Use this when the runtime is intentionally backed by the maintained common
+sandbox image rather than the smaller base image.
+
+Baseline expectations:
+
+- the declared docker image matches `openclaw-sandbox-common:bookworm-slim`
+- the trust boundary stays the same as `coding-base`
+- broader maintained runtimes still do not imply browser support
 
 ## Custom images and setupCommand
 

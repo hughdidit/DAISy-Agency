@@ -104,6 +104,18 @@ function formatEvidenceDetail(evidence?: ResolvedCapabilityEvidence): string | u
   if (evidence.runtime?.profile?.trim()) {
     runtimeParts.push(`profile ${evidence.runtime.profile.trim()}`);
   }
+  if (evidence.runtime?.supportStatus?.trim()) {
+    runtimeParts.push(`support ${evidence.runtime.supportStatus.trim()}`);
+  }
+  if (evidence.runtime?.declaredImage?.trim()) {
+    runtimeParts.push(`declared image: ${evidence.runtime.declaredImage.trim()}`);
+  }
+  if (evidence.runtime?.matchedImage?.trim()) {
+    runtimeParts.push(`matched image: ${evidence.runtime.matchedImage.trim()}`);
+  }
+  if (evidence.runtime?.customImage?.trim()) {
+    runtimeParts.push(`custom image: ${evidence.runtime.customImage.trim()}`);
+  }
   const missingBins = formatList(evidence.runtime?.missingBins ?? []);
   if (missingBins) {
     runtimeParts.push(`missing bins: ${missingBins}`);

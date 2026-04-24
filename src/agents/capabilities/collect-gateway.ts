@@ -7,6 +7,11 @@ import {
   resolveDefaultAgentId,
 } from "../agent-scope.js";
 import { resolveSandboxConfigForAgent } from "../sandbox/config.js";
+import {
+  resolveSandboxRuntimeCapabilitySupport,
+  resolveSandboxRuntimeProfile,
+  type ResolvedSandboxRuntimeProfile,
+} from "../sandbox/runtime-profile-resolution.js";
 import { resolveSandboxRuntimeStatus } from "../sandbox/runtime-status.js";
 import { type SkillEligibilityContext, type SkillEntry } from "../skills.js";
 import {
@@ -14,6 +19,7 @@ import {
   resolveCoreToolCapabilityBoundary,
   resolveCoreToolProfiles,
 } from "../tool-catalog.js";
+import { resolveCoreToolCapabilityFamily } from "../../shared/sandbox-runtime-profiles.js";
 import {
   collectWorkspaceSkillCapabilityInputs,
   createGatewayProviderAvailability,
@@ -70,9 +76,34 @@ function buildRuntimeContext(params: {
   };
 }
 
+function createRuntimeAvailabilityForTool(params: {
+  resolvedProfile: ResolvedSandboxRuntimeProfile;
+  toolId: string;
+  source: "core" | "plugin";
+}): CapabilityAvailabilityFacts {
+  const family =
+    params.source === "core" ? resolveCoreToolCapabilityFamily(params.toolId) : "plugin-brokered";
+  const support = resolveSandboxRuntimeCapabilitySupport({
+    resolvedProfile: params.resolvedProfile,
+    family,
+  });
+  return {
+    runtime: {
+      profile: params.resolvedProfile.declaredProfileId,
+      supportStatus: params.resolvedProfile.supportStatus,
+      declaredImage: params.resolvedProfile.declaredImage,
+      matchedImage: params.resolvedProfile.matchedImage,
+      customImage: params.resolvedProfile.customImage,
+      reasonCodes: support.reasonCodes,
+      detail: support.detail,
+    },
+  };
+}
+
 function collectCoreToolInputs(params: {
   runtimeContext: CapabilityResolutionInput["runtimeContext"];
   toolPolicy: CollectedToolCapabilityInput["toolPolicy"];
+  runtimeProfileResolution: ResolvedSandboxRuntimeProfile;
   toolOverrides?: GatewayCapabilityCollectorParams["toolOverrides"];
 }): CollectedToolCapabilityInput[] {
   const sections = listCoreToolSections();
@@ -98,6 +129,11 @@ function collectCoreToolInputs(params: {
         toolPolicy: params.toolPolicy,
         intent,
         availability: mergeAvailabilityFacts(
+          createRuntimeAvailabilityForTool({
+            resolvedProfile: params.runtimeProfileResolution,
+            toolId: tool.id,
+            source: "core",
+          }),
           intent === "gateway-brokered"
             ? createGatewayProviderAvailability({
                 providerId: "gateway",
@@ -119,6 +155,7 @@ function collectPluginToolInputs(params: {
   agentDir: string;
   runtimeContext: CapabilityResolutionInput["runtimeContext"];
   toolPolicy: CollectedToolCapabilityInput["toolPolicy"];
+  runtimeProfileResolution: ResolvedSandboxRuntimeProfile;
   toolOverrides?: GatewayCapabilityCollectorParams["toolOverrides"];
   pluginTools?: GatewayCapabilityCollectorParams["pluginTools"];
   existingToolNames: Set<string>;
@@ -172,6 +209,11 @@ function collectPluginToolInputs(params: {
         toolPolicy: params.toolPolicy,
         intent,
         availability: mergeAvailabilityFacts(
+          createRuntimeAvailabilityForTool({
+            resolvedProfile: params.runtimeProfileResolution,
+            toolId: tool.name,
+            source: "plugin",
+          }),
           intent === "gateway-brokered"
             ? createGatewayProviderAvailability({
                 providerId: tool.pluginId,
@@ -202,6 +244,10 @@ export function collectGatewayCapabilityInputs(
     config,
     runtime,
   });
+  const runtimeProfileResolution = resolveSandboxRuntimeProfile({
+    mode: "gateway",
+    sandboxConfig: resolveSandboxConfigForAgent(config, agentId),
+  });
   const skillCollection =
     params.includeSkills === false
       ? { managedSkillsDir: resolveManagedSkillsDir(params.managedSkillsDir), skills: [] }
@@ -213,10 +259,12 @@ export function collectGatewayCapabilityInputs(
           entries: params.entries,
           eligibility: params.eligibility ?? { remote: getRemoteSkillEligibility() },
           overrides: params.skillAvailability,
+          runtimeProfileResolution,
         });
   const coreTools = collectCoreToolInputs({
     runtimeContext,
     toolPolicy: runtime.toolPolicy,
+    runtimeProfileResolution,
     toolOverrides: params.toolOverrides,
   });
   const pluginTools =
@@ -229,6 +277,7 @@ export function collectGatewayCapabilityInputs(
           agentDir,
           runtimeContext,
           toolPolicy: runtime.toolPolicy,
+          runtimeProfileResolution,
           toolOverrides: params.toolOverrides,
           pluginTools: params.pluginTools,
           existingToolNames: new Set(coreTools.map((tool) => tool.id)),

@@ -8,7 +8,7 @@ import { validateConfigObject } from "./config.js";
 
 describe("sandbox docker config", () => {
   it("accepts supported sandbox runtime profile ids", () => {
-    for (const profile of ["ops-readonly", "coding-base", "browser-automation"]) {
+    for (const profile of ["ops-readonly", "coding-base", "coding-extended", "browser-automation"]) {
       const res = validateConfigObject({
         agents: {
           defaults: {
@@ -27,7 +27,7 @@ describe("sandbox docker config", () => {
       agents: {
         defaults: {
           sandbox: {
-            profile: "coding-extended",
+            profile: "data-processing",
           },
         },
       },

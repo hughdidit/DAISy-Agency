@@ -207,6 +207,79 @@ describe("capability resolver", () => {
     expect(unsupported?.evidence?.provider?.reasonCodes).toContain("missing-provider");
   });
 
+  it("keeps custom-image runtime metadata on local capabilities without silently upgrading support", () => {
+    const manifest = resolveCapabilityManifest({
+      runtimeContext,
+      skills: [],
+      tools: [
+        createToolInput({
+          id: "read",
+          label: "read",
+          matchKey: "tool:core::read",
+          sortKey: "tool:001:read",
+          availability: {
+            runtime: {
+              profile: "coding-base",
+              supportStatus: "custom-image",
+              customImage: "ghcr.io/example/custom-sandbox:latest",
+              reasonCodes: ["custom-runtime-image"],
+              detail: "Custom sandbox image declared for coding-base.",
+            },
+          },
+        }),
+      ],
+    });
+
+    const capability = manifest.capabilities[0];
+    expect(capability?.capabilityClass).toBe("sandbox-local");
+    expect(capability?.evidence?.runtime).toMatchObject({
+      profile: "coding-base",
+      supportStatus: "custom-image",
+      customImage: "ghcr.io/example/custom-sandbox:latest",
+    });
+  });
+
+  it("marks capabilities unsupported when runtime profile metadata excludes their family", () => {
+    const manifest = resolveCapabilityManifest({
+      runtimeContext: {
+        ...runtimeContext,
+        runtimeProfile: "coding-base",
+      },
+      skills: [],
+      tools: [
+        createToolInput({
+          id: "browser",
+          label: "browser",
+          description: "Browser automation",
+          matchKey: "tool:core::browser",
+          sortKey: "tool:001:browser",
+          intent: "gateway-brokered",
+          availability: {
+            runtime: {
+              profile: "coding-base",
+              supportStatus: "official",
+              declaredImage: "openclaw-sandbox:bookworm-slim",
+              matchedImage: "openclaw-sandbox:bookworm-slim",
+              reasonCodes: ["unsupported-runtime-family"],
+              detail:
+                "Declared runtime profile coding-base does not support capability family browser-automation.",
+            },
+            provider: {
+              providerId: "gateway",
+              providerKind: "gateway",
+              transport: "rpc",
+              reasonCodes: [],
+            },
+          },
+        }),
+      ],
+    });
+
+    const capability = manifest.capabilities[0];
+    expect(capability?.capabilityClass).toBe("unsupported-in-current-runtime");
+    expect(capability?.evidence?.runtime?.reasonCodes).toContain("unsupported-runtime-family");
+  });
+
   it("accepts remote-assisted tool capabilities when explicit remote facts exist", () => {
     const manifest = resolveCapabilityManifest({
       runtimeContext,
