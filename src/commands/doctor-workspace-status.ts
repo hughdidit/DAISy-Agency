@@ -16,15 +16,26 @@ export function buildCapabilityReadinessSection(params: {
   capabilityClasses?: CommandCapabilityFinding["capabilityClass"][];
   limit?: number;
 }) {
+  const defaultCapabilityClasses: CommandCapabilityFinding["capabilityClass"][] = [
+    "configured-but-blocked",
+    "unsupported-in-current-runtime",
+    "remote-node-assisted",
+    "gateway-brokered",
+  ];
+  const capabilityClasses = params.capabilityClasses ?? defaultCapabilityClasses;
   const findings = pickCapabilityFindings(params.snapshot, {
-    capabilityClasses: params.capabilityClasses ?? [
-      "configured-but-blocked",
-      "unsupported-in-current-runtime",
-      "remote-node-assisted",
-      "gateway-brokered",
-    ],
+    capabilityClasses,
     limit: params.limit ?? 6,
   });
+  const selectedCount = capabilityClasses.reduce(
+    (total, capabilityClass) => total + params.snapshot.counts.byClass[capabilityClass],
+    0,
+  );
+  const usingDefaultCapabilityClasses =
+    capabilityClasses.length === defaultCapabilityClasses.length &&
+    capabilityClasses.every(
+      (capabilityClass, index) => capabilityClass === defaultCapabilityClasses[index],
+    );
   const lines = RESOLVED_CAPABILITY_CLASSES.map(
     (capabilityClass) => `${capabilityClass}: ${params.snapshot.counts.byClass[capabilityClass]}`,
   );
@@ -40,7 +51,14 @@ export function buildCapabilityReadinessSection(params: {
       }
     }
   } else {
-    lines.push("", "All resolved capabilities are sandbox-local.");
+    lines.push(
+      "",
+      selectedCount === 0
+        ? usingDefaultCapabilityClasses
+          ? "All resolved capabilities are sandbox-local."
+          : "No findings in the selected classes."
+        : "Findings omitted by the selected limit.",
+    );
   }
   return {
     counts: params.snapshot.counts,

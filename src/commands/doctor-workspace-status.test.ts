@@ -24,4 +24,23 @@ describe("doctor workspace status readiness section", () => {
     expect(section.lines).toContain("unsupported-in-current-runtime: 2");
     expect(section.lines.some((line) => line.includes("runtime-profile-gap"))).toBe(true);
   });
+
+  it("uses filter-aware fallback messages when no findings are emitted", () => {
+    const limitedSection = buildCapabilityReadinessSection({
+      snapshot: createCapabilityParitySnapshotFixture(),
+      capabilityClasses: ["gateway-brokered"],
+      limit: 0,
+    });
+
+    expect(limitedSection.findings).toEqual([]);
+    expect(limitedSection.lines).toContain("Findings omitted by the selected limit.");
+
+    const emptySection = buildCapabilityReadinessSection({
+      snapshot: createCapabilityParitySnapshotFixture(),
+      capabilityClasses: ["sandbox-local"],
+    });
+
+    expect(emptySection.findings).toEqual([]);
+    expect(emptySection.lines).toContain("No findings in the selected classes.");
+  });
 });

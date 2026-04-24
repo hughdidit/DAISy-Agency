@@ -440,14 +440,18 @@ describe("agents tools and skills panels (browser)", () => {
     );
     await Promise.resolve();
 
-    const text = container.textContent ?? "";
-    expect(text).toContain("local-skill");
-    expect(text).toContain("remote-mac-skill");
-    expect(text).toContain("env-blocked-skill");
-    expect(text).toContain("projection-defect-skill");
-    expect(text).toContain("unsupported-runtime-skill");
-    expect(text).toContain("eligible");
-    expect(text).toContain("blocked");
+    const rows = [...container.querySelectorAll<HTMLElement>(".agent-skill-row")];
+    const rowText = (skillName: string) => {
+      const row = rows.find((candidate) => candidate.textContent?.includes(skillName));
+      expect(row, `expected skill row for ${skillName}`).toBeTruthy();
+      return row?.textContent ?? "";
+    };
+
+    expect(rowText("local-skill")).toContain("sandbox-local");
+    expect(rowText("remote-mac-skill")).toContain("remote-node-assisted");
+    expect(rowText("env-blocked-skill")).toContain("configured-but-blocked");
+    expect(rowText("projection-defect-skill")).toContain("unsupported-in-current-runtime");
+    expect(rowText("unsupported-runtime-skill")).toContain("unsupported-in-current-runtime");
   });
 
   it("shows degraded fallback messaging when runtime catalog fails", async () => {
