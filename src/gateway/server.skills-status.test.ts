@@ -3,14 +3,14 @@ import os from "node:os";
 import path from "node:path";
 import AjvPkg from "ajv";
 import { describe, expect, it, vi } from "vitest";
-import { writeSkill } from "../agents/skills.e2e-test-helpers.js";
 import type { SkillStatusReport } from "../agents/skills-status.js";
-import { withEnvAsync } from "../test-utils/env.js";
+import { writeSkill } from "../agents/skills.e2e-test-helpers.js";
 import {
   CAPABILITY_PARITY_GATEWAY_SKILL_SUBJECTS,
   filterCapabilityParityRows,
   normalizeSkillStatusParityRows,
 } from "../test-utils/capability-readiness-parity.js";
+import { withEnvAsync } from "../test-utils/env.js";
 import { SkillsStatusResultSchema } from "./protocol/schema/agents-models-skills.js";
 import { connectOk, installGatewayTestHooks, rpcReq } from "./test-helpers.js";
 import { withServer } from "./test-with-server.js";

@@ -1,15 +1,15 @@
 import { describe, expect, it } from "vitest";
 import type { OpenClawConfig } from "../../config/config.js";
 import type { PluginManifestRecord } from "../../plugins/manifest-registry.js";
-import { withEnv } from "../../test-utils/env.js";
-import type { SkillEntry } from "../skills.js";
 import {
   CAPABILITY_PARITY_READONLY_SUBJECTS,
   filterCapabilityParityRows,
   normalizeResolvedCapabilitiesParityRows,
 } from "../../test-utils/capability-readiness-parity.js";
-import { buildResolvedToolCatalogGroupsFromManifest } from "./joins.js";
+import { withEnv } from "../../test-utils/env.js";
+import type { SkillEntry } from "../skills.js";
 import { collectReadonlyCapabilityInputs } from "./collect-readonly.js";
+import { buildResolvedToolCatalogGroupsFromManifest } from "./joins.js";
 import { buildReadonlySkillStatusReport } from "./readonly-report.js";
 import { resolveCapabilityManifest } from "./resolve.js";
 

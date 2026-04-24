@@ -1,11 +1,11 @@
 import { render } from "lit";
 import { describe, expect, it } from "vitest";
+import { createCapabilityParitySkillStatusReportFixture } from "../../../../src/test-utils/capability-readiness-parity.js";
 import type {
   ResolvedCapabilityEvidence,
   ResolvedSkillCapability,
   ResolvedToolCapability,
 } from "../types.ts";
-import { createCapabilityParitySkillStatusReportFixture } from "../../../../src/test-utils/capability-readiness-parity.js";
 import { renderAgentSkills, renderAgentTools } from "./agents-panels-tools-skills.ts";
 
 type CapabilityPolicy = Extract<

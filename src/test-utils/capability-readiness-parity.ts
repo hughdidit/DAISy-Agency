@@ -1,6 +1,13 @@
+import type { ResolvedToolCatalogGroup } from "../agents/capabilities/index.js";
 import type { SkillStatusReport } from "../agents/skills-status.js";
 import type { ToolProfileId } from "../agents/tool-catalog.js";
-import type { ResolvedToolCatalogGroup } from "../agents/capabilities/index.js";
+import {
+  buildCommandCapabilitySnapshot,
+  createCommandCapabilityFinding,
+  type CommandCapabilityFinding,
+  type CommandCapabilityReasonCategory,
+  type CommandCapabilitySnapshot,
+} from "../commands/capability-readiness.js";
 import {
   buildResolvedSkillCapability,
   buildResolvedToolCapability,
@@ -9,13 +16,6 @@ import {
   type ResolvedCapabilityClass,
   type ResolvedCapabilityRuntimeContext,
 } from "../shared/resolved-capability-manifest.js";
-import {
-  buildCommandCapabilitySnapshot,
-  createCommandCapabilityFinding,
-  type CommandCapabilityFinding,
-  type CommandCapabilityReasonCategory,
-  type CommandCapabilitySnapshot,
-} from "../commands/capability-readiness.js";
 
 export type CapabilityParityRow = {
   subject: string;

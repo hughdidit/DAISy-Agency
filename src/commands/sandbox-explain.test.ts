@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
-import { createCapabilitySnapshotFixture } from "./capability-readiness.test-helpers.js";
 import {
   CAPABILITY_READINESS_PARITY_MATRIX,
   normalizeCapabilitySnapshotParityRows,
 } from "../test-utils/capability-readiness-parity.js";
+import { createCapabilitySnapshotFixture } from "./capability-readiness.test-helpers.js";
 
 const SANDBOX_EXPLAIN_TEST_TIMEOUT_MS = process.platform === "win32" ? 45_000 : 30_000;
 

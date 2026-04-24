@@ -1,11 +1,11 @@
 import type { Mock } from "vitest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import { captureEnv } from "../test-utils/env.js";
-import { createCapabilitySnapshotFixture } from "./capability-readiness.test-helpers.js";
 import {
   CAPABILITY_READINESS_PARITY_MATRIX,
   normalizeCapabilitySnapshotParityRows,
 } from "../test-utils/capability-readiness-parity.js";
+import { captureEnv } from "../test-utils/env.js";
+import { createCapabilitySnapshotFixture } from "./capability-readiness.test-helpers.js";
 
 let envSnapshot: ReturnType<typeof captureEnv>;
 

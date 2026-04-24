@@ -17,13 +17,12 @@ export function buildCapabilityReadinessSection(params: {
   limit?: number;
 }) {
   const findings = pickCapabilityFindings(params.snapshot, {
-    capabilityClasses:
-      params.capabilityClasses ?? [
-        "configured-but-blocked",
-        "unsupported-in-current-runtime",
-        "remote-node-assisted",
-        "gateway-brokered",
-      ],
+    capabilityClasses: params.capabilityClasses ?? [
+      "configured-but-blocked",
+      "unsupported-in-current-runtime",
+      "remote-node-assisted",
+      "gateway-brokered",
+    ],
     limit: params.limit ?? 6,
   });
   const lines = RESOLVED_CAPABILITY_CLASSES.map(
@@ -65,10 +64,7 @@ export function noteWorkspaceStatus(cfg: OpenClawConfig) {
   const readinessSection = buildCapabilityReadinessSection({
     snapshot: capabilities,
   });
-  note(
-    readinessSection.lines.join("\n"),
-    "Capability readiness",
-  );
+  note(readinessSection.lines.join("\n"), "Capability readiness");
 
   const pluginRegistry = loadOpenClawPlugins({
     config: cfg,
