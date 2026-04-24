@@ -391,7 +391,7 @@ describe("collectReadonlyCapabilityInputs", () => {
           ),
         ),
       ).toEqual(filterCapabilityParityRows(CAPABILITY_PARITY_READONLY_SUBJECTS));
-      expect(groups.flatMap((group) => group.tools.map((tool) => tool.id)).sort()).toEqual(
+      expect(groups.flatMap((group) => group.tools.map((tool) => tool.id)).toSorted()).toEqual(
         expect.arrayContaining(["browser", "web_fetch"]),
       );
     });
