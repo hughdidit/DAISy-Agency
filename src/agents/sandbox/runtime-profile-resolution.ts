@@ -169,7 +169,17 @@ export function resolveSandboxRuntimeProfile(params: {
 
   const mismatchedOrCustomClassification = imageClassifications.find(
     (classification) => classification.status !== "official",
-  });
+  );
+  if (
+    profile.browserRuntimeRequired &&
+    !params.sandboxConfig.browser.enabled &&
+    supportStatus === "official"
+  ) {
+    supportStatus = "image-mismatch";
+    detailParts.push(
+      "Declared browser-automation profile requires the dedicated browser runtime, but sandbox.browser.enabled=false.",
+    );
+  }
 
   return {
     runtimeMode: params.mode,

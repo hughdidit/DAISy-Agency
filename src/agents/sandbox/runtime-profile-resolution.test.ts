@@ -132,6 +132,15 @@ describe("runtime profile resolution", () => {
       }),
       family: "browser-automation",
     });
+    expect(
+      resolveSandboxRuntimeProfile({
+        mode: "gateway",
+        sandboxConfig: {
+          ...createSandboxConfig(),
+          profile: "browser-automation",
+        },
+      }).supportStatus,
+    ).toBe("image-mismatch");
     expect(browserDisabledSupport.reasonCodes).toContain("browser-runtime-disabled");
   });
 
