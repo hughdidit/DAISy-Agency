@@ -80,9 +80,6 @@ openclaw sandbox recreate --all --force        # Skip confirmation
 
 ## Use Cases
 
-See also [Sandbox Runtime Profiles](/gateway/sandbox-runtime-profiles) for the
-official supported sandbox runtime identities.
-
 ### After updating Docker images
 
 ```bash
@@ -163,5 +160,6 @@ Sandbox settings live in `~/.openclaw/openclaw.json` under `agents.defaults.sand
 ## See Also
 
 - [Sandbox Documentation](/gateway/sandboxing)
+- [Sandbox Runtime Profiles](/gateway/sandbox-runtime-profiles)
 - [Agent Configuration](/concepts/agent-workspace)
 - [Doctor Command](/gateway/doctor) - Check sandbox setup

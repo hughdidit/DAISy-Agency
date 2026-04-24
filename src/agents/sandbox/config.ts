@@ -1,5 +1,8 @@
 import type { OpenClawConfig } from "../../config/config.js";
-import type { SandboxRuntimeProfileId } from "../../shared/sandbox-runtime-profiles.js";
+import {
+  DEFAULT_SANDBOX_RUNTIME_PROFILE_ID,
+  type SandboxRuntimeProfileId,
+} from "../../shared/sandbox-runtime-profiles.js";
 import { resolveAgentConfig } from "../agent-scope.js";
 import {
   DEFAULT_SANDBOX_BROWSER_AUTOSTART_TIMEOUT_MS,
@@ -24,7 +27,6 @@ import type {
   SandboxPruneConfig,
   SandboxScope,
 } from "./types.js";
-import { DEFAULT_SANDBOX_RUNTIME_PROFILE_ID } from "../../shared/sandbox-runtime-profiles.js";
 
 export const DANGEROUS_SANDBOX_DOCKER_BOOLEAN_KEYS = [
   "dangerouslyAllowReservedContainerTargets",
