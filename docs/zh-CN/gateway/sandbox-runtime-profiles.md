@@ -16,11 +16,11 @@ OpenClaw 只支持一小组明确命名的沙箱运行时配置档。这些配�
 
 ## 官方配置档
 
-| 配置档 id | 预期工作负载 | 信任姿态 | 辅助方式 |
-| --- | --- | --- | --- |
-| `ops-readonly` | 只读诊断、检查与沙箱安全的运维排障 | 最小权限、以只读投影为中心的运行时 | sandbox-local + gateway-brokered |
-| `coding-base` | 在声明的工作区边界内进行常规编码、编辑和命令执行 | 默认的 sandbox-first 编码运行时，工作区访问显式配置，不默认保证直接网络能力 | sandbox-local + gateway-brokered + remote-node-assisted |
-| `browser-automation` | 启用沙箱浏览器支持时的浏览器/CDP 工作流 | 与专用浏览器运行时配对的沙箱运行时；浏览器支持必须显式启用 | sandbox-local + gateway-brokered + browser |
+| 配置档 id            | 预期工作负载                                     | 信任姿态                                                                    | 辅助方式                                                |
+| -------------------- | ------------------------------------------------ | --------------------------------------------------------------------------- | ------------------------------------------------------- |
+| `ops-readonly`       | 只读诊断、检查与沙箱安全的运维排障               | 最小权限、以只读投影为中心的运行时                                          | sandbox-local + gateway-brokered                        |
+| `coding-base`        | 在声明的工作区边界内进行常规编码、编辑和命令执行 | 默认的 sandbox-first 编码运行时，工作区访问显式配置，不默认保证直接网络能力 | sandbox-local + gateway-brokered + remote-node-assisted |
+| `browser-automation` | 启用沙箱浏览器支持时的浏览器/CDP 工作流          | 与专用浏览器运行时配对的沙箱运行时；浏览器支持必须显式启用                  | sandbox-local + gateway-brokered + browser              |
 
 ## 配置档说明
 
@@ -83,4 +83,3 @@ OpenClaw 只支持一小组明确命名的沙箱运行时配置档。这些配�
 
 - [沙箱隔离](/gateway/sandboxing)
 - [Sandbox CLI](/cli/sandbox)
-

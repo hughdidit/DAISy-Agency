@@ -16,11 +16,11 @@ Set the profile with `agents.defaults.sandbox.profile` or
 
 ## Official profiles
 
-| Profile id | Intended workload | Trust posture | Assistance |
-| --- | --- | --- | --- |
-| `ops-readonly` | Read-only diagnostics, inspection, and sandbox-safe operator triage | Minimal authority, read-only projection-focused runtime | sandbox-local + gateway-brokered |
-| `coding-base` | Normal coding, editing, and command execution inside the declared workspace boundary | Default sandbox-first coding runtime with explicit workspace access and no implied direct network guarantee | sandbox-local + gateway-brokered + remote-node-assisted |
-| `browser-automation` | Browser and CDP-driven workflows when sandbox browser support is enabled | Sandbox runtime paired with the dedicated browser runtime; browser support must be explicitly enabled | sandbox-local + gateway-brokered + browser |
+| Profile id           | Intended workload                                                                    | Trust posture                                                                                               | Assistance                                              |
+| -------------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| `ops-readonly`       | Read-only diagnostics, inspection, and sandbox-safe operator triage                  | Minimal authority, read-only projection-focused runtime                                                     | sandbox-local + gateway-brokered                        |
+| `coding-base`        | Normal coding, editing, and command execution inside the declared workspace boundary | Default sandbox-first coding runtime with explicit workspace access and no implied direct network guarantee | sandbox-local + gateway-brokered + remote-node-assisted |
+| `browser-automation` | Browser and CDP-driven workflows when sandbox browser support is enabled             | Sandbox runtime paired with the dedicated browser runtime; browser support must be explicitly enabled       | sandbox-local + gateway-brokered + browser              |
 
 ## Profile details
 
@@ -89,4 +89,3 @@ See also:
 
 - [Sandboxing](/gateway/sandboxing)
 - [Sandbox CLI](/cli/sandbox)
-

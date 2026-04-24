@@ -2603,6 +2603,7 @@ public struct ResolvedCapabilityRuntimeContext: Codable, Sendable {
     public let sessionkey: String?
     public let sandboxmode: String?
     public let sandboxscope: String?
+    public let runtimeprofile: String?
     public let sandboxed: Bool?
 
     public init(
@@ -2610,12 +2611,14 @@ public struct ResolvedCapabilityRuntimeContext: Codable, Sendable {
         sessionkey: String?,
         sandboxmode: String?,
         sandboxscope: String?,
+        runtimeprofile: String?,
         sandboxed: Bool?)
     {
         self.agentid = agentid
         self.sessionkey = sessionkey
         self.sandboxmode = sandboxmode
         self.sandboxscope = sandboxscope
+        self.runtimeprofile = runtimeprofile
         self.sandboxed = sandboxed
     }
 
@@ -2624,6 +2627,7 @@ public struct ResolvedCapabilityRuntimeContext: Codable, Sendable {
         case sessionkey = "sessionKey"
         case sandboxmode = "sandboxMode"
         case sandboxscope = "sandboxScope"
+        case runtimeprofile = "runtimeProfile"
         case sandboxed
     }
 }

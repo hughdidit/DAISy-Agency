@@ -80,4 +80,3 @@ describe("sandbox runtime profiles", () => {
     expect(docsJson).toContain('"zh-CN/gateway/sandbox-runtime-profiles"');
   });
 });
-

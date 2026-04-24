@@ -1,6 +1,6 @@
+import type { SandboxRuntimeProfileId } from "../../shared/sandbox-runtime-profiles.js";
 import type { SandboxFsBridge } from "./fs-bridge.js";
 import type { SandboxDockerConfig } from "./types.docker.js";
-import type { SandboxRuntimeProfileId } from "../../shared/sandbox-runtime-profiles.js";
 
 export type { SandboxDockerConfig } from "./types.docker.js";
 
