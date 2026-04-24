@@ -5,6 +5,10 @@ import {
   createResolvedCapabilityManifest,
   type ResolvedCapabilityRuntimeContext,
 } from "../shared/resolved-capability-manifest.js";
+import {
+  CAPABILITY_READINESS_PARITY_MATRIX,
+  normalizeCapabilitySnapshotParityRows,
+} from "../test-utils/capability-readiness-parity.js";
 
 const mocks = vi.hoisted(() => ({
   collectGatewayCapabilityInputs: vi.fn(),
@@ -125,24 +129,24 @@ describe("capability readiness helper", () => {
         },
       }),
       buildResolvedSkillCapability({
-        name: "gws-toolkit",
+        name: "env-blocked-skill",
         description: "Google workspace toolkit",
         source: "workspace",
-        skillKey: "gws-toolkit",
+        skillKey: "env-blocked-skill",
         bundled: false,
-        filePath: "/workspace/skills/gws-toolkit/SKILL.md",
-        primaryEnv: "GOOGLE_APPLICATION_CREDENTIALS",
+        filePath: "/workspace/skills/env-blocked-skill/SKILL.md",
+        primaryEnv: "MISSING_GATEWAY_TEST_ENV",
         requirements: {
           bins: [],
           anyBins: [],
-          env: ["GOOGLE_APPLICATION_CREDENTIALS"],
+          env: ["MISSING_GATEWAY_TEST_ENV"],
           config: [],
           os: [],
         },
         missing: {
           bins: [],
           anyBins: [],
-          env: ["GOOGLE_APPLICATION_CREDENTIALS"],
+          env: ["MISSING_GATEWAY_TEST_ENV"],
           config: [],
           os: [],
         },
@@ -153,12 +157,12 @@ describe("capability readiness helper", () => {
         runtimeContext,
       }),
       buildResolvedSkillCapability({
-        name: "memory-mongodb",
+        name: "projection-defect-skill",
         description: "Mongo-backed memory skill",
         source: "workspace",
-        skillKey: "memory-mongodb",
+        skillKey: "projection-defect-skill",
         bundled: false,
-        filePath: "/workspace/skills/memory-mongodb/SKILL.md",
+        filePath: "/workspace/skills/projection-defect-skill/SKILL.md",
         requirements: { bins: [], anyBins: [], env: [], config: [], os: [] },
         missing: { bins: [], anyBins: [], env: [], config: [], os: [] },
         configChecks: [],
@@ -171,12 +175,12 @@ describe("capability readiness helper", () => {
           "Readonly projection missing required paths: /workspace/.openclaw-readonly/state/extensions",
       }),
       buildResolvedSkillCapability({
-        name: "mac-clipboard",
+        name: "remote-mac-skill",
         description: "Remote macOS clipboard",
         source: "workspace",
-        skillKey: "mac-clipboard",
+        skillKey: "remote-mac-skill",
         bundled: false,
-        filePath: "/workspace/skills/mac-clipboard/SKILL.md",
+        filePath: "/workspace/skills/remote-mac-skill/SKILL.md",
         requirements: { bins: ["pbpaste"], anyBins: [], env: [], config: [], os: ["darwin"] },
         missing: { bins: ["pbpaste"], anyBins: [], env: [], config: [], os: ["darwin"] },
         configChecks: [],
@@ -188,6 +192,21 @@ describe("capability readiness helper", () => {
           anyBins: [],
           note: "paired macOS node provides clipboard access",
         },
+        runtimeContext,
+      }),
+      buildResolvedSkillCapability({
+        name: "unsupported-runtime-skill",
+        description: "Skill requiring unsupported runtime",
+        source: "workspace",
+        skillKey: "unsupported-runtime-skill",
+        bundled: false,
+        filePath: "/workspace/skills/unsupported-runtime-skill/SKILL.md",
+        requirements: { bins: [], anyBins: [], env: [], config: [], os: ["never-supported-sbx207"] },
+        missing: { bins: [], anyBins: [], env: [], config: [], os: ["never-supported-sbx207"] },
+        configChecks: [],
+        disabled: false,
+        blockedByAllowlist: false,
+        remoteSatisfied: null,
         runtimeContext,
       }),
       buildResolvedToolCapability({
@@ -222,29 +241,18 @@ describe("capability readiness helper", () => {
     });
 
     expect(snapshot.counts).toEqual({
-      total: 5,
+      total: 6,
       byClass: {
         "sandbox-local": 0,
         "gateway-brokered": 1,
         "remote-node-assisted": 1,
         "configured-but-blocked": 2,
-        "unsupported-in-current-runtime": 1,
+        "unsupported-in-current-runtime": 2,
       },
     });
-    expect(snapshot.findings.map((finding) => finding.primaryReasonCategory)).toEqual([
-      "policy-block",
-      "config-gap",
-      "projection-defect",
-      "remote-assisted-availability",
-      "gateway-brokered-availability",
-    ]);
-    expect(snapshot.findings.map((finding) => finding.summary)).toEqual([
-      "Denied by sandbox tool policy",
-      "Missing required environment configuration",
-      "Missing projected runtime material",
-      "Available via remote node assistance",
-      "Available via gateway broker",
-    ]);
+    expect(normalizeCapabilitySnapshotParityRows(snapshot)).toEqual(
+      CAPABILITY_READINESS_PARITY_MATRIX.filter((row) => row.subject !== "local-skill"),
+    );
   });
 
   it("returns capability class labels directly", () => {

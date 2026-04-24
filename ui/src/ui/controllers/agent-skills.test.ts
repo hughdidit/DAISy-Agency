@@ -1,4 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
+import {
+  CAPABILITY_PARITY_SKILL_SUBJECTS,
+  createCapabilityParitySkillStatusReportFixture,
+  filterCapabilityParityRows,
+  normalizeSkillStatusParityRows,
+} from "../../../../src/test-utils/capability-readiness-parity.js";
 import { loadAgentSkills } from "./agent-skills.ts";
 import type { AgentSkillsState } from "./agent-skills.ts";
 
@@ -18,53 +24,9 @@ function createState(): { state: AgentSkillsState; request: ReturnType<typeof vi
 }
 
 describe("loadAgentSkills", () => {
-  it("stores resolver-backed skill payloads unchanged", async () => {
+  it("stores resolver-backed skill payloads without changing parity", async () => {
     const { state, request } = createState();
-    const payload = {
-      workspaceDir: "/tmp/workspace-main",
-      managedSkillsDir: "/tmp/skills",
-      skills: [
-        {
-          name: "discord",
-          description: "Discord skill",
-          source: "openclaw-bundled",
-          bundled: true,
-          filePath: "/tmp/skills/discord/SKILL.md",
-          baseDir: "/tmp/skills/discord",
-          skillKey: "discord",
-          always: false,
-          disabled: false,
-          blockedByAllowlist: false,
-          eligible: false,
-          capabilityClass: "configured-but-blocked",
-          capability: {
-            id: "discord",
-            label: "discord",
-            description: "Discord skill",
-            kind: "skill",
-            capabilityClass: "configured-but-blocked",
-            runtimeContext: { agentId: "main", sandboxMode: "all", sandboxed: true },
-            skillKey: "discord",
-            source: "openclaw-bundled",
-            bundled: true,
-            filePath: "/tmp/skills/discord/SKILL.md",
-            requirements: { bins: [], anyBins: [], env: [], config: [], os: [] },
-            missing: { bins: [], anyBins: [], env: [], config: [], os: [] },
-            configChecks: [],
-            policy: {
-              source: { kind: "bundled-skill-allowlist", key: "agents.list[0].skills" },
-              denyReason: "bundled-skill-not-allowlisted",
-              detail: "Agent allowlist excludes discord",
-            },
-          },
-          requirements: { bins: [], anyBins: [], env: [], config: [], os: [] },
-          missing: { bins: [], anyBins: [], env: [], config: [], os: [] },
-          configChecks: [],
-          remoteSatisfied: null,
-          install: [],
-        },
-      ],
-    };
+    const payload = createCapabilityParitySkillStatusReportFixture();
     request.mockResolvedValue(payload);
 
     await loadAgentSkills(state, "main");
@@ -72,7 +34,9 @@ describe("loadAgentSkills", () => {
     expect(request).toHaveBeenCalledWith("skills.status", { agentId: "main" });
     expect(state.agentSkillsReport).toEqual(payload);
     expect(state.agentSkillsAgentId).toBe("main");
-    expect(state.agentSkillsError).toBeNull();
+    expect(normalizeSkillStatusParityRows(state.agentSkillsReport?.skills ?? [])).toEqual(
+      filterCapabilityParityRows(CAPABILITY_PARITY_SKILL_SUBJECTS),
+    );
   });
 
   it("captures request errors without mutating prior report state", async () => {

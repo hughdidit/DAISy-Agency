@@ -5,6 +5,7 @@ import type {
   ResolvedSkillCapability,
   ResolvedToolCapability,
 } from "../types.ts";
+import { createCapabilityParitySkillStatusReportFixture } from "../../../../src/test-utils/capability-readiness-parity.js";
 import { renderAgentSkills, renderAgentTools } from "./agents-panels-tools-skills.ts";
 
 type CapabilityPolicy = Extract<
@@ -425,6 +426,28 @@ describe("agents tools and skills panels (browser)", () => {
     expect(text).toContain("Disabled in config");
     expect(text).toContain("unsupported-in-current-runtime");
     expect(text).toContain("Missing bins: python");
+  });
+
+  it("renders the shared parity skill matrix without collapsing eligible and blocked states", async () => {
+    const container = document.createElement("div");
+    render(
+      renderAgentSkills(
+        createSkillParams({
+          report: createCapabilityParitySkillStatusReportFixture(),
+        }),
+      ),
+      container,
+    );
+    await Promise.resolve();
+
+    const text = container.textContent ?? "";
+    expect(text).toContain("local-skill");
+    expect(text).toContain("remote-mac-skill");
+    expect(text).toContain("env-blocked-skill");
+    expect(text).toContain("projection-defect-skill");
+    expect(text).toContain("unsupported-runtime-skill");
+    expect(text).toContain("eligible");
+    expect(text).toContain("blocked");
   });
 
   it("shows degraded fallback messaging when runtime catalog fails", async () => {

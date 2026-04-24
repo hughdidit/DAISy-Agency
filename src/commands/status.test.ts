@@ -2,6 +2,10 @@ import type { Mock } from "vitest";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { captureEnv } from "../test-utils/env.js";
 import { createCapabilitySnapshotFixture } from "./capability-readiness.test-helpers.js";
+import {
+  CAPABILITY_READINESS_PARITY_MATRIX,
+  normalizeCapabilitySnapshotParityRows,
+} from "../test-utils/capability-readiness-parity.js";
 
 let envSnapshot: ReturnType<typeof captureEnv>;
 
@@ -425,6 +429,10 @@ describe("statusCommand", () => {
     expect(payload.capabilities.counts.byClass["sandbox-local"]).toBe(1);
     expect(payload.capabilities.counts.byClass["gateway-brokered"]).toBe(1);
     expect(payload.capabilities.counts.byClass["configured-but-blocked"]).toBe(2);
+    expect(payload.capabilities.counts.byClass["unsupported-in-current-runtime"]).toBe(2);
+    expect(normalizeCapabilitySnapshotParityRows(payload.capabilities)).toEqual(
+      CAPABILITY_READINESS_PARITY_MATRIX,
+    );
     expect(payload.capabilities.findings).toEqual(
       expect.arrayContaining([
         expect.objectContaining({

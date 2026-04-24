@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 import { createCapabilitySnapshotFixture } from "./capability-readiness.test-helpers.js";
+import {
+  CAPABILITY_READINESS_PARITY_MATRIX,
+  normalizeCapabilitySnapshotParityRows,
+} from "../test-utils/capability-readiness-parity.js";
 
 const SANDBOX_EXPLAIN_TEST_TIMEOUT_MS = process.platform === "win32" ? 45_000 : 30_000;
 
@@ -85,6 +89,10 @@ describe("sandbox explain command", () => {
     expect(parsed).toHaveProperty("sandbox.mode", "all");
     expect(parsed).toHaveProperty("sandbox.tools.sources.allow.source");
     expect(parsed).toHaveProperty("capabilities.counts.byClass.gateway-brokered", 1);
+    expect(parsed).toHaveProperty("capabilities.counts.byClass.unsupported-in-current-runtime", 2);
+    expect(normalizeCapabilitySnapshotParityRows(parsed.capabilities)).toEqual(
+      CAPABILITY_READINESS_PARITY_MATRIX,
+    );
     expect(parsed.capabilities.findings).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
