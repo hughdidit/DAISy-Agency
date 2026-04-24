@@ -112,6 +112,7 @@ function createSandboxConfig(
   return {
     mode: "all",
     scope: "shared",
+    profile: "coding-base",
     workspaceAccess,
     workspaceRoot: "~/.openclaw/sandboxes",
     docker: {

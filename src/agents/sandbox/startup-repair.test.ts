@@ -62,6 +62,7 @@ describe("repairSandboxWorkspaceMountsOnStartup", () => {
     mocks.resolveSandboxConfigForAgent.mockReturnValue({
       mode: "all",
       scope: "shared",
+      profile: "coding-base",
       workspaceAccess: "rw",
       workspaceRoot: "~/.openclaw/sandboxes",
       docker: {
@@ -164,6 +165,7 @@ describe("repairSandboxWorkspaceMountsOnStartup", () => {
     mocks.resolveSandboxConfigForAgent.mockReturnValue({
       mode: "all",
       scope: "agent",
+      profile: "coding-base",
       workspaceAccess: "ro",
       workspaceRoot: "~/.openclaw/sandboxes",
       docker: {

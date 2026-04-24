@@ -66,6 +66,39 @@ describe("agents-models-skills schemas", () => {
     expect(validate(payload)).toBe(true);
   });
 
+  it("accepts runtime contexts that include a supported runtime profile", () => {
+    const validate = createAjv().compile(ResolvedCapabilityManifestSchema);
+    const payload = {
+      schemaVersion: 1,
+      runtimeContext: {
+        agentId: "main",
+        sandboxMode: "all",
+        sandboxScope: "session",
+        runtimeProfile: "coding-base",
+        sandboxed: true,
+      },
+      capabilities: [
+        {
+          id: "read",
+          label: "read",
+          description: "read",
+          kind: "tool",
+          capabilityClass: "sandbox-local",
+          runtimeContext: {
+            agentId: "main",
+            sandboxMode: "all",
+            sandboxScope: "session",
+            runtimeProfile: "coding-base",
+            sandboxed: true,
+          },
+          source: "core",
+        },
+      ],
+    };
+
+    expect(validate(payload)).toBe(true);
+  });
+
   it("rejects remote-assisted capabilities that omit remote evidence", () => {
     const validate = createAjv().compile(ResolvedCapabilityManifestSchema);
     const payload = {
