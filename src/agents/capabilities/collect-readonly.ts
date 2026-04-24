@@ -199,6 +199,8 @@ function buildSyntheticReadonlyPluginSkillInput(params: {
     availability: mergeAvailabilityFacts(
       {
         runtime: {
+          // Synthetic projection-defect entries do not correspond to a real skill manifest,
+          // so only profile-level runtime facts are available here.
           profile: params.runtimeProfileResolution.declaredProfileId,
           supportStatus: params.runtimeProfileResolution.supportStatus,
           declaredImage: params.runtimeProfileResolution.declaredImage,
