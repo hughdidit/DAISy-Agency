@@ -12,6 +12,11 @@ import {
 } from "../../plugins/manifest-registry.js";
 import { resolveDefaultAgentId } from "../agent-scope.js";
 import { resolveSandboxConfigForAgent } from "../sandbox/config.js";
+import {
+  resolveSandboxRuntimeCapabilitySupport,
+  resolveSandboxRuntimeProfile,
+  type ResolvedSandboxRuntimeProfile,
+} from "../sandbox/runtime-profile-resolution.js";
 import { resolveSandboxToolPolicyForAgent } from "../sandbox/tool-policy.js";
 import { type SkillEligibilityContext, type SkillEntry } from "../skills.js";
 import {
@@ -19,6 +24,7 @@ import {
   resolveCoreToolCapabilityBoundary,
   resolveCoreToolProfiles,
 } from "../tool-catalog.js";
+import { resolveCoreToolCapabilityFamily } from "../../shared/sandbox-runtime-profiles.js";
 import {
   buildMissingProjectionAvailability,
   collectWorkspaceSkillCapabilityInputs,
@@ -87,12 +93,40 @@ function buildReadonlyRuntimeContext(params: {
   agentId: string;
 }): CapabilityResolutionInput["runtimeContext"] {
   const sandboxCfg = resolveSandboxConfigForAgent(params.config, params.agentId);
+  const runtimeProfileResolution = resolveSandboxRuntimeProfile({
+    mode: "readonly-sandbox",
+    sandboxConfig: sandboxCfg,
+  });
   return {
     agentId: params.agentId,
     sandboxMode: sandboxCfg.mode,
     sandboxScope: sandboxCfg.scope,
-    runtimeProfile: sandboxCfg.profile,
+    runtimeProfile: runtimeProfileResolution.declaredProfileId,
     sandboxed: true,
+  };
+}
+
+function createRuntimeAvailabilityForTool(params: {
+  resolvedProfile: ResolvedSandboxRuntimeProfile;
+  toolId: string;
+  source: "core" | "plugin";
+}): CapabilityAvailabilityFacts {
+  const family =
+    params.source === "core" ? resolveCoreToolCapabilityFamily(params.toolId) : "plugin-brokered";
+  const support = resolveSandboxRuntimeCapabilitySupport({
+    resolvedProfile: params.resolvedProfile,
+    family,
+  });
+  return {
+    runtime: {
+      profile: params.resolvedProfile.declaredProfileId,
+      supportStatus: params.resolvedProfile.supportStatus,
+      declaredImage: params.resolvedProfile.declaredImage,
+      matchedImage: params.resolvedProfile.matchedImage,
+      customImage: params.resolvedProfile.customImage,
+      reasonCodes: support.reasonCodes,
+      detail: support.detail,
+    },
   };
 }
 
@@ -121,6 +155,7 @@ function buildSyntheticReadonlyPluginSkillInput(params: {
   candidatePath: string;
   rawSkillPath: string;
   runtimeContext: CapabilityResolutionInput["runtimeContext"];
+  runtimeProfileResolution: ResolvedSandboxRuntimeProfile;
 }): CapabilityResolutionInput["skills"][number] {
   const baseDir =
     path.basename(params.candidatePath).toLowerCase() === "skill.md"
@@ -161,9 +196,22 @@ function buildSyntheticReadonlyPluginSkillInput(params: {
     remoteSatisfied: null,
     install: [],
     runtimeContext: params.runtimeContext,
-    availability: buildMissingProjectionAvailability(
-      [baseDir],
-      `Readonly projection missing plugin skill path declared by ${params.record.id}`,
+    availability: mergeAvailabilityFacts(
+      {
+        runtime: {
+          profile: params.runtimeProfileResolution.declaredProfileId,
+          supportStatus: params.runtimeProfileResolution.supportStatus,
+          declaredImage: params.runtimeProfileResolution.declaredImage,
+          matchedImage: params.runtimeProfileResolution.matchedImage,
+          customImage: params.runtimeProfileResolution.customImage,
+          reasonCodes: params.runtimeProfileResolution.reasonCodes,
+          detail: params.runtimeProfileResolution.detail,
+        },
+      },
+      buildMissingProjectionAvailability(
+        [baseDir],
+        `Readonly projection missing plugin skill path declared by ${params.record.id}`,
+      ),
     ),
   };
 }
@@ -172,6 +220,7 @@ function collectMissingReadonlyPluginSkillInputs(params: {
   config?: OpenClawConfig;
   workspaceDir: string;
   runtimeContext: CapabilityResolutionInput["runtimeContext"];
+  runtimeProfileResolution: ResolvedSandboxRuntimeProfile;
   pathExists: (targetPath: string) => boolean;
   pluginManifestRecords?: PluginManifestRecord[];
 }): CapabilityResolutionInput["skills"] {
@@ -244,6 +293,7 @@ function collectMissingReadonlyPluginSkillInputs(params: {
           candidatePath,
           rawSkillPath: trimmedSkillPath,
           runtimeContext: params.runtimeContext,
+          runtimeProfileResolution: params.runtimeProfileResolution,
         }),
       );
     }
@@ -255,6 +305,7 @@ function collectMissingReadonlyPluginSkillInputs(params: {
 function collectReadonlyCoreTools(params: {
   runtimeContext: CapabilityResolutionInput["runtimeContext"];
   toolPolicy: CollectedToolCapabilityInput["toolPolicy"];
+  runtimeProfileResolution: ResolvedSandboxRuntimeProfile;
   missingWorkspacePaths: string[];
   toolOverrides?: ReadonlyCapabilityCollectorParams["toolOverrides"];
 }) {
@@ -284,6 +335,11 @@ function collectReadonlyCoreTools(params: {
         toolPolicy: params.toolPolicy,
         intent,
         availability: mergeAvailabilityFacts(
+          createRuntimeAvailabilityForTool({
+            resolvedProfile: params.runtimeProfileResolution,
+            toolId: tool.id,
+            source: "core",
+          }),
           intent === "gateway-brokered"
             ? createGatewayProviderAvailability({
                 providerId: "gateway",
@@ -301,6 +357,7 @@ function collectReadonlyCoreTools(params: {
 function collectReadonlyPluginTools(params: {
   runtimeContext: CapabilityResolutionInput["runtimeContext"];
   toolPolicy: CollectedToolCapabilityInput["toolPolicy"];
+  runtimeProfileResolution: ResolvedSandboxRuntimeProfile;
   pluginTools?: ReadonlyCapabilityCollectorParams["pluginTools"];
   toolOverrides?: ReadonlyCapabilityCollectorParams["toolOverrides"];
 }) {
@@ -330,6 +387,11 @@ function collectReadonlyPluginTools(params: {
         toolPolicy: params.toolPolicy,
         intent,
         availability: mergeAvailabilityFacts(
+          createRuntimeAvailabilityForTool({
+            resolvedProfile: params.runtimeProfileResolution,
+            toolId: tool.name,
+            source: "plugin",
+          }),
           intent === "gateway-brokered"
             ? createGatewayProviderAvailability({
                 providerId: tool.pluginId,
@@ -356,6 +418,10 @@ export function collectReadonlyCapabilityInputs(
     config,
     agentId,
   });
+  const runtimeProfileResolution = resolveSandboxRuntimeProfile({
+    mode: "readonly-sandbox",
+    sandboxConfig: resolveSandboxConfigForAgent(config, agentId),
+  });
   const toolPolicy = resolveSandboxToolPolicyForAgent(config, agentId);
   const missingProjectionPaths = collectMissingProjectionPaths(params.projection);
   const skillAvailability = params.skillAvailability ? { ...params.skillAvailability } : {};
@@ -375,6 +441,7 @@ export function collectReadonlyCapabilityInputs(
         entries: params.entries,
         eligibility: params.eligibility,
         overrides: skillAvailability,
+        runtimeProfileResolution,
       })
     : { managedSkillsDir: params.managedSkillsDir ?? "", skills: [] };
   const syntheticPluginSkills = canLoadWorkspace
@@ -382,6 +449,7 @@ export function collectReadonlyCapabilityInputs(
         config,
         workspaceDir,
         runtimeContext,
+        runtimeProfileResolution,
         pathExists,
         pluginManifestRecords: params.pluginManifestRecords,
       })
@@ -410,12 +478,14 @@ export function collectReadonlyCapabilityInputs(
       ...collectReadonlyCoreTools({
         runtimeContext,
         toolPolicy,
+        runtimeProfileResolution,
         missingWorkspacePaths: params.projection?.workspaceDir ? missingProjectionPaths : [],
         toolOverrides: params.toolOverrides,
       }),
       ...collectReadonlyPluginTools({
         runtimeContext,
         toolPolicy,
+        runtimeProfileResolution,
         pluginTools: params.pluginTools,
         toolOverrides: params.toolOverrides,
       }),

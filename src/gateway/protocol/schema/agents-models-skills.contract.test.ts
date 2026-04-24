@@ -99,6 +99,94 @@ describe("agents-models-skills schemas", () => {
     expect(validate(payload)).toBe(true);
   });
 
+  it("accepts extended runtime evidence metadata for custom-image support reporting", () => {
+    const validate = createAjv().compile(ResolvedCapabilityManifestSchema);
+    const payload = {
+      schemaVersion: 1,
+      runtimeContext: {
+        agentId: "main",
+        sandboxMode: "all",
+        sandboxScope: "session",
+        runtimeProfile: "coding-extended",
+        sandboxed: true,
+      },
+      capabilities: [
+        {
+          id: "read",
+          label: "read",
+          description: "read",
+          kind: "tool",
+          capabilityClass: "sandbox-local",
+          runtimeContext: {
+            agentId: "main",
+            sandboxMode: "all",
+            sandboxScope: "session",
+            runtimeProfile: "coding-extended",
+            sandboxed: true,
+          },
+          source: "core",
+          evidence: {
+            runtime: {
+              profile: "coding-extended",
+              supportStatus: "custom-image",
+              declaredImage: "ghcr.io/example/custom-sandbox:latest",
+              customImage: "ghcr.io/example/custom-sandbox:latest",
+              missingBins: [],
+              missingAnyBins: [],
+              missingOs: [],
+              reasonCodes: ["custom-runtime-image"],
+            },
+          },
+        },
+      ],
+    };
+
+    expect(validate(payload)).toBe(true);
+  });
+
+  it("rejects custom-image runtime evidence that omits customImage", () => {
+    const validate = createAjv().compile(ResolvedCapabilityManifestSchema);
+    const payload = {
+      schemaVersion: 1,
+      runtimeContext: {
+        agentId: "main",
+        sandboxMode: "all",
+        sandboxScope: "session",
+        runtimeProfile: "coding-base",
+        sandboxed: true,
+      },
+      capabilities: [
+        {
+          id: "read",
+          label: "read",
+          description: "read",
+          kind: "tool",
+          capabilityClass: "sandbox-local",
+          runtimeContext: {
+            agentId: "main",
+            sandboxMode: "all",
+            sandboxScope: "session",
+            runtimeProfile: "coding-base",
+            sandboxed: true,
+          },
+          source: "core",
+          evidence: {
+            runtime: {
+              profile: "coding-base",
+              supportStatus: "custom-image",
+              missingBins: [],
+              missingAnyBins: [],
+              missingOs: [],
+              reasonCodes: ["custom-runtime-image"],
+            },
+          },
+        },
+      ],
+    };
+
+    expect(validate(payload)).toBe(false);
+  });
+
   it("rejects remote-assisted capabilities that omit remote evidence", () => {
     const validate = createAjv().compile(ResolvedCapabilityManifestSchema);
     const payload = {

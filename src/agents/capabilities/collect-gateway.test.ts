@@ -137,6 +137,37 @@ describe("collectGatewayCapabilityInputs", () => {
     expect(collected.runtimeContext.runtimeProfile).toBe("browser-automation");
   });
 
+  it("threads runtime profile image metadata into collected tool availability", () => {
+    const collected = collectGatewayCapabilityInputs({
+      config: {
+        agents: {
+          defaults: {
+            sandbox: {
+              mode: "all",
+              scope: "session",
+              profile: "coding-extended",
+              docker: {
+                image: "ghcr.io/example/custom-sandbox:latest",
+              },
+            },
+          },
+        },
+      },
+      agentId: "main",
+      sessionKey: "main",
+      workspaceDir: "/tmp/workspace",
+      agentDir: "/tmp/agents/main/agent",
+      includeSkills: false,
+    });
+
+    const readTool = collected.tools.find((tool) => tool.id === "read");
+    expect(readTool?.availability?.runtime).toMatchObject({
+      profile: "coding-extended",
+      supportStatus: "custom-image",
+      customImage: "ghcr.io/example/custom-sandbox:latest",
+    });
+  });
+
   it("provides enough data to rebuild skill status and grouped tool views later", () => {
     const collected = collectGatewayCapabilityInputs({
       agentId: "main",

@@ -5,6 +5,7 @@ import {
   type ResolvedCapabilityEvidence,
   type ResolvedCapabilityPolicy,
   type ResolvedCapabilityRemoteEvidence,
+  type ResolvedCapabilityRuntimeEvidence,
   type ResolvedCapabilityRuntimeContext,
   type ResolvedCapabilityUnavailableReason,
   type ResolvedSkillCapability,
@@ -86,9 +87,25 @@ function toResolvedEvidence(
       uniqueStrings(availability.runtime.missingAnyBins).length > 0 ||
       uniqueStrings(availability.runtime.missingOs).length > 0 ||
       availability.runtime.profile ||
+      availability.runtime.supportStatus ||
+      availability.runtime.declaredImage ||
+      availability.runtime.matchedImage ||
+      availability.runtime.customImage ||
       availability.runtime.detail)
       ? {
           ...(availability.runtime.profile ? { profile: availability.runtime.profile } : {}),
+          ...(availability.runtime.supportStatus
+            ? { supportStatus: availability.runtime.supportStatus }
+            : {}),
+          ...(availability.runtime.declaredImage
+            ? { declaredImage: availability.runtime.declaredImage }
+            : {}),
+          ...(availability.runtime.matchedImage
+            ? { matchedImage: availability.runtime.matchedImage }
+            : {}),
+          ...(availability.runtime.customImage
+            ? { customImage: availability.runtime.customImage }
+            : {}),
           missingBins: uniqueStrings(availability.runtime.missingBins),
           missingAnyBins: uniqueStrings(availability.runtime.missingAnyBins),
           missingOs: uniqueStrings(availability.runtime.missingOs),
@@ -161,6 +178,40 @@ function resolveSkillRuntimeDetail(input: CollectedSkillCapabilityInput): string
     input.availability?.projection?.detail,
     projectionDetail,
   ]);
+}
+
+const NON_BLOCKING_RUNTIME_REASON_CODES: ReadonlySet<ResolvedCapabilityUnavailableReason> = new Set([
+  "custom-runtime-image",
+]);
+
+function hasBlockingRuntimeGap(runtime?: ResolvedCapabilityRuntimeEvidence): boolean {
+  if (!runtime) {
+    return false;
+  }
+  if (runtime.missingBins.length > 0 || runtime.missingAnyBins.length > 0 || runtime.missingOs.length > 0) {
+    return true;
+  }
+  return runtime.reasonCodes.some((code) => !NON_BLOCKING_RUNTIME_REASON_CODES.has(code));
+}
+
+function canUseRemoteRuntime(runtime?: ResolvedCapabilityRuntimeEvidence): boolean {
+  if (!runtime) {
+    return true;
+  }
+  if (
+    runtime.reasonCodes.some(
+      (code) =>
+        ![
+          "missing-runtime-binaries",
+          "missing-runtime-any-binaries",
+          "unsupported-os",
+          "custom-runtime-image",
+        ].includes(code),
+    )
+  ) {
+    return false;
+  }
+  return runtime.missingBins.length > 0 || runtime.missingAnyBins.length > 0 || runtime.missingOs.length > 0;
 }
 
 function resolveToolPolicy(
@@ -248,6 +299,10 @@ export function resolveCollectedSkillCapability(
     remoteSatisfied: input.remoteSatisfied,
     runtimeContext: input.runtimeContext,
     runtimeProfile: input.availability?.runtime?.profile,
+    runtimeSupportStatus: input.availability?.runtime?.supportStatus,
+    runtimeDeclaredImage: input.availability?.runtime?.declaredImage,
+    runtimeMatchedImage: input.availability?.runtime?.matchedImage,
+    runtimeCustomImage: input.availability?.runtime?.customImage,
     runtimeReasonCodes: resolveSkillRuntimeReasonCodes(input),
     runtimeDetail: resolveSkillRuntimeDetail(input),
   });
@@ -276,7 +331,7 @@ export function resolveCollectedToolCapability(
   }
 
   const remoteEvidence = toRemoteEvidence(input.availability);
-  if (input.intent === "remote-node-assisted" && remoteEvidence) {
+  if (input.intent === "remote-node-assisted" && remoteEvidence && canUseRemoteRuntime(evidence?.runtime)) {
     return buildResolvedToolCapability({
       id: input.id,
       label: input.label,
@@ -300,7 +355,9 @@ export function resolveCollectedToolCapability(
   const providerReady =
     input.intent === "gateway-brokered" &&
     input.availability?.provider &&
-    providerReasonCodes.length === 0;
+    providerReasonCodes.length === 0 &&
+    !hasBlockingRuntimeGap(evidence?.runtime) &&
+    !input.availability?.projection?.reasonCodes?.includes("missing-projection");
   if (providerReady && evidence?.provider) {
     return buildResolvedToolCapability({
       id: input.id,
@@ -323,7 +380,7 @@ export function resolveCollectedToolCapability(
   const unsupportedAvailability = ensureUnsupportedAvailability(input);
   const unsupportedEvidence = toResolvedEvidence(unsupportedAvailability);
   const hasUnsupportedEvidence =
-    unsupportedEvidence?.runtime ||
+    hasBlockingRuntimeGap(unsupportedEvidence?.runtime) ||
     unsupportedEvidence?.projection ||
     unsupportedEvidence?.provider;
   if (hasUnsupportedEvidence) {
@@ -355,6 +412,7 @@ export function resolveCollectedToolCapability(
     defaultProfiles: input.defaultProfiles,
     runtimeContext: input.runtimeContext,
     capabilityClass: "sandbox-local",
+    ...(evidence ? { evidence } : {}),
   });
 }
 

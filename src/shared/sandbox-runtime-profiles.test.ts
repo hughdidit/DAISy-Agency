@@ -2,6 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  SANDBOX_RUNTIME_CAPABILITY_FAMILY_IDS,
+  SANDBOX_RUNTIME_SKILL_FAMILY_IDS,
   getSandboxRuntimeProfile,
   isSandboxRuntimeProfileId,
   SUPPORTED_SANDBOX_RUNTIME_PROFILE_IDS,
@@ -26,6 +28,7 @@ describe("sandbox runtime profiles", () => {
     expect(SUPPORTED_SANDBOX_RUNTIME_PROFILE_IDS).toEqual([
       "ops-readonly",
       "coding-base",
+      "coding-extended",
       "browser-automation",
     ]);
   });
@@ -36,13 +39,27 @@ describe("sandbox runtime profiles", () => {
     );
   });
 
-  it("requires every profile to define non-empty descriptive fields", () => {
+  it("requires every profile to define complete SBX-301 and SBX-302 metadata", () => {
     for (const profile of SUPPORTED_SANDBOX_RUNTIME_PROFILES) {
       expect(profile.label.trim().length).toBeGreaterThan(0);
       expect(profile.description.trim().length).toBeGreaterThan(0);
       expect(profile.intendedWorkload.trim().length).toBeGreaterThan(0);
       expect(profile.trustPosture.trim().length).toBeGreaterThan(0);
       expect(profile.baselineExpectations.trim().length).toBeGreaterThan(0);
+      expect(profile.supportMode).toBeTruthy();
+      expect(profile.expectedNetworkPosture).toBeTruthy();
+      expect(profile.filesystemExpectation).toBeTruthy();
+      expect(profile.supportedSkillFamilies.length).toBeGreaterThan(0);
+      expect(profile.supportedCapabilityFamilies.length).toBeGreaterThan(0);
+      expect(profile.unsupportedBehaviors.length).toBeGreaterThan(0);
+      expect(profile.expectedBinaries.length).toBeGreaterThan(0);
+      expect(profile.expectedRuntimes.length).toBeGreaterThan(0);
+      for (const family of profile.supportedSkillFamilies) {
+        expect(SANDBOX_RUNTIME_SKILL_FAMILY_IDS).toContain(family);
+      }
+      for (const family of profile.supportedCapabilityFamilies) {
+        expect(SANDBOX_RUNTIME_CAPABILITY_FAMILY_IDS).toContain(family);
+      }
     }
   });
 
@@ -65,7 +82,7 @@ describe("sandbox runtime profiles", () => {
       expect(getSandboxRuntimeProfile(id)?.id).toBe(id);
     }
 
-    expect(isSandboxRuntimeProfileId("coding-extended")).toBe(false);
+    expect(isSandboxRuntimeProfileId("coding-extended")).toBe(true);
     expect(isSandboxRuntimeProfileId("data-processing")).toBe(false);
   });
 

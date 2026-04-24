@@ -53,6 +53,19 @@ function makePluginManifestRecord(params: {
 }
 
 describe("collectReadonlyCapabilityInputs", () => {
+  it("synthesizes ops-readonly for readonly runtime contexts even without explicit config", () => {
+    const collected = collectReadonlyCapabilityInputs({
+      agentId: "main",
+      workspaceDir: "/workspace",
+      projection: {
+        workspaceDir: "/workspace",
+        pathExists: () => true,
+      },
+    });
+
+    expect(collected.runtimeContext.runtimeProfile).toBe("ops-readonly");
+  });
+
   it("threads the resolved sandbox runtime profile into readonly runtime context", () => {
     const collected = collectReadonlyCapabilityInputs({
       config: {

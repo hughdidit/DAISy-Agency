@@ -6,6 +6,8 @@ import type {
 import {
   isSandboxRuntimeProfileId,
   type SandboxRuntimeProfileId,
+  isSandboxRuntimeSupportStatus,
+  type SandboxRuntimeSupportStatus,
 } from "./sandbox-runtime-profiles.js";
 
 export const RESOLVED_CAPABILITY_SCHEMA_VERSION = 1 as const;
@@ -40,6 +42,10 @@ export const RESOLVED_CAPABILITY_UNAVAILABLE_REASONS = [
   "missing-runtime-any-binaries",
   "unsupported-os",
   "missing-runtime-profile",
+  "unsupported-runtime-family",
+  "runtime-profile-image-mismatch",
+  "custom-runtime-image",
+  "browser-runtime-disabled",
   "missing-projection",
   "missing-provider",
 ] as const;
@@ -79,6 +85,10 @@ export type ResolvedCapabilityPolicy = {
 
 export type ResolvedCapabilityRuntimeEvidence = {
   profile?: SandboxRuntimeProfileId;
+  supportStatus?: SandboxRuntimeSupportStatus;
+  declaredImage?: string;
+  matchedImage?: string;
+  customImage?: string;
   missingBins: string[];
   missingAnyBins: string[];
   missingOs: string[];
@@ -238,6 +248,10 @@ export type ResolvedSkillCapabilityAdapterInput = {
   remoteSatisfied: RequirementRemoteSatisfied | null;
   runtimeContext: ResolvedCapabilityRuntimeContext;
   runtimeProfile?: SandboxRuntimeProfileId;
+  runtimeSupportStatus?: SandboxRuntimeSupportStatus;
+  runtimeDeclaredImage?: string;
+  runtimeMatchedImage?: string;
+  runtimeCustomImage?: string;
   runtimeReasonCodes?: ResolvedCapabilityUnavailableReason[];
   runtimeDetail?: string;
 };
@@ -412,6 +426,12 @@ export function isResolvedRuntimeEvidence(
   if (!isRecord(value)) {
     return false;
   }
+  if (
+    value.supportStatus === "custom-image" &&
+    (typeof value.customImage !== "string" || value.customImage.trim().length === 0)
+  ) {
+    return false;
+  }
   return (
     isStringArray(value.missingBins) &&
     isStringArray(value.missingAnyBins) &&
@@ -419,6 +439,10 @@ export function isResolvedRuntimeEvidence(
     Array.isArray(value.reasonCodes) &&
     value.reasonCodes.every(isResolvedCapabilityUnavailableReason) &&
     (value.profile === undefined || isSandboxRuntimeProfileId(value.profile)) &&
+    (value.supportStatus === undefined || isSandboxRuntimeSupportStatus(value.supportStatus)) &&
+    isOptionalString(value.declaredImage) &&
+    isOptionalString(value.matchedImage) &&
+    isOptionalString(value.customImage) &&
     isOptionalString(value.detail)
   );
 }
@@ -514,6 +538,10 @@ export function buildResolvedSkillCapability(
   const runtimeEvidence = toRuntimeEvidence({
     missing: input.missing,
     profile: input.runtimeProfile,
+    supportStatus: input.runtimeSupportStatus,
+    declaredImage: input.runtimeDeclaredImage,
+    matchedImage: input.runtimeMatchedImage,
+    customImage: input.runtimeCustomImage,
     extraReasonCodes: input.runtimeReasonCodes,
     detail: input.runtimeDetail,
   });
@@ -578,7 +606,7 @@ export function buildResolvedSkillCapability(
     };
   }
 
-  if (remoteEvidence) {
+  if (remoteEvidence && runtimeEvidenceCanBeSatisfiedRemotely(runtimeEvidence)) {
     return {
       ...sharedBase,
       capabilityClass: "remote-node-assisted",
@@ -589,7 +617,7 @@ export function buildResolvedSkillCapability(
     };
   }
 
-  if (runtimeEvidence) {
+  if (hasBlockingRuntimeGap(runtimeEvidence)) {
     return {
       ...sharedBase,
       capabilityClass: "unsupported-in-current-runtime",
@@ -602,6 +630,7 @@ export function buildResolvedSkillCapability(
   return {
     ...sharedBase,
     capabilityClass: "sandbox-local",
+    ...(hasEvidence ? { evidence: hasEvidence } : {}),
   };
 }
 
@@ -630,6 +659,10 @@ function toRemoteEvidence(
 function toRuntimeEvidence(params: {
   missing: Requirements;
   profile?: SandboxRuntimeProfileId;
+  supportStatus?: SandboxRuntimeSupportStatus;
+  declaredImage?: string;
+  matchedImage?: string;
+  customImage?: string;
   extraReasonCodes?: ResolvedCapabilityUnavailableReason[];
   detail?: string;
 }): ResolvedCapabilityRuntimeEvidence | undefined {
@@ -648,17 +681,55 @@ function toRuntimeEvidence(params: {
       reasonCodes.push(code);
     }
   }
-  if (reasonCodes.length === 0 && !params.profile && !params.detail) {
+  if (
+    reasonCodes.length === 0 &&
+    !params.profile &&
+    !params.supportStatus &&
+    !params.declaredImage &&
+    !params.matchedImage &&
+    !params.customImage &&
+    !params.detail
+  ) {
     return undefined;
   }
   return {
     ...(params.profile ? { profile: params.profile } : {}),
+    ...(params.supportStatus ? { supportStatus: params.supportStatus } : {}),
+    ...(params.declaredImage ? { declaredImage: params.declaredImage } : {}),
+    ...(params.matchedImage ? { matchedImage: params.matchedImage } : {}),
+    ...(params.customImage ? { customImage: params.customImage } : {}),
     missingBins: params.missing.bins,
     missingAnyBins: params.missing.anyBins,
     missingOs: params.missing.os,
     reasonCodes,
     ...(params.detail ? { detail: params.detail } : {}),
   };
+}
+
+const NON_BLOCKING_RUNTIME_REASON_CODES: ReadonlySet<ResolvedCapabilityUnavailableReason> = new Set([
+  "custom-runtime-image",
+]);
+
+function hasBlockingRuntimeGap(evidence?: ResolvedCapabilityRuntimeEvidence): boolean {
+  if (!evidence) {
+    return false;
+  }
+  if (evidence.missingBins.length > 0 || evidence.missingAnyBins.length > 0 || evidence.missingOs.length > 0) {
+    return true;
+  }
+  return evidence.reasonCodes.some((code) => !NON_BLOCKING_RUNTIME_REASON_CODES.has(code));
+}
+
+function runtimeEvidenceCanBeSatisfiedRemotely(
+  evidence?: ResolvedCapabilityRuntimeEvidence,
+): boolean {
+  if (!evidence) {
+    return true;
+  }
+  if (evidence.reasonCodes.some((code) => !["missing-runtime-binaries", "missing-runtime-any-binaries", "unsupported-os", "custom-runtime-image"].includes(code))) {
+    return false;
+  }
+  return evidence.missingBins.length > 0 || evidence.missingAnyBins.length > 0 || evidence.missingOs.length > 0;
 }
 
 function toConfigBlock(
