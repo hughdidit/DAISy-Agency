@@ -6,8 +6,66 @@ import { note } from "../terminal/note.js";
 import {
   collectCommandCapabilitySnapshot,
   pickCapabilityFindings,
+  type CommandCapabilityFinding,
+  type CommandCapabilitySnapshot,
 } from "./capability-readiness.js";
 import { detectLegacyWorkspaceDirs, formatLegacyWorkspaceWarning } from "./doctor-workspace.js";
+
+export function buildCapabilityReadinessSection(params: {
+  snapshot: CommandCapabilitySnapshot;
+  capabilityClasses?: CommandCapabilityFinding["capabilityClass"][];
+  limit?: number;
+}) {
+  const defaultCapabilityClasses: CommandCapabilityFinding["capabilityClass"][] = [
+    "configured-but-blocked",
+    "unsupported-in-current-runtime",
+    "remote-node-assisted",
+    "gateway-brokered",
+  ];
+  const capabilityClasses = params.capabilityClasses ?? defaultCapabilityClasses;
+  const findings = pickCapabilityFindings(params.snapshot, {
+    capabilityClasses,
+    limit: params.limit ?? 6,
+  });
+  const selectedCount = capabilityClasses.reduce(
+    (total, capabilityClass) => total + params.snapshot.counts.byClass[capabilityClass],
+    0,
+  );
+  const usingDefaultCapabilityClasses =
+    capabilityClasses.length === defaultCapabilityClasses.length &&
+    capabilityClasses.every(
+      (capabilityClass, index) => capabilityClass === defaultCapabilityClasses[index],
+    );
+  const lines = RESOLVED_CAPABILITY_CLASSES.map(
+    (capabilityClass) => `${capabilityClass}: ${params.snapshot.counts.byClass[capabilityClass]}`,
+  );
+  if (findings.length > 0) {
+    lines.push("");
+    for (const finding of findings) {
+      lines.push(
+        `- ${finding.kind} ${finding.label}: ${finding.capabilityClass} (${finding.primaryReasonCategory})`,
+      );
+      lines.push(`  ${finding.summary}${finding.detail ? `: ${finding.detail}` : ""}`);
+      if (finding.remediation) {
+        lines.push(`  Fix: ${finding.remediation}`);
+      }
+    }
+  } else {
+    lines.push(
+      "",
+      selectedCount === 0
+        ? usingDefaultCapabilityClasses
+          ? "All resolved capabilities are sandbox-local."
+          : "No findings in the selected classes."
+        : "Findings omitted by the selected limit.",
+    );
+  }
+  return {
+    counts: params.snapshot.counts,
+    findings,
+    lines,
+  };
+}
 
 export function noteWorkspaceStatus(cfg: OpenClawConfig) {
   const agentId = resolveDefaultAgentId(cfg);
@@ -21,34 +79,10 @@ export function noteWorkspaceStatus(cfg: OpenClawConfig) {
     config: cfg,
     agentId,
   });
-  const readinessLines = RESOLVED_CAPABILITY_CLASSES.map(
-    (capabilityClass) => `${capabilityClass}: ${capabilities.counts.byClass[capabilityClass]}`,
-  );
-  const findings = pickCapabilityFindings(capabilities, {
-    capabilityClasses: [
-      "configured-but-blocked",
-      "unsupported-in-current-runtime",
-      "remote-node-assisted",
-      "gateway-brokered",
-    ],
-    limit: 6,
+  const readinessSection = buildCapabilityReadinessSection({
+    snapshot: capabilities,
   });
-  note(
-    [
-      ...readinessLines,
-      ...(findings.length > 0
-        ? [
-            "",
-            ...findings.flatMap((finding) => [
-              `- ${finding.kind} ${finding.label}: ${finding.capabilityClass} (${finding.primaryReasonCategory})`,
-              `  ${finding.summary}${finding.detail ? `: ${finding.detail}` : ""}`,
-              ...(finding.remediation ? [`  Fix: ${finding.remediation}`] : []),
-            ]),
-          ]
-        : ["", "All resolved capabilities are sandbox-local."]),
-    ].join("\n"),
-    "Capability readiness",
-  );
+  note(readinessSection.lines.join("\n"), "Capability readiness");
 
   const pluginRegistry = loadOpenClawPlugins({
     config: cfg,

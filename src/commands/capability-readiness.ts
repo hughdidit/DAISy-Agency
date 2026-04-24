@@ -174,7 +174,7 @@ function hasProviderGap(evidence?: ResolvedCapabilityEvidence): boolean {
   return Boolean(evidence?.provider?.reasonCodes.includes("missing-provider"));
 }
 
-function determineReasonCategory(
+export function determineCapabilityReasonCategory(
   capability: ResolvedCapability,
 ): CommandCapabilityReasonCategory | null {
   switch (capability.capabilityClass) {
@@ -290,8 +290,10 @@ function summarizeAvailabilityCapability(
   };
 }
 
-function createCapabilityFinding(capability: ResolvedCapability): CommandCapabilityFinding | null {
-  const primaryReasonCategory = determineReasonCategory(capability);
+export function createCommandCapabilityFinding(
+  capability: ResolvedCapability,
+): CommandCapabilityFinding | null {
+  const primaryReasonCategory = determineCapabilityReasonCategory(capability);
   if (!primaryReasonCategory) {
     return null;
   }
@@ -356,6 +358,32 @@ export function pickCapabilityFindings(
   return typeof options.limit === "number" ? findings.slice(0, options.limit) : findings;
 }
 
+export function buildCommandCapabilitySnapshot(params: {
+  manifest: ResolvedCapabilityManifest;
+  skills: SkillStatusReport["skills"];
+  toolGroups: ResolvedToolCatalogGroup[];
+}): CommandCapabilitySnapshot {
+  const counts = initializeCapabilityCounts();
+  const findings: CommandCapabilityFinding[] = [];
+  for (const capability of params.manifest.capabilities) {
+    counts.total += 1;
+    counts.byClass[capability.capabilityClass] += 1;
+    const finding = createCommandCapabilityFinding(capability);
+    if (finding) {
+      findings.push(finding);
+    }
+  }
+
+  return {
+    runtimeContext: params.manifest.runtimeContext,
+    counts,
+    skills: params.skills,
+    toolGroups: params.toolGroups,
+    manifest: params.manifest,
+    findings: findings.toSorted(sortFindings),
+  };
+}
+
 export function collectCommandCapabilitySnapshot(params: {
   config: OpenClawConfig;
   agentId?: string;
@@ -392,23 +420,9 @@ export function collectCommandCapabilitySnapshot(params: {
     tools: collected.tools,
     manifest,
   });
-  const counts = initializeCapabilityCounts();
-  const findings: CommandCapabilityFinding[] = [];
-  for (const capability of manifest.capabilities) {
-    counts.total += 1;
-    counts.byClass[capability.capabilityClass] += 1;
-    const finding = createCapabilityFinding(capability);
-    if (finding) {
-      findings.push(finding);
-    }
-  }
-
-  return {
-    runtimeContext: manifest.runtimeContext,
-    counts,
+  return buildCommandCapabilitySnapshot({
+    manifest,
     skills,
     toolGroups,
-    manifest,
-    findings: findings.toSorted(sortFindings),
-  };
+  });
 }

@@ -1,5 +1,6 @@
 import { render } from "lit";
 import { describe, expect, it } from "vitest";
+import { createCapabilityParitySkillStatusReportFixture } from "../../../../src/test-utils/capability-readiness-parity-browser.js";
 import type {
   ResolvedCapabilityEvidence,
   ResolvedSkillCapability,
@@ -425,6 +426,32 @@ describe("agents tools and skills panels (browser)", () => {
     expect(text).toContain("Disabled in config");
     expect(text).toContain("unsupported-in-current-runtime");
     expect(text).toContain("Missing bins: python");
+  });
+
+  it("renders the shared parity skill matrix without collapsing eligible and blocked states", async () => {
+    const container = document.createElement("div");
+    render(
+      renderAgentSkills(
+        createSkillParams({
+          report: createCapabilityParitySkillStatusReportFixture(),
+        }),
+      ),
+      container,
+    );
+    await Promise.resolve();
+
+    const rows = [...container.querySelectorAll<HTMLElement>(".agent-skill-row")];
+    const rowText = (skillName: string) => {
+      const row = rows.find((candidate) => candidate.textContent?.includes(skillName));
+      expect(row, `expected skill row for ${skillName}`).toBeTruthy();
+      return row?.textContent ?? "";
+    };
+
+    expect(rowText("local-skill")).toContain("sandbox-local");
+    expect(rowText("remote-mac-skill")).toContain("remote-node-assisted");
+    expect(rowText("env-blocked-skill")).toContain("configured-but-blocked");
+    expect(rowText("projection-defect-skill")).toContain("unsupported-in-current-runtime");
+    expect(rowText("unsupported-runtime-skill")).toContain("unsupported-in-current-runtime");
   });
 
   it("shows degraded fallback messaging when runtime catalog fails", async () => {

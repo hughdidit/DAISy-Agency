@@ -1,8 +1,15 @@
 import { describe, expect, it } from "vitest";
 import type { OpenClawConfig } from "../../config/config.js";
 import type { PluginManifestRecord } from "../../plugins/manifest-registry.js";
+import {
+  CAPABILITY_PARITY_READONLY_SUBJECTS,
+  filterCapabilityParityRows,
+  normalizeResolvedCapabilitiesParityRows,
+} from "../../test-utils/capability-readiness-parity.js";
+import { withEnv } from "../../test-utils/env.js";
 import type { SkillEntry } from "../skills.js";
 import { collectReadonlyCapabilityInputs } from "./collect-readonly.js";
+import { buildResolvedToolCatalogGroupsFromManifest } from "./joins.js";
 import { buildReadonlySkillStatusReport } from "./readonly-report.js";
 import { resolveCapabilityManifest } from "./resolve.js";
 
@@ -281,6 +288,112 @@ describe("collectReadonlyCapabilityInputs", () => {
     expect(report.skills.find((skill) => skill.name === "disabled-readonly-skill")).toMatchObject({
       eligible: false,
       capabilityClass: "configured-but-blocked",
+    });
+  });
+
+  it("keeps readonly skill and tool readiness aligned with the shared parity matrix", () => {
+    withEnv({ MISSING_GATEWAY_TEST_ENV: undefined }, () => {
+      const collected = collectReadonlyCapabilityInputs({
+        config: {
+          tools: {
+            sandbox: {
+              tools: {
+                deny: ["browser"],
+              },
+            },
+          },
+        } satisfies OpenClawConfig,
+        agentId: "main",
+        workspaceDir: "/workspace",
+        entries: [
+          makeSkillEntry("local-skill"),
+          makeSkillEntry(
+            "remote-mac-skill",
+            {},
+            {
+              os: ["darwin"],
+              requires: { bins: ["xcodebuild"] },
+            },
+          ),
+          makeSkillEntry(
+            "env-blocked-skill",
+            {},
+            {
+              requires: { env: ["MISSING_GATEWAY_TEST_ENV"] },
+              primaryEnv: "MISSING_GATEWAY_TEST_ENV",
+            },
+          ),
+          makeSkillEntry(
+            "projection-defect-skill",
+            {
+              skill: {
+                name: "projection-defect-skill",
+                description: "desc:projection-defect-skill",
+                source: "openclaw-extra",
+                filePath:
+                  "/workspace/.openclaw-readonly/state/extensions/demo-plugin/skills/projection-defect-skill/SKILL.md",
+                baseDir:
+                  "/workspace/.openclaw-readonly/state/extensions/demo-plugin/skills/projection-defect-skill",
+                disableModelInvocation: false,
+              },
+            },
+            {},
+          ),
+          makeSkillEntry(
+            "unsupported-runtime-skill",
+            {},
+            {
+              os: ["never-supported-sbx207"],
+            },
+          ),
+        ],
+        eligibility: {
+          remote: {
+            platforms: ["darwin"],
+            hasBin: (bin) => bin === "xcodebuild",
+            hasAnyBin: () => false,
+            note: "Remote macOS node available.",
+          },
+        },
+        projection: {
+          configPath: "/workspace/.openclaw-readonly/openclaw.json",
+          stateDir: "/workspace/.openclaw-readonly/state",
+          workspaceDir: "/workspace",
+          pathExists: (targetPath) =>
+            targetPath === "/workspace" ||
+            targetPath === "/workspace/.openclaw-readonly/openclaw.json" ||
+            targetPath === "/workspace/.openclaw-readonly/state" ||
+            targetPath.endsWith("/skills/local-skill/SKILL.md") ||
+            targetPath.endsWith("/skills/remote-mac-skill/SKILL.md") ||
+            targetPath.endsWith("/skills/env-blocked-skill/SKILL.md") ||
+            targetPath.endsWith("/skills/unsupported-runtime-skill/SKILL.md"),
+        },
+        pluginManifestRecords: [
+          makePluginManifestRecord({
+            id: "demo-plugin",
+            rootDir: "/workspace/.openclaw-readonly/state/extensions/demo-plugin",
+            skills: ["./skills/projection-defect-skill"],
+          }),
+        ],
+      });
+      const manifest = resolveCapabilityManifest(collected);
+      const groups = buildResolvedToolCatalogGroupsFromManifest({
+        tools: collected.tools,
+        manifest,
+      });
+
+      expect(
+        normalizeResolvedCapabilitiesParityRows(
+          manifest.capabilities.filter((capability) =>
+            CAPABILITY_PARITY_READONLY_SUBJECTS.includes(
+              capability.id as (typeof CAPABILITY_PARITY_READONLY_SUBJECTS)[number],
+            ),
+          ),
+        ),
+      ).toEqual(filterCapabilityParityRows(CAPABILITY_PARITY_READONLY_SUBJECTS));
+      expect(groups.flatMap((group) => group.tools.map((tool) => tool.id)).toSorted()).toEqual(
+        expect.arrayContaining(["browser", "web_fetch"]),
+      );
     });
   });
 });

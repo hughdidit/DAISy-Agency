@@ -2,11 +2,33 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import AjvPkg from "ajv";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import type { SkillStatusReport } from "../agents/skills-status.js";
+import { writeSkill } from "../agents/skills.e2e-test-helpers.js";
+import {
+  CAPABILITY_PARITY_GATEWAY_SKILL_SUBJECTS,
+  filterCapabilityParityRows,
+  normalizeSkillStatusParityRows,
+} from "../test-utils/capability-readiness-parity.js";
 import { withEnvAsync } from "../test-utils/env.js";
 import { SkillsStatusResultSchema } from "./protocol/schema/agents-models-skills.js";
 import { connectOk, installGatewayTestHooks, rpcReq } from "./test-helpers.js";
 import { withServer } from "./test-with-server.js";
+
+vi.mock("../infra/skills-remote.js", async () => {
+  const actual = await vi.importActual<typeof import("../infra/skills-remote.js")>(
+    "../infra/skills-remote.js",
+  );
+  return {
+    ...actual,
+    getRemoteSkillEligibility: () => ({
+      platforms: ["darwin"],
+      hasBin: (bin: string) => bin === "xcodebuild",
+      hasAnyBin: () => false,
+      note: "Remote macOS node available.",
+    }),
+  };
+});
 
 installGatewayTestHooks({ scope: "suite" });
 
@@ -111,5 +133,72 @@ describe("gateway skills.status", () => {
       expect(res.ok).toBe(false);
       expect(res.error?.message ?? "").toContain("unknown agent id");
     });
+  });
+
+  it("keeps gateway skill readiness aligned with the shared parity matrix", async () => {
+    await withEnvAsync(
+      {
+        OPENCLAW_BUNDLED_SKILLS_DIR: path.join(process.cwd(), "skills"),
+        MISSING_GATEWAY_TEST_ENV: undefined,
+      },
+      async () => {
+        const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), "gateway-skills-parity-"));
+        try {
+          const workspaceDir = path.join(tempRoot, "agent");
+          await writeSkill({
+            dir: path.join(workspaceDir, "skills", "local-skill"),
+            name: "local-skill",
+            description: "Local skill",
+          });
+          await writeSkill({
+            dir: path.join(workspaceDir, "skills", "remote-mac-skill"),
+            name: "remote-mac-skill",
+            description: "Remote macOS skill",
+            metadata: '{"openclaw":{"os":["darwin"],"requires":{"bins":["xcodebuild"]}}}',
+          });
+          await writeSkill({
+            dir: path.join(workspaceDir, "skills", "env-blocked-skill"),
+            name: "env-blocked-skill",
+            description: "Env blocked skill",
+            metadata:
+              '{"openclaw":{"requires":{"env":["MISSING_GATEWAY_TEST_ENV"]},"primaryEnv":"MISSING_GATEWAY_TEST_ENV"}}',
+          });
+          await writeSkill({
+            dir: path.join(workspaceDir, "skills", "unsupported-runtime-skill"),
+            name: "unsupported-runtime-skill",
+            description: "Unsupported runtime skill",
+            metadata: '{"openclaw":{"os":["never-supported-sbx207"]}}',
+          });
+
+          const { writeConfigFile } = await import("../config/config.js");
+          await writeConfigFile({
+            session: { mainKey: "main-test" },
+            agents: {
+              list: [{ id: "main", workspace: workspaceDir, default: true }],
+            },
+          });
+
+          await withServer(async (ws) => {
+            await connectOk(ws, { token: "secret", scopes: ["operator.read"] });
+            const res = await rpcReq<SkillStatusReport>(ws, "skills.status", {});
+
+            expect(res.ok).toBe(true);
+            expect(res.payload?.workspaceDir).toBe(workspaceDir);
+            expect(createAjv().compile(SkillsStatusResultSchema)(res.payload)).toBe(true);
+            const paritySkills: SkillStatusReport["skills"] =
+              res.payload?.skills?.filter((skill) =>
+                CAPABILITY_PARITY_GATEWAY_SKILL_SUBJECTS.includes(
+                  skill.name as (typeof CAPABILITY_PARITY_GATEWAY_SKILL_SUBJECTS)[number],
+                ),
+              ) ?? [];
+            expect(normalizeSkillStatusParityRows(paritySkills)).toEqual(
+              filterCapabilityParityRows(CAPABILITY_PARITY_GATEWAY_SKILL_SUBJECTS),
+            );
+          });
+        } finally {
+          await fs.rm(tempRoot, { recursive: true, force: true });
+        }
+      },
+    );
   });
 });

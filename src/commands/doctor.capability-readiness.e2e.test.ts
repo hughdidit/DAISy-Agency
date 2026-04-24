@@ -44,10 +44,11 @@ describe("doctor command capability readiness", () => {
     expect(message).toContain("gateway-brokered: 1");
     expect(message).toContain("remote-node-assisted: 1");
     expect(message).toContain("configured-but-blocked: 2");
-    expect(message).toContain("unsupported-in-current-runtime: 1");
+    expect(message).toContain("unsupported-in-current-runtime: 2");
     expect(message).toContain("policy-block");
     expect(message).toContain("config-gap");
     expect(message).toContain("projection-defect");
+    expect(message).toContain("runtime-profile-gap");
     expect(message).toContain("remote-assisted-availability");
     expect(message).toContain("gateway-brokered-availability");
   });
