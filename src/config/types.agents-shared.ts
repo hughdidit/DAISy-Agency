@@ -2,6 +2,7 @@ import type {
   SandboxBrowserSettings,
   SandboxDockerSettings,
   SandboxPruneSettings,
+  SandboxSettings,
 } from "./types.sandbox.js";
 
 export type AgentModelConfig =
@@ -13,7 +14,7 @@ export type AgentModelConfig =
       fallbacks?: string[];
     };
 
-export type AgentSandboxConfig = {
+export type AgentSandboxConfig = SandboxSettings & {
   mode?: "off" | "non-main" | "all";
   /** Agent workspace access inside the sandbox. */
   workspaceAccess?: "none" | "ro" | "rw";
