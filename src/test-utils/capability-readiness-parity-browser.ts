@@ -1,8 +1,7 @@
+import type { SkillStatusEntry as UiSkillStatusEntry } from "../../ui/src/ui/types.js";
 import {
   buildResolvedSkillCapability,
-  type ResolvedCapability,
   type ResolvedCapabilityClass,
-  type ResolvedCapabilityEvidence,
   type ResolvedCapabilityRuntimeContext,
   type ResolvedSkillCapability,
 } from "../shared/resolved-capability-manifest.js";
@@ -46,6 +45,31 @@ export type BrowserSkillStatusReport = {
   skills: BrowserSkillStatusEntry[];
 };
 
+type CapabilityEvidenceLike = {
+  runtime?: {
+    reasonCodes: string[];
+  };
+  projection?: {
+    reasonCodes: string[];
+    missingPaths?: string[];
+  };
+  provider?: {
+    reasonCodes: string[];
+  };
+};
+
+type CapabilityLike = {
+  capabilityClass?: ResolvedCapabilityClass;
+  policy?: {
+    denyReason?: string;
+  };
+  evidence?: CapabilityEvidenceLike;
+};
+
+type SkillStatusParityInput =
+  | Pick<BrowserSkillStatusEntry, "name" | "capabilityClass" | "capability">
+  | Pick<UiSkillStatusEntry, "name" | "capabilityClass" | "capability">;
+
 const runtimeContext: ResolvedCapabilityRuntimeContext = {
   agentId: "main",
   sandboxMode: "all",
@@ -53,7 +77,7 @@ const runtimeContext: ResolvedCapabilityRuntimeContext = {
   sandboxed: true,
 };
 
-function hasProjectionGap(evidence?: ResolvedCapabilityEvidence): boolean {
+function hasProjectionGap(evidence?: CapabilityEvidenceLike): boolean {
   return Boolean(
     evidence?.runtime?.reasonCodes.includes("missing-projection") ||
     evidence?.projection?.reasonCodes.includes("missing-projection") ||
@@ -61,12 +85,12 @@ function hasProjectionGap(evidence?: ResolvedCapabilityEvidence): boolean {
   );
 }
 
-function hasProviderGap(evidence?: ResolvedCapabilityEvidence): boolean {
+function hasProviderGap(evidence?: CapabilityEvidenceLike): boolean {
   return Boolean(evidence?.provider?.reasonCodes.includes("missing-provider"));
 }
 
 function determineCapabilityReasonCategory(
-  capability: ResolvedCapability | undefined,
+  capability: CapabilityLike | undefined,
   capabilityClass: ResolvedCapabilityClass,
 ): CapabilityParityRow["primaryReasonCategory"] {
   switch (capabilityClass) {
@@ -131,7 +155,7 @@ function buildSkillEntry(capability: ResolvedSkillCapability): BrowserSkillStatu
 }
 
 export function normalizeSkillStatusParityRows(
-  skills: readonly Pick<BrowserSkillStatusEntry, "name" | "capabilityClass" | "capability">[],
+  skills: readonly SkillStatusParityInput[],
 ): CapabilityParityRow[] {
   return sortCapabilityParityRows(
     skills.map((skill) => ({

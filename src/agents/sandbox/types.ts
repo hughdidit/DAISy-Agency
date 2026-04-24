@@ -1,3 +1,4 @@
+import type { SandboxRuntimeProfileId } from "../../shared/sandbox-runtime-profiles.js";
 import type { SandboxFsBridge } from "./fs-bridge.js";
 import type { SandboxDockerConfig } from "./types.docker.js";
 
@@ -64,6 +65,7 @@ export type SandboxScope = "session" | "agent" | "shared";
 export type SandboxConfig = {
   mode: "off" | "non-main" | "all";
   scope: SandboxScope;
+  profile: SandboxRuntimeProfileId;
   workspaceAccess: SandboxWorkspaceAccess;
   workspaceRoot: string;
   docker: SandboxDockerConfig;

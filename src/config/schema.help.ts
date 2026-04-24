@@ -341,6 +341,10 @@ export const FIELD_HELP: Record<string, string> = {
   "gateway.auth.token":
     "Required by default for gateway access (unless using Tailscale Serve identity); required for non-loopback binds.",
   "gateway.auth.password": "Required for Tailscale funnel.",
+  "agents.defaults.sandbox.profile":
+    "Official supported sandbox runtime profile identity for default sandboxed agents. Use this to declare whether the runtime is intended for readonly operations, general coding, or browser automation.",
+  "agents.list[].sandbox.profile":
+    "Per-agent override for the official sandbox runtime profile identity. Ignored when sandbox scope resolves to shared.",
   "agents.defaults.sandbox.browser.network":
     "Docker network for sandbox browser containers (default: openclaw-sandbox-browser). Avoid bridge if you need stricter isolation.",
   "agents.list[].sandbox.browser.network": "Per-agent override for sandbox browser Docker network.",

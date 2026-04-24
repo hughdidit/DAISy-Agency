@@ -65,6 +65,7 @@ function buildRuntimeContext(params: {
     ...(params.runtime.sessionKey ? { sessionKey: params.runtime.sessionKey } : {}),
     sandboxMode: params.runtime.mode,
     sandboxScope: sandboxCfg.scope,
+    runtimeProfile: sandboxCfg.profile,
     sandboxed: params.runtime.sandboxed,
   };
 }

@@ -54,6 +54,7 @@ function buildConfig(enableNoVnc: boolean): SandboxConfig {
   return {
     mode: "all",
     scope: "session",
+    profile: "browser-automation",
     workspaceAccess: "none",
     workspaceRoot: "/tmp/openclaw-sandboxes",
     docker: {

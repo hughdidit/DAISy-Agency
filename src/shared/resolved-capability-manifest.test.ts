@@ -39,7 +39,12 @@ describe("resolved capability manifest", () => {
       disabled: false,
       blockedByAllowlist: false,
       remoteSatisfied: null,
-      runtimeContext: { agentId: "main", sandboxMode: "all", sandboxed: true },
+      runtimeContext: {
+        agentId: "main",
+        sandboxMode: "all",
+        runtimeProfile: "coding-base",
+        sandboxed: true,
+      },
     });
 
     const manifest = createResolvedCapabilityManifest({
@@ -50,6 +55,7 @@ describe("resolved capability manifest", () => {
 
     expect(isResolvedCapabilityManifest(roundTripped)).toBe(true);
     expect(roundTripped.capabilities[0]?.capabilityClass).toBe("sandbox-local");
+    expect(roundTripped.runtimeContext.runtimeProfile).toBe("coding-base");
   });
 
   it("rejects manifests that rename capability classes", () => {
@@ -256,6 +262,21 @@ describe("resolved capability manifest", () => {
           },
         },
       ],
+    };
+
+    expect(isResolvedCapabilityManifest(invalid)).toBe(false);
+  });
+
+  it("rejects manifests with unsupported runtime profile ids in runtime context", () => {
+    const invalid = {
+      schemaVersion: 1,
+      runtimeContext: {
+        agentId: "main",
+        sandboxMode: "all",
+        runtimeProfile: "coding-extended",
+        sandboxed: true,
+      },
+      capabilities: [],
     };
 
     expect(isResolvedCapabilityManifest(invalid)).toBe(false);

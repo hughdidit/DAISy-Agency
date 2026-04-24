@@ -1,4 +1,5 @@
 import { Type } from "@sinclair/typebox";
+import { SUPPORTED_SANDBOX_RUNTIME_PROFILE_IDS } from "../../../shared/sandbox-runtime-profiles.js";
 import { NonEmptyString } from "./primitives.js";
 
 export const ModelChoiceSchema = Type.Object(
@@ -372,12 +373,17 @@ export const ResolvedCapabilityUnavailableReasonSchema = Type.Union(
   { $id: "ResolvedCapabilityUnavailableReason" },
 );
 
+const SandboxRuntimeProfileIdSchema = Type.String({
+  enum: [...SUPPORTED_SANDBOX_RUNTIME_PROFILE_IDS],
+});
+
 export const ResolvedCapabilityRuntimeContextSchema = Type.Object(
   {
     agentId: NonEmptyString,
     sessionKey: Type.Optional(NonEmptyString),
     sandboxMode: Type.Optional(NonEmptyString),
     sandboxScope: Type.Optional(NonEmptyString),
+    runtimeProfile: Type.Optional(SandboxRuntimeProfileIdSchema),
     sandboxed: Type.Optional(Type.Boolean()),
   },
   { additionalProperties: false, $id: "ResolvedCapabilityRuntimeContext" },
@@ -407,7 +413,7 @@ export const ResolvedCapabilityPolicySchema = Type.Object(
 
 export const ResolvedCapabilityRuntimeEvidenceSchema = Type.Object(
   {
-    profile: Type.Optional(NonEmptyString),
+    profile: Type.Optional(SandboxRuntimeProfileIdSchema),
     missingBins: Type.Array(NonEmptyString),
     missingAnyBins: Type.Array(NonEmptyString),
     missingOs: Type.Array(NonEmptyString),

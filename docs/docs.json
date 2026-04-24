@@ -1193,6 +1193,7 @@
                     "pages": [
                       "gateway/security/index",
                       "gateway/sandboxing",
+                      "gateway/sandbox-runtime-profiles",
                       "gateway/sandbox-vs-tool-policy-vs-elevated"
                     ]
                   },
@@ -1774,6 +1775,7 @@
                     "pages": [
                       "zh-CN/gateway/security/index",
                       "zh-CN/gateway/sandboxing",
+                      "zh-CN/gateway/sandbox-runtime-profiles",
                       "zh-CN/gateway/sandbox-vs-tool-policy-vs-elevated"
                     ]
                   },

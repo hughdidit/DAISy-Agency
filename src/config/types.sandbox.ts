@@ -1,3 +1,5 @@
+import type { SandboxRuntimeProfileId } from "../shared/sandbox-runtime-profiles.js";
+
 export type SandboxDockerSettings = {
   /** Docker image to use for sandbox containers. */
   image?: string;
@@ -93,4 +95,9 @@ export type SandboxPruneSettings = {
   idleHours?: number;
   /** Prune if older than N days (0 disables). */
   maxAgeDays?: number;
+};
+
+export type SandboxSettings = {
+  /** Official supported sandbox runtime profile identity. */
+  profile?: SandboxRuntimeProfileId;
 };

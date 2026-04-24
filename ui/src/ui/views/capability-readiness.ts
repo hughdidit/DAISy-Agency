@@ -1,8 +1,9 @@
 import { html } from "lit";
-import type { ResolvedCapabilityEvidence, SkillStatusEntry, ToolCatalogEntry } from "../types.ts";
+import type { SkillStatusEntry, ToolCatalogEntry } from "../types.ts";
 
 type CapabilityDetails = SkillStatusEntry["capability"] | ToolCatalogEntry["capability"];
 type CapabilityClass = ToolCatalogEntry["capabilityClass"];
+type CapabilityEvidence = Extract<CapabilityDetails, { evidence?: unknown }>["evidence"];
 
 const CAPABILITY_CLASS_LABELS: Record<CapabilityClass, string> = {
   "sandbox-local": "sandbox-local",
@@ -121,9 +122,7 @@ function describeRemote(capability: CapabilityDetails) {
   return details;
 }
 
-function getCapabilityEvidence(
-  capability: CapabilityDetails,
-): ResolvedCapabilityEvidence | undefined {
+function getCapabilityEvidence(capability: CapabilityDetails): CapabilityEvidence | undefined {
   return "evidence" in capability ? capability.evidence : undefined;
 }
 

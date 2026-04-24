@@ -91,6 +91,7 @@ function buildReadonlyRuntimeContext(params: {
     agentId: params.agentId,
     sandboxMode: sandboxCfg.mode,
     sandboxScope: sandboxCfg.scope,
+    runtimeProfile: sandboxCfg.profile,
     sandboxed: true,
   };
 }

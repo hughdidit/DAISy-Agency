@@ -280,7 +280,7 @@ describe("agents tools and skills panels (browser)", () => {
                       id: "unsupported-tool",
                       evidence: {
                         runtime: {
-                          profile: "minimal",
+                          profile: "coding-base",
                           missingBins: ["ffmpeg"],
                           missingAnyBins: [],
                           missingOs: [],
@@ -396,7 +396,7 @@ describe("agents tools and skills panels (browser)", () => {
                   skillKey: "unsupported-skill",
                   evidence: {
                     runtime: {
-                      profile: "minimal",
+                      profile: "coding-base",
                       missingBins: ["python"],
                       missingAnyBins: [],
                       missingOs: [],

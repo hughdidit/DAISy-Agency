@@ -19,6 +19,7 @@ const runtimeContext: CapabilityResolutionInput["runtimeContext"] = {
   agentId: "main",
   sandboxMode: "all",
   sandboxScope: "session",
+  runtimeProfile: "coding-base",
   sandboxed: true,
 };
 
