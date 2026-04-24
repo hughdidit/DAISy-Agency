@@ -479,7 +479,7 @@ export function resolveCoreToolCapabilityFamily(
     case "tts":
       return "media";
     default:
-      return "plugin-brokered";
+      return "automation";
   }
 }
 

@@ -357,7 +357,7 @@ export function resolveCollectedToolCapability(
     input.availability?.provider &&
     providerReasonCodes.length === 0 &&
     !hasBlockingRuntimeGap(evidence?.runtime) &&
-    !input.availability?.projection?.reasonCodes?.includes("missing-projection");
+    !evidence?.projection?.reasonCodes?.includes("missing-projection");
   if (providerReady && evidence?.provider) {
     return buildResolvedToolCapability({
       id: input.id,

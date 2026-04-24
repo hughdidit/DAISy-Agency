@@ -6,6 +6,7 @@ import {
   SANDBOX_RUNTIME_SKILL_FAMILY_IDS,
   getSandboxRuntimeProfile,
   isSandboxRuntimeProfileId,
+  resolveCoreToolCapabilityFamily,
   SUPPORTED_SANDBOX_RUNTIME_PROFILE_IDS,
   SUPPORTED_SANDBOX_RUNTIME_PROFILES,
 } from "./sandbox-runtime-profiles.js";
@@ -84,6 +85,11 @@ describe("sandbox runtime profiles", () => {
 
     expect(isSandboxRuntimeProfileId("coding-extended")).toBe(true);
     expect(isSandboxRuntimeProfileId("data-processing")).toBe(false);
+  });
+
+  it("uses a generic core-tool fallback instead of classifying unknown core tools as plugin-brokered", () => {
+    expect(resolveCoreToolCapabilityFamily("read")).toBe("filesystem-read");
+    expect(resolveCoreToolCapabilityFamily("some-future-core-tool")).toBe("automation");
   });
 
   it("documents exactly the supported official profile ids in English and zh-CN docs", () => {

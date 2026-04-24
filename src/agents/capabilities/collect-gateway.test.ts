@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { SkillEntry } from "../skills.js";
+import { mergeAvailabilityFacts } from "./collect-shared.js";
 import { collectGatewayCapabilityInputs } from "./collect-gateway.js";
 import {
   buildResolvedToolCatalogGroupsFromManifest,
@@ -32,6 +33,50 @@ function makeSkillEntry(params: {
 }
 
 describe("collectGatewayCapabilityInputs", () => {
+  it("deep-merges availability arrays so runtime and projection evidence are not lost", () => {
+    expect(
+      mergeAvailabilityFacts(
+        {
+          runtime: {
+            missingBins: ["node"],
+            reasonCodes: ["missing-runtime-binaries"],
+          },
+          projection: {
+            missingPaths: ["/workspace/a"],
+            reasonCodes: ["missing-projection"],
+          },
+          remote: {
+            satisfiedBins: ["python3"],
+          },
+        },
+        {
+          runtime: {
+            missingBins: ["git"],
+            reasonCodes: ["custom-runtime-image"],
+          },
+          projection: {
+            missingPaths: ["/workspace/b"],
+          },
+          remote: {
+            satisfiedBins: ["node"],
+          },
+        },
+      ),
+    ).toEqual({
+      runtime: {
+        missingBins: ["node", "git"],
+        reasonCodes: ["missing-runtime-binaries", "custom-runtime-image"],
+      },
+      projection: {
+        missingPaths: ["/workspace/a", "/workspace/b"],
+        reasonCodes: ["missing-projection"],
+      },
+      remote: {
+        satisfiedBins: ["python3", "node"],
+      },
+    });
+  });
+
   it("collects deterministic skill and tool facts for gateway contexts", () => {
     const collected = collectGatewayCapabilityInputs({
       agentId: "main",

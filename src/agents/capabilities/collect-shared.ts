@@ -190,6 +190,11 @@ export function resolveManagedSkillsDir(managedSkillsDir?: string): string {
   return managedSkillsDir ?? path.join(CONFIG_DIR, "skills");
 }
 
+function mergeStringArrays<T extends string>(base?: T[], override?: T[]): T[] | undefined {
+  const merged = Array.from(new Set([...(base ?? []), ...(override ?? [])]));
+  return merged.length > 0 ? merged : undefined;
+}
+
 export function mergeAvailabilityFacts(
   base?: CapabilityAvailabilityFacts,
   override?: CapabilityAvailabilityFacts,
@@ -203,6 +208,38 @@ export function mergeAvailabilityFacts(
         ? {
             ...(base?.runtime ?? {}),
             ...(override?.runtime ?? {}),
+            ...(mergeStringArrays(base?.runtime?.missingBins, override?.runtime?.missingBins)
+              ? {
+                  missingBins: mergeStringArrays(
+                    base?.runtime?.missingBins,
+                    override?.runtime?.missingBins,
+                  ),
+                }
+              : {}),
+            ...(mergeStringArrays(
+              base?.runtime?.missingAnyBins,
+              override?.runtime?.missingAnyBins,
+            )
+              ? {
+                  missingAnyBins: mergeStringArrays(
+                    base?.runtime?.missingAnyBins,
+                    override?.runtime?.missingAnyBins,
+                  ),
+                }
+              : {}),
+            ...(mergeStringArrays(base?.runtime?.missingOs, override?.runtime?.missingOs)
+              ? {
+                  missingOs: mergeStringArrays(base?.runtime?.missingOs, override?.runtime?.missingOs),
+                }
+              : {}),
+            ...(mergeStringArrays(base?.runtime?.reasonCodes, override?.runtime?.reasonCodes)
+              ? {
+                  reasonCodes: mergeStringArrays(
+                    base?.runtime?.reasonCodes,
+                    override?.runtime?.reasonCodes,
+                  ),
+                }
+              : {}),
           }
         : undefined,
     projection:
@@ -210,6 +247,28 @@ export function mergeAvailabilityFacts(
         ? {
             ...(base?.projection ?? {}),
             ...(override?.projection ?? {}),
+            ...(mergeStringArrays(
+              base?.projection?.missingPaths,
+              override?.projection?.missingPaths,
+            )
+              ? {
+                  missingPaths: mergeStringArrays(
+                    base?.projection?.missingPaths,
+                    override?.projection?.missingPaths,
+                  ),
+                }
+              : {}),
+            ...(mergeStringArrays(
+              base?.projection?.reasonCodes,
+              override?.projection?.reasonCodes,
+            )
+              ? {
+                  reasonCodes: mergeStringArrays(
+                    base?.projection?.reasonCodes,
+                    override?.projection?.reasonCodes,
+                  ),
+                }
+              : {}),
           }
         : undefined,
     provider:
@@ -217,6 +276,14 @@ export function mergeAvailabilityFacts(
         ? {
             ...(base?.provider ?? {}),
             ...(override?.provider ?? {}),
+            ...(mergeStringArrays(base?.provider?.reasonCodes, override?.provider?.reasonCodes)
+              ? {
+                  reasonCodes: mergeStringArrays(
+                    base?.provider?.reasonCodes,
+                    override?.provider?.reasonCodes,
+                  ),
+                }
+              : {}),
           }
         : undefined,
     remote:
@@ -224,6 +291,30 @@ export function mergeAvailabilityFacts(
         ? {
             ...(base?.remote ?? {}),
             ...(override?.remote ?? {}),
+            ...(mergeStringArrays(base?.remote?.satisfiedBins, override?.remote?.satisfiedBins)
+              ? {
+                  satisfiedBins: mergeStringArrays(
+                    base?.remote?.satisfiedBins,
+                    override?.remote?.satisfiedBins,
+                  ),
+                }
+              : {}),
+            ...(mergeStringArrays(
+              base?.remote?.satisfiedAnyBins,
+              override?.remote?.satisfiedAnyBins,
+            )
+              ? {
+                  satisfiedAnyBins: mergeStringArrays(
+                    base?.remote?.satisfiedAnyBins,
+                    override?.remote?.satisfiedAnyBins,
+                  ),
+                }
+              : {}),
+            ...(mergeStringArrays(base?.remote?.satisfiedOs, override?.remote?.satisfiedOs)
+              ? {
+                  satisfiedOs: mergeStringArrays(base?.remote?.satisfiedOs, override?.remote?.satisfiedOs),
+                }
+              : {}),
           }
         : undefined,
   };
