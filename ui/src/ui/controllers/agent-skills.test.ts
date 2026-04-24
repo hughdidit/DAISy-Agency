@@ -4,7 +4,7 @@ import {
   createCapabilityParitySkillStatusReportFixture,
   filterCapabilityParityRows,
   normalizeSkillStatusParityRows,
-} from "../../../../src/test-utils/capability-readiness-parity.js";
+} from "../../../../src/test-utils/capability-readiness-parity-browser.js";
 import { loadAgentSkills } from "./agent-skills.ts";
 import type { AgentSkillsState } from "./agent-skills.ts";
 

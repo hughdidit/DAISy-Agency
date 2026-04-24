@@ -5,7 +5,6 @@ import {
   buildCommandCapabilitySnapshot,
   createCommandCapabilityFinding,
   type CommandCapabilityFinding,
-  type CommandCapabilityReasonCategory,
   type CommandCapabilitySnapshot,
 } from "../commands/capability-readiness.js";
 import {
@@ -13,90 +12,26 @@ import {
   buildResolvedToolCapability,
   createResolvedCapabilityManifest,
   type ResolvedCapability,
-  type ResolvedCapabilityClass,
   type ResolvedCapabilityRuntimeContext,
 } from "../shared/resolved-capability-manifest.js";
+import {
+  CAPABILITY_PARITY_GATEWAY_SKILL_SUBJECTS,
+  CAPABILITY_PARITY_READONLY_SUBJECTS,
+  CAPABILITY_PARITY_SKILL_SUBJECTS,
+  CAPABILITY_READINESS_PARITY_MATRIX,
+  filterCapabilityParityRows,
+  sortCapabilityParityRows,
+  type CapabilityParityRow,
+} from "./capability-readiness-parity-matrix.js";
 
-export type CapabilityParityRow = {
-  subject: string;
-  kind: ResolvedCapability["kind"];
-  capabilityClass: ResolvedCapabilityClass;
-  primaryReasonCategory: CommandCapabilityReasonCategory | null;
-};
-
-export const CAPABILITY_READINESS_PARITY_MATRIX: CapabilityParityRow[] = [
-  {
-    subject: "local-skill",
-    kind: "skill",
-    capabilityClass: "sandbox-local",
-    primaryReasonCategory: null,
-  },
-  {
-    subject: "web_fetch",
-    kind: "tool",
-    capabilityClass: "gateway-brokered",
-    primaryReasonCategory: "gateway-brokered-availability",
-  },
-  {
-    subject: "remote-mac-skill",
-    kind: "skill",
-    capabilityClass: "remote-node-assisted",
-    primaryReasonCategory: "remote-assisted-availability",
-  },
-  {
-    subject: "env-blocked-skill",
-    kind: "skill",
-    capabilityClass: "configured-but-blocked",
-    primaryReasonCategory: "config-gap",
-  },
-  {
-    subject: "browser",
-    kind: "tool",
-    capabilityClass: "configured-but-blocked",
-    primaryReasonCategory: "policy-block",
-  },
-  {
-    subject: "projection-defect-skill",
-    kind: "skill",
-    capabilityClass: "unsupported-in-current-runtime",
-    primaryReasonCategory: "projection-defect",
-  },
-  {
-    subject: "unsupported-runtime-skill",
-    kind: "skill",
-    capabilityClass: "unsupported-in-current-runtime",
-    primaryReasonCategory: "runtime-profile-gap",
-  },
-];
-
-export const CAPABILITY_PARITY_GATEWAY_SKILL_SUBJECTS = [
-  "local-skill",
-  "remote-mac-skill",
-  "env-blocked-skill",
-  "unsupported-runtime-skill",
-] as const;
-
-export const CAPABILITY_PARITY_SKILL_SUBJECTS = [
-  "local-skill",
-  "remote-mac-skill",
-  "env-blocked-skill",
-  "projection-defect-skill",
-  "unsupported-runtime-skill",
-] as const;
-
-export const CAPABILITY_PARITY_READONLY_SUBJECTS = [
-  "local-skill",
-  "web_fetch",
-  "remote-mac-skill",
-  "env-blocked-skill",
-  "browser",
-  "projection-defect-skill",
-  "unsupported-runtime-skill",
-] as const;
-
-const CAPABILITY_PARITY_ORDER = new Map(
-  CAPABILITY_READINESS_PARITY_MATRIX.map((row, index) => [row.subject, index]),
-);
+export {
+  CAPABILITY_PARITY_GATEWAY_SKILL_SUBJECTS,
+  CAPABILITY_PARITY_READONLY_SUBJECTS,
+  CAPABILITY_PARITY_SKILL_SUBJECTS,
+  CAPABILITY_READINESS_PARITY_MATRIX,
+  filterCapabilityParityRows,
+  type CapabilityParityRow,
+} from "./capability-readiness-parity-matrix.js";
 
 const runtimeContext: ResolvedCapabilityRuntimeContext = {
   agentId: "main",
@@ -104,20 +39,6 @@ const runtimeContext: ResolvedCapabilityRuntimeContext = {
   sandboxScope: "session",
   sandboxed: true,
 };
-
-function sortCapabilityParityRows(rows: CapabilityParityRow[]): CapabilityParityRow[] {
-  return [...rows].toSorted((left, right) => {
-    const leftOrder = CAPABILITY_PARITY_ORDER.get(left.subject) ?? Number.MAX_SAFE_INTEGER;
-    const rightOrder = CAPABILITY_PARITY_ORDER.get(right.subject) ?? Number.MAX_SAFE_INTEGER;
-    if (leftOrder !== rightOrder) {
-      return leftOrder - rightOrder;
-    }
-    if (left.kind !== right.kind) {
-      return left.kind.localeCompare(right.kind);
-    }
-    return left.subject.localeCompare(right.subject);
-  });
-}
 
 function normalizeParityRow(capability: ResolvedCapability): CapabilityParityRow {
   const finding = createCommandCapabilityFinding(capability);
@@ -146,7 +67,7 @@ function buildSkillEntry(capability: ReturnType<typeof buildResolvedSkillCapabil
     source: capability.source,
     bundled: capability.bundled ?? false,
     filePath: capability.filePath,
-    baseDir: "/tmp/workspace/skills",
+    baseDir: capability.filePath.replace(/\/SKILL\.md$/, ""),
     skillKey: capability.skillKey,
     primaryEnv: capability.primaryEnv,
     always: false,
@@ -169,13 +90,6 @@ function buildSkillEntry(capability: ReturnType<typeof buildResolvedSkillCapabil
     remoteSatisfied,
     install: [],
   };
-}
-
-export function filterCapabilityParityRows(subjects: readonly string[]): CapabilityParityRow[] {
-  const allowed = new Set(subjects);
-  return sortCapabilityParityRows(
-    CAPABILITY_READINESS_PARITY_MATRIX.filter((row) => allowed.has(row.subject)),
-  );
 }
 
 export function normalizeResolvedCapabilitiesParityRows(

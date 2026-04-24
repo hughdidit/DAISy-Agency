@@ -15,14 +15,20 @@ import { SkillsStatusResultSchema } from "./protocol/schema/agents-models-skills
 import { connectOk, installGatewayTestHooks, rpcReq } from "./test-helpers.js";
 import { withServer } from "./test-with-server.js";
 
-vi.mock("../infra/skills-remote.js", () => ({
-  getRemoteSkillEligibility: () => ({
-    platforms: ["darwin"],
-    hasBin: (bin: string) => bin === "xcodebuild",
-    hasAnyBin: () => false,
-    note: "Remote macOS node available.",
-  }),
-}));
+vi.mock("../infra/skills-remote.js", async () => {
+  const actual = await vi.importActual<typeof import("../infra/skills-remote.js")>(
+    "../infra/skills-remote.js",
+  );
+  return {
+    ...actual,
+    getRemoteSkillEligibility: () => ({
+      platforms: ["darwin"],
+      hasBin: (bin: string) => bin === "xcodebuild",
+      hasAnyBin: () => false,
+      note: "Remote macOS node available.",
+    }),
+  };
+});
 
 installGatewayTestHooks({ scope: "suite" });
 

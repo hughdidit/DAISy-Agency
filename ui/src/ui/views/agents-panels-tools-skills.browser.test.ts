@@ -1,6 +1,6 @@
 import { render } from "lit";
 import { describe, expect, it } from "vitest";
-import { createCapabilityParitySkillStatusReportFixture } from "../../../../src/test-utils/capability-readiness-parity.js";
+import { createCapabilityParitySkillStatusReportFixture } from "../../../../src/test-utils/capability-readiness-parity-browser.js";
 import type {
   ResolvedCapabilityEvidence,
   ResolvedSkillCapability,
