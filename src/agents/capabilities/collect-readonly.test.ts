@@ -53,6 +53,30 @@ function makePluginManifestRecord(params: {
 }
 
 describe("collectReadonlyCapabilityInputs", () => {
+  it("threads the resolved sandbox runtime profile into readonly runtime context", () => {
+    const collected = collectReadonlyCapabilityInputs({
+      config: {
+        agents: {
+          defaults: {
+            sandbox: {
+              mode: "all",
+              scope: "session",
+              profile: "ops-readonly",
+            },
+          },
+        },
+      },
+      agentId: "main",
+      workspaceDir: "/workspace",
+      projection: {
+        workspaceDir: "/workspace",
+        pathExists: () => true,
+      },
+    });
+
+    expect(collected.runtimeContext.runtimeProfile).toBe("ops-readonly");
+  });
+
   it("marks collected skills unsupported when readonly projection facts are incomplete", () => {
     const collected = collectReadonlyCapabilityInputs({
       agentId: "main",

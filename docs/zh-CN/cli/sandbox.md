@@ -24,7 +24,7 @@ OpenClaw 可以在隔离的 Docker 容器中运行智能体以确保安全。`sa
 
 ### `openclaw sandbox explain`
 
-检查**生效的**沙箱模式/作用域/工作区访问权限、沙箱工具策略和提权门控（附带修复配置的键路径）。
+检查**生效的**沙箱模式/作用域/配置档/工作区访问权限、沙箱工具策略和提权门控（附带修复配置的键路径）。
 
 ```bash
 openclaw sandbox explain
@@ -32,6 +32,8 @@ openclaw sandbox explain --session agent:main:main
 openclaw sandbox explain --agent work
 openclaw sandbox explain --json
 ```
+
+`sandbox explain` 还会显示该智能体/运行时选定的沙箱运行时配置档身份。
 
 ### `openclaw sandbox list`
 
@@ -154,5 +156,6 @@ openclaw sandbox recreate --agent alfred
 ## 另请参阅
 
 - [沙箱文档](/gateway/sandboxing)
+- [沙箱运行时配置档](/gateway/sandbox-runtime-profiles)
 - [智能体配置](/concepts/agent-workspace)
 - [Doctor 命令](/gateway/doctor) - 检查沙箱设置

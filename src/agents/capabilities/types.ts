@@ -3,6 +3,7 @@ import type {
   RequirementRemoteSatisfied,
   Requirements,
 } from "../../shared/requirements.js";
+import type { SandboxRuntimeProfileId } from "../../shared/sandbox-runtime-profiles.js";
 import type {
   ResolvedCapability,
   ResolvedCapabilityManifest,
@@ -15,7 +16,7 @@ import type { SandboxToolPolicyResolved } from "../sandbox/types.js";
 import type { ToolProfileId } from "../tool-catalog.js";
 
 export type CapabilityRuntimeFacts = {
-  profile?: string;
+  profile?: SandboxRuntimeProfileId;
   missingBins?: string[];
   missingAnyBins?: string[];
   missingOs?: string[];

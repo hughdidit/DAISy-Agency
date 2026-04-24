@@ -13,6 +13,9 @@ This is **optional** and controlled by configuration (`agents.defaults.sandbox` 
 The Gateway stays on the host; tool execution runs in an isolated sandbox
 when enabled.
 
+For the official supported sandbox runtime identities, see
+[Sandbox Runtime Profiles](/gateway/sandbox-runtime-profiles).
+
 This is not a perfect security boundary, but it materially limits filesystem
 and process access when the model does something dumb.
 
@@ -53,6 +56,21 @@ Not sandboxed:
 - `"session"` (default): one container per session.
 - `"agent"`: one container per agent.
 - `"shared"`: one container shared by all sandboxed sessions.
+
+## Runtime profile
+
+`agents.defaults.sandbox.profile` declares which official supported sandbox
+runtime profile an agent is intended to use. The current supported set is
+small on purpose:
+
+- `ops-readonly`
+- `coding-base`
+- `browser-automation`
+
+Use a custom image if needed, but keep the selected profile limited to one of
+the official supported identities. See
+[Sandbox Runtime Profiles](/gateway/sandbox-runtime-profiles) for the profile
+definitions and expectations.
 
 ## Workspace access
 

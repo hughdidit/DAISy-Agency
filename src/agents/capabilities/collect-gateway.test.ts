@@ -67,6 +67,7 @@ describe("collectGatewayCapabilityInputs", () => {
     expect(collected.runtimeContext.agentId).toBe("main");
     expect(collected.runtimeContext.sandboxMode).toBe("all");
     expect(collected.runtimeContext.sandboxScope).toBe("session");
+    expect(collected.runtimeContext.runtimeProfile).toBe("coding-base");
     expect(collected.skills.map((skill) => skill.name)).toEqual(["remote-mac-skill"]);
     expect(collected.skills[0]?.remoteSatisfied?.bins).toEqual(["xcodebuild"]);
 
@@ -111,6 +112,29 @@ describe("collectGatewayCapabilityInputs", () => {
       pluginId: "voice-call",
       intent: "gateway-brokered",
     });
+  });
+
+  it("threads explicit sandbox runtime profile identity into gateway runtime context", () => {
+    const collected = collectGatewayCapabilityInputs({
+      config: {
+        agents: {
+          defaults: {
+            sandbox: {
+              mode: "all",
+              scope: "session",
+              profile: "browser-automation",
+            },
+          },
+        },
+      },
+      agentId: "main",
+      sessionKey: "main",
+      workspaceDir: "/tmp/workspace",
+      agentDir: "/tmp/agents/main/agent",
+      includeSkills: false,
+    });
+
+    expect(collected.runtimeContext.runtimeProfile).toBe("browser-automation");
   });
 
   it("provides enough data to rebuild skill status and grouped tool views later", () => {

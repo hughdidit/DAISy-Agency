@@ -1,4 +1,5 @@
 import type { OpenClawConfig } from "../../config/config.js";
+import type { SandboxRuntimeProfileId } from "../../shared/sandbox-runtime-profiles.js";
 import { resolveAgentConfig } from "../agent-scope.js";
 import {
   DEFAULT_SANDBOX_BROWSER_AUTOSTART_TIMEOUT_MS,
@@ -23,6 +24,7 @@ import type {
   SandboxPruneConfig,
   SandboxScope,
 } from "./types.js";
+import { DEFAULT_SANDBOX_RUNTIME_PROFILE_ID } from "../../shared/sandbox-runtime-profiles.js";
 
 export const DANGEROUS_SANDBOX_DOCKER_BOOLEAN_KEYS = [
   "dangerouslyAllowReservedContainerTargets",
@@ -71,6 +73,17 @@ export function resolveSandboxScope(params: {
     return params.perSession ? "session" : "shared";
   }
   return "session";
+}
+
+export function resolveSandboxProfile(params: {
+  scope: SandboxScope;
+  globalProfile?: SandboxRuntimeProfileId;
+  agentProfile?: SandboxRuntimeProfileId;
+}): SandboxRuntimeProfileId {
+  if (params.scope !== "shared" && params.agentProfile) {
+    return params.agentProfile;
+  }
+  return params.globalProfile ?? DEFAULT_SANDBOX_RUNTIME_PROFILE_ID;
 }
 
 export function resolveSandboxDockerConfig(params: {
@@ -190,6 +203,11 @@ export function resolveSandboxConfigForAgent(
   return {
     mode: agentSandbox?.mode ?? agent?.mode ?? "all",
     scope,
+    profile: resolveSandboxProfile({
+      scope,
+      globalProfile: agent?.profile,
+      agentProfile: agentSandbox?.profile,
+    }),
     workspaceAccess: agentSandbox?.workspaceAccess ?? agent?.workspaceAccess ?? "rw",
     workspaceRoot:
       agentSandbox?.workspaceRoot ?? agent?.workspaceRoot ?? DEFAULT_SANDBOX_WORKSPACE_ROOT,

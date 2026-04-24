@@ -7,6 +7,34 @@ import {
 import { validateConfigObject } from "./config.js";
 
 describe("sandbox docker config", () => {
+  it("accepts supported sandbox runtime profile ids", () => {
+    for (const profile of ["ops-readonly", "coding-base", "browser-automation"]) {
+      const res = validateConfigObject({
+        agents: {
+          defaults: {
+            sandbox: {
+              profile,
+            },
+          },
+        },
+      });
+      expect(res.ok).toBe(true);
+    }
+  });
+
+  it("rejects unsupported sandbox runtime profile ids", () => {
+    const res = validateConfigObject({
+      agents: {
+        defaults: {
+          sandbox: {
+            profile: "coding-extended",
+          },
+        },
+      },
+    });
+    expect(res.ok).toBe(false);
+  });
+
   it("joins setupCommand arrays with newlines", () => {
     const res = validateConfigObject({
       agents: {

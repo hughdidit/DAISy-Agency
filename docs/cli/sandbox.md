@@ -17,7 +17,7 @@ OpenClaw can run agents in isolated Docker containers for security. The `sandbox
 
 ### `openclaw sandbox explain`
 
-Inspect the **effective** sandbox mode/scope/workspace access, sandbox tool policy, elevated gates, and resolved capability readiness (with fix-it config key paths). Use `--json` to also view the resolved sandbox/browser image fields plus the additive `capabilities` payload.
+Inspect the **effective** sandbox mode/scope/profile/workspace access, sandbox tool policy, elevated gates, and resolved capability readiness (with fix-it config key paths). Use `--json` to also view the resolved sandbox/browser image fields plus the additive `capabilities` payload.
 
 ```bash
 openclaw sandbox explain
@@ -36,6 +36,7 @@ openclaw sandbox explain --json
   - `unsupported-in-current-runtime`
 - Normalized reason categories such as policy block, config gap, projection defect, runtime/profile gap, and assisted availability
 - Additive JSON `capabilities` data with counts, findings, tool groups, skills, and the resolved manifest
+- The resolved sandbox runtime profile identity selected for that agent/runtime
 
 ### `openclaw sandbox list`
 
@@ -78,6 +79,9 @@ openclaw sandbox recreate --all --force        # Skip confirmation
 **Important:** Containers are automatically recreated when the agent is next used.
 
 ## Use Cases
+
+See also [Sandbox Runtime Profiles](/gateway/sandbox-runtime-profiles) for the
+official supported sandbox runtime identities.
 
 ### After updating Docker images
 

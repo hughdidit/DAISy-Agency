@@ -18,6 +18,9 @@ OpenClaw 可以**在 Docker 容器内运行工具**以减少影响范围。
 这是**可选的**，由配置控制（`agents.defaults.sandbox` 或 `agents.list[].sandbox`）。如果沙箱隔离关闭，工具在主机上运行。
 Gateway 网关保留在主机上；启用时工具执行在隔离的沙箱中运行。
 
+关于官方支持的沙箱运行时身份，请参阅
+[沙箱运行时配置档](/gateway/sandbox-runtime-profiles)。
+
 这不是完美的安全边界，但当模型做出愚蠢行为时，它实质性地限制了文件系统和进程访问。
 
 ## 什么会被沙箱隔离
@@ -53,6 +56,19 @@ Gateway 网关保留在主机上；启用时工具执行在隔离的沙箱中运
 - `"session"`（默认）：每个会话一个容器。
 - `"agent"`：每个智能体一个容器。
 - `"shared"`：所有沙箱会话共享一个容器。
+
+## 运行时配置档
+
+`agents.defaults.sandbox.profile` 用于声明智能体预期使用的官方支持沙箱运行时配置档。
+当前支持集刻意保持很小：
+
+- `ops-readonly`
+- `coding-base`
+- `browser-automation`
+
+如果需要，可以使用自定义镜像，但所选配置档仍应限制为这些官方身份之一。
+配置档定义和基础预期见
+[沙箱运行时配置档](/gateway/sandbox-runtime-profiles)。
 
 ## 工作区访问
 

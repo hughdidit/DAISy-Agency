@@ -1,6 +1,7 @@
 import type { OpenClawConfig } from "../../config/config.js";
 import { getRemoteSkillEligibility } from "../../infra/skills-remote.js";
 import { getPluginToolMeta, resolvePluginTools } from "../../plugins/tools.js";
+import { DEFAULT_SANDBOX_RUNTIME_PROFILE_ID } from "../../shared/sandbox-runtime-profiles.js";
 import {
   resolveAgentDir,
   resolveAgentWorkspaceDir,
@@ -65,6 +66,7 @@ function buildRuntimeContext(params: {
     ...(params.runtime.sessionKey ? { sessionKey: params.runtime.sessionKey } : {}),
     sandboxMode: params.runtime.mode,
     sandboxScope: sandboxCfg.scope,
+    runtimeProfile: sandboxCfg.profile ?? DEFAULT_SANDBOX_RUNTIME_PROFILE_ID,
     sandboxed: params.runtime.sandboxed,
   };
 }

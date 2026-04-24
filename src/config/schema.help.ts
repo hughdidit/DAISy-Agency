@@ -340,9 +340,13 @@ export const FIELD_HELP: Record<string, string> = {
   talk: "Talk-mode voice synthesis settings for voice identity, model selection, output format, and interruption behavior. Use this section to tune human-facing voice UX while controlling latency and cost.",
   "gateway.auth.token":
     "Required by default for gateway access (unless using Tailscale Serve identity); required for non-loopback binds.",
-  "gateway.auth.password": "Required for Tailscale funnel.",
-  "agents.defaults.sandbox.browser.network":
-    "Docker network for sandbox browser containers (default: openclaw-sandbox-browser). Avoid bridge if you need stricter isolation.",
+    "gateway.auth.password": "Required for Tailscale funnel.",
+    "agents.defaults.sandbox.profile":
+      "Official supported sandbox runtime profile identity for default sandboxed agents. Use this to declare whether the runtime is intended for readonly operations, general coding, or browser automation.",
+    "agents.list[].sandbox.profile":
+      "Per-agent override for the official sandbox runtime profile identity. Ignored when sandbox scope resolves to shared.",
+    "agents.defaults.sandbox.browser.network":
+      "Docker network for sandbox browser containers (default: openclaw-sandbox-browser). Avoid bridge if you need stricter isolation.",
   "agents.list[].sandbox.browser.network": "Per-agent override for sandbox browser Docker network.",
   "agents.defaults.sandbox.docker.dangerouslyAllowContainerNamespaceJoin":
     "DANGEROUS break-glass override that allows sandbox Docker network mode container:<id>. This joins another container namespace and weakens sandbox isolation.",

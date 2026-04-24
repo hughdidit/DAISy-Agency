@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { OpenClawConfig } from "../../config/config.js";
+import { DEFAULT_SANDBOX_RUNTIME_PROFILE_ID } from "../../shared/sandbox-runtime-profiles.js";
 import {
   normalizePluginsConfig,
   resolveEffectiveEnableState,
@@ -91,6 +92,7 @@ function buildReadonlyRuntimeContext(params: {
     agentId: params.agentId,
     sandboxMode: sandboxCfg.mode,
     sandboxScope: sandboxCfg.scope,
+    runtimeProfile: sandboxCfg.profile ?? DEFAULT_SANDBOX_RUNTIME_PROFILE_ID,
     sandboxed: true,
   };
 }

@@ -3,6 +3,10 @@ import type {
   RequirementRemoteSatisfied,
   Requirements,
 } from "./requirements.js";
+import {
+  isSandboxRuntimeProfileId,
+  type SandboxRuntimeProfileId,
+} from "./sandbox-runtime-profiles.js";
 
 export const RESOLVED_CAPABILITY_SCHEMA_VERSION = 1 as const;
 
@@ -48,6 +52,7 @@ export type ResolvedCapabilityRuntimeContext = {
   sessionKey?: string;
   sandboxMode?: string;
   sandboxScope?: string;
+  runtimeProfile?: SandboxRuntimeProfileId;
   sandboxed?: boolean;
 };
 
@@ -73,7 +78,7 @@ export type ResolvedCapabilityPolicy = {
 };
 
 export type ResolvedCapabilityRuntimeEvidence = {
-  profile?: string;
+  profile?: SandboxRuntimeProfileId;
   missingBins: string[];
   missingAnyBins: string[];
   missingOs: string[];
@@ -232,7 +237,7 @@ export type ResolvedSkillCapabilityAdapterInput = {
   blockedByAllowlist: boolean;
   remoteSatisfied: RequirementRemoteSatisfied | null;
   runtimeContext: ResolvedCapabilityRuntimeContext;
-  runtimeProfile?: string;
+  runtimeProfile?: SandboxRuntimeProfileId;
   runtimeReasonCodes?: ResolvedCapabilityUnavailableReason[];
   runtimeDetail?: string;
 };
@@ -396,6 +401,7 @@ export function isResolvedCapabilityRuntimeContext(
     isOptionalString(value.sessionKey) &&
     isOptionalString(value.sandboxMode) &&
     isOptionalString(value.sandboxScope) &&
+    (value.runtimeProfile === undefined || isSandboxRuntimeProfileId(value.runtimeProfile)) &&
     isOptionalBoolean(value.sandboxed)
   );
 }
@@ -412,7 +418,7 @@ export function isResolvedRuntimeEvidence(
     isStringArray(value.missingOs) &&
     Array.isArray(value.reasonCodes) &&
     value.reasonCodes.every(isResolvedCapabilityUnavailableReason) &&
-    isOptionalString(value.profile) &&
+    (value.profile === undefined || isSandboxRuntimeProfileId(value.profile)) &&
     isOptionalString(value.detail)
   );
 }
@@ -623,7 +629,7 @@ function toRemoteEvidence(
 
 function toRuntimeEvidence(params: {
   missing: Requirements;
-  profile?: string;
+  profile?: SandboxRuntimeProfileId;
   extraReasonCodes?: ResolvedCapabilityUnavailableReason[];
   detail?: string;
 }): ResolvedCapabilityRuntimeEvidence | undefined {

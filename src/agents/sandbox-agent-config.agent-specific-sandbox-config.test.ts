@@ -3,6 +3,7 @@ import path from "node:path";
 import { Readable } from "node:stream";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../config/config.js";
+import { DEFAULT_SANDBOX_RUNTIME_PROFILE_ID } from "../shared/sandbox-runtime-profiles.js";
 import { createRestrictedAgentSandboxConfig } from "./test-helpers/sandbox-agent-config-fixtures.js";
 
 type SpawnCall = {
@@ -294,6 +295,62 @@ describe("Agent-specific sandbox config", () => {
 
     const sandbox = resolveSandboxConfigForAgent(cfg, "main");
     expect(sandbox.mode).toBe("all");
+  });
+
+  it("defaults sandbox profile to coding-base when no explicit profile is configured", () => {
+    const sandbox = resolveSandboxConfigForAgent(createDefaultsSandboxConfig(), "main");
+    expect(sandbox.profile).toBe(DEFAULT_SANDBOX_RUNTIME_PROFILE_ID);
+  });
+
+  it("inherits global sandbox profile and allows per-agent overrides outside shared scope", () => {
+    const cfg: OpenClawConfig = {
+      agents: {
+        defaults: {
+          sandbox: {
+            mode: "all",
+            scope: "agent",
+            profile: "coding-base",
+          },
+        },
+        list: [
+          {
+            id: "ops",
+            workspace: "~/openclaw-ops",
+            sandbox: {
+              profile: "ops-readonly",
+            },
+          },
+        ],
+      },
+    };
+
+    expect(resolveSandboxConfigForAgent(cfg, "main").profile).toBe("coding-base");
+    expect(resolveSandboxConfigForAgent(cfg, "ops").profile).toBe("ops-readonly");
+  });
+
+  it("ignores per-agent sandbox profile overrides when scope resolves to shared", () => {
+    const cfg: OpenClawConfig = {
+      agents: {
+        defaults: {
+          sandbox: {
+            mode: "all",
+            scope: "shared",
+            profile: "coding-base",
+          },
+        },
+        list: [
+          {
+            id: "browser",
+            workspace: "~/openclaw-browser",
+            sandbox: {
+              profile: "browser-automation",
+            },
+          },
+        ],
+      },
+    };
+
+    expect(resolveSandboxConfigForAgent(cfg, "browser").profile).toBe("coding-base");
   });
 
   it("should resolve setupCommand overrides based on sandbox scope", async () => {

@@ -1188,14 +1188,15 @@
                       "gateway/troubleshooting"
                     ]
                   },
-                  {
-                    "group": "Security and sandboxing",
-                    "pages": [
-                      "gateway/security/index",
-                      "gateway/sandboxing",
-                      "gateway/sandbox-vs-tool-policy-vs-elevated"
-                    ]
-                  },
+                    {
+                      "group": "Security and sandboxing",
+                      "pages": [
+                        "gateway/security/index",
+                        "gateway/sandboxing",
+                        "gateway/sandbox-runtime-profiles",
+                        "gateway/sandbox-vs-tool-policy-vs-elevated"
+                      ]
+                    },
                   {
                     "group": "Protocols and APIs",
                     "pages": [
@@ -1769,14 +1770,15 @@
                       "zh-CN/gateway/troubleshooting"
                     ]
                   },
-                  {
-                    "group": "安全与沙箱",
-                    "pages": [
-                      "zh-CN/gateway/security/index",
-                      "zh-CN/gateway/sandboxing",
-                      "zh-CN/gateway/sandbox-vs-tool-policy-vs-elevated"
-                    ]
-                  },
+                    {
+                      "group": "安全与沙箱",
+                      "pages": [
+                        "zh-CN/gateway/security/index",
+                        "zh-CN/gateway/sandboxing",
+                        "zh-CN/gateway/sandbox-runtime-profiles",
+                        "zh-CN/gateway/sandbox-vs-tool-policy-vs-elevated"
+                      ]
+                    },
                   {
                     "group": "协议与 API",
                     "pages": [
