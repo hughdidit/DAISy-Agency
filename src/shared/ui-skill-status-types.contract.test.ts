@@ -1,5 +1,7 @@
 import { describe, expectTypeOf, it } from "vitest";
 import type {
+  ResolvedSkillCapability as UiResolvedSkillCapability,
+  ResolvedToolCapability as UiResolvedToolCapability,
   SkillStatusEntry as UiSkillStatusEntry,
   SkillStatusReport as UiSkillStatusReport,
   ToolsCatalogResult as UiToolsCatalogResult,
@@ -20,18 +22,15 @@ describe("ui type contracts", () => {
     expectTypeOf<UiSkillStatusEntry>().toEqualTypeOf<GatewaySkillStatusEntry>();
   });
 
-  it("exposes the shared resolved skill capability through the UI skill entry type", () => {
-    expectTypeOf<UiSkillStatusEntry["capability"]>().toMatchTypeOf<ResolvedSkillCapability>();
-    expectTypeOf<ResolvedSkillCapability>().toMatchTypeOf<UiSkillStatusEntry["capability"]>();
+  it("re-exports the shared resolved skill capability type for UI helpers", () => {
+    expectTypeOf<UiResolvedSkillCapability>().toEqualTypeOf<ResolvedSkillCapability>();
   });
 
   it("keeps UI tools catalog types aligned with the gateway protocol result", () => {
     expectTypeOf<UiToolsCatalogResult>().toEqualTypeOf<GatewayToolsCatalogResult>();
   });
 
-  it("exposes the shared resolved tool capability through the UI tools catalog entry type", () => {
-    type UiToolCapability = UiToolsCatalogResult["groups"][number]["tools"][number]["capability"];
-    expectTypeOf<UiToolCapability>().toMatchTypeOf<ResolvedToolCapability>();
-    expectTypeOf<ResolvedToolCapability>().toMatchTypeOf<UiToolCapability>();
+  it("re-exports the shared resolved tool capability type for UI helpers", () => {
+    expectTypeOf<UiResolvedToolCapability>().toEqualTypeOf<ResolvedToolCapability>();
   });
 });

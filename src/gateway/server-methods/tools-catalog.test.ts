@@ -258,7 +258,7 @@ describe("tools.catalog handler", () => {
               id: "unsupported-tool",
               evidence: {
                 runtime: {
-                  profile: "minimal",
+                  profile: "coding-base",
                   missingBins: ["ffmpeg"],
                   missingAnyBins: [],
                   missingOs: [],
