@@ -356,10 +356,10 @@ pnpm test:docker:qr
         docker: {
           image: "openclaw-sandbox:bookworm-slim",
           workdir: "/workspace",
-          readOnlyRoot: true,
+          readOnlyRoot: false,
           tmpfs: ["/tmp", "/var/tmp", "/run"],
-          network: "none",
-          user: "1000:1000",
+          network: "bridge",
+          user: "0:0",
           capDrop: ["ALL"],
           env: { LANG: "C.UTF-8" },
           setupCommand: "apt-get update && apt-get install -y git curl jq",
