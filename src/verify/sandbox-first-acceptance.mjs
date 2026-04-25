@@ -309,6 +309,32 @@ function parseJsonOrThrow(raw, failureClass, message) {
   return parsed;
 }
 
+function resolveGatewayConfigHostPath(credentialsPath) {
+  const mountRoot = "/home/node/.openclaw";
+  const normalized = path.posix.normalize(credentialsPath);
+  if (!normalized.startsWith(`${mountRoot}/`)) {
+    throw new ScenarioError(
+      "secret-or-route-gap",
+      `Google Workspace credentialsFile is outside the mounted config root: ${credentialsPath || "<empty>"}`,
+    );
+  }
+
+  const relativePath = path.posix.relative(mountRoot, normalized);
+  if (
+    !relativePath ||
+    relativePath.startsWith("..") ||
+    path.posix.isAbsolute(relativePath) ||
+    !/^[A-Za-z0-9._/@+-]+$/.test(relativePath)
+  ) {
+    throw new ScenarioError(
+      "secret-or-route-gap",
+      `Google Workspace credentialsFile escapes the mounted config root: ${credentialsPath || "<empty>"}`,
+    );
+  }
+
+  return path.posix.join("/opt/DAISy/config", relativePath);
+}
+
 async function runRuntimeProfileSanityScenario(ctx) {
   const statusRaw = ctx.dockerExecBash("cd /app && node dist/index.js status --json");
   await ctx.writeArtifactText("status.json", statusRaw);
@@ -526,14 +552,7 @@ async function runGwsIntegrationScenario(ctx) {
   if (activeRoute.mode === "credentials_file") {
     const credentialsPath =
       typeof activeRoute.credentialsFile === "string" ? activeRoute.credentialsFile.trim() : "";
-    if (!credentialsPath.startsWith("/home/node/.openclaw/")) {
-      throw new ScenarioError(
-        "secret-or-route-gap",
-        `Google Workspace credentialsFile is outside the mounted config root: ${credentialsPath || "<empty>"}`,
-      );
-    }
-
-    const hostPath = `/opt/DAISy/config${credentialsPath.slice("/home/node/.openclaw".length)}`;
+    const hostPath = resolveGatewayConfigHostPath(credentialsPath);
     const hostPathProbeScript = `if [ -f ${shellQuote(
       hostPath,
     )} ]; then stat -c "present(size=%s)" ${shellQuote(hostPath)}; else echo missing; fi`;
@@ -866,7 +885,7 @@ export async function runIsolatedCronScenario(ctx) {
 
 export async function runScenarioSet(params) {
   const results = [];
-  await fs.mkdir(params.acceptanceRoot, { recursive: true });
+  await fs.mkdir(params.runtime.acceptanceRoot, { recursive: true });
 
   for (const meta of params.scenarios) {
     params.log(`Running ${meta.manualChecklistId} (${meta.scenarioId})...`);
@@ -946,7 +965,6 @@ export async function runSandboxFirstAcceptance(params = {}) {
 
   const results = await runScenarioSet({
     runtime,
-    acceptanceRoot: runtime.acceptanceRoot,
     scenarios: SANDBOX_FIRST_ACCEPTANCE_SCENARIOS,
     log: runtime.log,
     runScenario: async (ctx) => {

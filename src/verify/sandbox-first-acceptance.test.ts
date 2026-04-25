@@ -115,6 +115,257 @@ describe("sandbox-first acceptance helpers", () => {
 });
 
 describe("runSandboxFirstAcceptance", () => {
+  it("covers the GWS integration path and uses the shared artifact root", async () => {
+    await withTempDir(async (artifactRoot) => {
+      const sshCommands: string[] = [];
+      const dockerExecBash = vi.fn((command: string) => {
+        if (command === "cd /app && node dist/index.js status --json") {
+          return JSON.stringify(
+            {
+              capabilities: {
+                counts: {
+                  byClass: {
+                    "sandbox-local": 1,
+                    "gateway-brokered": 1,
+                    "configured-but-blocked": 0,
+                    "unsupported-in-current-runtime": 0,
+                  },
+                },
+              },
+              memoryPlugin: {
+                enabled: true,
+                slot: "memory-core",
+              },
+            },
+            null,
+            2,
+          );
+        }
+        if (command === "cd /app && node dist/index.js sandbox explain --json") {
+          return JSON.stringify(
+            {
+              sandbox: {
+                mode: "all",
+                profile: "ops-readonly",
+              },
+              capabilities: {
+                counts: {
+                  byClass: {
+                    "sandbox-local": 1,
+                    "gateway-brokered": 1,
+                    "configured-but-blocked": 0,
+                    "unsupported-in-current-runtime": 0,
+                  },
+                },
+              },
+            },
+            null,
+            2,
+          );
+        }
+        if (command === "cd /app && node dist/index.js doctor --non-interactive") {
+          return "doctor ok\n";
+        }
+        if (
+          command ===
+          "cd /app && node skills/openclaw-readonly/scripts/openclaw-readonly.mjs status"
+        ) {
+          return "Gateway probe:\nprobe unsupported from readonly sandbox\n";
+        }
+        if (
+          command ===
+          "cd /app && node skills/openclaw-readonly/scripts/openclaw-readonly.mjs sandbox explain"
+        ) {
+          return "Effective sandbox:\nmode: all\n";
+        }
+        if (
+          command ===
+          "cd /app && node skills/openclaw-readonly/scripts/openclaw-readonly.mjs skills check"
+        ) {
+          return "Skills Status Check\n";
+        }
+        if (command === "cd /app && node dist/index.js skills check --json") {
+          return JSON.stringify(
+            {
+              summary: {
+                total: 1,
+                eligible: 1,
+                disabled: 0,
+                blocked: 0,
+                missingRequirements: 0,
+              },
+            },
+            null,
+            2,
+          );
+        }
+        if (command === "cd /app && node dist/index.js skills info openclaw-readonly --json") {
+          return JSON.stringify(
+            {
+              name: "openclaw-readonly",
+              eligible: true,
+              description:
+                "Sandbox-safe OpenClaw diagnostics through a tightly scoped read-only launcher.",
+            },
+            null,
+            2,
+          );
+        }
+        if (command === "cd /app && node dist/index.js plugins list --json") {
+          return JSON.stringify(
+            {
+              plugins: [{ id: "gws-toolkit-phase1", status: "loaded" }],
+            },
+            null,
+            2,
+          );
+        }
+        if (command === "cd /app && node scripts/gws/inspect-active-route.mjs") {
+          return JSON.stringify(
+            {
+              mode: "credentials_file",
+              credentialsFile: "/home/node/.openclaw/google-workspace/credentials.json",
+              impersonationConfigured: false,
+              impersonationMissing: false,
+              impersonatedUser: "",
+            },
+            null,
+            2,
+          );
+        }
+        if (command.includes("gws auth status")) {
+          return JSON.stringify(
+            {
+              plain_credentials_exists: true,
+              token_valid: true,
+              type: "service_account",
+              has_refresh_token: false,
+            },
+            null,
+            2,
+          );
+        }
+        if (command === "cd /app && node scripts/gws/select-delegate-subject.mjs") {
+          return JSON.stringify(
+            {
+              delegateSubjects: ["subagent:ops"],
+            },
+            null,
+            2,
+          );
+        }
+        if (command === "cd /app && node scripts/gws/run-auth-health.mjs --subject agent:main") {
+          return JSON.stringify(
+            {
+              ok: true,
+              data: {
+                route: {
+                  bindingSubject: "agent:main",
+                },
+                authHealth: {
+                  tokenValid: true,
+                  credentialSourceType: "service_account_json",
+                  serviceAccountPolicyEnforced: true,
+                  serviceAccountPolicyCompliant: true,
+                },
+              },
+            },
+            null,
+            2,
+          );
+        }
+        if (
+          command === "cd /app && node scripts/gws/run-auth-health.mjs --subject 'subagent:ops'"
+        ) {
+          return JSON.stringify(
+            {
+              ok: true,
+              data: {
+                route: {
+                  bindingSubject: "subagent:ops",
+                },
+                authHealth: {
+                  tokenValid: true,
+                  credentialSourceType: "service_account_json",
+                  serviceAccountPolicyEnforced: true,
+                  serviceAccountPolicyCompliant: true,
+                },
+              },
+            },
+            null,
+            2,
+          );
+        }
+        if (command.includes("node dist/index.js cron add")) {
+          return JSON.stringify({ id: "job-2" }, null, 2);
+        }
+        if (command === "cd /app && node dist/index.js cron run 'job-2'") {
+          return JSON.stringify({ ok: true, ran: true }, null, 2);
+        }
+        if (command === "cd /app && node dist/index.js cron runs --id 'job-2' --limit 20") {
+          return JSON.stringify(
+            {
+              entries: [
+                {
+                  action: "finished",
+                  status: "ok",
+                  deliveryStatus: "not-requested",
+                },
+              ],
+            },
+            null,
+            2,
+          );
+        }
+        if (command === "cd /app && node dist/index.js cron rm 'job-2' --json") {
+          return JSON.stringify({ ok: true, removed: false }, null, 2);
+        }
+        throw new Error(`Unhandled docker command: ${command}`);
+      });
+
+      const runSsh = vi.fn((command: string) => {
+        sshCommands.push(command);
+        if (command.includes('stat -c "present(size=%s)"')) {
+          return "present(size=1234)\n";
+        }
+        throw new Error(`Unhandled ssh command: ${command}`);
+      });
+
+      const result = await runSandboxFirstAcceptance({
+        artifactRoot,
+        env: {
+          VERIFY_ENV: "staging",
+          GCE_INSTANCE_NAME: "daisy-staging-1",
+          GCP_PROJECT_ID: "proj",
+          GCP_ZONE: "us-west1-b",
+          VERIFY_GCE_CONTAINER: "openclaw-gateway",
+        },
+        commandContext: {
+          container: "openclaw-gateway",
+          runSsh,
+          dockerExecBash,
+          dockerExecSh: vi.fn(() => ""),
+        },
+        log: vi.fn(),
+        now: () => new Date("2026-04-25T20:10:00.000Z"),
+      });
+
+      expect(result.hasRequiredFailure).toBe(false);
+      expect(result.results.map((entry) => entry.status)).toEqual([
+        "passed",
+        "passed",
+        "passed",
+        "passed",
+        "passed",
+      ]);
+      const hostPathProbeCommand = sshCommands.find((command) =>
+        command.includes('stat -c "present(size=%s)"'),
+      );
+      expect(hostPathProbeCommand).toContain("sudo -n sh -c 'if [ -f ");
+      expect(hostPathProbeCommand).toContain("/opt/DAISy/config/google-workspace/credentials.json");
+    });
+  });
+
   it("writes per-scenario artifacts, a summary file, and cron cleanup output", async () => {
     await withTempDir(async (artifactRoot) => {
       const commands: string[] = [];

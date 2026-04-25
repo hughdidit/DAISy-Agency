@@ -17,6 +17,7 @@ log "DEPLOYED_REF: ${DEPLOYED_REF:-<unset>}"
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 repo_root="$(cd -- "${script_dir}/.." && pwd)"
 VERIFY_ARTIFACT_DIR="${VERIFY_ARTIFACT_DIR:-${repo_root}/.artifacts/verify}"
+export VERIFY_ARTIFACT_DIR
 
 if [[ "${DRY_RUN:-}" == "1" ]]; then
   log "DRY_RUN=1, skipping verification checks."
