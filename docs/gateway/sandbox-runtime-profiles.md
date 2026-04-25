@@ -81,6 +81,11 @@ that profile explicitly in config.
 meet one of the official profiles, but they do not expand the supported
 profile catalog by themselves.
 
+When a skill or tool appears in the environment but the selected runtime does
+not officially support it, readiness surfaces report that as
+`unsupported-in-current-runtime` rather than silently promoting incidental
+image contents into official support.
+
 ## Example
 
 ```json
@@ -101,3 +106,4 @@ See also:
 
 - [Sandboxing](/gateway/sandboxing)
 - [Sandbox CLI](/cli/sandbox)
+- [Doctor Command](/gateway/doctor)

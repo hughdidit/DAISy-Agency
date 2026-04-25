@@ -171,6 +171,14 @@ Note on sandboxing:
   Package installs also require network egress, a writable root FS, and a root user in the sandbox.
   Example: the `summarize` skill (`skills/summarize/SKILL.md`) needs the `summarize` CLI
   in the sandbox container to run there.
+- Host eligibility and sandbox runtime support are different checks. A skill can
+  pass host-side gates and still be unsupported in the selected sandbox runtime
+  profile. Container binaries, custom images, or `setupCommand` may help satisfy
+  an official profile, but they do not define new official runtime support by
+  themselves.
+- When a skill is present but unsupported in the active runtime, use
+  `openclaw skills info`, `openclaw skills check`, `openclaw sandbox explain`,
+  `openclaw status`, or `openclaw doctor` to inspect the runtime-aware reason.
 
 The bundled `openclaw-readonly` skill is a special-case sandbox diagnostic
 skill. Safety class: **sandbox-safe, read-only**. It uses the sandbox-local

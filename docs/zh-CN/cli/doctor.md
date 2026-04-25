@@ -26,6 +26,7 @@ Gateway 网关和渠道的健康检查 + 快速修复。
 
 ```bash
 openclaw doctor
+openclaw doctor --dry-run
 openclaw doctor --repair
 openclaw doctor --deep
 ```
@@ -33,7 +34,12 @@ openclaw doctor --deep
 注意事项：
 
 - 交互式提示（如钥匙串/OAuth 修复）仅在 stdin 是 TTY 且**未**设置 `--non-interactive` 时运行。无头运行（cron、Telegram、无终端）将跳过提示。
+- `--dry-run` 会预览配置/状态/服务/UI 修复动作，而不会修改主机。
+- `--non-interactive` 不是 dry-run 的替代品；它只会抑制提示，但仍允许安全的变更流程。
 - `--fix`（`--repair` 的别名）会将备份写入 `~/.openclaw/openclaw.json.bak`，并删除未知的配置键，同时列出每个删除项。
+- 状态完整性检查现在会检测 sessions 目录中的孤立转录文件，并可将其安全归档为 `.deleted.<timestamp>` 以回收空间。
+- Doctor 现在与 `openclaw status` 和 `openclaw sandbox explain` 使用同一套共享就绪模型，包括针对运行时配置档不匹配、缺失投影资产和不受支持运行时组件的有用性检查。
+- `unsupported-in-current-runtime` 表示当前选定的运行时/配置档并未正式支持该能力，即使某个软件包或二进制文件碰巧存在。
 
 ## macOS：`launchctl` 环境变量覆盖
 

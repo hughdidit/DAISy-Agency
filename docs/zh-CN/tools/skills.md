@@ -131,6 +131,8 @@ metadata:
 
 - `requires.bins` 在 Skills 加载时在**宿主机**上检查。
 - 如果智能体处于沙箱隔离状态，二进制文件也必须存在于**容器内部**。通过 `agents.defaults.sandbox.docker.setupCommand`（或自定义镜像）安装它。`setupCommand` 在容器创建后运行一次。包安装还需要网络出口、可写的根文件系统和沙箱中的 root 用户。示例：`summarize` Skills（`skills/summarize/SKILL.md`）需要 `summarize` CLI 在沙箱容器中才能运行。
+- 宿主机侧资格检查与沙箱运行时支持是两回事。某个 Skills 可以通过宿主机门槛，但在当前选择的沙箱运行时配置档中仍然不受支持。容器中的二进制文件、自定义镜像或 `setupCommand` 可以帮助运行时满足某个官方配置档，但它们本身不会定义新的官方运行时支持边界。
+- 当 Skills 存在但在当前运行时中不受支持时，可使用 `openclaw skills info`、`openclaw skills check`、`openclaw sandbox explain`、`openclaw status` 或 `openclaw doctor` 查看运行时感知的原因。
 
 安装器示例：
 

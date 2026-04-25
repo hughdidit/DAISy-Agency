@@ -65,6 +65,7 @@ small on purpose:
 
 - `ops-readonly`
 - `coding-base`
+- `coding-extended`
 - `browser-automation`
 
 Use a custom image if needed, but keep the selected profile limited to one of
@@ -137,6 +138,12 @@ Security notes:
 
 Default image: `openclaw-sandbox:bookworm-slim`
 
+This image corresponds to the official `coding-base` runtime profile. The
+maintained common image (`openclaw-sandbox-common:bookworm-slim`) corresponds
+to `coding-extended`. Browser support is a separate official profile:
+`browser-automation` requires the dedicated sandbox browser runtime and is not
+implied by packages present in the base or common image.
+
 Build it once:
 
 ```bash
@@ -146,7 +153,9 @@ scripts/sandbox-setup.sh
 Note: the default image does **not** include Node. If a skill needs Node (or
 other runtimes), either bake a custom image or install via
 `sandbox.docker.setupCommand` (requires network egress + writable root +
-root user).
+root user). Custom images and `setupCommand` can help a runtime satisfy one of
+the official profiles, but they do not create a new official supported profile
+by themselves.
 
 ### `openclaw-readonly` sandbox skill
 
@@ -225,7 +234,8 @@ scripts/sandbox-common-setup.sh
 ```
 
 Then set `agents.defaults.sandbox.docker.image` to
-`openclaw-sandbox-common:bookworm-slim`.
+`openclaw-sandbox-common:bookworm-slim` and pair it with the
+`coding-extended` runtime profile.
 
 Sandboxed browser image:
 
@@ -236,7 +246,9 @@ scripts/sandbox-browser-setup.sh
 For staging and production, CI publishes the sandbox browser image to GHCR and
 deploy pulls and retags it automatically. The script above is only a local/dev
 fallback when you need to build `openclaw-sandbox-browser:bookworm-slim`
-yourself.
+yourself. Official browser support still comes from the `browser-automation`
+profile plus `agents.defaults.sandbox.browser.enabled=true`; the browser image
+alone does not make a runtime officially browser-capable.
 
 By default, sandbox containers run with **no network**.
 Override with `agents.defaults.sandbox.docker.network`.
@@ -271,8 +283,10 @@ for containerized workloads. Current container defaults include:
 - `--renderer-process-limit=2` is controlled by
   `OPENCLAW_BROWSER_RENDERER_PROCESS_LIMIT=<N>`, where `0` keeps Chromium's default.
 
-If you need a different runtime profile, use a custom browser image and provide
-your own entrypoint. For local (non-container) Chromium profiles, use
+If you need a custom browser runtime, use a custom browser image and provide
+your own entrypoint while keeping the declared profile aligned with the
+official support boundary you intend to satisfy. For local (non-container)
+Chromium profiles, use
 `browser.extraArgs` to append additional startup flags.
 
 Security defaults:
@@ -308,6 +322,10 @@ Common pitfalls:
 - Sandbox exec does **not** inherit host `process.env`. Use
   `agents.defaults.sandbox.docker.env` (or a custom image) for skill API keys.
 
+`setupCommand` is best treated as a local/dev or custom-runtime convenience.
+It can help a container reach the expectations of an official profile, but it
+does not redefine what DAISy officially supports in production.
+
 ## Tool policy + escape hatches
 
 Tool allow/deny policies still apply before sandbox rules. If a tool is denied
@@ -319,7 +337,10 @@ globally or per-agent, sandboxing doesn’t bring it back.
 
 Debugging:
 
-- Use `openclaw sandbox explain` to inspect effective sandbox mode, tool policy, and fix-it config keys.
+- Use `openclaw sandbox explain` to inspect effective sandbox mode, runtime
+  profile, capability readiness, and fix-it config keys.
+- Use `openclaw status` or `openclaw doctor` when you need the same shared
+  readiness model surfaced from the operator-facing status/doctor flows.
 - See [Sandbox vs Tool Policy vs Elevated](/gateway/sandbox-vs-tool-policy-vs-elevated) for the “why is this blocked?” mental model.
   Keep it locked down.
 

@@ -314,6 +314,8 @@ pnpm test:docker:qr
 - 只读工具 + 只读工作区（家庭/工作智能体）
 - 无文件系统/shell 工具（公共智能体）
 
+如果你关心官方支持的运行时边界，请显式设置 `agents.defaults.sandbox.profile` 或 `agents.list[].sandbox.profile`。base 沙箱镜像对应 `coding-base`，受维护的 common 镜像对应 `coding-extended`，浏览器工作流则需要 `browser-automation` 加上专用浏览器运行时。
+
 参阅[多智能体沙箱与工具](/tools/multi-agent-sandbox-tools)了解示例、优先级和故障排除。
 
 ### 默认行为
@@ -333,9 +335,14 @@ pnpm test:docker:qr
 如果你计划在 `setupCommand` 中安装包，请注意：
 
 - 默认 `docker.network` 是 `"none"`（无出站）。
+- `docker.network: "host"` 被阻止。
+- `docker.network: "container:<id>"` 默认被阻止。
+- 紧急覆盖：`agents.defaults.sandbox.docker.dangerouslyAllowContainerNamespaceJoin: true`。
 - `readOnlyRoot: true` 阻止包安装。
 - `user` 必须是 root 才能运行 `apt-get`（省略 `user` 或设置 `user: "0:0"`）。
   当 `setupCommand`（或 docker 配置）更改时，OpenClaw 会自动重建容器，除非容器是**最近使用的**（在约 5 分钟内）。热容器会记录警告，包含确切的 `openclaw sandbox recreate ...` 命令。
+
+`setupCommand` 是定制机制，不是官方运行时支持的定义。使用它来帮助容器满足某个官方配置档，而不是定义新的支持配置档。
 
 ```json5
 {
@@ -349,10 +356,10 @@ pnpm test:docker:qr
         docker: {
           image: "openclaw-sandbox:bookworm-slim",
           workdir: "/workspace",
-          readOnlyRoot: true,
+          readOnlyRoot: false,
           tmpfs: ["/tmp", "/var/tmp", "/run"],
-          network: "none",
-          user: "1000:1000",
+          network: "bridge",
+          user: "0:0",
           capDrop: ["ALL"],
           env: { LANG: "C.UTF-8" },
           setupCommand: "apt-get update && apt-get install -y git curl jq",
@@ -424,21 +431,30 @@ scripts/sandbox-common-setup.sh
 {
   agents: {
     defaults: {
-      sandbox: { docker: { image: "openclaw-sandbox-common:bookworm-slim" } },
+      sandbox: {
+        profile: "coding-extended",
+        docker: { image: "openclaw-sandbox-common:bookworm-slim" },
+      },
     },
   },
 }
 ```
 
+将 common 镜像与 `coding-extended` 配置档配对，可以让声明的运行时配置档与受维护的 common 镜像支持边界保持一致。
+
 ### 沙箱浏览器镜像
 
-要在沙箱内运行浏览器工具，构建浏览器镜像：
+Docker Release 会将沙箱浏览器镜像发布到 GHCR，供 staging/production 部署使用。部署流程会在 VM 上拉取该镜像并在本地重新标记为 `openclaw-sandbox-browser:bookworm-slim`，因此正常的 staging/prod 部署不再需要手动构建浏览器镜像。
+
+对于本地/开发环境，如果需要，可构建浏览器镜像：
 
 ```bash
 scripts/sandbox-browser-setup.sh
 ```
 
 这使用 `Dockerfile.sandbox-browser` 构建 `openclaw-sandbox-browser:bookworm-slim`。容器运行启用 CDP 的 Chromium 和可选的 noVNC 观察器（通过 Xvfb 有头）。
+
+若要获得官方浏览器能力支持，请保持运行时配置档为 `browser-automation` 并启用 `agents.defaults.sandbox.browser.enabled`。单独拥有浏览器镜像并不定义浏览器支持。
 
 注意：
 

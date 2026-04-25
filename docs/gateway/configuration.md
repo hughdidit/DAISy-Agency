@@ -221,6 +221,13 @@ When validation fails:
 
     Build the image first: `scripts/sandbox-setup.sh`
 
+    When you care about official runtime support, declare
+    `agents.defaults.sandbox.profile` explicitly. The base sandbox image maps
+    to `coding-base`, the maintained common image maps to `coding-extended`,
+    and browser workflows require `browser-automation` plus the dedicated
+    browser runtime. Custom images and `setupCommand` do not create new
+    official profile ids by themselves.
+
     See [Sandboxing](/gateway/sandboxing) for the full guide and [full reference](/gateway/configuration-reference#sandbox) for all options.
 
   </Accordion>

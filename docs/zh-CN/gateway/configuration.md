@@ -2229,6 +2229,12 @@ Z.AI 模型可通过 `zai/<model>` 使用（例如 `zai/glm-4.7`），需要环�
 
 详情：[沙箱](/gateway/sandboxing)
 
+当你希望使用官方支持的沙箱运行时时，请显式声明
+`agents.defaults.sandbox.profile`。base 镜像对应 `coding-base`，
+受维护的 common 镜像对应 `coding-extended`，浏览器支持则需要
+`browser-automation` 加上专用浏览器运行时。自定义镜像和
+`setupCommand` 本身不会创建新的官方配置档身份。
+
 默认值（如果启用）：
 
 - scope：`"agent"`（每个智能体一个容器 + 工作区）
@@ -2249,7 +2255,7 @@ Z.AI 模型可通过 `zai/<model>` 使用（例如 `zai/glm-4.7`），需要环�
 旧版：`perSession` 仍然支持（`true` → `scope: "session"`，`false` → `scope: "shared"`）。
 
 `setupCommand` 在容器创建后**运行一次**（在容器内通过 `sh -lc` 执行）。
-对于包安装，确保网络出口、可写根文件系统和 root 用户。
+对于包安装，确保网络出口、可写根文件系统和 root 用户。应将其视为定制机制，而不是官方运行时支持的定义。
 
 ```json5
 {
@@ -2264,10 +2270,10 @@ Z.AI 模型可通过 `zai/<model>` 使用（例如 `zai/glm-4.7`），需要环�
           image: "openclaw-sandbox:bookworm-slim",
           containerPrefix: "openclaw-sbx-",
           workdir: "/workspace",
-          readOnlyRoot: true,
+          readOnlyRoot: false,
           tmpfs: ["/tmp", "/var/tmp", "/run"],
-          network: "none",
-          user: "1000:1000",
+          network: "bridge",
+          user: "0:0",
           capDrop: ["ALL"],
           env: { LANG: "C.UTF-8" },
           setupCommand: "apt-get update && apt-get install -y git curl jq",
