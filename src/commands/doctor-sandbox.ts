@@ -177,7 +177,7 @@ function collectMissingExpectedRuntimeDependencies(params: {
 }
 
 function resolveReadonlyDoctorProjection(cfg: OpenClawConfig): {
-  workspaceDir?: string;
+  workspaceDir: string;
   projection: NonNullable<Parameters<typeof collectCommandCapabilitySnapshot>[0]["projection"]>;
 } {
   const agentId = resolveDefaultAgentId(cfg);
@@ -497,7 +497,7 @@ export async function noteSandboxUsefulnessWarnings(cfg: OpenClawConfig) {
   const readonlySnapshot = collectCommandCapabilitySnapshot({
     config: cfg,
     mode: "readonly-sandbox",
-    ...(readonlyProjection.workspaceDir ? { workspaceDir: readonlyProjection.workspaceDir } : {}),
+    workspaceDir: readonlyProjection.workspaceDir,
     projection: readonlyProjection.projection,
   });
 
