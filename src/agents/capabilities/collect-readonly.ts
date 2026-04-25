@@ -337,18 +337,20 @@ function collectReadonlyCoreTools(params: {
         toolPolicy: params.toolPolicy,
         intent,
         availability: mergeAvailabilityFacts(
-          createRuntimeAvailabilityForTool({
-            resolvedProfile: params.runtimeProfileResolution,
-            toolId: tool.id,
-            source: "core",
-          }),
-          intent === "gateway-brokered"
-            ? createGatewayProviderAvailability({
-                providerId: "gateway",
-                providerKind: "gateway",
-                transport: "rpc",
-              })
-            : missingProjectionAvailability,
+          mergeAvailabilityFacts(
+            createRuntimeAvailabilityForTool({
+              resolvedProfile: params.runtimeProfileResolution,
+              toolId: tool.id,
+              source: "core",
+            }),
+            intent === "gateway-brokered"
+              ? createGatewayProviderAvailability({
+                  providerId: "gateway",
+                  providerKind: "gateway",
+                  transport: "rpc",
+                })
+              : missingProjectionAvailability,
+          ),
           override?.availability,
         ),
       } satisfies CollectedToolCapabilityInput;
@@ -389,18 +391,20 @@ function collectReadonlyPluginTools(params: {
         toolPolicy: params.toolPolicy,
         intent,
         availability: mergeAvailabilityFacts(
-          createRuntimeAvailabilityForTool({
-            resolvedProfile: params.runtimeProfileResolution,
-            toolId: tool.name,
-            source: "plugin",
-          }),
-          intent === "gateway-brokered"
-            ? createGatewayProviderAvailability({
-                providerId: tool.pluginId,
-                providerKind: "plugin",
-                transport: "gateway-plugin",
-              })
-            : undefined,
+          mergeAvailabilityFacts(
+            createRuntimeAvailabilityForTool({
+              resolvedProfile: params.runtimeProfileResolution,
+              toolId: tool.name,
+              source: "plugin",
+            }),
+            intent === "gateway-brokered"
+              ? createGatewayProviderAvailability({
+                  providerId: tool.pluginId,
+                  providerKind: "plugin",
+                  transport: "gateway-plugin",
+                })
+              : undefined,
+          ),
           override?.availability,
         ),
       } satisfies CollectedToolCapabilityInput;

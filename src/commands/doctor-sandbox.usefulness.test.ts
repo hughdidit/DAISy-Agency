@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { OpenClawConfig } from "../config/config.js";
 import {
   buildResolvedToolCapability,
   createResolvedCapabilityManifest,
@@ -41,7 +42,7 @@ function createConfig(
     browserEnabled: boolean;
     browserImage: string;
   }> = {},
-) {
+): OpenClawConfig {
   return {
     agents: {
       defaults: {
@@ -59,7 +60,7 @@ function createConfig(
         },
       },
     },
-  };
+  } satisfies OpenClawConfig;
 }
 
 function createSnapshot(params?: {

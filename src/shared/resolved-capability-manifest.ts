@@ -713,7 +713,9 @@ function toRuntimeEvidence(params: {
 export const NON_BLOCKING_RUNTIME_REASON_CODES: ReadonlySet<ResolvedCapabilityUnavailableReason> =
   new Set(["custom-runtime-image"]);
 
-export function hasBlockingRuntimeGap(evidence?: ResolvedCapabilityRuntimeEvidence): boolean {
+export function hasBlockingRuntimeGap(
+  evidence?: ResolvedCapabilityRuntimeEvidence,
+): evidence is ResolvedCapabilityRuntimeEvidence {
   if (!evidence) {
     return false;
   }

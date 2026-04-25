@@ -27,6 +27,10 @@ const UNAVAILABLE_REASON_LABELS = {
   "missing-runtime-any-binaries": "No supported runtime binary found",
   "unsupported-os": "Unsupported in current OS/runtime",
   "missing-runtime-profile": "Missing required runtime profile",
+  "unsupported-runtime-family": "Unsupported runtime family",
+  "runtime-profile-image-mismatch": "Runtime profile image mismatch",
+  "custom-runtime-image": "Custom runtime image outside declared support",
+  "browser-runtime-disabled": "Required browser runtime is disabled",
   "missing-projection": "Missing projected runtime assets",
   "missing-provider": "Required provider is unavailable",
 } as const;
