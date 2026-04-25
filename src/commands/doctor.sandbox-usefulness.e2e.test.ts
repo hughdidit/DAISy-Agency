@@ -1,14 +1,14 @@
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import {
+  createCapabilitySnapshotFixture,
+  createEmptyCapabilitySnapshotFixture,
+} from "./capability-readiness.test-helpers.js";
+import {
   createDoctorRuntime,
   mockDoctorConfigSnapshot,
   note,
   collectCommandCapabilitySnapshot,
 } from "./doctor.e2e-harness.js";
-import {
-  createCapabilitySnapshotFixture,
-  createEmptyCapabilitySnapshotFixture,
-} from "./capability-readiness.test-helpers.js";
 import "./doctor.fast-path-mocks.js";
 
 vi.doUnmock("./doctor-sandbox.js");

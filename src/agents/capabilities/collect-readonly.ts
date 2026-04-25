@@ -10,6 +10,7 @@ import {
   loadPluginManifestRegistry,
   type PluginManifestRecord,
 } from "../../plugins/manifest-registry.js";
+import { resolveCoreToolCapabilityFamily } from "../../shared/sandbox-runtime-profiles.js";
 import { resolveDefaultAgentId } from "../agent-scope.js";
 import { resolveSandboxConfigForAgent } from "../sandbox/config.js";
 import {
@@ -24,7 +25,6 @@ import {
   resolveCoreToolCapabilityBoundary,
   resolveCoreToolProfiles,
 } from "../tool-catalog.js";
-import { resolveCoreToolCapabilityFamily } from "../../shared/sandbox-runtime-profiles.js";
 import {
   buildMissingProjectionAvailability,
   collectWorkspaceSkillCapabilityInputs,

@@ -1,15 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createEmptyCapabilitySnapshotFixture } from "./capability-readiness.test-helpers.js";
 import {
   buildResolvedToolCapability,
   createResolvedCapabilityManifest,
 } from "../shared/resolved-capability-manifest.js";
-import type { CommandCapabilitySnapshot } from "./capability-readiness.js";
 import {
   OFFICIAL_SANDBOX_BASE_IMAGE,
   OFFICIAL_SANDBOX_BROWSER_IMAGE,
   OFFICIAL_SANDBOX_COMMON_IMAGE,
 } from "../shared/sandbox-runtime-profiles.js";
+import type { CommandCapabilitySnapshot } from "./capability-readiness.js";
+import { createEmptyCapabilitySnapshotFixture } from "./capability-readiness.test-helpers.js";
 
 const mocks = vi.hoisted(() => ({
   runExec: vi.fn(),
@@ -83,10 +83,7 @@ function createSnapshot(params?: {
   };
 }
 
-function configureDocker(params: {
-  available?: boolean;
-  existingImages?: string[];
-}) {
+function configureDocker(params: { available?: boolean; existingImages?: string[] }) {
   const existingImages = new Set(params.existingImages ?? []);
   runExec.mockImplementation(async (_command: string, args: string[]) => {
     if (args[0] === "version") {
@@ -187,7 +184,9 @@ describe("noteSandboxUsefulnessWarnings", () => {
 
     const message = getSandboxUsefulnessMessage();
     expect(message).toContain("Browser profile/runtime mismatch");
-    expect(message).toContain('declared profile "coding-base" does not include browser runtime support');
+    expect(message).toContain(
+      'declared profile "coding-base" does not include browser runtime support',
+    );
   });
 
   it("warns when readonly diagnostics are missing projected runtime material", async () => {

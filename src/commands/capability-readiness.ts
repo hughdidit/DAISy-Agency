@@ -1,4 +1,5 @@
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
+import type { ReadonlyCapabilityCollectorParams } from "../agents/capabilities/collect-readonly.js";
 import {
   collectGatewayCapabilityInputs,
   collectReadonlyCapabilityInputs,
@@ -7,7 +8,6 @@ import {
   resolveCapabilityManifest,
   type ResolvedToolCatalogGroup,
 } from "../agents/capabilities/index.js";
-import type { ReadonlyCapabilityCollectorParams } from "../agents/capabilities/collect-readonly.js";
 import type { SkillStatusReport } from "../agents/skills-status.js";
 import type { OpenClawConfig } from "../config/config.js";
 import {

@@ -351,9 +351,10 @@ export const SUPPORTED_SANDBOX_RUNTIME_PROFILES = [
   },
 ] as const satisfies readonly SandboxRuntimeProfileMetadata[];
 
-const SANDBOX_RUNTIME_PROFILE_BY_ID = new Map<SandboxRuntimeProfileId, SandboxRuntimeProfileMetadata>(
-  SUPPORTED_SANDBOX_RUNTIME_PROFILES.map((profile) => [profile.id, profile]),
-);
+const SANDBOX_RUNTIME_PROFILE_BY_ID = new Map<
+  SandboxRuntimeProfileId,
+  SandboxRuntimeProfileMetadata
+>(SUPPORTED_SANDBOX_RUNTIME_PROFILES.map((profile) => [profile.id, profile]));
 
 type SandboxRuntimeImageMatchResult = {
   profileId: SandboxRuntimeProfileId;
@@ -378,7 +379,9 @@ export function isSandboxRuntimeProfileId(value: unknown): value is SandboxRunti
   );
 }
 
-export function isSandboxRuntimeSupportStatus(value: unknown): value is SandboxRuntimeSupportStatus {
+export function isSandboxRuntimeSupportStatus(
+  value: unknown,
+): value is SandboxRuntimeSupportStatus {
   return (
     typeof value === "string" &&
     SANDBOX_RUNTIME_SUPPORT_STATUSES.includes(value as SandboxRuntimeSupportStatus)
@@ -401,9 +404,7 @@ export function matchSandboxRuntimeImage(params: {
   }
   return SANDBOX_RUNTIME_PROFILE_IMAGE_RULES.find(
     (entry) =>
-      entry.rule.role === params.role &&
-      entry.rule.kind === "exact" &&
-      entry.rule.image === image,
+      entry.rule.role === params.role && entry.rule.kind === "exact" && entry.rule.image === image,
   );
 }
 
@@ -437,9 +438,7 @@ export function supportsSandboxRuntimeCapabilityFamily(
   return Boolean(profile?.supportedCapabilityFamilies.includes(family));
 }
 
-export function resolveCoreToolCapabilityFamily(
-  toolId: string,
-): SandboxRuntimeCapabilityFamilyId {
+export function resolveCoreToolCapabilityFamily(toolId: string): SandboxRuntimeCapabilityFamilyId {
   switch (toolId) {
     case "read":
       return "filesystem-read";

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { SkillEntry } from "../skills.js";
-import { mergeAvailabilityFacts } from "./collect-shared.js";
 import { collectGatewayCapabilityInputs } from "./collect-gateway.js";
+import { mergeAvailabilityFacts } from "./collect-shared.js";
 import {
   buildResolvedToolCatalogGroupsFromManifest,
   buildSkillStatusReportFromManifest,

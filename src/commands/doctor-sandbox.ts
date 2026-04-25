@@ -128,9 +128,7 @@ function formatOfficialImageSet(
   return profile.imageRules.map((rule) => `${rule.role}=${rule.image}`).join(", ");
 }
 
-function collectMissingProjectionPaths(
-  capabilities: readonly ResolvedCapability[],
-): string[] {
+function collectMissingProjectionPaths(capabilities: readonly ResolvedCapability[]): string[] {
   const missingPaths = new Set<string>();
   for (const capability of capabilities) {
     for (const targetPath of capability.evidence?.projection?.missingPaths ?? []) {

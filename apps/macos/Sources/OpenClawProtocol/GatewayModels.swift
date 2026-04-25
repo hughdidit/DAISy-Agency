@@ -2678,6 +2678,10 @@ public struct ResolvedCapabilityPolicy: Codable, Sendable {
 
 public struct ResolvedCapabilityRuntimeEvidence: Codable, Sendable {
     public let profile: String?
+    public let supportstatus: String?
+    public let declaredimage: String?
+    public let matchedimage: String?
+    public let customimage: String?
     public let missingbins: [String]
     public let missinganybins: [String]
     public let missingos: [String]
@@ -2686,6 +2690,10 @@ public struct ResolvedCapabilityRuntimeEvidence: Codable, Sendable {
 
     public init(
         profile: String?,
+        supportstatus: String?,
+        declaredimage: String?,
+        matchedimage: String?,
+        customimage: String?,
         missingbins: [String],
         missinganybins: [String],
         missingos: [String],
@@ -2693,6 +2701,10 @@ public struct ResolvedCapabilityRuntimeEvidence: Codable, Sendable {
         detail: String?)
     {
         self.profile = profile
+        self.supportstatus = supportstatus
+        self.declaredimage = declaredimage
+        self.matchedimage = matchedimage
+        self.customimage = customimage
         self.missingbins = missingbins
         self.missinganybins = missinganybins
         self.missingos = missingos
@@ -2702,6 +2714,10 @@ public struct ResolvedCapabilityRuntimeEvidence: Codable, Sendable {
 
     private enum CodingKeys: String, CodingKey {
         case profile
+        case supportstatus = "supportStatus"
+        case declaredimage = "declaredImage"
+        case matchedimage = "matchedImage"
+        case customimage = "customImage"
         case missingbins = "missingBins"
         case missinganybins = "missingAnyBins"
         case missingos = "missingOs"
@@ -2929,6 +2945,7 @@ public struct ResolvedSkillLocalCapability: Codable, Sendable {
     public let missing: SkillStatusRequirements
     public let configchecks: [SkillStatusConfigCheck]
     public let capabilityclass: String
+    public let evidence: [String: AnyCodable]?
 
     public init(
         id: String,
@@ -2944,7 +2961,8 @@ public struct ResolvedSkillLocalCapability: Codable, Sendable {
         requirements: SkillStatusRequirements,
         missing: SkillStatusRequirements,
         configchecks: [SkillStatusConfigCheck],
-        capabilityclass: String)
+        capabilityclass: String,
+        evidence: [String: AnyCodable]?)
     {
         self.id = id
         self.label = label
@@ -2960,6 +2978,7 @@ public struct ResolvedSkillLocalCapability: Codable, Sendable {
         self.missing = missing
         self.configchecks = configchecks
         self.capabilityclass = capabilityclass
+        self.evidence = evidence
     }
 
     private enum CodingKeys: String, CodingKey {
@@ -2977,6 +2996,7 @@ public struct ResolvedSkillLocalCapability: Codable, Sendable {
         case missing
         case configchecks = "configChecks"
         case capabilityclass = "capabilityClass"
+        case evidence
     }
 }
 
@@ -3205,6 +3225,7 @@ public struct ResolvedToolLocalCapability: Codable, Sendable {
     public let optional: Bool?
     public let defaultprofiles: [AnyCodable]?
     public let capabilityclass: String
+    public let evidence: [String: AnyCodable]?
 
     public init(
         id: String,
@@ -3216,7 +3237,8 @@ public struct ResolvedToolLocalCapability: Codable, Sendable {
         pluginid: String?,
         optional: Bool?,
         defaultprofiles: [AnyCodable]?,
-        capabilityclass: String)
+        capabilityclass: String,
+        evidence: [String: AnyCodable]?)
     {
         self.id = id
         self.label = label
@@ -3228,6 +3250,7 @@ public struct ResolvedToolLocalCapability: Codable, Sendable {
         self.optional = optional
         self.defaultprofiles = defaultprofiles
         self.capabilityclass = capabilityclass
+        self.evidence = evidence
     }
 
     private enum CodingKeys: String, CodingKey {
@@ -3241,6 +3264,7 @@ public struct ResolvedToolLocalCapability: Codable, Sendable {
         case optional
         case defaultprofiles = "defaultProfiles"
         case capabilityclass = "capabilityClass"
+        case evidence
     }
 }
 

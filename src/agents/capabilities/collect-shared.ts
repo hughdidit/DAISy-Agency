@@ -1,8 +1,8 @@
 import path from "node:path";
 import type { OpenClawConfig } from "../../config/config.js";
 import { evaluateEntryRequirementsForCurrentPlatform } from "../../shared/entry-status.js";
-import { inferSandboxSkillFamily } from "../../shared/sandbox-runtime-profiles.js";
 import type { RequirementRemoteSatisfied } from "../../shared/requirements.js";
+import { inferSandboxSkillFamily } from "../../shared/sandbox-runtime-profiles.js";
 import { CONFIG_DIR } from "../../utils.js";
 import {
   resolveSandboxRuntimeSkillSupport,
@@ -216,10 +216,7 @@ export function mergeAvailabilityFacts(
                   ),
                 }
               : {}),
-            ...(mergeStringArrays(
-              base?.runtime?.missingAnyBins,
-              override?.runtime?.missingAnyBins,
-            )
+            ...(mergeStringArrays(base?.runtime?.missingAnyBins, override?.runtime?.missingAnyBins)
               ? {
                   missingAnyBins: mergeStringArrays(
                     base?.runtime?.missingAnyBins,
@@ -229,7 +226,10 @@ export function mergeAvailabilityFacts(
               : {}),
             ...(mergeStringArrays(base?.runtime?.missingOs, override?.runtime?.missingOs)
               ? {
-                  missingOs: mergeStringArrays(base?.runtime?.missingOs, override?.runtime?.missingOs),
+                  missingOs: mergeStringArrays(
+                    base?.runtime?.missingOs,
+                    override?.runtime?.missingOs,
+                  ),
                 }
               : {}),
             ...(mergeStringArrays(base?.runtime?.reasonCodes, override?.runtime?.reasonCodes)
@@ -258,10 +258,7 @@ export function mergeAvailabilityFacts(
                   ),
                 }
               : {}),
-            ...(mergeStringArrays(
-              base?.projection?.reasonCodes,
-              override?.projection?.reasonCodes,
-            )
+            ...(mergeStringArrays(base?.projection?.reasonCodes, override?.projection?.reasonCodes)
               ? {
                   reasonCodes: mergeStringArrays(
                     base?.projection?.reasonCodes,
@@ -312,7 +309,10 @@ export function mergeAvailabilityFacts(
               : {}),
             ...(mergeStringArrays(base?.remote?.satisfiedOs, override?.remote?.satisfiedOs)
               ? {
-                  satisfiedOs: mergeStringArrays(base?.remote?.satisfiedOs, override?.remote?.satisfiedOs),
+                  satisfiedOs: mergeStringArrays(
+                    base?.remote?.satisfiedOs,
+                    override?.remote?.satisfiedOs,
+                  ),
                 }
               : {}),
           }

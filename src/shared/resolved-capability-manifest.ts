@@ -710,15 +710,18 @@ function toRuntimeEvidence(params: {
   };
 }
 
-export const NON_BLOCKING_RUNTIME_REASON_CODES: ReadonlySet<ResolvedCapabilityUnavailableReason> = new Set([
-  "custom-runtime-image",
-]);
+export const NON_BLOCKING_RUNTIME_REASON_CODES: ReadonlySet<ResolvedCapabilityUnavailableReason> =
+  new Set(["custom-runtime-image"]);
 
 export function hasBlockingRuntimeGap(evidence?: ResolvedCapabilityRuntimeEvidence): boolean {
   if (!evidence) {
     return false;
   }
-  if (evidence.missingBins.length > 0 || evidence.missingAnyBins.length > 0 || evidence.missingOs.length > 0) {
+  if (
+    evidence.missingBins.length > 0 ||
+    evidence.missingAnyBins.length > 0 ||
+    evidence.missingOs.length > 0
+  ) {
     return true;
   }
   return evidence.reasonCodes.some((code) => !NON_BLOCKING_RUNTIME_REASON_CODES.has(code));
@@ -730,10 +733,24 @@ export function runtimeEvidenceCanBeSatisfiedRemotely(
   if (!evidence) {
     return true;
   }
-  if (evidence.reasonCodes.some((code) => !["missing-runtime-binaries", "missing-runtime-any-binaries", "unsupported-os", "custom-runtime-image"].includes(code))) {
+  if (
+    evidence.reasonCodes.some(
+      (code) =>
+        ![
+          "missing-runtime-binaries",
+          "missing-runtime-any-binaries",
+          "unsupported-os",
+          "custom-runtime-image",
+        ].includes(code),
+    )
+  ) {
     return false;
   }
-  return evidence.missingBins.length > 0 || evidence.missingAnyBins.length > 0 || evidence.missingOs.length > 0;
+  return (
+    evidence.missingBins.length > 0 ||
+    evidence.missingAnyBins.length > 0 ||
+    evidence.missingOs.length > 0
+  );
 }
 
 function toConfigBlock(

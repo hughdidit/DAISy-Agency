@@ -1,6 +1,7 @@
 import type { OpenClawConfig } from "../../config/config.js";
 import { getRemoteSkillEligibility } from "../../infra/skills-remote.js";
 import { getPluginToolMeta, resolvePluginTools } from "../../plugins/tools.js";
+import { resolveCoreToolCapabilityFamily } from "../../shared/sandbox-runtime-profiles.js";
 import {
   resolveAgentDir,
   resolveAgentWorkspaceDir,
@@ -19,7 +20,6 @@ import {
   resolveCoreToolCapabilityBoundary,
   resolveCoreToolProfiles,
 } from "../tool-catalog.js";
-import { resolveCoreToolCapabilityFamily } from "../../shared/sandbox-runtime-profiles.js";
 import {
   collectWorkspaceSkillCapabilityInputs,
   createGatewayProviderAvailability,
