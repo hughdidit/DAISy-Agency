@@ -249,9 +249,7 @@ export function mergeAvailabilityFacts(
             ...(base?.runtime ?? {}),
             ...(override?.runtime ?? {}),
             ...(mergedRuntimeMissingBins ? { missingBins: mergedRuntimeMissingBins } : {}),
-            ...(mergedRuntimeMissingAnyBins
-              ? { missingAnyBins: mergedRuntimeMissingAnyBins }
-              : {}),
+            ...(mergedRuntimeMissingAnyBins ? { missingAnyBins: mergedRuntimeMissingAnyBins } : {}),
             ...(mergedRuntimeMissingOs ? { missingOs: mergedRuntimeMissingOs } : {}),
             ...(mergedRuntimeReasonCodes ? { reasonCodes: mergedRuntimeReasonCodes } : {}),
           }
@@ -261,12 +259,8 @@ export function mergeAvailabilityFacts(
         ? {
             ...(base?.projection ?? {}),
             ...(override?.projection ?? {}),
-            ...(mergedProjectionMissingPaths
-              ? { missingPaths: mergedProjectionMissingPaths }
-              : {}),
-            ...(mergedProjectionReasonCodes
-              ? { reasonCodes: mergedProjectionReasonCodes }
-              : {}),
+            ...(mergedProjectionMissingPaths ? { missingPaths: mergedProjectionMissingPaths } : {}),
+            ...(mergedProjectionReasonCodes ? { reasonCodes: mergedProjectionReasonCodes } : {}),
           }
         : undefined,
     provider:
