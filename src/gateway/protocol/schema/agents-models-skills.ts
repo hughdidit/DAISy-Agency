@@ -448,7 +448,7 @@ export const ResolvedCapabilityRuntimeEvidenceSchema = Type.Object(
           },
           required: ["supportStatus"],
         },
-        then: {
+        ["then"]: {
           required: ["customImage"],
         },
       },
