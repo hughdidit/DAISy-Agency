@@ -226,7 +226,7 @@ function resolveReadonlyDoctorProjection(cfg: OpenClawConfig): {
   };
 
   return {
-    ...(containerWorkdir !== DEFAULT_SANDBOX_WORKDIR ? { workspaceDir: containerWorkdir } : {}),
+    workspaceDir,
     projection: {
       configPath: readonlyProjection.containerConfigPath,
       stateDir: readonlyProjection.containerStateDir,
