@@ -207,6 +207,23 @@ function resolveReadonlyDoctorProjection(cfg: OpenClawConfig): {
     [readonlyProjection.containerStateDir, readonlyProjection.hostStateDir],
     [containerWorkdir, workspaceDir],
   ]);
+  const containerPathPrefixes = Array.from(hostPathByContainerPath.entries()).sort(
+    ([leftContainerPath], [rightContainerPath]) =>
+      rightContainerPath.length - leftContainerPath.length,
+  );
+
+  const resolveHostPath = (targetPath: string) => {
+    for (const [containerPath, hostPath] of containerPathPrefixes) {
+      const relativePath = path.posix.relative(containerPath, targetPath);
+      if (relativePath === "") {
+        return hostPath;
+      }
+      if (!relativePath.startsWith("..") && !path.posix.isAbsolute(relativePath)) {
+        return path.join(hostPath, ...relativePath.split("/"));
+      }
+    }
+    return targetPath;
+  };
 
   return {
     ...(containerWorkdir !== DEFAULT_SANDBOX_WORKDIR ? { workspaceDir: containerWorkdir } : {}),
@@ -214,10 +231,7 @@ function resolveReadonlyDoctorProjection(cfg: OpenClawConfig): {
       configPath: readonlyProjection.containerConfigPath,
       stateDir: readonlyProjection.containerStateDir,
       workspaceDir: containerWorkdir,
-      pathExists: (targetPath: string) => {
-        const mappedPath = hostPathByContainerPath.get(targetPath) ?? targetPath;
-        return fs.existsSync(mappedPath);
-      },
+      pathExists: (targetPath: string) => fs.existsSync(resolveHostPath(targetPath)),
     },
   };
 }

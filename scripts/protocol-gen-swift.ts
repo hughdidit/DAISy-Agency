@@ -12,6 +12,7 @@ type JsonSchema = {
   enum?: string[];
   const?: string | boolean | number | null;
   anyOf?: JsonSchema[];
+  allOf?: JsonSchema[];
   patternProperties?: Record<string, JsonSchema>;
 };
 
@@ -141,9 +142,35 @@ function emitTypeAlias(name: string): string {
   return `public typealias ${name} = AnyCodable\n`;
 }
 
+function flattenObjectSchema(schema: JsonSchema): {
+  properties: Record<string, JsonSchema>;
+  required: Set<string>;
+} | null {
+  const properties: Record<string, JsonSchema> = {};
+  const required = new Set<string>();
+  let foundObjectShape = false;
+
+  const visit = (candidate: JsonSchema) => {
+    if (candidate.type === "object" || candidate.properties || candidate.required) {
+      foundObjectShape = true;
+      Object.assign(properties, candidate.properties ?? {});
+      for (const key of candidate.required ?? []) {
+        required.add(key);
+      }
+    }
+    for (const nested of candidate.allOf ?? []) {
+      visit(nested);
+    }
+  };
+
+  visit(schema);
+  return foundObjectShape ? { properties, required } : null;
+}
+
 function emitStruct(name: string, schema: JsonSchema): string {
-  const props = schema.properties ?? {};
-  const required = new Set(schema.required ?? []);
+  const flattened = flattenObjectSchema(schema);
+  const props = flattened?.properties ?? {};
+  const required = flattened?.required ?? new Set<string>();
   const lines: string[] = [];
   if (Object.keys(props).length === 0) {
     return `public struct ${name}: Codable, Sendable {}\n`;
@@ -265,7 +292,7 @@ async function generate() {
       parts.push(emitTypeAlias(name));
       continue;
     }
-    if (schema.type === "object") {
+    if (flattenObjectSchema(schema)) {
       parts.push(emitStruct(name, schema));
     }
   }

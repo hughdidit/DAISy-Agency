@@ -2210,7 +2210,59 @@ public struct AgentsWorkspaceFileEntry: Codable, Sendable {
     }
 }
 
-public struct AgentsWorkspaceFileDocument: Codable, Sendable {}
+public struct AgentsWorkspaceFileDocument: Codable, Sendable {
+    public let path: String
+    public let name: String
+    public let kind: AnyCodable
+    public let size: Int?
+    public let updatedatms: Int?
+    public let contentbase64: String
+    public let texteditable: Bool
+    public let textcontent: String?
+    public let encoding: AnyCodable?
+    public let includebom: Bool?
+    public let texterror: String?
+
+    public init(
+        path: String,
+        name: String,
+        kind: AnyCodable,
+        size: Int?,
+        updatedatms: Int?,
+        contentbase64: String,
+        texteditable: Bool,
+        textcontent: String?,
+        encoding: AnyCodable?,
+        includebom: Bool?,
+        texterror: String?)
+    {
+        self.path = path
+        self.name = name
+        self.kind = kind
+        self.size = size
+        self.updatedatms = updatedatms
+        self.contentbase64 = contentbase64
+        self.texteditable = texteditable
+        self.textcontent = textcontent
+        self.encoding = encoding
+        self.includebom = includebom
+        self.texterror = texterror
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case path
+        case name
+        case kind
+        case size
+        case updatedatms = "updatedAtMs"
+        case contentbase64 = "contentBase64"
+        case texteditable = "textEditable"
+        case textcontent = "textContent"
+        case encoding
+        case includebom = "includeBom"
+        case texterror = "textError"
+    }
+}
 
 public struct AgentsWorkspaceFilesListParams: Codable, Sendable {
     public let agentid: String
