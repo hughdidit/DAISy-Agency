@@ -177,7 +177,7 @@ function collectMissingExpectedRuntimeDependencies(params: {
 }
 
 function resolveReadonlyDoctorProjection(cfg: OpenClawConfig): {
-  workspaceDir?: string;
+  workspaceDir: string;
   projection: NonNullable<Parameters<typeof collectCommandCapabilitySnapshot>[0]["projection"]>;
 } {
   const agentId = resolveDefaultAgentId(cfg);
@@ -213,6 +213,9 @@ function resolveReadonlyDoctorProjection(cfg: OpenClawConfig): {
   );
 
   const resolveHostPath = (targetPath: string) => {
+    if (fs.existsSync(targetPath)) {
+      return targetPath;
+    }
     for (const [containerPath, hostPath] of containerPathPrefixes) {
       const relativePath = path.posix.relative(containerPath, targetPath);
       if (relativePath === "") {
@@ -226,7 +229,7 @@ function resolveReadonlyDoctorProjection(cfg: OpenClawConfig): {
   };
 
   return {
-    ...(containerWorkdir !== DEFAULT_SANDBOX_WORKDIR ? { workspaceDir: containerWorkdir } : {}),
+    workspaceDir,
     projection: {
       configPath: readonlyProjection.containerConfigPath,
       stateDir: readonlyProjection.containerStateDir,
@@ -497,7 +500,7 @@ export async function noteSandboxUsefulnessWarnings(cfg: OpenClawConfig) {
   const readonlySnapshot = collectCommandCapabilitySnapshot({
     config: cfg,
     mode: "readonly-sandbox",
-    ...(readonlyProjection.workspaceDir ? { workspaceDir: readonlyProjection.workspaceDir } : {}),
+    workspaceDir: readonlyProjection.workspaceDir,
     projection: readonlyProjection.projection,
   });
 
