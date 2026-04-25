@@ -337,12 +337,12 @@ pnpm test:docker:qr
 - 默认 `docker.network` 是 `"none"`（无出站）。
 - `docker.network: "host"` 被阻止。
 - `docker.network: "container:<id>"` 默认被阻止。
-- 紧急破窗覆盖：`agents.defaults.sandbox.docker.dangerouslyAllowContainerNamespaceJoin: true`。
+- 紧急覆盖：`agents.defaults.sandbox.docker.dangerouslyAllowContainerNamespaceJoin: true`。
 - `readOnlyRoot: true` 阻止包安装。
 - `user` 必须是 root 才能运行 `apt-get`（省略 `user` 或设置 `user: "0:0"`）。
   当 `setupCommand`（或 docker 配置）更改时，OpenClaw 会自动重建容器，除非容器是**最近使用的**（在约 5 分钟内）。热容器会记录警告，包含确切的 `openclaw sandbox recreate ...` 命令。
 
-`setupCommand` 是定制机制，不是官方运行时支持的定义。使用它来帮助容器满足某个官方配置档，而不是发明新的支持配置档。
+`setupCommand` 是定制机制，不是官方运行时支持的定义。使用它来帮助容器满足某个官方配置档，而不是定义新的支持配置档。
 
 ```json5
 {

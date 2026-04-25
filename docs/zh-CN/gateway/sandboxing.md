@@ -156,6 +156,20 @@ Docker 安装和容器化 Gateway 网关在此：
 `browser-automation` 配置档并启用
 `agents.defaults.sandbox.browser.enabled`；单独拥有浏览器镜像并不等于该运行时已正式支持浏览器工作流。
 
+```bash
+scripts/sandbox-common-setup.sh
+```
+
+然后将 `agents.defaults.sandbox.docker.image` 设为
+`openclaw-sandbox-common:bookworm-slim`，并与
+`coding-extended` 运行时配置档配对。
+
+安全默认值：
+
+- `network: "host"` 会被阻止。
+- `network: "container:<id>"` 默认会被阻止（存在加入命名空间而绕过隔离的风险）。
+- 紧急覆盖：`agents.defaults.sandbox.docker.dangerouslyAllowContainerNamespaceJoin: true`。
+
 ## setupCommand（一次性容器设置）
 
 `setupCommand` 在沙箱容器创建后**运行一次**（不是每次运行）。

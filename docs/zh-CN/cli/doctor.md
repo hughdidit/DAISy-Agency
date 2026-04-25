@@ -38,7 +38,7 @@ openclaw doctor --deep
 - `--non-interactive` 不是 dry-run 的替代品；它只会抑制提示，但仍允许安全的变更流程。
 - `--fix`（`--repair` 的别名）会将备份写入 `~/.openclaw/openclaw.json.bak`，并删除未知的配置键，同时列出每个删除项。
 - 状态完整性检查现在会检测 sessions 目录中的孤立转录文件，并可将其安全归档为 `.deleted.<timestamp>` 以回收空间。
-- Doctor 现在与 `openclaw status` 和 `openclaw sandbox explain` 使用同一套共享就绪模型，包括针对运行时配置档不匹配、缺失投影资产和不受支持运行时材料的有用性检查。
+- Doctor 现在与 `openclaw status` 和 `openclaw sandbox explain` 使用同一套共享就绪模型，包括针对运行时配置档不匹配、缺失投影资产和不受支持运行时组件的有用性检查。
 - `unsupported-in-current-runtime` 表示当前选定的运行时/配置档并未正式支持该能力，即使某个软件包或二进制文件碰巧存在。
 
 ## macOS：`launchctl` 环境变量覆盖
