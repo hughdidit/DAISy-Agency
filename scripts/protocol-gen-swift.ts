@@ -4,11 +4,14 @@ import { fileURLToPath } from "node:url";
 import { ErrorCodes, PROTOCOL_VERSION, ProtocolSchemas } from "../src/gateway/protocol/schema.js";
 
 type JsonSchema = {
+  $id?: string;
   type?: string | string[];
   properties?: Record<string, JsonSchema>;
   required?: string[];
   items?: JsonSchema;
   enum?: string[];
+  const?: string | boolean | number | null;
+  anyOf?: JsonSchema[];
   patternProperties?: Record<string, JsonSchema>;
 };
 
@@ -108,6 +111,34 @@ function swiftType(schema: JsonSchema, required: boolean): string {
     base = "AnyCodable";
   }
   return isOptional ? `${base}?` : base;
+}
+
+function stringLiteralUnionValues(schema: JsonSchema): string[] | null {
+  if (schema.enum?.length) {
+    return schema.enum;
+  }
+  if (!schema.anyOf?.length) {
+    return null;
+  }
+  const values = schema.anyOf
+    .map((option) =>
+      option.type === "string" && typeof option.const === "string" ? option.const : null,
+    )
+    .filter((value): value is string => typeof value === "string");
+  return values.length === schema.anyOf.length ? values : null;
+}
+
+function emitEnum(name: string, values: string[]): string {
+  return [
+    `public enum ${name}: String, Codable, Sendable {`,
+    ...values.map((value) => `    case ${safeName(value)} = "${value}"`),
+    "}",
+    "",
+  ].join("\n");
+}
+
+function emitTypeAlias(name: string): string {
+  return `public typealias ${name} = AnyCodable\n`;
 }
 
 function emitStruct(name: string, schema: JsonSchema): string {
@@ -223,6 +254,15 @@ async function generate() {
   // Value structs
   for (const [name, schema] of definitions) {
     if (name === "GatewayFrame") {
+      continue;
+    }
+    const stringUnionValues = stringLiteralUnionValues(schema);
+    if (stringUnionValues) {
+      parts.push(emitEnum(name, stringUnionValues));
+      continue;
+    }
+    if (schema.anyOf?.length) {
+      parts.push(emitTypeAlias(name));
       continue;
     }
     if (schema.type === "object") {
