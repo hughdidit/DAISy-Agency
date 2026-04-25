@@ -11,9 +11,13 @@ import {
   OFFICIAL_SANDBOX_COMMON_IMAGE,
 } from "../shared/sandbox-runtime-profiles.js";
 
-const runExec = vi.fn();
-const note = vi.fn();
-const collectCommandCapabilitySnapshot = vi.fn();
+const mocks = vi.hoisted(() => ({
+  runExec: vi.fn(),
+  note: vi.fn(),
+  collectCommandCapabilitySnapshot: vi.fn(),
+}));
+
+const { runExec, note, collectCommandCapabilitySnapshot } = mocks;
 
 vi.mock("../process/exec.js", () => ({
   runExec,

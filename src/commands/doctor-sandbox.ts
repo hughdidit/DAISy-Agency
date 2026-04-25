@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import {
   DEFAULT_SANDBOX_BROWSER_IMAGE,
   DEFAULT_SANDBOX_COMMON_IMAGE,
@@ -7,12 +8,17 @@ import {
   resolveSandboxConfigForAgent,
   resolveSandboxScope,
 } from "../agents/sandbox.js";
+import { DEFAULT_SANDBOX_WORKDIR } from "../agents/sandbox/constants.js";
+import { resolveOpenClawReadonlyProjection } from "../agents/sandbox/openclaw-readonly-projection.js";
 import { resolveSandboxRuntimeProfile } from "../agents/sandbox/runtime-profile-resolution.js";
+import { resolveSandboxScopeKey, resolveSandboxWorkspaceDir } from "../agents/sandbox/shared.js";
 import type { OpenClawConfig } from "../config/config.js";
+import { resolveAgentMainSessionKey } from "../config/sessions.js";
 import { runCommandWithTimeout, runExec } from "../process/exec.js";
 import type { RuntimeEnv } from "../runtime.js";
 import type { ResolvedCapability } from "../shared/resolved-capability-manifest.js";
 import { note } from "../terminal/note.js";
+import { resolveUserPath } from "../utils.js";
 import { collectCommandCapabilitySnapshot } from "./capability-readiness.js";
 import type { DoctorPrompter } from "./doctor-prompter.js";
 
@@ -170,6 +176,52 @@ function collectMissingExpectedRuntimeDependencies(params: {
   }
 
   return uniqueSortedStrings(missing);
+}
+
+function resolveReadonlyDoctorProjection(cfg: OpenClawConfig): {
+  workspaceDir?: string;
+  projection: NonNullable<Parameters<typeof collectCommandCapabilitySnapshot>[0]["projection"]>;
+} {
+  const agentId = resolveDefaultAgentId(cfg);
+  const sandboxCfg = resolveSandboxConfigForAgent(cfg, agentId);
+  const agentWorkspaceDir = resolveAgentWorkspaceDir(cfg, agentId);
+  const scopeKey = resolveSandboxScopeKey(
+    sandboxCfg.scope,
+    resolveAgentMainSessionKey({ cfg, agentId }),
+  );
+  const workspaceRoot = resolveUserPath(sandboxCfg.workspaceRoot);
+  const sandboxWorkspaceDir =
+    sandboxCfg.scope === "shared"
+      ? workspaceRoot
+      : resolveSandboxWorkspaceDir(workspaceRoot, scopeKey);
+  const workspaceDir =
+    sandboxCfg.workspaceAccess === "rw" ? agentWorkspaceDir : sandboxWorkspaceDir;
+  const containerWorkdir = sandboxCfg.docker.workdir?.trim() || DEFAULT_SANDBOX_WORKDIR;
+  const readonlyProjection = resolveOpenClawReadonlyProjection({
+    config: cfg,
+    agentId,
+    workspaceDir,
+    sandboxWorkspaceDir,
+    containerWorkdir,
+  });
+  const hostPathByContainerPath = new Map<string, string>([
+    [readonlyProjection.containerConfigPath, readonlyProjection.hostConfigPath],
+    [readonlyProjection.containerStateDir, readonlyProjection.hostStateDir],
+    [containerWorkdir, workspaceDir],
+  ]);
+
+  return {
+    ...(containerWorkdir !== DEFAULT_SANDBOX_WORKDIR ? { workspaceDir: containerWorkdir } : {}),
+    projection: {
+      configPath: readonlyProjection.containerConfigPath,
+      stateDir: readonlyProjection.containerStateDir,
+      workspaceDir: containerWorkdir,
+      pathExists: (targetPath: string) => {
+        const mappedPath = hostPathByContainerPath.get(targetPath) ?? targetPath;
+        return fs.existsSync(mappedPath);
+      },
+    },
+  };
 }
 
 function resolveSandboxDockerImage(cfg: OpenClawConfig): string {
@@ -429,9 +481,12 @@ export async function noteSandboxUsefulnessWarnings(cfg: OpenClawConfig) {
     config: cfg,
     mode: "gateway",
   });
+  const readonlyProjection = resolveReadonlyDoctorProjection(cfg);
   const readonlySnapshot = collectCommandCapabilitySnapshot({
     config: cfg,
     mode: "readonly-sandbox",
+    ...(readonlyProjection.workspaceDir ? { workspaceDir: readonlyProjection.workspaceDir } : {}),
+    projection: readonlyProjection.projection,
   });
 
   const missingProjectionPaths = collectMissingProjectionPaths(

@@ -109,6 +109,28 @@ describe("capability readiness helper", () => {
     });
   });
 
+  it("threads readonly projection facts through to readonly collection", () => {
+    const projection = {
+      configPath: "/workspace/.openclaw-readonly/openclaw.json",
+      stateDir: "/workspace/.openclaw-readonly/state",
+      workspaceDir: "/workspace",
+      pathExists: vi.fn(() => true),
+    };
+
+    collectCommandCapabilitySnapshot({
+      config: {},
+      agentId: "readonly-agent",
+      mode: "readonly-sandbox",
+      projection,
+    });
+
+    expect(mocks.collectReadonlyCapabilityInputs).toHaveBeenCalledWith({
+      config: {},
+      agentId: "readonly-agent",
+      projection,
+    });
+  });
+
   it("normalizes readiness findings and capability counts from the shared manifest", () => {
     const runtimeContext = createRuntimeContext();
     const capabilities = [
