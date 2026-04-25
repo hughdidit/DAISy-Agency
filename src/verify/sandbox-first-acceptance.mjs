@@ -534,13 +534,10 @@ async function runGwsIntegrationScenario(ctx) {
     }
 
     const hostPath = `/opt/DAISy/config${credentialsPath.slice("/home/node/.openclaw".length)}`;
-    const hostStatus = stripAnsi(
-      ctx.runSsh(
-        `sudo -n sh -c 'if [ -f ${shellQuote(hostPath)} ]; then stat -c "present(size=%s)" ${shellQuote(
-          hostPath,
-        )}; else echo missing; fi'`,
-      ),
-    )
+    const hostPathProbeScript = `if [ -f ${shellQuote(
+      hostPath,
+    )} ]; then stat -c "present(size=%s)" ${shellQuote(hostPath)}; else echo missing; fi`;
+    const hostStatus = stripAnsi(ctx.runSsh(`sudo -n sh -c ${shellQuote(hostPathProbeScript)}`))
       .trim()
       .split(/\r?\n/)
       .filter(Boolean)
