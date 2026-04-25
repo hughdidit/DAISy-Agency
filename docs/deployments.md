@@ -220,7 +220,7 @@ Verify now also enforces route-bound `openclaw gws auth-health` policy gates for
 
 Verify is the workflow smoke gate, not the full sandbox-first staging
 acceptance signoff. After a green staging Verify run, continue with the manual
-[Sandbox-First Staging Acceptance Checklist](/deployments/sandbox-first-staging-acceptance)
+[Sandbox-First Staging Acceptance Checklist](./deployments/sandbox-first-staging-acceptance.md)
 to capture evidence for readonly diagnostics, live agent behavior, subagents,
 and cron-oriented execution under `sandbox.mode="all"`.
 

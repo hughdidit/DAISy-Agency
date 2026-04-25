@@ -18,13 +18,13 @@ Use this runbook as written:
 
 Related docs:
 
-- [Staging VM Setup Guide](/deployments/staging-setup)
-- [Deployments](/deployments)
-- [Sandbox CLI](/cli/sandbox)
-- [Doctor](/cli/doctor)
-- [Skills](/cli/skills)
-- [Sub-Agents](/tools/subagents)
-- [Cron Jobs](/automation/cron-jobs)
+- [Staging VM Setup Guide](./staging-setup.md)
+- [Deployments](../deployments.md)
+- [Sandbox CLI](../cli/sandbox.md)
+- [Doctor](../cli/doctor.md)
+- [Skills](../cli/skills.md)
+- [Sub-Agents](../tools/subagents.md)
+- [Cron Jobs](../automation/cron-jobs.md)
 
 ## Entry Criteria
 

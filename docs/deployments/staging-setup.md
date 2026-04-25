@@ -365,7 +365,7 @@ RESULT: PASSED with warnings
 ### 8. Run The Sandbox-First Acceptance Checklist
 
 After Verify is green, run the manual
-[Sandbox-First Staging Acceptance Checklist](/deployments/sandbox-first-staging-acceptance).
+[Sandbox-First Staging Acceptance Checklist](./sandbox-first-staging-acceptance.md).
 
 Verify confirms the deploy smoke checks, container health, and required runtime
 baselines. SBX-401 is the next required closeout step for sandbox-first staging:
