@@ -23,6 +23,12 @@ This allows you to run multiple agents with different security profiles:
 `setupCommand` belongs under `sandbox.docker` (global or per-agent) and runs once
 when the container is created.
 
+When an agent needs an official supported sandbox runtime, set
+`agents.defaults.sandbox.profile` or `agents.list[].sandbox.profile`
+explicitly. The base sandbox image aligns with `coding-base`, the maintained
+common image aligns with `coding-extended`, and browser workflows require the
+`browser-automation` profile plus the dedicated browser runtime.
+
 Auth is per-agent: each agent reads from its own `agentDir` auth store at:
 
 ```
@@ -33,6 +39,8 @@ Credentials are **not** shared between agents. Never reuse `agentDir` across age
 If you want to share creds, copy `auth-profiles.json` into the other agent's `agentDir`.
 
 For how sandboxing behaves at runtime, see [Sandboxing](/gateway/sandboxing).
+For the official runtime identities and support boundaries, see
+[Sandbox Runtime Profiles](/gateway/sandbox-runtime-profiles).
 For debugging “why is this blocked?”, see [Sandbox vs Tool Policy vs Elevated](/gateway/sandbox-vs-tool-policy-vs-elevated) and `openclaw sandbox explain`.
 
 ---

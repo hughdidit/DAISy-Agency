@@ -76,3 +76,5 @@ x-i18n:
 - 将环境变量烘焙到你的自定义沙箱镜像中
 
 全局 `env` 和 `skills.entries.<skill>.env/apiKey` 仅适用于**宿主机**运行。
+
+这些配置可以让某个 Skills 在容器内具备运行条件，但它们本身不会宣布当前沙箱运行时配置档已获得官方支持。若要判断运行时层面的支持/就绪状态，请使用 `openclaw sandbox explain`、`openclaw status` 或 `openclaw doctor`。

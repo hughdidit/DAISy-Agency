@@ -24,7 +24,7 @@ OpenClaw 可以在隔离的 Docker 容器中运行智能体以确保安全。`sa
 
 ### `openclaw sandbox explain`
 
-检查**生效的**沙箱模式/作用域/配置档/工作区访问权限、沙箱工具策略和提权门控（附带修复配置的键路径）。
+检查**生效的**沙箱模式/作用域/配置档/工作区访问权限、沙箱工具策略、提权门控以及解析后的能力就绪状态（附带修复配置的键路径）。
 
 ```bash
 openclaw sandbox explain
@@ -33,7 +33,21 @@ openclaw sandbox explain --agent work
 openclaw sandbox explain --json
 ```
 
-`sandbox explain` 还会显示该智能体/运行时选定的沙箱运行时配置档身份。
+`sandbox explain` 是沙箱运行时配置档和能力就绪状态的主要检查命令。它还会显示该智能体/运行时选定的沙箱运行时配置档身份。
+
+`sandbox explain`、`status` 和 doctor 现在使用同一套共享就绪模型。该命令会展示：
+
+- 能力类别：
+  - `sandbox-local`
+  - `gateway-brokered`
+  - `remote-node-assisted`
+  - `configured-but-blocked`
+  - `unsupported-in-current-runtime`
+- 标准化原因类别，例如策略阻止、配置缺口、投影缺陷、运行时/配置档缺口，以及辅助能力可用性
+- 额外的 JSON `capabilities` 数据，其中包含计数、发现项、工具组、Skills 和解析后的清单
+- 当前智能体/运行时选定的沙箱运行时配置档身份
+
+如果某项能力显示为 `unsupported-in-current-runtime`，表示当前选定的官方运行时配置档并不正式支持它，即使容器里碰巧存在某个二进制文件或软件包。
 
 ### `openclaw sandbox list`
 
@@ -107,6 +121,8 @@ openclaw sandbox recreate --all
 # or just one agent:
 openclaw sandbox recreate --agent family
 ```
+
+请记住，`setupCommand` 是定制机制，不是独立的官方支持契约。如果运行时能力发生了实质变化，仍应让 `sandbox.profile` 与你打算满足的官方配置档保持一致。
 
 ### 仅针对特定智能体
 

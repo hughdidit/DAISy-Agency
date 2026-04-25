@@ -64,6 +64,7 @@ Gateway 网关保留在主机上；启用时工具执行在隔离的沙箱中运
 
 - `ops-readonly`
 - `coding-base`
+- `coding-extended`
 - `browser-automation`
 
 如果需要，可以使用自定义镜像，但所选配置档仍应限制为这些官方身份之一。
@@ -125,13 +126,18 @@ Skills 注意事项：`read` 工具以沙箱为根。使用 `workspaceAccess: "n
 
 默认镜像：`openclaw-sandbox:bookworm-slim`
 
+该镜像对应官方 `coding-base` 运行时配置档。受维护的 common 镜像
+`openclaw-sandbox-common:bookworm-slim` 对应 `coding-extended`。
+浏览器支持属于独立的官方配置档：`browser-automation` 需要专用的
+沙箱浏览器运行时，不能因为 base/common 镜像里碰巧有某些软件包就被视为已支持。
+
 构建一次：
 
 ```bash
 scripts/sandbox-setup.sh
 ```
 
-注意：默认镜像**不**包含 Node。如果 Skills 需要 Node（或其他运行时），要么构建自定义镜像，要么通过 `sandbox.docker.setupCommand` 安装（需要网络出口 + 可写根 + root 用户）。
+注意：默认镜像**不**包含 Node。如果 Skills 需要 Node（或其他运行时），要么构建自定义镜像，要么通过 `sandbox.docker.setupCommand` 安装（需要网络出口 + 可写根 + root 用户）。自定义镜像和 `setupCommand` 可以帮助某个运行时满足官方配置档的预期，但它们本身不会创建新的官方支持配置档。
 
 沙箱浏览器镜像：
 
@@ -144,6 +150,11 @@ scripts/sandbox-browser-setup.sh
 
 Docker 安装和容器化 Gateway 网关在此：
 [Docker](/install/docker)
+
+如果你希望使用带有常见工具链的受维护运行时，请构建 common 镜像并将其与
+`coding-extended` 配置档配对。若要获得官方浏览器能力支持，则需声明
+`browser-automation` 配置档并启用
+`agents.defaults.sandbox.browser.enabled`；单独拥有浏览器镜像并不等于该运行时已正式支持浏览器工作流。
 
 ## setupCommand（一次性容器设置）
 
@@ -162,6 +173,8 @@ Docker 安装和容器化 Gateway 网关在此：
 - `user` 必须是 root 才能安装包（省略 `user` 或设置 `user: "0:0"`）。
 - 沙箱 exec **不**继承主机 `process.env`。使用 `agents.defaults.sandbox.docker.env`（或自定义镜像）设置 Skills API 密钥。
 
+`setupCommand` 最适合作为本地/开发或自定义运行时的便利机制。它可以帮助容器满足某个官方配置档的要求，但不会重新定义 DAISy 官方支持的运行时边界。
+
 ## 工具策略 + 逃逸通道
 
 工具允许/拒绝策略仍在沙箱规则之前应用。如果工具在全局或每智能体被拒绝，沙箱隔离不会恢复它。
@@ -171,7 +184,8 @@ Docker 安装和容器化 Gateway 网关在此：
 
 调试：
 
-- 使用 `openclaw sandbox explain` 检查生效的沙箱模式、工具策略和修复配置键。
+- 使用 `openclaw sandbox explain` 检查生效的沙箱模式、运行时配置档、能力就绪状态和修复配置键。
+- 当你希望从运维视角查看同一套共享就绪模型时，使用 `openclaw status` 或 `openclaw doctor`。
 - 参见[沙箱 vs 工具策略 vs 提权](/gateway/sandbox-vs-tool-policy-vs-elevated)了解"为什么被阻止？"的心智模型。
   保持锁定。
 

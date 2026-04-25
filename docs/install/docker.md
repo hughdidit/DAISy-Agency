@@ -533,6 +533,12 @@ mixed access levels in one gateway:
 - Read-only tools + read-only workspace (family/work agent)
 - No filesystem/shell tools (public agent)
 
+Set `agents.defaults.sandbox.profile` or `agents.list[].sandbox.profile`
+explicitly when you care about official runtime support. The base sandbox image
+maps to `coding-base`, the maintained common image maps to `coding-extended`,
+and browser workflows require `browser-automation` plus the dedicated browser
+runtime.
+
 See [Multi-Agent Sandbox & Tools](/tools/multi-agent-sandbox-tools) for examples,
 precedence, and troubleshooting.
 
@@ -563,6 +569,10 @@ If you plan to install packages in `setupCommand`, note:
   OpenClaw auto-recreates containers when `setupCommand` (or docker config) changes
   unless the container was **recently used** (within ~5 minutes). Hot containers
   log a warning with the exact `openclaw sandbox recreate ...` command.
+
+`setupCommand` is a customization mechanism, not the definition of official
+runtime support. Use it to help a container satisfy an official profile, not to
+invent a new supported profile.
 
 ```json5
 {
@@ -655,11 +665,17 @@ This builds `openclaw-sandbox-common:bookworm-slim`. To use it:
 {
   agents: {
     defaults: {
-      sandbox: { docker: { image: "openclaw-sandbox-common:bookworm-slim" } },
+      sandbox: {
+        profile: "coding-extended",
+        docker: { image: "openclaw-sandbox-common:bookworm-slim" },
+      },
     },
   },
 }
 ```
+
+Pairing the common image with `coding-extended` keeps the declared runtime
+profile aligned with the maintained common-image support boundary.
 
 ### Sandbox browser image
 
@@ -673,6 +689,10 @@ For local/dev environments, build the browser image with:
 ```bash
 scripts/sandbox-browser-setup.sh
 ```
+
+For official browser-capable support, keep the declared runtime profile at
+`browser-automation` and enable `agents.defaults.sandbox.browser.enabled`.
+The browser image alone does not define browser support.
 
 This builds `openclaw-sandbox-browser:bookworm-slim` using
 `Dockerfile.sandbox-browser`. The container runs Chromium with CDP enabled and

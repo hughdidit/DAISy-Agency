@@ -29,6 +29,8 @@ x-i18n:
 
 `setupCommand` 属于 `sandbox.docker` 下（全局或按智能体），在容器创建时运行一次。
 
+当某个智能体需要官方支持的沙箱运行时时，请显式设置 `agents.defaults.sandbox.profile` 或 `agents.list[].sandbox.profile`。base 沙箱镜像对应 `coding-base`，受维护的 common 镜像对应 `coding-extended`，而浏览器工作流需要 `browser-automation` 配置档加上专用浏览器运行时。
+
 认证是按智能体的：每个智能体从其自己的 `agentDir` 认证存储读取：
 
 ```
@@ -39,6 +41,7 @@ x-i18n:
 如果你想共享凭证，请将 `auth-profiles.json` 复制到其他智能体的 `agentDir` 中。
 
 有关沙箱隔离在运行时的行为，请参见[沙箱隔离](/gateway/sandboxing)。
+有关官方运行时身份和支持边界，请参见[沙箱运行时配置档](/gateway/sandbox-runtime-profiles)。
 有关调试"为什么这被阻止了？"，请参见[沙箱 vs 工具策略 vs 提权](/gateway/sandbox-vs-tool-policy-vs-elevated) 和 `openclaw sandbox explain`。
 
 ---

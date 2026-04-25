@@ -1073,6 +1073,7 @@ Optional **Docker sandboxing** for the embedded agent. See [Sandboxing](/gateway
   agents: {
     defaults: {
       sandbox: {
+        profile: "coding-base",
         mode: "non-main", // off | non-main | all
         scope: "agent", // session | agent | shared
         workspaceAccess: "none", // none | ro | rw
@@ -1160,7 +1161,7 @@ Optional **Docker sandboxing** for the embedded agent. See [Sandboxing](/gateway
 - `agent`: one container + workspace per agent (default)
 - `shared`: shared container and workspace (no cross-session isolation)
 
-**`setupCommand`** runs once after container creation (via `sh -lc`). Needs network egress, writable root, root user.
+**`setupCommand`** runs once after container creation (via `sh -lc`). Needs network egress, writable root, root user. Use it to help a container satisfy an official profile, not to define a new supported profile.
 
 **Containers default to `network: "none"`** — set to `"bridge"` (or a custom bridge network) if the agent needs outbound access.
 `"host"` is blocked. `"container:<id>"` is blocked by default unless you explicitly set

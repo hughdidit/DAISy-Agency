@@ -76,6 +76,11 @@ Use one of:
 
 Global `env` and `skills.entries.<skill>.env/apiKey` apply to **host** runs only.
 
+This config can make a skill runnable inside a container, but it does not by
+itself declare official support for the selected sandbox runtime profile. Use
+`openclaw sandbox explain`, `openclaw status`, or `openclaw doctor` when you
+need the runtime-aware support/readiness answer.
+
 For the bundled `openclaw-readonly` sandbox skill, use sandbox Docker env vars
 instead of `skills.entries` overrides:
 

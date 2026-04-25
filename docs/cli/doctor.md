@@ -33,6 +33,12 @@ Notes:
 - State integrity checks now detect orphan transcript files in the sessions directory and can archive them as `.deleted.<timestamp>` to reclaim space safely.
 - Doctor includes a memory-search readiness check and can recommend `openclaw configure --section model` when embedding credentials are missing.
 - If sandbox mode is enabled but Docker is unavailable, doctor reports a high-signal warning with remediation (`install Docker` or `openclaw config set agents.defaults.sandbox.mode off`).
+- Doctor now uses the same shared readiness model as `openclaw status` and
+  `openclaw sandbox explain`, including runtime-profile usefulness checks for
+  profile mismatch, missing projected assets, and unsupported runtime material.
+- `unsupported-in-current-runtime` means the selected runtime/profile does not
+  officially support that capability as configured, even if a package or binary
+  happens to be present.
 
 ## macOS: `launchctl` env overrides
 
