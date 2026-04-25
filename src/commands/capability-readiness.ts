@@ -1,4 +1,5 @@
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
+import type { ReadonlyCapabilityCollectorParams } from "../agents/capabilities/collect-readonly.js";
 import {
   collectGatewayCapabilityInputs,
   collectReadonlyCapabilityInputs,
@@ -402,6 +403,7 @@ export function collectCommandCapabilitySnapshot(params: {
   sessionKey?: string;
   mode?: CommandCapabilityMode;
   workspaceDir?: string;
+  projection?: ReadonlyCapabilityCollectorParams["projection"];
 }): CommandCapabilitySnapshot {
   const agentId = params.agentId?.trim() || resolveDefaultAgentId(params.config);
   const mode = params.mode ?? "gateway";
@@ -414,6 +416,7 @@ export function collectCommandCapabilitySnapshot(params: {
           config: params.config,
           agentId,
           ...(params.workspaceDir ? { workspaceDir: params.workspaceDir } : {}),
+          ...(params.projection ? { projection: params.projection } : {}),
         })
       : collectGatewayCapabilityInputs({
           config: params.config,

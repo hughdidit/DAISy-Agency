@@ -4,11 +4,15 @@ import { fileURLToPath } from "node:url";
 import { ErrorCodes, PROTOCOL_VERSION, ProtocolSchemas } from "../src/gateway/protocol/schema.js";
 
 type JsonSchema = {
+  $id?: string;
   type?: string | string[];
   properties?: Record<string, JsonSchema>;
   required?: string[];
   items?: JsonSchema;
   enum?: string[];
+  const?: string | boolean | number | null;
+  anyOf?: JsonSchema[];
+  allOf?: JsonSchema[];
   patternProperties?: Record<string, JsonSchema>;
 };
 
@@ -110,9 +114,63 @@ function swiftType(schema: JsonSchema, required: boolean): string {
   return isOptional ? `${base}?` : base;
 }
 
+function stringLiteralUnionValues(schema: JsonSchema): string[] | null {
+  if (schema.enum?.length) {
+    return schema.enum;
+  }
+  if (!schema.anyOf?.length) {
+    return null;
+  }
+  const values = schema.anyOf
+    .map((option) =>
+      option.type === "string" && typeof option.const === "string" ? option.const : null,
+    )
+    .filter((value): value is string => typeof value === "string");
+  return values.length === schema.anyOf.length ? values : null;
+}
+
+function emitEnum(name: string, values: string[]): string {
+  return [
+    `public enum ${name}: String, Codable, Sendable {`,
+    ...values.map((value) => `    case ${safeName(value)} = "${value}"`),
+    "}",
+    "",
+  ].join("\n");
+}
+
+function emitTypeAlias(name: string): string {
+  return `public typealias ${name} = AnyCodable\n`;
+}
+
+function flattenObjectSchema(schema: JsonSchema): {
+  properties: Record<string, JsonSchema>;
+  required: Set<string>;
+} | null {
+  const properties: Record<string, JsonSchema> = {};
+  const required = new Set<string>();
+  let foundObjectShape = false;
+
+  const visit = (candidate: JsonSchema) => {
+    if (candidate.type === "object" || candidate.properties || candidate.required) {
+      foundObjectShape = true;
+      Object.assign(properties, candidate.properties ?? {});
+      for (const key of candidate.required ?? []) {
+        required.add(key);
+      }
+    }
+    for (const nested of candidate.allOf ?? []) {
+      visit(nested);
+    }
+  };
+
+  visit(schema);
+  return foundObjectShape ? { properties, required } : null;
+}
+
 function emitStruct(name: string, schema: JsonSchema): string {
-  const props = schema.properties ?? {};
-  const required = new Set(schema.required ?? []);
+  const flattened = flattenObjectSchema(schema);
+  const props = flattened?.properties ?? {};
+  const required = flattened?.required ?? new Set<string>();
   const lines: string[] = [];
   if (Object.keys(props).length === 0) {
     return `public struct ${name}: Codable, Sendable {}\n`;
@@ -225,7 +283,16 @@ async function generate() {
     if (name === "GatewayFrame") {
       continue;
     }
-    if (schema.type === "object") {
+    const stringUnionValues = stringLiteralUnionValues(schema);
+    if (stringUnionValues) {
+      parts.push(emitEnum(name, stringUnionValues));
+      continue;
+    }
+    if (schema.anyOf?.length) {
+      parts.push(emitTypeAlias(name));
+      continue;
+    }
+    if (flattenObjectSchema(schema)) {
       parts.push(emitStruct(name, schema));
     }
   }

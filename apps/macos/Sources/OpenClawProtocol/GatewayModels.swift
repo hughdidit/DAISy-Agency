@@ -2210,7 +2210,59 @@ public struct AgentsWorkspaceFileEntry: Codable, Sendable {
     }
 }
 
-public struct AgentsWorkspaceFileDocument: Codable, Sendable {}
+public struct AgentsWorkspaceFileDocument: Codable, Sendable {
+    public let path: String
+    public let name: String
+    public let kind: AnyCodable
+    public let size: Int?
+    public let updatedatms: Int?
+    public let contentbase64: String
+    public let texteditable: Bool
+    public let textcontent: String?
+    public let encoding: AnyCodable?
+    public let includebom: Bool?
+    public let texterror: String?
+
+    public init(
+        path: String,
+        name: String,
+        kind: AnyCodable,
+        size: Int?,
+        updatedatms: Int?,
+        contentbase64: String,
+        texteditable: Bool,
+        textcontent: String?,
+        encoding: AnyCodable?,
+        includebom: Bool?,
+        texterror: String?)
+    {
+        self.path = path
+        self.name = name
+        self.kind = kind
+        self.size = size
+        self.updatedatms = updatedatms
+        self.contentbase64 = contentbase64
+        self.texteditable = texteditable
+        self.textcontent = textcontent
+        self.encoding = encoding
+        self.includebom = includebom
+        self.texterror = texterror
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case path
+        case name
+        case kind
+        case size
+        case updatedatms = "updatedAtMs"
+        case contentbase64 = "contentBase64"
+        case texteditable = "textEditable"
+        case textcontent = "textContent"
+        case encoding
+        case includebom = "includeBom"
+        case texterror = "textError"
+    }
+}
 
 public struct AgentsWorkspaceFilesListParams: Codable, Sendable {
     public let agentid: String
@@ -2598,6 +2650,41 @@ public struct ModelsListResult: Codable, Sendable {
     }
 }
 
+public enum ResolvedCapabilityClass: String, Codable, Sendable {
+    case sandboxLocal = "sandbox-local"
+    case gatewayBrokered = "gateway-brokered"
+    case remoteNodeAssisted = "remote-node-assisted"
+    case configuredButBlocked = "configured-but-blocked"
+    case unsupportedInCurrentRuntime = "unsupported-in-current-runtime"
+}
+
+public enum ResolvedCapabilityKind: String, Codable, Sendable {
+    case tool = "tool"
+    case skill = "skill"
+}
+
+public enum ResolvedCapabilityDenyReason: String, Codable, Sendable {
+    case skillDisabled = "skill-disabled"
+    case bundledSkillNotAllowlisted = "bundled-skill-not-allowlisted"
+    case missingRequiredEnv = "missing-required-env"
+    case missingRequiredConfig = "missing-required-config"
+    case toolDeniedBySandboxPolicy = "tool-denied-by-sandbox-policy"
+    case toolNotInSandboxAllowlist = "tool-not-in-sandbox-allowlist"
+}
+
+public enum ResolvedCapabilityUnavailableReason: String, Codable, Sendable {
+    case missingRuntimeBinaries = "missing-runtime-binaries"
+    case missingRuntimeAnyBinaries = "missing-runtime-any-binaries"
+    case unsupportedOs = "unsupported-os"
+    case missingRuntimeProfile = "missing-runtime-profile"
+    case unsupportedRuntimeFamily = "unsupported-runtime-family"
+    case runtimeProfileImageMismatch = "runtime-profile-image-mismatch"
+    case customRuntimeImage = "custom-runtime-image"
+    case browserRuntimeDisabled = "browser-runtime-disabled"
+    case missingProjection = "missing-projection"
+    case missingProvider = "missing-provider"
+}
+
 public struct ResolvedCapabilityRuntimeContext: Codable, Sendable {
     public let agentid: String
     public let sessionkey: String?
@@ -2678,6 +2765,10 @@ public struct ResolvedCapabilityPolicy: Codable, Sendable {
 
 public struct ResolvedCapabilityRuntimeEvidence: Codable, Sendable {
     public let profile: String?
+    public let supportstatus: String?
+    public let declaredimage: String?
+    public let matchedimage: String?
+    public let customimage: String?
     public let missingbins: [String]
     public let missinganybins: [String]
     public let missingos: [String]
@@ -2686,6 +2777,10 @@ public struct ResolvedCapabilityRuntimeEvidence: Codable, Sendable {
 
     public init(
         profile: String?,
+        supportstatus: String?,
+        declaredimage: String?,
+        matchedimage: String?,
+        customimage: String?,
         missingbins: [String],
         missinganybins: [String],
         missingos: [String],
@@ -2693,6 +2788,10 @@ public struct ResolvedCapabilityRuntimeEvidence: Codable, Sendable {
         detail: String?)
     {
         self.profile = profile
+        self.supportstatus = supportstatus
+        self.declaredimage = declaredimage
+        self.matchedimage = matchedimage
+        self.customimage = customimage
         self.missingbins = missingbins
         self.missinganybins = missinganybins
         self.missingos = missingos
@@ -2702,6 +2801,10 @@ public struct ResolvedCapabilityRuntimeEvidence: Codable, Sendable {
 
     private enum CodingKeys: String, CodingKey {
         case profile
+        case supportstatus = "supportStatus"
+        case declaredimage = "declaredImage"
+        case matchedimage = "matchedImage"
+        case customimage = "customImage"
         case missingbins = "missingBins"
         case missinganybins = "missingAnyBins"
         case missingos = "missingOs"
@@ -2929,6 +3032,7 @@ public struct ResolvedSkillLocalCapability: Codable, Sendable {
     public let missing: SkillStatusRequirements
     public let configchecks: [SkillStatusConfigCheck]
     public let capabilityclass: String
+    public let evidence: [String: AnyCodable]?
 
     public init(
         id: String,
@@ -2944,7 +3048,8 @@ public struct ResolvedSkillLocalCapability: Codable, Sendable {
         requirements: SkillStatusRequirements,
         missing: SkillStatusRequirements,
         configchecks: [SkillStatusConfigCheck],
-        capabilityclass: String)
+        capabilityclass: String,
+        evidence: [String: AnyCodable]?)
     {
         self.id = id
         self.label = label
@@ -2960,6 +3065,7 @@ public struct ResolvedSkillLocalCapability: Codable, Sendable {
         self.missing = missing
         self.configchecks = configchecks
         self.capabilityclass = capabilityclass
+        self.evidence = evidence
     }
 
     private enum CodingKeys: String, CodingKey {
@@ -2977,6 +3083,7 @@ public struct ResolvedSkillLocalCapability: Codable, Sendable {
         case missing
         case configchecks = "configChecks"
         case capabilityclass = "capabilityClass"
+        case evidence
     }
 }
 
@@ -3194,6 +3301,8 @@ public struct ResolvedSkillUnsupportedCapability: Codable, Sendable {
     }
 }
 
+public typealias ResolvedSkillCapability = AnyCodable
+
 public struct ResolvedToolLocalCapability: Codable, Sendable {
     public let id: String
     public let label: String
@@ -3205,6 +3314,7 @@ public struct ResolvedToolLocalCapability: Codable, Sendable {
     public let optional: Bool?
     public let defaultprofiles: [AnyCodable]?
     public let capabilityclass: String
+    public let evidence: [String: AnyCodable]?
 
     public init(
         id: String,
@@ -3216,7 +3326,8 @@ public struct ResolvedToolLocalCapability: Codable, Sendable {
         pluginid: String?,
         optional: Bool?,
         defaultprofiles: [AnyCodable]?,
-        capabilityclass: String)
+        capabilityclass: String,
+        evidence: [String: AnyCodable]?)
     {
         self.id = id
         self.label = label
@@ -3228,6 +3339,7 @@ public struct ResolvedToolLocalCapability: Codable, Sendable {
         self.optional = optional
         self.defaultprofiles = defaultprofiles
         self.capabilityclass = capabilityclass
+        self.evidence = evidence
     }
 
     private enum CodingKeys: String, CodingKey {
@@ -3241,6 +3353,7 @@ public struct ResolvedToolLocalCapability: Codable, Sendable {
         case optional
         case defaultprofiles = "defaultProfiles"
         case capabilityclass = "capabilityClass"
+        case evidence
     }
 }
 
@@ -3463,6 +3576,8 @@ public struct ResolvedToolUnsupportedCapability: Codable, Sendable {
         case evidence
     }
 }
+
+public typealias ResolvedToolCapability = AnyCodable
 
 public struct ResolvedCapabilityManifest: Codable, Sendable {
     public let schemaversion: Double
@@ -3985,6 +4100,12 @@ public struct CronAddParams: Codable, Sendable {
         case failurealert = "failureAlert"
     }
 }
+
+public typealias CronUpdateParams = AnyCodable
+
+public typealias CronRemoveParams = AnyCodable
+
+public typealias CronRunParams = AnyCodable
 
 public struct CronRunsParams: Codable, Sendable {
     public let scope: AnyCodable?

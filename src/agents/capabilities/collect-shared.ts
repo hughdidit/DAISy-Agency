@@ -1,8 +1,8 @@
 import path from "node:path";
 import type { OpenClawConfig } from "../../config/config.js";
 import { evaluateEntryRequirementsForCurrentPlatform } from "../../shared/entry-status.js";
-import { inferSandboxSkillFamily } from "../../shared/sandbox-runtime-profiles.js";
 import type { RequirementRemoteSatisfied } from "../../shared/requirements.js";
+import { inferSandboxSkillFamily } from "../../shared/sandbox-runtime-profiles.js";
 import { CONFIG_DIR } from "../../utils.js";
 import {
   resolveSandboxRuntimeSkillSupport,
@@ -202,121 +202,97 @@ export function mergeAvailabilityFacts(
   if (!base && !override) {
     return undefined;
   }
+  const mergedRuntimeMissingBins = mergeStringArrays(
+    base?.runtime?.missingBins,
+    override?.runtime?.missingBins,
+  );
+  const mergedRuntimeMissingAnyBins = mergeStringArrays(
+    base?.runtime?.missingAnyBins,
+    override?.runtime?.missingAnyBins,
+  );
+  const mergedRuntimeMissingOs = mergeStringArrays(
+    base?.runtime?.missingOs,
+    override?.runtime?.missingOs,
+  );
+  const mergedRuntimeReasonCodes = mergeStringArrays(
+    base?.runtime?.reasonCodes,
+    override?.runtime?.reasonCodes,
+  );
+  const mergedProjectionMissingPaths = mergeStringArrays(
+    base?.projection?.missingPaths,
+    override?.projection?.missingPaths,
+  );
+  const mergedProjectionReasonCodes = mergeStringArrays(
+    base?.projection?.reasonCodes,
+    override?.projection?.reasonCodes,
+  );
+  const mergedProviderReasonCodes = mergeStringArrays(
+    base?.provider?.reasonCodes,
+    override?.provider?.reasonCodes,
+  );
+  const mergedRemoteSatisfiedBins = mergeStringArrays(
+    base?.remote?.satisfiedBins,
+    override?.remote?.satisfiedBins,
+  );
+  const mergedRemoteSatisfiedAnyBins = mergeStringArrays(
+    base?.remote?.satisfiedAnyBins,
+    override?.remote?.satisfiedAnyBins,
+  );
+  const mergedRemoteSatisfiedOs = mergeStringArrays(
+    base?.remote?.satisfiedOs,
+    override?.remote?.satisfiedOs,
+  );
+  const runtime =
+    base?.runtime || override?.runtime ? { ...base?.runtime, ...override?.runtime } : undefined;
+  if (runtime) {
+    if (mergedRuntimeMissingBins) {
+      runtime.missingBins = mergedRuntimeMissingBins;
+    }
+    if (mergedRuntimeMissingAnyBins) {
+      runtime.missingAnyBins = mergedRuntimeMissingAnyBins;
+    }
+    if (mergedRuntimeMissingOs) {
+      runtime.missingOs = mergedRuntimeMissingOs;
+    }
+    if (mergedRuntimeReasonCodes) {
+      runtime.reasonCodes = mergedRuntimeReasonCodes;
+    }
+  }
+  const projection =
+    base?.projection || override?.projection
+      ? { ...base?.projection, ...override?.projection }
+      : undefined;
+  if (projection) {
+    if (mergedProjectionMissingPaths) {
+      projection.missingPaths = mergedProjectionMissingPaths;
+    }
+    if (mergedProjectionReasonCodes) {
+      projection.reasonCodes = mergedProjectionReasonCodes;
+    }
+  }
+  const provider =
+    base?.provider || override?.provider ? { ...base?.provider, ...override?.provider } : undefined;
+  if (provider && mergedProviderReasonCodes) {
+    provider.reasonCodes = mergedProviderReasonCodes;
+  }
+  const remote =
+    base?.remote || override?.remote ? { ...base?.remote, ...override?.remote } : undefined;
+  if (remote) {
+    if (mergedRemoteSatisfiedBins) {
+      remote.satisfiedBins = mergedRemoteSatisfiedBins;
+    }
+    if (mergedRemoteSatisfiedAnyBins) {
+      remote.satisfiedAnyBins = mergedRemoteSatisfiedAnyBins;
+    }
+    if (mergedRemoteSatisfiedOs) {
+      remote.satisfiedOs = mergedRemoteSatisfiedOs;
+    }
+  }
   return {
-    runtime:
-      base?.runtime || override?.runtime
-        ? {
-            ...(base?.runtime ?? {}),
-            ...(override?.runtime ?? {}),
-            ...(mergeStringArrays(base?.runtime?.missingBins, override?.runtime?.missingBins)
-              ? {
-                  missingBins: mergeStringArrays(
-                    base?.runtime?.missingBins,
-                    override?.runtime?.missingBins,
-                  ),
-                }
-              : {}),
-            ...(mergeStringArrays(
-              base?.runtime?.missingAnyBins,
-              override?.runtime?.missingAnyBins,
-            )
-              ? {
-                  missingAnyBins: mergeStringArrays(
-                    base?.runtime?.missingAnyBins,
-                    override?.runtime?.missingAnyBins,
-                  ),
-                }
-              : {}),
-            ...(mergeStringArrays(base?.runtime?.missingOs, override?.runtime?.missingOs)
-              ? {
-                  missingOs: mergeStringArrays(base?.runtime?.missingOs, override?.runtime?.missingOs),
-                }
-              : {}),
-            ...(mergeStringArrays(base?.runtime?.reasonCodes, override?.runtime?.reasonCodes)
-              ? {
-                  reasonCodes: mergeStringArrays(
-                    base?.runtime?.reasonCodes,
-                    override?.runtime?.reasonCodes,
-                  ),
-                }
-              : {}),
-          }
-        : undefined,
-    projection:
-      base?.projection || override?.projection
-        ? {
-            ...(base?.projection ?? {}),
-            ...(override?.projection ?? {}),
-            ...(mergeStringArrays(
-              base?.projection?.missingPaths,
-              override?.projection?.missingPaths,
-            )
-              ? {
-                  missingPaths: mergeStringArrays(
-                    base?.projection?.missingPaths,
-                    override?.projection?.missingPaths,
-                  ),
-                }
-              : {}),
-            ...(mergeStringArrays(
-              base?.projection?.reasonCodes,
-              override?.projection?.reasonCodes,
-            )
-              ? {
-                  reasonCodes: mergeStringArrays(
-                    base?.projection?.reasonCodes,
-                    override?.projection?.reasonCodes,
-                  ),
-                }
-              : {}),
-          }
-        : undefined,
-    provider:
-      base?.provider || override?.provider
-        ? {
-            ...(base?.provider ?? {}),
-            ...(override?.provider ?? {}),
-            ...(mergeStringArrays(base?.provider?.reasonCodes, override?.provider?.reasonCodes)
-              ? {
-                  reasonCodes: mergeStringArrays(
-                    base?.provider?.reasonCodes,
-                    override?.provider?.reasonCodes,
-                  ),
-                }
-              : {}),
-          }
-        : undefined,
-    remote:
-      base?.remote || override?.remote
-        ? {
-            ...(base?.remote ?? {}),
-            ...(override?.remote ?? {}),
-            ...(mergeStringArrays(base?.remote?.satisfiedBins, override?.remote?.satisfiedBins)
-              ? {
-                  satisfiedBins: mergeStringArrays(
-                    base?.remote?.satisfiedBins,
-                    override?.remote?.satisfiedBins,
-                  ),
-                }
-              : {}),
-            ...(mergeStringArrays(
-              base?.remote?.satisfiedAnyBins,
-              override?.remote?.satisfiedAnyBins,
-            )
-              ? {
-                  satisfiedAnyBins: mergeStringArrays(
-                    base?.remote?.satisfiedAnyBins,
-                    override?.remote?.satisfiedAnyBins,
-                  ),
-                }
-              : {}),
-            ...(mergeStringArrays(base?.remote?.satisfiedOs, override?.remote?.satisfiedOs)
-              ? {
-                  satisfiedOs: mergeStringArrays(base?.remote?.satisfiedOs, override?.remote?.satisfiedOs),
-                }
-              : {}),
-          }
-        : undefined,
+    runtime,
+    projection,
+    provider,
+    remote,
   };
 }
 

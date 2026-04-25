@@ -1,6 +1,7 @@
 import type { OpenClawConfig } from "../../config/config.js";
 import { getRemoteSkillEligibility } from "../../infra/skills-remote.js";
 import { getPluginToolMeta, resolvePluginTools } from "../../plugins/tools.js";
+import { resolveCoreToolCapabilityFamily } from "../../shared/sandbox-runtime-profiles.js";
 import {
   resolveAgentDir,
   resolveAgentWorkspaceDir,
@@ -19,7 +20,6 @@ import {
   resolveCoreToolCapabilityBoundary,
   resolveCoreToolProfiles,
 } from "../tool-catalog.js";
-import { resolveCoreToolCapabilityFamily } from "../../shared/sandbox-runtime-profiles.js";
 import {
   collectWorkspaceSkillCapabilityInputs,
   createGatewayProviderAvailability,
@@ -129,18 +129,20 @@ function collectCoreToolInputs(params: {
         toolPolicy: params.toolPolicy,
         intent,
         availability: mergeAvailabilityFacts(
-          createRuntimeAvailabilityForTool({
-            resolvedProfile: params.runtimeProfileResolution,
-            toolId: tool.id,
-            source: "core",
-          }),
-          intent === "gateway-brokered"
-            ? createGatewayProviderAvailability({
-                providerId: "gateway",
-                providerKind: "gateway",
-                transport: "rpc",
-              })
-            : undefined,
+          mergeAvailabilityFacts(
+            createRuntimeAvailabilityForTool({
+              resolvedProfile: params.runtimeProfileResolution,
+              toolId: tool.id,
+              source: "core",
+            }),
+            intent === "gateway-brokered"
+              ? createGatewayProviderAvailability({
+                  providerId: "gateway",
+                  providerKind: "gateway",
+                  transport: "rpc",
+                })
+              : undefined,
+          ),
           override?.availability,
         ),
       };
@@ -209,18 +211,20 @@ function collectPluginToolInputs(params: {
         toolPolicy: params.toolPolicy,
         intent,
         availability: mergeAvailabilityFacts(
-          createRuntimeAvailabilityForTool({
-            resolvedProfile: params.runtimeProfileResolution,
-            toolId: tool.name,
-            source: "plugin",
-          }),
-          intent === "gateway-brokered"
-            ? createGatewayProviderAvailability({
-                providerId: tool.pluginId,
-                providerKind: "plugin",
-                transport: "gateway-plugin",
-              })
-            : undefined,
+          mergeAvailabilityFacts(
+            createRuntimeAvailabilityForTool({
+              resolvedProfile: params.runtimeProfileResolution,
+              toolId: tool.name,
+              source: "plugin",
+            }),
+            intent === "gateway-brokered"
+              ? createGatewayProviderAvailability({
+                  providerId: tool.pluginId,
+                  providerKind: "plugin",
+                  transport: "gateway-plugin",
+                })
+              : undefined,
+          ),
           override?.availability,
         ),
       } satisfies CollectedToolCapabilityInput;

@@ -47,7 +47,11 @@ import {
   resolveDoctorExecutionMode,
   type DoctorOptions,
 } from "./doctor-prompter.js";
-import { maybeRepairSandboxImages, noteSandboxScopeWarnings } from "./doctor-sandbox.js";
+import {
+  maybeRepairSandboxImages,
+  noteSandboxScopeWarnings,
+  noteSandboxUsefulnessWarnings,
+} from "./doctor-sandbox.js";
 import { noteSecurityWarnings } from "./doctor-security.js";
 import { noteSessionLockHealth } from "./doctor-session-locks.js";
 import { noteStateIntegrity, noteWorkspaceBackupTip } from "./doctor-state-integrity.js";
@@ -241,6 +245,7 @@ export async function doctorCommand(
 
   cfg = await maybeRepairSandboxImages(cfg, runtime, prompter);
   noteSandboxScopeWarnings(cfg);
+  await noteSandboxUsefulnessWarnings(cfg);
 
   await maybeScanExtraGatewayServices(options, runtime, prompter);
   await maybeRepairGatewayServiceConfig(cfg, resolveMode(cfg), runtime, prompter);

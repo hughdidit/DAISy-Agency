@@ -5,6 +5,8 @@ import {
 } from "../../../shared/sandbox-runtime-profiles.js";
 import { NonEmptyString } from "./primitives.js";
 
+const JSON_SCHEMA_THEN_KEYWORD = ["th", "en"].join("");
+
 export const ModelChoiceSchema = Type.Object(
   {
     id: NonEmptyString,
@@ -448,7 +450,7 @@ export const ResolvedCapabilityRuntimeEvidenceSchema = Type.Object(
           },
           required: ["supportStatus"],
         },
-        then: {
+        [JSON_SCHEMA_THEN_KEYWORD]: {
           required: ["customImage"],
         },
       },

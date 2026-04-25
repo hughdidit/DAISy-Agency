@@ -213,7 +213,9 @@ export function resolveSandboxRuntimeCapabilitySupport(params: {
     detailParts.push(params.resolvedProfile.detail);
   }
 
-  if (!supportsSandboxRuntimeCapabilityFamily(params.resolvedProfile.declaredProfileId, params.family)) {
+  if (
+    !supportsSandboxRuntimeCapabilityFamily(params.resolvedProfile.declaredProfileId, params.family)
+  ) {
     reasonCodes.push("unsupported-runtime-family");
     detailParts.push(
       `Declared runtime profile ${params.resolvedProfile.declaredProfileId} does not support capability family ${params.family}.`,
