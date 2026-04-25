@@ -207,7 +207,7 @@ function resolveReadonlyDoctorProjection(cfg: OpenClawConfig): {
     [readonlyProjection.containerStateDir, readonlyProjection.hostStateDir],
     [containerWorkdir, workspaceDir],
   ]);
-  const containerPathPrefixes = Array.from(hostPathByContainerPath.entries()).sort(
+  const containerPathPrefixes = Array.from(hostPathByContainerPath.entries()).toSorted(
     ([leftContainerPath], [rightContainerPath]) =>
       rightContainerPath.length - leftContainerPath.length,
   );
