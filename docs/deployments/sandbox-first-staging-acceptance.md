@@ -421,12 +421,49 @@ If staging is not using Discord for operator delivery, replace `--channel` and
 
 - Expected result: every applicable item is recorded with evidence and any
   failure is classified into one of these buckets:
-  - `runtime-profile-mismatch`
-  - `policy-block`
-  - `projection-defect`
-  - `secret-or-integration-gap`
-  - `routing-or-delivery-gap`
-  - `unsupported-host-only-behavior`
+  - `runtime-profile-mismatch`: deployed container health, effective runtime
+    profile, or sandbox-capable runtime surfaces disagree with the expected
+    staging state
+  - `policy-block`: tool policy, subagent policy, or operator-facing messaging
+    blocks the intended sandbox-safe path
+  - `projection-defect`: readonly projection, boundary-safe assets, or
+    diagnostics truthfulness do not match the real sandbox boundary
+  - `secret-or-integration-gap`: required secrets, route bindings, delegated
+    capabilities, or plugin configuration are missing or unhealthy
+  - `routing-or-delivery-gap`: chat/session routing, scheduler behavior, or
+    result delivery does not reach the intended staging target
+  - `unsupported-host-only-behavior`: the only apparent success path depends on
+    an unsandboxed session or host-only fallback
+- Canonical mapping for the exact step-level failure classes used above:
+
+| Step-level failure class | Canonical closeout bucket |
+| --- | --- |
+| `deployment-baseline-gap` | `runtime-profile-mismatch` |
+| `container-health-gap` | `runtime-profile-mismatch` |
+| `runtime-profile-mismatch` | `runtime-profile-mismatch` |
+| `capability-consistency-gap` | `runtime-profile-mismatch` |
+| `doctor-usefulness-gap` | `runtime-profile-mismatch` |
+| `projection-defect` | `projection-defect` |
+| `readonly-runtime-gap` | `runtime-profile-mismatch` |
+| `truthfulness-gap` | `projection-defect` |
+| `readiness-reporting-gap` | `policy-block` |
+| `sandbox-contract-gap` | `unsupported-host-only-behavior` |
+| `secret-or-route-gap` | `secret-or-integration-gap` |
+| `delegated-capability-gap` | `secret-or-integration-gap` |
+| `memory-plugin-gap` | `secret-or-integration-gap` |
+| `integration-config-gap` | `secret-or-integration-gap` |
+| `session-routing-gap` | `routing-or-delivery-gap` |
+| `unsandboxed-session-gap` | `unsupported-host-only-behavior` |
+| `agent-facing-messaging-gap` | `policy-block` |
+| `sandbox-inheritance-gap` | `policy-block` |
+| `routing-or-delivery-gap` | `routing-or-delivery-gap` |
+| `subagent-policy-gap` | `policy-block` |
+| `scheduler-gap` | `routing-or-delivery-gap` |
+| `sandbox-runtime-gap` | `runtime-profile-mismatch` |
+| `delivery-gap` | `routing-or-delivery-gap` |
+- Closeout recording rule: keep the exact step-level failure class in the
+  matrix, then use the table above to roll it into the required canonical
+  closeout bucket for escalation and reporting.
 - Evidence to capture: the completed matrix plus the evidence directory path.
 - Failure classification / escalation:
   - if any applicable item fails, do not mark sandbox-first staging acceptance
