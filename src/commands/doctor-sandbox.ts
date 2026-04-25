@@ -213,6 +213,9 @@ function resolveReadonlyDoctorProjection(cfg: OpenClawConfig): {
   );
 
   const resolveHostPath = (targetPath: string) => {
+    if (fs.existsSync(targetPath)) {
+      return targetPath;
+    }
     for (const [containerPath, hostPath] of containerPathPrefixes) {
       const relativePath = path.posix.relative(containerPath, targetPath);
       if (relativePath === "") {
