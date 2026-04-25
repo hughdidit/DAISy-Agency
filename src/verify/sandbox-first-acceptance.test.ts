@@ -168,7 +168,8 @@ describe("runSandboxFirstAcceptance", () => {
           return "doctor ok\n";
         }
         if (
-          command === "cd /app && node skills/openclaw-readonly/scripts/openclaw-readonly.mjs status"
+          command ===
+          "cd /app && node skills/openclaw-readonly/scripts/openclaw-readonly.mjs status"
         ) {
           return "Gateway probe:\nprobe unsupported from readonly sandbox\n";
         }
@@ -204,7 +205,8 @@ describe("runSandboxFirstAcceptance", () => {
             {
               name: "openclaw-readonly",
               eligible: true,
-              description: "Sandbox-safe OpenClaw diagnostics through a tightly scoped read-only launcher.",
+              description:
+                "Sandbox-safe OpenClaw diagnostics through a tightly scoped read-only launcher.",
             },
             null,
             2,

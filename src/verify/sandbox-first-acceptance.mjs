@@ -191,9 +191,9 @@ export function buildScenarioSummaryEntry(params) {
 
 export function selectIntegrationPath(params) {
   const pluginIds = new Set(
-    ((params.pluginsPayload?.plugins ?? []).filter((entry) => entry?.status === "loaded") ?? []).map(
-      (entry) => entry.id,
-    ),
+    (
+      (params.pluginsPayload?.plugins ?? []).filter((entry) => entry?.status === "loaded") ?? []
+    ).map((entry) => entry.id),
   );
 
   if (pluginIds.has("gws-toolkit-phase1")) {
@@ -210,7 +210,8 @@ export function selectIntegrationPath(params) {
 
   return {
     kind: "none",
-    reason: "Neither gws-toolkit-phase1 nor memory-mongodb is active for staging acceptance automation.",
+    reason:
+      "Neither gws-toolkit-phase1 nor memory-mongodb is active for staging acceptance automation.",
   };
 }
 
@@ -255,7 +256,9 @@ function createRuntimeContext(params = {}) {
   const env = params.env ?? process.env;
   const artifactRoot =
     params.artifactRoot ??
-    path.resolve(env.VERIFY_ARTIFACT_DIR || path.join(resolveRepoRoot(params), ".artifacts", "verify"));
+    path.resolve(
+      env.VERIFY_ARTIFACT_DIR || path.join(resolveRepoRoot(params), ".artifacts", "verify"),
+    );
   const acceptanceRoot = path.join(artifactRoot, "sandbox-first-acceptance");
   const commandContext = params.commandContext ?? createGceCommandContext(env);
 
@@ -315,7 +318,9 @@ async function runRuntimeProfileSanityScenario(ctx) {
     "status --json did not return a parseable JSON payload",
   );
 
-  const sandboxExplainRaw = ctx.dockerExecBash("cd /app && node dist/index.js sandbox explain --json");
+  const sandboxExplainRaw = ctx.dockerExecBash(
+    "cd /app && node dist/index.js sandbox explain --json",
+  );
   await ctx.writeArtifactText("sandbox-explain.json", sandboxExplainRaw);
   const sandboxExplainPayload = parseJsonOrThrow(
     sandboxExplainRaw,
@@ -368,14 +373,25 @@ async function runRuntimeProfileSanityScenario(ctx) {
 }
 
 function classifyReadonlyFailure(error) {
-  const combined = stripAnsi(`${error?.stdout ?? ""}\n${error?.stderr ?? ""}\n${error?.message ?? ""}`);
+  const combined = stripAnsi(
+    `${error?.stdout ?? ""}\n${error?.stderr ?? ""}\n${error?.message ?? ""}`,
+  );
   if (/missing readonly config mount|projection/i.test(combined)) {
-    return new ScenarioError("projection-defect", "readonly diagnostics reported a projection or mount defect");
+    return new ScenarioError(
+      "projection-defect",
+      "readonly diagnostics reported a projection or mount defect",
+    );
   }
   if (/openclaw-readonly\" is not on path|readonly runtime command/i.test(combined)) {
-    return new ScenarioError("readonly-runtime-gap", "openclaw-readonly is missing from the deployed sandbox runtime");
+    return new ScenarioError(
+      "readonly-runtime-gap",
+      "openclaw-readonly is missing from the deployed sandbox runtime",
+    );
   }
-  return new ScenarioError("readonly-runtime-gap", "readonly diagnostics failed to execute inside the deployed runtime");
+  return new ScenarioError(
+    "readonly-runtime-gap",
+    "readonly diagnostics failed to execute inside the deployed runtime",
+  );
 }
 
 async function runReadonlyDiagnosticsScenario(ctx) {
@@ -442,7 +458,10 @@ async function runReadinessSnapshotScenario(ctx) {
   }
 
   if (skillInfoPayload?.name !== "openclaw-readonly") {
-    throw new ScenarioError("sandbox-contract-gap", "openclaw-readonly is missing from skills info");
+    throw new ScenarioError(
+      "sandbox-contract-gap",
+      "openclaw-readonly is missing from skills info",
+    );
   }
   if (skillInfoPayload?.eligible !== true) {
     throw new ScenarioError(
@@ -470,7 +489,10 @@ function validateGwsAuthHealthPayload(subject, payload) {
   if (payload?.data?.authHealth?.tokenValid !== true) {
     return false;
   }
-  if (typeof payload?.data?.authHealth?.tokenError === "string" && payload.data.authHealth.tokenError) {
+  if (
+    typeof payload?.data?.authHealth?.tokenError === "string" &&
+    payload.data.authHealth.tokenError
+  ) {
     return false;
   }
   return true;
@@ -492,9 +514,13 @@ async function runGwsIntegrationScenario(ctx) {
     );
   }
 
-  const impersonatedUser = typeof activeRoute.impersonatedUser === "string" ? activeRoute.impersonatedUser.trim() : "";
+  const impersonatedUser =
+    typeof activeRoute.impersonatedUser === "string" ? activeRoute.impersonatedUser.trim() : "";
   if (impersonatedUser && !/^[A-Za-z0-9_.@+-]+$/.test(impersonatedUser)) {
-    throw new ScenarioError("secret-or-route-gap", "Google Workspace impersonatedUser contains unsafe characters");
+    throw new ScenarioError(
+      "secret-or-route-gap",
+      "Google Workspace impersonatedUser contains unsafe characters",
+    );
   }
 
   if (activeRoute.mode === "credentials_file") {
@@ -594,7 +620,9 @@ async function runGwsIntegrationScenario(ctx) {
     );
   }
 
-  const mainRaw = ctx.dockerExecBash("cd /app && node scripts/gws/run-auth-health.mjs --subject agent:main");
+  const mainRaw = ctx.dockerExecBash(
+    "cd /app && node scripts/gws/run-auth-health.mjs --subject agent:main",
+  );
   await ctx.writeArtifactText("gws-auth-health-agent-main.json", mainRaw);
   const mainPayload = parseJsonOrThrow(
     mainRaw,
@@ -677,20 +705,29 @@ async function runMemoryIntegrationScenario(ctx) {
 
   const first = Array.isArray(memoryPayload) ? memoryPayload[0] : null;
   if (!first || typeof first !== "object") {
-    throw new ScenarioError("memory-plugin-gap", "memory status did not return a main-agent result");
+    throw new ScenarioError(
+      "memory-plugin-gap",
+      "memory status did not return a main-agent result",
+    );
   }
   if (typeof first.status?.provider !== "string" || first.status.provider.trim() === "") {
     throw new ScenarioError("memory-plugin-gap", "memory status did not report an active provider");
   }
   if (typeof first.indexError === "string" && first.indexError.trim() !== "") {
-    throw new ScenarioError("memory-plugin-gap", `memory status reported indexError: ${first.indexError}`);
+    throw new ScenarioError(
+      "memory-plugin-gap",
+      `memory status reported indexError: ${first.indexError}`,
+    );
   }
   if (first.embeddingProbe && first.embeddingProbe.ok === false) {
     const detail =
       typeof first.embeddingProbe.error === "string" && first.embeddingProbe.error
         ? first.embeddingProbe.error
         : "embedding probe failed";
-    throw new ScenarioError("memory-plugin-gap", `memory status reported embedding probe failure: ${detail}`);
+    throw new ScenarioError(
+      "memory-plugin-gap",
+      `memory status reported embedding probe failure: ${detail}`,
+    );
   }
 }
 
@@ -737,7 +774,9 @@ async function runIntegrationPathScenario(ctx) {
 async function pollForCronEntry(ctx, jobId) {
   const maxAttempts = 10;
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
-    const runsRaw = ctx.dockerExecBash(`cd /app && node dist/index.js cron runs --id ${shellQuote(jobId)} --limit 20`);
+    const runsRaw = ctx.dockerExecBash(
+      `cd /app && node dist/index.js cron runs --id ${shellQuote(jobId)} --limit 20`,
+    );
     await ctx.writeArtifactText("cron-runs.json", runsRaw);
     const runsPayload = extractLastJsonValue(runsRaw);
     const entries = Array.isArray(runsPayload?.entries) ? runsPayload.entries : [];
@@ -749,7 +788,10 @@ async function pollForCronEntry(ctx, jobId) {
       await new Promise((resolve) => setTimeout(resolve, 1_000));
     }
   }
-  throw new ScenarioError("scheduler-gap", "cron runs did not record any entries for the acceptance job");
+  throw new ScenarioError(
+    "scheduler-gap",
+    "cron runs did not record any entries for the acceptance job",
+  );
 }
 
 export async function runIsolatedCronScenario(ctx) {
@@ -769,13 +811,14 @@ export async function runIsolatedCronScenario(ctx) {
       "scheduler-gap",
       "cron add did not return a parseable JSON payload",
     );
-    jobId =
-      typeof addPayload?.id === "string" && addPayload.id.trim() ? addPayload.id.trim() : "";
+    jobId = typeof addPayload?.id === "string" && addPayload.id.trim() ? addPayload.id.trim() : "";
     if (!jobId) {
       throw new ScenarioError("scheduler-gap", "cron add did not return a job id");
     }
 
-    const runRaw = ctx.dockerExecBash(`cd /app && node dist/index.js cron run ${shellQuote(jobId)}`);
+    const runRaw = ctx.dockerExecBash(
+      `cd /app && node dist/index.js cron run ${shellQuote(jobId)}`,
+    );
     await ctx.writeArtifactText("cron-run.json", runRaw);
     const runPayload = parseJsonOrThrow(
       runRaw,
@@ -783,7 +826,10 @@ export async function runIsolatedCronScenario(ctx) {
       "cron run did not return a parseable JSON payload",
     );
     if (runPayload?.ok !== true || runPayload?.ran !== true) {
-      throw new ScenarioError("scheduler-gap", "cron run did not execute the isolated acceptance job");
+      throw new ScenarioError(
+        "scheduler-gap",
+        "cron run did not execute the isolated acceptance job",
+      );
     }
 
     const { last } = await pollForCronEntry(ctx, jobId);
@@ -865,11 +911,7 @@ function printSummary(log, results) {
   log("Sandbox-first acceptance summary:");
   for (const result of results) {
     const label =
-      result.status === "passed"
-        ? "PASS"
-        : result.status === "skipped"
-          ? "SKIP"
-          : "FAIL";
+      result.status === "passed" ? "PASS" : result.status === "skipped" ? "SKIP" : "FAIL";
     const failure = result.failureClass ? ` [${result.failureClass}]` : "";
     const reason = result.reason ? ` - ${result.reason}` : "";
     log(`  ${label} ${result.manualChecklistId} ${result.scenarioId}${failure}${reason}`);
@@ -880,7 +922,9 @@ export async function runSandboxFirstAcceptance(params = {}) {
   const runtime = createRuntimeContext(params);
   const env = runtime.env;
   if ((env.VERIFY_ENV || "").trim() !== "staging") {
-    runtime.log(`VERIFY_ENV=${env.VERIFY_ENV || "<unset>"}; skipping sandbox-first acceptance automation.`);
+    runtime.log(
+      `VERIFY_ENV=${env.VERIFY_ENV || "<unset>"}; skipping sandbox-first acceptance automation.`,
+    );
     return {
       results: [],
       summaryPath: null,
@@ -889,7 +933,9 @@ export async function runSandboxFirstAcceptance(params = {}) {
   }
 
   if (!env.GCE_INSTANCE_NAME || !env.GCP_PROJECT_ID || !env.GCP_ZONE) {
-    throw new Error("GCE_INSTANCE_NAME, GCP_PROJECT_ID, and GCP_ZONE are required for sandbox-first acceptance automation.");
+    throw new Error(
+      "GCE_INSTANCE_NAME, GCP_PROJECT_ID, and GCP_ZONE are required for sandbox-first acceptance automation.",
+    );
   }
 
   await fs.mkdir(runtime.acceptanceRoot, { recursive: true });
@@ -909,7 +955,10 @@ export async function runSandboxFirstAcceptance(params = {}) {
     runScenario: async (ctx) => {
       const handler = scenarioHandlers.get(ctx.scenarioId);
       if (!handler) {
-        throw new ScenarioError("runtime-profile-mismatch", `No scenario handler registered for ${ctx.scenarioId}`);
+        throw new ScenarioError(
+          "runtime-profile-mismatch",
+          `No scenario handler registered for ${ctx.scenarioId}`,
+        );
       }
       return await handler(ctx);
     },
@@ -919,7 +968,9 @@ export async function runSandboxFirstAcceptance(params = {}) {
   await fs.writeFile(summaryPath, `${JSON.stringify(results, null, 2)}\n`, "utf8");
   printSummary(runtime.log, results);
 
-  const hasRequiredFailure = results.some((result) => result.required && result.status === "failed");
+  const hasRequiredFailure = results.some(
+    (result) => result.required && result.status === "failed",
+  );
   return {
     results,
     summaryPath,
