@@ -242,47 +242,57 @@ export function mergeAvailabilityFacts(
     base?.remote?.satisfiedOs,
     override?.remote?.satisfiedOs,
   );
+  const runtime =
+    base?.runtime || override?.runtime ? { ...base?.runtime, ...override?.runtime } : undefined;
+  if (runtime) {
+    if (mergedRuntimeMissingBins) {
+      runtime.missingBins = mergedRuntimeMissingBins;
+    }
+    if (mergedRuntimeMissingAnyBins) {
+      runtime.missingAnyBins = mergedRuntimeMissingAnyBins;
+    }
+    if (mergedRuntimeMissingOs) {
+      runtime.missingOs = mergedRuntimeMissingOs;
+    }
+    if (mergedRuntimeReasonCodes) {
+      runtime.reasonCodes = mergedRuntimeReasonCodes;
+    }
+  }
+  const projection =
+    base?.projection || override?.projection
+      ? { ...base?.projection, ...override?.projection }
+      : undefined;
+  if (projection) {
+    if (mergedProjectionMissingPaths) {
+      projection.missingPaths = mergedProjectionMissingPaths;
+    }
+    if (mergedProjectionReasonCodes) {
+      projection.reasonCodes = mergedProjectionReasonCodes;
+    }
+  }
+  const provider =
+    base?.provider || override?.provider ? { ...base?.provider, ...override?.provider } : undefined;
+  if (provider && mergedProviderReasonCodes) {
+    provider.reasonCodes = mergedProviderReasonCodes;
+  }
+  const remote =
+    base?.remote || override?.remote ? { ...base?.remote, ...override?.remote } : undefined;
+  if (remote) {
+    if (mergedRemoteSatisfiedBins) {
+      remote.satisfiedBins = mergedRemoteSatisfiedBins;
+    }
+    if (mergedRemoteSatisfiedAnyBins) {
+      remote.satisfiedAnyBins = mergedRemoteSatisfiedAnyBins;
+    }
+    if (mergedRemoteSatisfiedOs) {
+      remote.satisfiedOs = mergedRemoteSatisfiedOs;
+    }
+  }
   return {
-    runtime:
-      base?.runtime || override?.runtime
-        ? {
-            ...(base?.runtime ?? {}),
-            ...(override?.runtime ?? {}),
-            ...(mergedRuntimeMissingBins ? { missingBins: mergedRuntimeMissingBins } : {}),
-            ...(mergedRuntimeMissingAnyBins ? { missingAnyBins: mergedRuntimeMissingAnyBins } : {}),
-            ...(mergedRuntimeMissingOs ? { missingOs: mergedRuntimeMissingOs } : {}),
-            ...(mergedRuntimeReasonCodes ? { reasonCodes: mergedRuntimeReasonCodes } : {}),
-          }
-        : undefined,
-    projection:
-      base?.projection || override?.projection
-        ? {
-            ...(base?.projection ?? {}),
-            ...(override?.projection ?? {}),
-            ...(mergedProjectionMissingPaths ? { missingPaths: mergedProjectionMissingPaths } : {}),
-            ...(mergedProjectionReasonCodes ? { reasonCodes: mergedProjectionReasonCodes } : {}),
-          }
-        : undefined,
-    provider:
-      base?.provider || override?.provider
-        ? {
-            ...(base?.provider ?? {}),
-            ...(override?.provider ?? {}),
-            ...(mergedProviderReasonCodes ? { reasonCodes: mergedProviderReasonCodes } : {}),
-          }
-        : undefined,
-    remote:
-      base?.remote || override?.remote
-        ? {
-            ...(base?.remote ?? {}),
-            ...(override?.remote ?? {}),
-            ...(mergedRemoteSatisfiedBins ? { satisfiedBins: mergedRemoteSatisfiedBins } : {}),
-            ...(mergedRemoteSatisfiedAnyBins
-              ? { satisfiedAnyBins: mergedRemoteSatisfiedAnyBins }
-              : {}),
-            ...(mergedRemoteSatisfiedOs ? { satisfiedOs: mergedRemoteSatisfiedOs } : {}),
-          }
-        : undefined,
+    runtime,
+    projection,
+    provider,
+    remote,
   };
 }
 
