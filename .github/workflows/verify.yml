@@ -63,14 +63,24 @@ jobs:
       - name: Run verification
         run: |
           chmod +x scripts/verify.sh
+          chmod +x scripts/verify/run-sandbox-first-acceptance.sh
           # scripts/verify.sh validates any deploy-time sandbox browser image requirement.
           scripts/verify.sh
         env:
           VERIFY_ENV: ${{ inputs.environment }}
           DEPLOYED_REF: ${{ inputs.deployed_ref }}
+          VERIFY_ARTIFACT_DIR: ${{ github.workspace }}/.artifacts/verify
           # GCE health check (moltbot health --json via gcloud SSH)
           GCE_INSTANCE_NAME: ${{ secrets.GCE_INSTANCE_NAME || vars.GCE_INSTANCE_NAME }}
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID || vars.GCP_PROJECT_ID }}
           GCP_ZONE: ${{ secrets.GCP_ZONE || vars.GCP_ZONE }}
           VERIFY_GCE_CONTAINER: ${{ secrets.VERIFY_GCE_CONTAINER || vars.VERIFY_GCE_CONTAINER }}
           VERIFY_HEALTH_TIMEOUT: ${{ vars.VERIFY_HEALTH_TIMEOUT }}
+
+      - name: Upload verification artifacts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: verify-${{ inputs.environment }}-${{ github.run_id }}
+          path: .artifacts/verify
+          if-no-files-found: ignore
