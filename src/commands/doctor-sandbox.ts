@@ -356,15 +356,6 @@ export async function noteSandboxUsefulnessWarnings(cfg: OpenClawConfig) {
   const profile = resolvedProfile.profile;
   const warnings: string[] = [];
   const officialImages = formatOfficialImageSet(profile);
-  const dockerImage = resolvedSandbox.docker.image.trim();
-  const browserImage = resolvedSandbox.browser.image.trim();
-  const dockerImageExistsForUsefulness = dockerImage
-    ? await dockerImageExists(dockerImage)
-    : false;
-  const browserImageExistsForUsefulness =
-    resolvedSandbox.browser.enabled && browserImage
-      ? await dockerImageExists(browserImage)
-      : false;
 
   const browserRequiredButDisabled =
     profile.browserRuntimeRequired === true && !resolvedSandbox.browser.enabled;
@@ -372,6 +363,15 @@ export async function noteSandboxUsefulnessWarnings(cfg: OpenClawConfig) {
     resolvedSandbox.browser.enabled && profile.browserRuntimeRequired !== true;
 
   if (resolvedProfile.supportStatus === "image-mismatch" && !browserRequiredButDisabled) {
+    const dockerImage = resolvedSandbox.docker.image.trim();
+    const browserImage = resolvedSandbox.browser.image.trim();
+    const dockerImageExistsForUsefulness = dockerImage
+      ? await dockerImageExists(dockerImage)
+      : false;
+    const browserImageExistsForUsefulness =
+      resolvedSandbox.browser.enabled && browserImage
+        ? await dockerImageExists(browserImage)
+        : false;
     const relevantImagesExist =
       dockerImageExistsForUsefulness ||
       browserImageExistsForUsefulness ||
@@ -387,6 +387,15 @@ export async function noteSandboxUsefulnessWarnings(cfg: OpenClawConfig) {
   }
 
   if (resolvedProfile.supportStatus === "custom-image") {
+    const dockerImage = resolvedSandbox.docker.image.trim();
+    const browserImage = resolvedSandbox.browser.image.trim();
+    const dockerImageExistsForUsefulness = dockerImage
+      ? await dockerImageExists(dockerImage)
+      : false;
+    const browserImageExistsForUsefulness =
+      resolvedSandbox.browser.enabled && browserImage
+        ? await dockerImageExists(browserImage)
+        : false;
     const relevantImagesExist = dockerImageExistsForUsefulness || browserImageExistsForUsefulness;
     if (relevantImagesExist) {
       warnings.push(
@@ -423,7 +432,6 @@ export async function noteSandboxUsefulnessWarnings(cfg: OpenClawConfig) {
   const readonlySnapshot = collectCommandCapabilitySnapshot({
     config: cfg,
     mode: "readonly-sandbox",
-    workspaceDir: "/workspace",
   });
 
   const missingProjectionPaths = collectMissingProjectionPaths(
