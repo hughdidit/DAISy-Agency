@@ -218,6 +218,12 @@ Runs post-deploy smoke checks against the target VM. On the GCE Docker path it v
 
 Verify now also enforces route-bound `openclaw gws auth-health` policy gates for `agent:main` plus one delegated binding subject, and fails if either route drifts away from `service_account_json` credentials or reports unhealthy token status.
 
+Verify is the workflow smoke gate, not the full sandbox-first staging
+acceptance signoff. After a green staging Verify run, continue with the manual
+[Sandbox-First Staging Acceptance Checklist](/deployments/sandbox-first-staging-acceptance)
+to capture evidence for readonly diagnostics, live agent behavior, subagents,
+and cron-oriented execution under `sandbox.mode="all"`.
+
 ### GWS Auth Smoke
 
 `GWS Auth Smoke` runs on a daily schedule (and on manual dispatch) against the target environment, executes route-bound `openclaw gws auth-health` for `agent:main` and one delegated binding subject, and fails on:

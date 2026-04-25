@@ -362,6 +362,16 @@ Checking state disk mount...
 RESULT: PASSED with warnings
 ```
 
+### 8. Run The Sandbox-First Acceptance Checklist
+
+After Verify is green, run the manual
+[Sandbox-First Staging Acceptance Checklist](/deployments/sandbox-first-staging-acceptance).
+
+Verify confirms the deploy smoke checks, container health, and required runtime
+baselines. SBX-401 is the next required closeout step for sandbox-first staging:
+it captures operator evidence for readonly diagnostics, live chat behavior,
+subagents, and cron-oriented execution under `sandbox.mode="all"`.
+
 ## Resource Details
 
 Resources are named based on `STAGING_INSTANCE` (default: `daisy-staging-1`):
