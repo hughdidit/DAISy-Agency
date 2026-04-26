@@ -485,10 +485,14 @@ async function runReadonlyDiagnosticsScenario(ctx) {
     "readonly-runtime-gap",
     "sandbox explain --json did not return a parseable JSON payload for readonly diagnostics",
   );
-  const sandboxImage = assertNonEmptyString(
-    sandboxExplainPayload?.sandbox?.docker?.image,
-    "sandbox explain did not report the deployed sandbox image",
-  );
+  const sandboxImageRaw = sandboxExplainPayload?.sandbox?.docker?.image;
+  const sandboxImage = typeof sandboxImageRaw === "string" ? sandboxImageRaw.trim() : "";
+  if (!sandboxImage) {
+    throw new ScenarioError(
+      "readonly-runtime-gap",
+      "sandbox explain did not report the deployed sandbox image",
+    );
+  }
 
   const runReadonlyCommand = (args) => {
     const readonlySubcommand = args.map((arg) =>
