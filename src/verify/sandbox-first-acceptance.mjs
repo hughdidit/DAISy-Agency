@@ -491,6 +491,9 @@ async function runReadonlyDiagnosticsScenario(ctx) {
   );
 
   const runReadonlyCommand = (args) => {
+    const readonlySubcommand = args.map((arg) =>
+      assertNonEmptyString(arg, "invalid readonly subcommand token"),
+    );
     const script = `
       set -euo pipefail
       tmp_dir="$(mktemp -d /tmp/sbx-402-readonly.XXXXXX)"
@@ -508,7 +511,7 @@ async function runReadonlyDiagnosticsScenario(ctx) {
         -e OPENCLAW_READONLY_STATE_DIR=/readonly/state \
         -e OPENCLAW_READONLY_AGENT_ID=main \
         -e OPENCLAW_READONLY_WORKSPACE_DIR=/agent \
-        ${shellQuote(sandboxImage)} openclaw-readonly ${args.map(shellQuote).join(" ")}
+        ${shellQuote(sandboxImage)} openclaw-readonly ${readonlySubcommand.join(" ")}
     `.trim();
     return ctx.runSsh(`bash -lc ${shellQuote(script)}`);
   };

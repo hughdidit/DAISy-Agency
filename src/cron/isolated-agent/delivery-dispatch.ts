@@ -139,7 +139,11 @@ export async function dispatchCronDelivery(
 
   // `true` means we confirmed at least one outbound send reached the target.
   // Keep this strict so timer fallback can safely decide whether to wake main.
-  let delivered = params.skipMessagingToolDelivery ? true : undefined;
+  let delivered = params.skipMessagingToolDelivery
+    ? true
+    : params.skipHeartbeatDelivery
+      ? false
+      : undefined;
   let deliveryAttempted = params.skipMessagingToolDelivery;
   const failDeliveryTarget = (error: string) =>
     params.withRunSession({
@@ -196,6 +200,7 @@ export async function dispatchCronDelivery(
       delivered = deliveryResults.length > 0;
       return null;
     } catch (err) {
+      delivered = false;
       if (!params.deliveryBestEffort) {
         return params.withRunSession({
           status: "error",
@@ -330,6 +335,7 @@ export async function dispatchCronDelivery(
       if (didAnnounce) {
         delivered = true;
       } else {
+        delivered = false;
         // Announce delivery failed but the agent execution itself succeeded.
         // Return ok so the job isn't penalized for a transient delivery issue
         // (e.g. "pairing required" when no active client session exists).
@@ -349,6 +355,7 @@ export async function dispatchCronDelivery(
         }
       }
     } catch (err) {
+      delivered = false;
       // Same as above: announce delivery errors should not mark a successful
       // agent execution as failed.
       logWarn(`[cron:${params.job.id}] ${String(err)}`);
