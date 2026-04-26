@@ -456,7 +456,7 @@ function collectRiskyToolExposureContexts(cfg: OpenClawConfig): {
     const fsWorkspaceOnly =
       context.tools?.fs?.workspaceOnly ?? cfg.tools?.fs?.workspaceOnly ?? true;
     const runtimeUnguarded = runtimeTools.length > 0 && sandboxMode !== "all";
-    const fsUnguarded = fsTools.length > 0 && sandboxMode !== "all" && fsWorkspaceOnly !== true;
+    const fsUnguarded = fsTools.length > 0 && sandboxMode !== "all" && !fsWorkspaceOnly;
     if (!runtimeUnguarded && !fsUnguarded) {
       continue;
     }
@@ -465,7 +465,7 @@ function collectRiskyToolExposureContexts(cfg: OpenClawConfig): {
     }
     riskyContexts.push(
       `${context.label} (sandbox=${sandboxMode}; runtime=[${runtimeTools.join(", ") || "off"}]; fs=[${fsTools.join(", ") || "off"}]; fs.workspaceOnly=${
-        fsWorkspaceOnly === true ? "true" : "false"
+        fsWorkspaceOnly ? "true" : "false"
       })`,
     );
   }
