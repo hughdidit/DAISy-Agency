@@ -50,7 +50,7 @@ function parseTableLine(line: string): string[] {
 function parseInventoryRows(markdown: string): Array<Record<string, string>> {
   const lines = markdown.split(/\r?\n/);
   const headerIndex = lines.findIndex(
-    (line) => line.startsWith("| ID ") && line.includes("| Classification |"),
+    (line) => line.startsWith("| ID ") && line.includes("Classification"),
   );
   expect(headerIndex).toBeGreaterThan(-1);
 
@@ -71,12 +71,7 @@ function parseInventoryRows(markdown: string): Array<Record<string, string>> {
 
 describe("host-only workflows inventory docs", () => {
   it("keeps the SBX-503 inventory mechanically consumable", async () => {
-    const docPath = path.join(
-      process.cwd(),
-      "docs",
-      "gateway",
-      "host-only-workflows-inventory.md",
-    );
+    const docPath = path.join(process.cwd(), "docs", "gateway", "host-only-workflows-inventory.md");
     const markdown = await fs.readFile(docPath, "utf8");
     const rows = parseInventoryRows(markdown);
 
@@ -91,12 +86,7 @@ describe("host-only workflows inventory docs", () => {
   });
 
   it("anchors required host-only and stale-assumption surfaces in repo evidence", async () => {
-    const docPath = path.join(
-      process.cwd(),
-      "docs",
-      "gateway",
-      "host-only-workflows-inventory.md",
-    );
+    const docPath = path.join(process.cwd(), "docs", "gateway", "host-only-workflows-inventory.md");
     const markdown = await fs.readFile(docPath, "utf8");
 
     for (const marker of REQUIRED_MARKERS) {
