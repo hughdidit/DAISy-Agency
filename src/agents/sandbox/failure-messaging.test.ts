@@ -66,6 +66,18 @@ describe("sandbox failure messaging", () => {
     expect(message).not.toContain("goroutine");
   });
 
+  it("does not duplicate punctuation when rendering sanitized causes", () => {
+    const message = formatSandboxFailureMessage({
+      failureClass: "runtime-capability",
+      operation: "sandbox startup",
+      detail: "Docker CLI could not inspect the sandbox image in the gateway runtime.",
+      cause: "Docker inspect failed.",
+    });
+
+    expect(message).toContain("Cause: Docker inspect failed.");
+    expect(message).not.toContain("failed..");
+  });
+
   it.each([
     {
       raw: "Failed to inspect sandbox image: runtime/cgo: pthread_create failed: Operation not permitted",
@@ -84,6 +96,11 @@ describe("sandbox failure messaging", () => {
     },
     {
       raw: 'Tool "browser" blocked by sandbox tool policy',
+      failureClass: "policy-block",
+      expected: "Sandbox policy blocked",
+    },
+    {
+      raw: "Host browser control is disabled by sandbox policy.",
       failureClass: "policy-block",
       expected: "Sandbox policy blocked",
     },
@@ -112,5 +129,14 @@ describe("sandbox failure messaging", () => {
 
     expect(classified?.failureClass).toBe(failureClass);
     expect(formatSandboxFailureMessage(classified!)).toContain(expected);
+  });
+
+  it("sanitizes image-inspect causes after removing the wrapper prefix", () => {
+    const classified = classifySandboxFailureText(
+      "Failed to inspect sandbox image: Docker inspect timed out.",
+    );
+
+    expect(classified?.cause).toBe("Docker inspect timed out.");
+    expect(classified?.sanitizedCause).toBe("Docker inspect timed out.");
   });
 });

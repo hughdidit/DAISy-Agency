@@ -116,7 +116,7 @@ export function formatSandboxFailureMessage(input: SandboxFailureMessageInput): 
     parts.push(`See: ${normalizeSentence(hint)}`);
   }
   if (sanitizedCause) {
-    parts.push(`Cause: ${sanitizedCause}.`);
+    parts.push(`Cause: ${normalizeSentence(sanitizedCause)}`);
   }
   return parts.join(" ");
 }
@@ -135,6 +135,7 @@ export function classifySandboxFailureText(
   const normalized = normalizeInline(raw);
 
   if (/Failed to inspect sandbox image/i.test(normalized)) {
+    const cause = raw.replace(/^Failed to inspect sandbox image:?\s*/i, "");
     return {
       failureClass: "runtime-capability",
       operation: "sandbox startup",
@@ -143,8 +144,8 @@ export function classifySandboxFailureText(
       remediation:
         "Check Docker CLI/socket access and provision the configured sandbox image/profile.",
       hint: buildDockerImageHint(),
-      cause: raw.replace(/^Failed to inspect sandbox image:?\s*/i, ""),
-      sanitizedCause: sanitizeSandboxFailureCause(raw),
+      cause,
+      sanitizedCause: sanitizeSandboxFailureCause(cause),
     };
   }
 
@@ -180,7 +181,11 @@ export function classifySandboxFailureText(
     };
   }
 
-  if (/blocked by sandbox tool policy|sandbox policy block/i.test(normalized)) {
+  if (
+    /blocked by sandbox tool policy|disabled by sandbox policy|sandbox policy block/i.test(
+      normalized,
+    )
+  ) {
     return {
       failureClass: "policy-block",
       operation: "tool invocation",

@@ -138,6 +138,10 @@ export function formatSandboxToolPolicyBlockedMessage(params: {
       runtime.sessionKey || "(unknown)"
     }; reason=${reasons.join(" + ")}).`,
     remediation: remediation.join(" "),
-    hint: formatCliCommand(`openclaw sandbox explain --session ${runtime.sessionKey}`),
+    hint: formatCliCommand(
+      runtime.sessionKey.trim()
+        ? `openclaw sandbox explain --session ${runtime.sessionKey}`
+        : "openclaw sandbox explain",
+    ),
   });
 }

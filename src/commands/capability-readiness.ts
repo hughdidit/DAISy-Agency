@@ -348,7 +348,7 @@ function mapFindingToSandboxFailureClass(
     case "projection-defect":
       return "projection-defect";
     case "gateway-brokered-availability":
-      return "gateway-reachability";
+      return null;
     case "remote-assisted-availability":
       return null;
   }
