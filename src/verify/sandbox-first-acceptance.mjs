@@ -43,7 +43,8 @@ export const SANDBOX_FIRST_ACCEPTANCE_SCENARIOS = Object.freeze([
   },
 ]);
 
-const ANSI_ESCAPE_PATTERN = /\u001b\[[0-9;?]*[ -/]*[@-~]/g;
+const ANSI_ESCAPE_PREFIX = String.fromCharCode(0x1b);
+const ANSI_ESCAPE_PATTERN = new RegExp(`${ANSI_ESCAPE_PREFIX}\\[[0-9;?]*[ -/]*[@-~]`, "g");
 const DEFAULT_CRON_PROMPT =
   "Report the current sandbox mode, runtime profile, and whether openclaw-readonly is supported. Do not mutate anything.";
 
@@ -341,8 +342,8 @@ function resolveGatewayConfigHostPath(credentialsPath) {
 }
 
 function areCapabilityCountsEqual(left, right) {
-  const leftKeys = Object.keys(left).sort();
-  const rightKeys = Object.keys(right).sort();
+  const leftKeys = Object.keys(left).toSorted();
+  const rightKeys = Object.keys(right).toSorted();
   if (leftKeys.length !== rightKeys.length) {
     return false;
   }
@@ -458,7 +459,7 @@ function classifyReadonlyFailure(error) {
       "readonly diagnostics reported a projection or mount defect",
     );
   }
-  if (/openclaw-readonly\" is not on path|readonly runtime command/i.test(combined)) {
+  if (/openclaw-readonly" is not on path|readonly runtime command/i.test(combined)) {
     return new ScenarioError(
       "readonly-runtime-gap",
       "openclaw-readonly is missing from the deployed sandbox runtime",
