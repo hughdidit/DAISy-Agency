@@ -476,7 +476,7 @@ description: test skill
           },
         },
         checkId: "tools.exec.host_sandbox_no_sandbox_agents",
-        expectedTitle: "host=sandbox cannot run",
+        expectedTitle: "sandbox host compatibility",
         expectedDetail: "fails closed",
         expectedRemediation: 'agents.list[].sandbox.mode="all"',
       },
