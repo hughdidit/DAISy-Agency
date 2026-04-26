@@ -4,6 +4,7 @@ import { canonicalizeMainSessionAlias, resolveAgentMainSessionKey } from "../../
 import { normalizeAgentId } from "../../routing/session-key.js";
 import { resolveSessionAgentId } from "../agent-scope.js";
 import { resolveSandboxConfigForAgent } from "./config.js";
+import { formatSandboxFailureMessage } from "./failure-messaging.js";
 import {
   resolveSandboxToolPolicyDecision,
   resolveSandboxToolPolicyForAgent,
@@ -121,21 +122,22 @@ export function formatSandboxToolPolicyBlockedMessage(params: {
     );
   }
 
-  const lines: string[] = [];
-  lines.push(`Tool "${tool}" blocked by sandbox tool policy (mode=${runtime.mode}).`);
-  lines.push(`Session: ${runtime.sessionKey || "(unknown)"}`);
-  lines.push(`Reason: ${reasons.join(" + ")}`);
-  lines.push("Fix:");
-  lines.push(`- agents.defaults.sandbox.mode=off (disable sandbox)`);
+  const remediation: string[] = [];
   for (const fix of fixes) {
-    lines.push(`- ${fix}`);
+    remediation.push(fix);
   }
   if (runtime.mode === "non-main") {
-    lines.push(`- Use main session key (direct): ${runtime.mainSessionKey}`);
+    remediation.push(`Use main session key (direct): ${runtime.mainSessionKey}.`);
   }
-  lines.push(
-    `- See: ${formatCliCommand(`openclaw sandbox explain --session ${runtime.sessionKey}`)}`,
-  );
 
-  return lines.join("\n");
+  return formatSandboxFailureMessage({
+    failureClass: "policy-block",
+    operation: "tool invocation",
+    subject: `tool "${tool}"`,
+    detail: `Blocked by sandbox tool policy (mode=${runtime.mode}; session=${
+      runtime.sessionKey || "(unknown)"
+    }; reason=${reasons.join(" + ")}).`,
+    remediation: remediation.join(" "),
+    hint: formatCliCommand(`openclaw sandbox explain --session ${runtime.sessionKey}`),
+  });
 }

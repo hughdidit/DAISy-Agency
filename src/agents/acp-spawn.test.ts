@@ -401,7 +401,8 @@ describe("spawnAcpDirect", () => {
     );
 
     expect(result.status).toBe("forbidden");
-    expect(result.error).toContain("Sandboxed sessions cannot spawn ACP sessions");
+    expect(result.error).toContain("Sandbox unsupported host-only operation");
+    expect(result.error).toContain('runtime="acp" runs on the host');
     expect(hoisted.callGatewayMock).not.toHaveBeenCalled();
     expect(hoisted.initializeSessionMock).not.toHaveBeenCalled();
   });

@@ -6,6 +6,7 @@ import {
   DEFAULT_OPENCLAW_BROWSER_COLOR,
   DEFAULT_OPENCLAW_BROWSER_PROFILE_NAME,
 } from "../../browser/constants.js";
+import { formatCliCommand } from "../../cli/command-format.js";
 import { deriveDefaultBrowserCdpPortRange } from "../../config/port-defaults.js";
 import { defaultRuntime } from "../../runtime.js";
 import { BROWSER_BRIDGES } from "./browser-bridges.js";
@@ -23,6 +24,7 @@ import {
   readDockerPort,
   resolveDockerHostPathInfo,
 } from "./docker.js";
+import { formatSandboxFailureMessage } from "./failure-messaging.js";
 import {
   buildNoVncObserverTokenUrl,
   consumeNoVncObserverToken,
@@ -107,7 +109,15 @@ async function ensureSandboxBrowserImage(image: string) {
     return;
   }
   throw new Error(
-    `Sandbox browser image not found: ${image}. Deployments are expected to provision this image automatically; for local/dev environments, build it with scripts/sandbox-browser-setup.sh.`,
+    formatSandboxFailureMessage({
+      failureClass: "runtime-capability",
+      operation: "sandbox browser startup",
+      subject: `image ${image}`,
+      detail: "The configured sandbox browser image is not available to Docker.",
+      remediation:
+        "Deployments should provision this image automatically; for local/dev environments, build it with scripts/sandbox-browser-setup.sh.",
+      hint: formatCliCommand("openclaw doctor sandbox"),
+    }),
   );
 }
 

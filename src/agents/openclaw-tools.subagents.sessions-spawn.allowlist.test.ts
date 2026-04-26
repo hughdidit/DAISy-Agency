@@ -214,6 +214,7 @@ describe("openclaw-tools: subagents (sessions_spawn allowlist)", () => {
     const details = result.details as { status?: string; error?: string };
 
     expect(details.status).toBe("forbidden");
+    expect(details.error).toContain("Sandbox unsupported host-only operation");
     expect(details.error).toContain("Sandboxed sessions cannot spawn unsandboxed subagents.");
     expect(callGatewayMock).not.toHaveBeenCalled();
   });

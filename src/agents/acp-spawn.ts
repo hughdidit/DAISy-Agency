@@ -32,6 +32,7 @@ import {
 } from "../infra/outbound/session-binding-service.js";
 import { normalizeAgentId } from "../routing/session-key.js";
 import { normalizeDeliveryContext } from "../utils/delivery-context.js";
+import { formatSandboxFailureMessage } from "./sandbox/failure-messaging.js";
 import { resolveSandboxRuntimeStatus } from "./sandbox/runtime-status.js";
 
 export const ACP_SPAWN_MODES = ["run", "session"] as const;
@@ -242,15 +243,26 @@ export async function spawnAcpDirect(
   if (requesterSandboxed) {
     return {
       status: "forbidden",
-      error:
-        'Sandboxed sessions cannot spawn ACP sessions because runtime="acp" runs on the host. Use runtime="subagent" from sandboxed sessions.',
+      error: formatSandboxFailureMessage({
+        failureClass: "unsupported-host-only",
+        operation: "ACP session spawn",
+        subject: 'runtime="acp"',
+        detail: 'runtime="acp" runs on the host and cannot be spawned from a sandboxed session.',
+        remediation: 'Use runtime="subagent" from sandboxed sessions.',
+      }),
     };
   }
   if (sandboxMode === "require") {
     return {
       status: "forbidden",
-      error:
-        'sessions_spawn sandbox="require" is unsupported for runtime="acp" because ACP sessions run outside the sandbox. Use runtime="subagent" or sandbox="inherit".',
+      error: formatSandboxFailureMessage({
+        failureClass: "unsupported-host-only",
+        operation: "ACP session spawn",
+        subject: 'sandbox="require"',
+        detail:
+          'sessions_spawn sandbox="require" is unsupported for runtime="acp" because ACP sessions run outside the sandbox.',
+        remediation: 'Use runtime="subagent" or sandbox="inherit".',
+      }),
     };
   }
 

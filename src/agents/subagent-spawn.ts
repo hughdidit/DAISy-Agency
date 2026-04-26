@@ -16,6 +16,7 @@ import { normalizeDeliveryContext } from "../utils/delivery-context.js";
 import { resolveAgentConfig, resolveAgentWorkspaceDir } from "./agent-scope.js";
 import { AGENT_LANE_SUBAGENT } from "./lanes.js";
 import { resolveSubagentSpawnModelSelection } from "./model-selection.js";
+import { formatSandboxFailureMessage } from "./sandbox/failure-messaging.js";
 import { resolveSandboxRuntimeStatus } from "./sandbox/runtime-status.js";
 import { buildSubagentSystemPrompt } from "./subagent-announce.js";
 import { getSubagentDepthFromSessionStore } from "./subagent-depth.js";
@@ -373,14 +374,24 @@ export async function spawnSubagentDirect(
     if (requesterRuntime.sandboxed) {
       return {
         status: "forbidden",
-        error:
-          "Sandboxed sessions cannot spawn unsandboxed subagents. Set a sandboxed target agent or use the same agent runtime.",
+        error: formatSandboxFailureMessage({
+          failureClass: "unsupported-host-only",
+          operation: "subagent spawn",
+          subject: targetAgentId,
+          detail: "Sandboxed sessions cannot spawn unsandboxed subagents.",
+          remediation: "Set a sandboxed target agent or use the same agent runtime.",
+        }),
       };
     }
     return {
       status: "forbidden",
-      error:
-        'sessions_spawn sandbox="require" needs a sandboxed target runtime. Pick a sandboxed agentId or use sandbox="inherit".',
+      error: formatSandboxFailureMessage({
+        failureClass: "unsupported-host-only",
+        operation: "subagent spawn",
+        subject: 'sandbox="require"',
+        detail: 'sessions_spawn sandbox="require" needs a sandboxed target runtime.',
+        remediation: 'Pick a sandboxed agentId or use sandbox="inherit".',
+      }),
     };
   }
   const childDepth = callerDepth + 1;

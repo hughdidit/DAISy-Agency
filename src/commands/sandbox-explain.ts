@@ -28,6 +28,7 @@ import { INTERNAL_MESSAGE_CHANNEL } from "../utils/message-channel.js";
 import {
   collectCommandCapabilitySnapshot,
   formatCapabilityClassLabel,
+  formatCommandCapabilityFindingFailureMessage,
   pickCapabilityFindings,
 } from "./capability-readiness.js";
 
@@ -237,10 +238,6 @@ export async function sandboxExplainCommand(
     }
 
     const fixIt: string[] = [];
-    if (sandboxCfg.mode !== "off") {
-      fixIt.push("agents.defaults.sandbox.mode=off");
-      fixIt.push("agents.list[].sandbox.mode=off");
-    }
     fixIt.push("tools.sandbox.tools.allow");
     fixIt.push("tools.sandbox.tools.deny");
     fixIt.push("agents.list[].tools.sandbox.tools.allow");
@@ -390,9 +387,14 @@ export async function sandboxExplainCommand(
         lines.push(
           `  - ${finding.kind} ${finding.label} · ${finding.capabilityClass} · ${finding.primaryReasonCategory}`,
         );
-        lines.push(`    ${finding.summary}${finding.detail ? `: ${finding.detail}` : ""}`);
-        if (finding.remediation) {
-          lines.push(`    ${key("Fix:")} ${finding.remediation}`);
+        const normalizedFailure = formatCommandCapabilityFindingFailureMessage(finding);
+        if (normalizedFailure) {
+          lines.push(`    ${normalizedFailure}`);
+        } else {
+          lines.push(`    ${finding.summary}${finding.detail ? `: ${finding.detail}` : ""}`);
+          if (finding.remediation) {
+            lines.push(`    ${key("Fix:")} ${finding.remediation}`);
+          }
         }
       }
     }

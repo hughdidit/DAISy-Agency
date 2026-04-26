@@ -17,6 +17,14 @@ export {
   resolveSandboxContext,
   resolveSkillSnapshotWorkspaceDir,
 } from "./sandbox/context.js";
+export {
+  classifySandboxFailureText,
+  formatSandboxFailureMessage,
+  sanitizeSandboxFailureCause,
+  type SandboxFailureClass,
+  type SandboxFailureClassification,
+  type SandboxFailureMessageInput,
+} from "./sandbox/failure-messaging.js";
 
 export { buildSandboxCreateArgs } from "./sandbox/docker.js";
 export {

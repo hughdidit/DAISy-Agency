@@ -8,6 +8,10 @@ import {
   resolveCapabilityManifest,
   type ResolvedToolCatalogGroup,
 } from "../agents/capabilities/index.js";
+import {
+  formatSandboxFailureMessage,
+  type SandboxFailureClass,
+} from "../agents/sandbox/failure-messaging.js";
 import type { SkillStatusReport } from "../agents/skills-status.js";
 import type { OpenClawConfig } from "../config/config.js";
 import {
@@ -329,6 +333,41 @@ export function createCommandCapabilityFinding(
     ...(capability.policy ? { policy: capability.policy } : {}),
     ...(capability.evidence ? { evidence: capability.evidence } : {}),
   };
+}
+
+function mapFindingToSandboxFailureClass(
+  finding: CommandCapabilityFinding,
+): SandboxFailureClass | null {
+  switch (finding.primaryReasonCategory) {
+    case "policy-block":
+      return "policy-block";
+    case "config-gap":
+      return "config-error";
+    case "runtime-profile-gap":
+      return "runtime-capability";
+    case "projection-defect":
+      return "projection-defect";
+    case "gateway-brokered-availability":
+      return "gateway-reachability";
+    case "remote-assisted-availability":
+      return null;
+  }
+}
+
+export function formatCommandCapabilityFindingFailureMessage(
+  finding: CommandCapabilityFinding,
+): string | null {
+  const failureClass = mapFindingToSandboxFailureClass(finding);
+  if (!failureClass) {
+    return null;
+  }
+  return formatSandboxFailureMessage({
+    failureClass,
+    operation: `${finding.kind} capability resolution`,
+    subject: finding.label,
+    detail: `${finding.summary}${finding.detail ? `: ${finding.detail}` : ""}`,
+    remediation: finding.remediation,
+  });
 }
 
 function rankFinding(finding: CommandCapabilityFinding): number {

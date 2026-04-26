@@ -1,7 +1,11 @@
 import type { AssistantMessage } from "@mariozechner/pi-ai";
 import type { OpenClawConfig } from "../../config/config.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
-import { formatSandboxToolPolicyBlockedMessage } from "../sandbox.js";
+import {
+  classifySandboxFailureText,
+  formatSandboxFailureMessage,
+  formatSandboxToolPolicyBlockedMessage,
+} from "../sandbox.js";
 import { stableStringify } from "../stable-stringify.js";
 import {
   isAuthErrorMessage,
@@ -490,6 +494,11 @@ export function formatAssistantErrorText(
     return "LLM request failed with an unknown error.";
   }
 
+  const sandboxFailure = classifySandboxFailureText(raw);
+  if (sandboxFailure) {
+    return formatSandboxFailureMessage(sandboxFailure);
+  }
+
   const unknownTool =
     raw.match(/unknown tool[:\s]+["']?([a-z0-9_-]+)["']?/i) ??
     raw.match(/tool\s+["']?([a-z0-9_-]+)["']?\s+(?:not found|is not available)/i);
@@ -581,12 +590,9 @@ export function sanitizeUserFacingText(text: string, opts?: { errorContext?: boo
   // Only apply error-pattern rewrites when the caller knows this text is an error payload.
   // Otherwise we risk swallowing legitimate assistant text that merely *mentions* these errors.
   if (errorContext) {
-    if (/^Failed to inspect sandbox image:/i.test(trimmed)) {
-      return (
-        "Sandbox startup failed: Docker CLI could not inspect the sandbox image in the gateway " +
-        "runtime. Fix Docker CLI/socket access or disable sandbox mode " +
-        "(`agents.defaults.sandbox.mode=off`)."
-      );
+    const sandboxFailure = classifySandboxFailureText(trimmed);
+    if (sandboxFailure) {
+      return formatSandboxFailureMessage(sandboxFailure);
     }
 
     if (/incorrect role information|roles must alternate/i.test(trimmed)) {

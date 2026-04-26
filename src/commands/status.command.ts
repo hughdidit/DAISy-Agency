@@ -19,7 +19,11 @@ import { runSecurityAudit } from "../security/audit.js";
 import { RESOLVED_CAPABILITY_CLASSES } from "../shared/resolved-capability-manifest.js";
 import { renderTable } from "../terminal/table.js";
 import { theme } from "../terminal/theme.js";
-import { formatCapabilityClassLabel, pickCapabilityFindings } from "./capability-readiness.js";
+import {
+  formatCapabilityClassLabel,
+  formatCommandCapabilityFindingFailureMessage,
+  pickCapabilityFindings,
+} from "./capability-readiness.js";
 import { formatHealthChannelLines, type HealthSummary } from "./health.js";
 import { resolveControlUiLinks } from "./onboard-helpers.js";
 import { statusAllCommand } from "./status-all.js";
@@ -47,7 +51,7 @@ function formatGatewayProbeReason(
 ): string {
   const detail =
     reason === "readonly-sandbox-local-loopback-unsupported"
-      ? "probe unsupported from readonly sandbox (resolved target is host loopback)"
+      ? "Sandbox gateway reachability failure during sandbox gateway probe: A host-loopback gateway probe is unsupported from readonly sandbox context. Fix: Configure a non-loopback gateway.remote.url or use a brokered gateway status path."
       : reason
         ? `probe unsupported (${reason})`
         : "probe unsupported";
@@ -583,9 +587,14 @@ export async function statusCommand(
       runtime.log(
         `  ${finding.kind} ${finding.label} · ${finding.capabilityClass} · ${finding.primaryReasonCategory}`,
       );
-      runtime.log(`    ${finding.summary}${finding.detail ? `: ${finding.detail}` : ""}`);
-      if (finding.remediation) {
-        runtime.log(`    ${theme.muted(`Fix: ${finding.remediation}`)}`);
+      const normalizedFailure = formatCommandCapabilityFindingFailureMessage(finding);
+      if (normalizedFailure) {
+        runtime.log(`    ${normalizedFailure}`);
+      } else {
+        runtime.log(`    ${finding.summary}${finding.detail ? `: ${finding.detail}` : ""}`);
+        if (finding.remediation) {
+          runtime.log(`    ${theme.muted(`Fix: ${finding.remediation}`)}`);
+        }
       }
     }
   }

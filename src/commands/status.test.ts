@@ -549,7 +549,8 @@ describe("statusCommand", () => {
       },
     });
 
-    expect(joined).toContain("probe unsupported from readonly sandbox");
+    expect(joined).toContain("Sandbox gateway reachability failure");
+    expect(joined).toContain("host-loopback gateway probe is unsupported");
     expect(joined).not.toContain("gateway unreachable");
     expect(joined).not.toContain("Fix reachability first:");
     expect(joined).toContain("Gateway probe:");
@@ -640,7 +641,8 @@ describe("statusCommand", () => {
       },
     });
 
-    expect(joined).toContain("probe unsupported from readonly sandbox");
+    expect(joined).toContain("Sandbox gateway reachability failure");
+    expect(joined).toContain("host-loopback gateway probe is unsupported");
     expect(joined).toContain("gateway.remote.url missing");
     expect(joined).toContain("Gateway probe:");
     expect(joined).not.toContain("Fix reachability first:");
