@@ -147,6 +147,9 @@ describe("runSandboxFirstAcceptance", () => {
               sandbox: {
                 mode: "all",
                 profile: "ops-readonly",
+                docker: {
+                  image: "ghcr.io/hughdidit/daisy-agency-sandbox:dev-22121f1",
+                },
               },
               capabilities: {
                 counts: {
@@ -165,24 +168,6 @@ describe("runSandboxFirstAcceptance", () => {
         }
         if (command === "cd /app && node dist/index.js doctor --non-interactive") {
           return "doctor ok\n";
-        }
-        if (
-          command ===
-          "cd /app && node skills/openclaw-readonly/scripts/openclaw-readonly.mjs status"
-        ) {
-          return "Gateway probe:\nprobe unsupported from readonly sandbox\n";
-        }
-        if (
-          command ===
-          "cd /app && node skills/openclaw-readonly/scripts/openclaw-readonly.mjs sandbox explain"
-        ) {
-          return "Effective sandbox:\nmode: all\n";
-        }
-        if (
-          command ===
-          "cd /app && node skills/openclaw-readonly/scripts/openclaw-readonly.mjs skills check"
-        ) {
-          return "Skills Status Check\n";
         }
         if (command === "cd /app && node dist/index.js skills check --json") {
           return JSON.stringify(
@@ -325,6 +310,15 @@ describe("runSandboxFirstAcceptance", () => {
 
       const runSsh = vi.fn((command: string) => {
         sshCommands.push(command);
+        if (command.includes("openclaw-readonly status")) {
+          return "Gateway probe:\nprobe unsupported from readonly sandbox\n";
+        }
+        if (command.includes("openclaw-readonly sandbox explain")) {
+          return "Effective sandbox:\nmode: all\n";
+        }
+        if (command.includes("openclaw-readonly skills check")) {
+          return "Skills Status Check\n";
+        }
         if (command.includes('stat -c "present(size=%s)"')) {
           return "present(size=1234)\n";
         }
@@ -399,6 +393,9 @@ describe("runSandboxFirstAcceptance", () => {
               sandbox: {
                 mode: "all",
                 profile: "ops-readonly",
+                docker: {
+                  image: "ghcr.io/hughdidit/daisy-agency-sandbox:dev-22121f1",
+                },
               },
               capabilities: {
                 counts: {
@@ -417,24 +414,6 @@ describe("runSandboxFirstAcceptance", () => {
         }
         if (command === "cd /app && node dist/index.js doctor --non-interactive") {
           return "doctor ok\n";
-        }
-        if (
-          command ===
-          "cd /app && node skills/openclaw-readonly/scripts/openclaw-readonly.mjs status"
-        ) {
-          return "Gateway probe:\nprobe unsupported from readonly sandbox\n";
-        }
-        if (
-          command ===
-          "cd /app && node skills/openclaw-readonly/scripts/openclaw-readonly.mjs sandbox explain"
-        ) {
-          return "Effective sandbox:\nmode: all\n";
-        }
-        if (
-          command ===
-          "cd /app && node skills/openclaw-readonly/scripts/openclaw-readonly.mjs skills check"
-        ) {
-          return "Skills Status Check\n";
         }
         if (command === "cd /app && node dist/index.js skills check --json") {
           return JSON.stringify(
@@ -527,7 +506,18 @@ describe("runSandboxFirstAcceptance", () => {
         },
         commandContext: {
           container: "openclaw-gateway",
-          runSsh: vi.fn(() => ""),
+          runSsh: vi.fn((command: string) => {
+            if (command.includes("openclaw-readonly status")) {
+              return "Gateway probe:\nprobe unsupported from readonly sandbox\n";
+            }
+            if (command.includes("openclaw-readonly sandbox explain")) {
+              return "Effective sandbox:\nmode: all\n";
+            }
+            if (command.includes("openclaw-readonly skills check")) {
+              return "Skills Status Check\n";
+            }
+            return "";
+          }),
           dockerExecBash,
           dockerExecSh: vi.fn(() => ""),
         },
