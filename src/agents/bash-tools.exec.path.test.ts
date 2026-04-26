@@ -217,9 +217,7 @@ describe("exec host env validation", () => {
       command: "echo ok",
       host: "gateway",
     });
-    const gatewayText = normalizeText(
-      gatewayResult.content.find((c) => c.type === "text")?.text,
-    );
+    const gatewayText = normalizeText(gatewayResult.content.find((c) => c.type === "text")?.text);
     expect(gatewayText).toContain("ok");
   });
 

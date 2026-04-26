@@ -1275,6 +1275,7 @@ description: test skill
     const cfg: OpenClawConfig = {
       tools: {
         elevated: {
+          enabled: true,
           allowFrom: { whatsapp: ["*"] },
         },
       },

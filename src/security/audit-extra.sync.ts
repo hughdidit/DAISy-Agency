@@ -564,8 +564,7 @@ export function collectHostModeStopgapFindings(cfg: OpenClawConfig): SecurityAud
       checkId: "tools.exec.host_compatibility_explicit_defaults",
       severity: "warn",
       title: "Exec host compatibility is explicitly enabled",
-      detail:
-        `tools.exec.host="${globalExecHost}" runs exec outside the sandbox boundary under the configured gateway/node approval rules.`,
+      detail: `tools.exec.host="${globalExecHost}" runs exec outside the sandbox boundary under the configured gateway/node approval rules.`,
       remediation:
         'Prefer tools.exec.host="sandbox" with agents.defaults.sandbox.mode="all" when the workflow can run sandbox-first.',
     });
