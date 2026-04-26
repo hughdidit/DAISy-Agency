@@ -136,36 +136,44 @@ describe("FS tools with workspaceOnly=false", () => {
     );
   });
 
-  it("should allow write outside workspace when workspaceOnly is unset", async () => {
+  it("should block write outside workspace when workspaceOnly is unset", async () => {
     const outsideUnsetFile = path.join(tmpDir, "outside-unset-write.txt");
-    await runFsTool(
-      "write",
-      "test-call-3a",
-      {
+    const writeTool = toolsFor(undefined).find((t) => t.name === "write");
+    expect(writeTool).toBeDefined();
+
+    await expect(
+      writeTool!.execute("test-call-3a", {
         path: outsideUnsetFile,
         content: "unset write content",
-      },
-      undefined,
-    );
-    const content = await fs.readFile(outsideUnsetFile, "utf-8");
-    expect(content).toBe("unset write content");
+      }),
+    ).rejects.toThrow(/Path escapes (workspace|sandbox) root/);
   });
 
-  it("should allow edit outside workspace when workspaceOnly is unset", async () => {
+  it("should block edit outside workspace when workspaceOnly is unset", async () => {
     const outsideUnsetFile = path.join(tmpDir, "outside-unset-edit.txt");
     await fs.writeFile(outsideUnsetFile, "before");
-    await runFsTool(
-      "edit",
-      "test-call-3b",
-      {
+    const editTool = toolsFor(undefined).find((t) => t.name === "edit");
+    expect(editTool).toBeDefined();
+
+    await expect(
+      editTool!.execute("test-call-3b", {
         path: outsideUnsetFile,
         oldText: "before",
         newText: "after",
-      },
-      undefined,
-    );
-    const content = await fs.readFile(outsideUnsetFile, "utf-8");
-    expect(content).toBe("after");
+      }),
+    ).rejects.toThrow(/Path escapes (workspace|sandbox) root/);
+  });
+
+  it("should block read outside workspace when workspaceOnly is unset", async () => {
+    await fs.writeFile(outsideFile, "test read content");
+    const readTool = toolsFor(undefined).find((t) => t.name === "read");
+    expect(readTool).toBeDefined();
+
+    await expect(
+      readTool!.execute("test-call-3c", {
+        path: outsideFile,
+      }),
+    ).rejects.toThrow(/Path escapes (workspace|sandbox) root/);
   });
 
   it("should block write outside workspace when workspaceOnly=true", async () => {

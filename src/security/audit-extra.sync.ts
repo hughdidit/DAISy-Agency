@@ -453,7 +453,8 @@ function collectRiskyToolExposureContexts(cfg: OpenClawConfig): {
     const fsTools = ["read", "write", "edit", "apply_patch"].filter((tool) =>
       isToolAllowedByPolicies(tool, policies),
     );
-    const fsWorkspaceOnly = context.tools?.fs?.workspaceOnly ?? cfg.tools?.fs?.workspaceOnly;
+    const fsWorkspaceOnly =
+      context.tools?.fs?.workspaceOnly ?? cfg.tools?.fs?.workspaceOnly ?? true;
     const runtimeUnguarded = runtimeTools.length > 0 && sandboxMode !== "all";
     const fsUnguarded = fsTools.length > 0 && sandboxMode !== "all" && fsWorkspaceOnly !== true;
     if (!runtimeUnguarded && !fsUnguarded) {
@@ -478,7 +479,7 @@ function collectRiskyToolExposureContexts(cfg: OpenClawConfig): {
 
 export function collectAttackSurfaceSummaryFindings(cfg: OpenClawConfig): SecurityAuditFinding[] {
   const group = summarizeGroupPolicy(cfg);
-  const elevated = cfg.tools?.elevated?.enabled !== false;
+  const elevated = cfg.tools?.elevated?.enabled === true;
   const webhooksEnabled = cfg.hooks?.enabled === true;
   const internalHooksEnabled = cfg.hooks?.internal?.enabled === true;
   const browserEnabled = cfg.browser?.enabled ?? true;
@@ -504,6 +505,96 @@ export function collectAttackSurfaceSummaryFindings(cfg: OpenClawConfig): Securi
       detail,
     },
   ];
+}
+
+export function collectHostModeStopgapFindings(cfg: OpenClawConfig): SecurityAuditFinding[] {
+  const findings: SecurityAuditFinding[] = [];
+
+  if (cfg.tools?.fs?.workspaceOnly === false) {
+    findings.push({
+      checkId: "tools.fs.workspace_only_disabled_defaults",
+      severity: "warn",
+      title: "Filesystem tools can leave the workspace",
+      detail:
+        "tools.fs.workspaceOnly=false explicitly opts out of the host-mode stopgap workspace guard. " +
+        "When sandboxing is off, read/write/edit/apply_patch can reach host paths outside the workspace.",
+      remediation:
+        "Remove tools.fs.workspaceOnly=false unless this gateway intentionally needs host-wide filesystem access.",
+    });
+  }
+
+  const workspaceOnlyFalseAgents = (cfg.agents?.list ?? [])
+    .filter(
+      (agent) =>
+        agent &&
+        typeof agent === "object" &&
+        typeof agent.id === "string" &&
+        agent.tools?.fs?.workspaceOnly === false,
+    )
+    .map((agent) => agent.id)
+    .slice(0, 5);
+  if (workspaceOnlyFalseAgents.length > 0) {
+    findings.push({
+      checkId: "tools.fs.workspace_only_disabled_agents",
+      severity: "warn",
+      title: "Agent filesystem tools can leave the workspace",
+      detail:
+        `agents.list[].tools.fs.workspaceOnly=false for: ${workspaceOnlyFalseAgents.join(", ")}. ` +
+        "These agents explicitly opt out of the host-mode stopgap workspace guard.",
+      remediation:
+        "Remove the per-agent workspaceOnly=false override unless that agent intentionally needs host-wide filesystem access.",
+    });
+  }
+
+  if (cfg.tools?.elevated?.enabled === true) {
+    findings.push({
+      checkId: "tools.elevated.enabled_explicit",
+      severity: "warn",
+      title: "Break-glass host authority is explicitly enabled",
+      detail:
+        "tools.elevated.enabled=true opts in to break-glass host authority for exec when sender allowlists pass.",
+      remediation:
+        "Keep tools.elevated.allowFrom narrow, avoid wildcard entries, and disable elevated when host break-glass is not required.",
+    });
+  }
+
+  const globalExecHost = cfg.tools?.exec?.host;
+  if (globalExecHost === "gateway" || globalExecHost === "node") {
+    findings.push({
+      checkId: "tools.exec.host_compatibility_explicit_defaults",
+      severity: "warn",
+      title: "Exec host compatibility is explicitly enabled",
+      detail:
+        `tools.exec.host="${globalExecHost}" runs exec outside the sandbox boundary under the configured gateway/node approval rules.`,
+      remediation:
+        'Prefer tools.exec.host="sandbox" with agents.defaults.sandbox.mode="all" when the workflow can run sandbox-first.',
+    });
+  }
+
+  const hostCompatibilityAgents = (cfg.agents?.list ?? [])
+    .filter(
+      (agent) =>
+        agent &&
+        typeof agent === "object" &&
+        typeof agent.id === "string" &&
+        (agent.tools?.exec?.host === "gateway" || agent.tools?.exec?.host === "node"),
+    )
+    .map((agent) => `${agent.id}:${agent.tools?.exec?.host}`)
+    .slice(0, 5);
+  if (hostCompatibilityAgents.length > 0) {
+    findings.push({
+      checkId: "tools.exec.host_compatibility_explicit_agents",
+      severity: "warn",
+      title: "Agent exec host compatibility is explicitly enabled",
+      detail:
+        `agents.list[].tools.exec.host uses gateway/node for: ${hostCompatibilityAgents.join(", ")}. ` +
+        "These agents run exec outside the sandbox boundary under the configured approval rules.",
+      remediation:
+        'Prefer per-agent sandbox-first operation with tools.exec.host="sandbox" and agents.list[].sandbox.mode="all" when possible.',
+    });
+  }
+
+  return findings;
 }
 
 export function collectSyncedFolderFindings(params: {
@@ -1227,7 +1318,7 @@ export function collectExposureMatrixFindings(cfg: OpenClawConfig): SecurityAudi
     return findings;
   }
 
-  const elevatedEnabled = cfg.tools?.elevated?.enabled !== false;
+  const elevatedEnabled = cfg.tools?.elevated?.enabled === true;
   if (elevatedEnabled) {
     findings.push({
       checkId: "security.exposure.open_groups_with_elevated",

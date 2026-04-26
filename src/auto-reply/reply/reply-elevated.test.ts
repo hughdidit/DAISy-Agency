@@ -7,6 +7,7 @@ function buildConfig(allowFrom: string[]): OpenClawConfig {
   return {
     tools: {
       elevated: {
+        enabled: true,
         allowFrom: {
           whatsapp: allowFrom,
         },
@@ -28,6 +29,32 @@ function buildContext(overrides?: Partial<MsgContext>): MsgContext {
 }
 
 describe("resolveElevatedPermissions", () => {
+  it("keeps elevated disabled when tools.elevated.enabled is unset", () => {
+    const cfg = {
+      tools: {
+        elevated: {
+          allowFrom: {
+            whatsapp: ["+15550001111"],
+          },
+        },
+      },
+    } as OpenClawConfig;
+
+    const result = resolveElevatedPermissions({
+      cfg,
+      agentId: "main",
+      provider: "whatsapp",
+      ctx: buildContext(),
+    });
+
+    expect(result.enabled).toBe(false);
+    expect(result.allowed).toBe(false);
+    expect(result.failures).toContainEqual({
+      gate: "enabled",
+      key: "tools.elevated.enabled",
+    });
+  });
+
   it("authorizes when sender matches allowFrom", () => {
     const result = resolveElevatedPermissions({
       cfg: buildConfig(["+15550001111"]),

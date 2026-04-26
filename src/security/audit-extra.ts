@@ -13,6 +13,7 @@ export {
   collectExposureMatrixFindings,
   collectGatewayHttpNoAuthFindings,
   collectGatewayHttpSessionKeyOverrideFindings,
+  collectHostModeStopgapFindings,
   collectHooksHardeningFindings,
   collectLikelyMultiUserSetupFindings,
   collectMinimalProfileOverrideFindings,

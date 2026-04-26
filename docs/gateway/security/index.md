@@ -248,8 +248,13 @@ High-signal `checkId` values you will most likely see in real deployments (not e
 | `logging.redact_off`                               | warn          | Sensitive values leak to logs/status                                                 | `logging.redactSensitive`                                                                         | yes      |
 | `sandbox.docker_config_mode_off`                   | warn          | Sandbox Docker config present but inactive                                           | `agents.*.sandbox.mode`                                                                           | no       |
 | `sandbox.dangerous_network_mode`                   | critical      | Sandbox Docker network uses `host` or `container:*` namespace-join mode              | `agents.*.sandbox.docker.network`                                                                 | no       |
-| `tools.exec.host_sandbox_no_sandbox_defaults`      | warn          | `exec host=sandbox` resolves to reduced-trust host compatibility when sandbox is off | `tools.exec.host`, `agents.defaults.sandbox.mode`                                                 | no       |
-| `tools.exec.host_sandbox_no_sandbox_agents`        | warn          | Per-agent `exec host=sandbox` resolves to reduced-trust host compatibility           | `agents.list[].tools.exec.host`, `agents.list[].sandbox.mode`                                     | no       |
+| `tools.exec.host_sandbox_no_sandbox_defaults`      | warn          | Unset exec host uses gateway-brokered compatibility when sandbox is off; explicit `sandbox` fails closed | `tools.exec.host`, `agents.defaults.sandbox.mode`                                                 | no       |
+| `tools.exec.host_sandbox_no_sandbox_agents`        | warn          | Per-agent explicit `exec host=sandbox` fails closed when that agent's sandbox mode is off | `agents.list[].tools.exec.host`, `agents.list[].sandbox.mode`                                     | no       |
+| `tools.exec.host_compatibility_explicit_defaults`  | warn          | Global exec is explicitly configured for gateway/node host compatibility              | `tools.exec.host`                                                                                 | no       |
+| `tools.exec.host_compatibility_explicit_agents`    | warn          | Per-agent exec is explicitly configured for gateway/node host compatibility           | `agents.list[].tools.exec.host`                                                                   | no       |
+| `tools.fs.workspace_only_disabled_defaults`        | warn          | Global filesystem tools can leave the workspace                                      | `tools.fs.workspaceOnly`                                                                          | no       |
+| `tools.fs.workspace_only_disabled_agents`          | warn          | Per-agent filesystem tools can leave the workspace                                   | `agents.list[].tools.fs.workspaceOnly`                                                            | no       |
+| `tools.elevated.enabled_explicit`                  | warn          | Break-glass host authority has been explicitly enabled                               | `tools.elevated.enabled`, `tools.elevated.allowFrom`                                              | no       |
 | `tools.exec.safe_bins_interpreter_unprofiled`      | warn          | Interpreter/runtime bins in `safeBins` without explicit profiles broaden exec risk   | `tools.exec.safeBins`, `tools.exec.safeBinProfiles`, `agents.list[].tools.exec.*`                 | no       |
 | `skills.workspace.symlink_escape`                  | warn          | Workspace `skills/**/SKILL.md` resolves outside workspace root (symlink-chain drift) | workspace `skills/**` filesystem state                                                            | no       |
 | `security.exposure.open_groups_with_elevated`      | critical      | Open groups + elevated tools create high-impact prompt-injection paths               | `channels.*.groupPolicy`, `tools.elevated.*`                                                      | no       |
@@ -284,6 +289,7 @@ aggregates:
 - `hooks.gmail.allowUnsafeExternalContent=true`
 - `hooks.mappings[<index>].allowUnsafeExternalContent=true`
 - `tools.exec.applyPatch.workspaceOnly=false`
+- `tools.fs.workspaceOnly=false`
 
 Complete `dangerous*` / `dangerously*` config keys defined in OpenClaw config
 schema:
@@ -861,7 +867,7 @@ We may add a single `readOnlyMode` flag later to simplify this configuration.
 Additional hardening options:
 
 - `tools.exec.applyPatch.workspaceOnly: true` (default): ensures `apply_patch` cannot write/delete outside the workspace directory even when sandboxing is off. Set to `false` only if you intentionally want `apply_patch` to touch files outside the workspace.
-- `tools.fs.workspaceOnly: true` (optional): restricts `read`/`write`/`edit`/`apply_patch` paths and native prompt image auto-load paths to the workspace directory (useful if you allow absolute paths today and want a single guardrail).
+- `tools.fs.workspaceOnly: true` (default): restricts `read`/`write`/`edit`/`apply_patch` paths and native prompt image auto-load paths to the workspace directory. Set `tools.fs.workspaceOnly=false` only as an explicit host-mode compatibility opt-out.
 - Keep filesystem roots narrow: avoid broad roots like your home directory for agent workspaces/sandbox workspaces. Broad roots can expose sensitive local files (for example state/config under `~/.openclaw`) to filesystem tools.
 
 ### 5) Secure baseline (copy/paste)
@@ -908,7 +914,7 @@ Also consider agent workspace access inside the sandbox:
 - `agents.defaults.sandbox.workspaceAccess: "ro"` mounts the agent workspace read-only at `/agent` (disables `write`/`edit`/`apply_patch`)
 - `agents.defaults.sandbox.workspaceAccess: "none"` keeps the agent workspace off-limits; tools run against a sandbox workspace under `~/.openclaw/sandboxes`
 
-Important: `tools.elevated` is the global break-glass host authority escape hatch that runs exec on the host. Keep `tools.elevated.allowFrom` tight and don’t enable it for strangers. You can further restrict elevated per agent via `agents.list[].tools.elevated`. See [Elevated Mode](/tools/elevated).
+Important: `tools.elevated` is off unless `tools.elevated.enabled=true`. It is the global break-glass host authority escape hatch that runs exec on the host. Keep `tools.elevated.allowFrom` tight and don’t enable it for strangers. You can further restrict elevated per agent via `agents.list[].tools.elevated`. See [Elevated Mode](/tools/elevated).
 
 ### Sub-agent delegation guardrail
 

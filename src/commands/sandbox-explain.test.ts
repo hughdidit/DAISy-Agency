@@ -112,6 +112,39 @@ describe("sandbox explain command", () => {
     expect(parsed.fixIt).toContain("tools.sandbox.tools.deny");
   });
 
+  it("reports elevated disabled when enabled is unset", async () => {
+    mockCfg = {
+      agents: {
+        defaults: {
+          sandbox: { mode: "all", scope: "agent", workspaceAccess: "none" },
+        },
+      },
+      tools: {
+        elevated: { allowFrom: { whatsapp: ["*"] } },
+      },
+      session: { store: "/tmp/openclaw-test-sessions-{agentId}.json" },
+    };
+
+    const logs: string[] = [];
+    await sandboxExplainCommand({ json: true, session: "agent:main:main" }, {
+      log: (msg: string) => logs.push(msg),
+      error: (msg: string) => logs.push(msg),
+      exit: (_code: number) => {},
+    } as unknown as Parameters<typeof sandboxExplainCommand>[1]);
+
+    const parsed = JSON.parse(logs.join(""));
+    expect(parsed.elevated.enabled).toBe(false);
+    expect(parsed.elevated.allowedByConfig).toBe(false);
+    expect(parsed.elevated.failures).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          gate: "enabled",
+          key: "tools.elevated.enabled",
+        }),
+      ]),
+    );
+  });
+
   it("prints effective capability classes and normalized reasons in text output", async () => {
     mockCfg = {
       agents: {

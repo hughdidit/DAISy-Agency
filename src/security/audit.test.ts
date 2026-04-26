@@ -408,8 +408,26 @@ description: test skill
       checkId:
         | "tools.exec.host_sandbox_no_sandbox_defaults"
         | "tools.exec.host_sandbox_no_sandbox_agents";
+      expectedTitle: string;
+      expectedDetail: string;
       expectedRemediation: string;
     }> = [
+      {
+        name: "unset host uses sandbox compatibility",
+        cfg: {
+          agents: {
+            defaults: {
+              sandbox: {
+                mode: "off",
+              },
+            },
+          },
+        },
+        checkId: "tools.exec.host_sandbox_no_sandbox_defaults",
+        expectedTitle: "reduced-trust host compatibility",
+        expectedDetail: "reduced-trust host compatibility mode",
+        expectedRemediation: 'agents.defaults.sandbox.mode="all"',
+      },
       {
         name: "defaults host is sandbox",
         cfg: {
@@ -427,6 +445,8 @@ description: test skill
           },
         },
         checkId: "tools.exec.host_sandbox_no_sandbox_defaults",
+        expectedTitle: "host=sandbox cannot run",
+        expectedDetail: "fails closed",
         expectedRemediation: 'agents.defaults.sandbox.mode="all"',
       },
       {
@@ -456,6 +476,8 @@ description: test skill
           },
         },
         checkId: "tools.exec.host_sandbox_no_sandbox_agents",
+        expectedTitle: "host=sandbox cannot run",
+        expectedDetail: "fails closed",
         expectedRemediation: 'agents.list[].sandbox.mode="all"',
       },
     ];
@@ -464,8 +486,8 @@ description: test skill
         const res = await audit(testCase.cfg);
         expect(hasFinding(res, testCase.checkId, "warn"), testCase.name).toBe(true);
         const finding = res.findings.find((entry) => entry.checkId === testCase.checkId);
-        expect(finding?.title).toContain("reduced-trust host compatibility");
-        expect(finding?.detail).toContain("reduced-trust host compatibility mode");
+        expect(finding?.title).toContain(testCase.expectedTitle);
+        expect(finding?.detail).toContain(testCase.expectedDetail);
         expect(finding?.remediation).toContain(testCase.expectedRemediation);
       }),
     );
@@ -2946,6 +2968,36 @@ description: test skill
           checkId: "security.exposure.open_groups_with_elevated",
           severity: "critical",
         }),
+      ]),
+    );
+  });
+
+  it("warns for explicit host-mode stopgap opt-outs", async () => {
+    const cfg: OpenClawConfig = {
+      tools: {
+        fs: { workspaceOnly: false },
+        exec: { host: "gateway" },
+        elevated: { enabled: true, allowFrom: { whatsapp: ["+1"] } },
+      },
+      agents: {
+        list: [
+          {
+            id: "ops",
+            tools: { fs: { workspaceOnly: false }, exec: { host: "node" } },
+          },
+        ],
+      },
+    };
+
+    const res = await audit(cfg);
+
+    expect(res.findings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ checkId: "tools.fs.workspace_only_disabled_defaults" }),
+        expect.objectContaining({ checkId: "tools.fs.workspace_only_disabled_agents" }),
+        expect.objectContaining({ checkId: "tools.elevated.enabled_explicit" }),
+        expect.objectContaining({ checkId: "tools.exec.host_compatibility_explicit_defaults" }),
+        expect.objectContaining({ checkId: "tools.exec.host_compatibility_explicit_agents" }),
       ]),
     );
   });

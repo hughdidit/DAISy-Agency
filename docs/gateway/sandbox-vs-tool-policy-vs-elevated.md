@@ -65,6 +65,7 @@ Rules of thumb:
 - If `allow` is non-empty, everything else is treated as blocked.
 - Tool policy is the hard stop: `/exec` cannot override a denied `exec` tool.
 - `/exec` only changes session defaults for authorized senders; it does not grant tool access.
+- `tools.fs.workspaceOnly` defaults to `true`; set it to `false` only as an explicit host-mode compatibility opt-out.
   Provider tool keys accept either `provider` (e.g. `google-antigravity`) or `provider/model` (e.g. `openai/gpt-5.2`).
 
 ### Tool groups (shorthands)
@@ -99,6 +100,7 @@ Available groups:
 
 Elevated does **not** grant extra tools; it only affects `exec`.
 
+- Elevated is disabled unless `tools.elevated.enabled=true` and sender allowlists pass.
 - If you’re sandboxed, `/elevated on` (or `exec` with `elevated: true`) runs on the host as break-glass host authority (approvals may still apply).
 - Use `/elevated full` to skip exec approvals for the session.
 - If you’re already in reduced-trust host compatibility mode, elevated is effectively a no-op for execution location (still gated).
@@ -107,7 +109,7 @@ Elevated does **not** grant extra tools; it only affects `exec`.
 
 Gates:
 
-- Enablement: `tools.elevated.enabled` (and optionally `agents.list[].tools.elevated.enabled`)
+- Enablement: `tools.elevated.enabled=true` (and optionally `agents.list[].tools.elevated.enabled`; per-agent config can only restrict)
 - Sender allowlists: `tools.elevated.allowFrom.<provider>` (and optionally `agents.list[].tools.elevated.allowFrom.<provider>`)
 
 See [Elevated Mode](/tools/elevated).

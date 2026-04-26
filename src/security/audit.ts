@@ -28,6 +28,7 @@ import {
   collectExposureMatrixFindings,
   collectGatewayHttpNoAuthFindings,
   collectGatewayHttpSessionKeyOverrideFindings,
+  collectHostModeStopgapFindings,
   collectHooksHardeningFindings,
   collectIncludeFilePermFindings,
   collectInstalledSkillsCodeSafetyFindings,
@@ -820,7 +821,7 @@ function collectElevatedFindings(cfg: OpenClawConfig): SecurityAuditFinding[] {
   const allowFrom = cfg.tools?.elevated?.allowFrom ?? {};
   const anyAllowFromKeys = Object.keys(allowFrom).length > 0;
 
-  if (enabled === false) {
+  if (enabled !== true) {
     return findings;
   }
   if (!anyAllowFromKeys) {
@@ -853,16 +854,22 @@ function collectExecRuntimeFindings(cfg: OpenClawConfig): SecurityAuditFinding[]
   const findings: SecurityAuditFinding[] = [];
   const globalExecHost = cfg.tools?.exec?.host;
   const defaultSandboxMode = resolveSandboxConfigForAgent(cfg).mode;
-  const defaultHostIsExplicitSandbox = globalExecHost === "sandbox";
+  const defaultHostUsesSandboxCompatibility =
+    globalExecHost === undefined || globalExecHost === "sandbox";
 
-  if (defaultHostIsExplicitSandbox && defaultSandboxMode === "off") {
+  if (defaultHostUsesSandboxCompatibility && defaultSandboxMode === "off") {
+    const explicitSandbox = globalExecHost === "sandbox";
     findings.push({
       checkId: "tools.exec.host_sandbox_no_sandbox_defaults",
       severity: "warn",
-      title: "Exec is reduced-trust host compatibility while sandbox mode is off",
-      detail:
-        "tools.exec.host is explicitly set to sandbox while agents.defaults.sandbox.mode=off. " +
-        `In this mode, exec runs on the gateway host as ${HOST_COMPATIBILITY_LABEL}.`,
+      title: explicitSandbox
+        ? "Exec host=sandbox cannot run while sandbox mode is off"
+        : "Exec is reduced-trust host compatibility while sandbox mode is off",
+      detail: explicitSandbox
+        ? "tools.exec.host is explicitly set to sandbox while agents.defaults.sandbox.mode=off. " +
+          "Explicit sandbox host selection fails closed until sandbox mode is enabled."
+        : "tools.exec.host is unset and defaults to sandbox compatibility while agents.defaults.sandbox.mode=off. " +
+          `In this mode, exec is brokered through gateway host approvals as ${HOST_COMPATIBILITY_LABEL}.`,
       remediation:
         'Prefer sandbox-first operation with `agents.defaults.sandbox.mode="all"`, or set tools.exec.host to "gateway" with approvals when host compatibility is intentional.',
     });
@@ -885,10 +892,10 @@ function collectExecRuntimeFindings(cfg: OpenClawConfig): SecurityAuditFinding[]
     findings.push({
       checkId: "tools.exec.host_sandbox_no_sandbox_agents",
       severity: "warn",
-      title: "Agent exec is reduced-trust host compatibility while sandbox mode is off",
+      title: "Agent exec host=sandbox cannot run while sandbox mode is off",
       detail:
         `agents.list.*.tools.exec.host is set to sandbox for: ${riskyAgents.join(", ")}. ` +
-        `With sandbox mode off, exec runs on the gateway host as ${HOST_COMPATIBILITY_LABEL}.`,
+        "Explicit sandbox host selection fails closed until sandbox mode is enabled.",
       remediation:
         'Prefer sandbox-first operation for these agents (`agents.list[].sandbox.mode="all"`), or set their tools.exec.host to "gateway" when host compatibility is intentional.',
     });
@@ -1129,6 +1136,7 @@ export async function runSecurityAudit(opts: SecurityAuditOptions): Promise<Secu
   findings.push(...collectLoggingFindings(cfg));
   findings.push(...collectElevatedFindings(cfg));
   findings.push(...collectExecRuntimeFindings(cfg));
+  findings.push(...collectHostModeStopgapFindings(cfg));
   findings.push(...collectHooksHardeningFindings(cfg, env));
   findings.push(...collectGatewayHttpNoAuthFindings(cfg, env));
   findings.push(...collectGatewayHttpSessionKeyOverrideFindings(cfg));
