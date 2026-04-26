@@ -113,6 +113,8 @@ Gates:
 - Sender allowlists: `tools.elevated.allowFrom.<provider>` (and optionally `agents.list[].tools.elevated.allowFrom.<provider>`)
 
 See [Elevated Mode](/tools/elevated).
+For the SBX-503 classification of remaining host-only and host-managed flows,
+see [Host-Only Workflows Inventory](./host-only-workflows-inventory.md).
 
 ## Common “sandbox jail” fixes
 

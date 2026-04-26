@@ -12,6 +12,9 @@ title: "Elevated Mode"
 `tools.elevated` is break-glass host authority for `exec`. It is useful for
 maintenance and migration cases that cannot run sandbox-first, but it should not
 be treated as the normal execution path.
+It is tracked in the
+[Host-Only Workflows Inventory](../gateway/host-only-workflows-inventory.md) as an
+explicit break-glass workflow.
 
 - `/elevated on` runs on the gateway host and keeps exec approvals (same as `/elevated ask`).
 - `/elevated full` runs on the gateway host **and** auto-approves exec (skips exec approvals).
