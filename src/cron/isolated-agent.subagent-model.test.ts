@@ -196,9 +196,9 @@ describe("runCronIsolatedAgentTurn: subagent model resolution (#11461)", () => {
   it("uses a fresh labeled per-run session key for isolated cron runs", async () => {
     await withTempHome(async (home) => {
       const previousFast = process.env.OPENCLAW_TEST_FAST;
-      delete process.env.OPENCLAW_TEST_FAST;
-      const storePath = await writeSessionStore(home);
       try {
+        delete process.env.OPENCLAW_TEST_FAST;
+        const storePath = await writeSessionStore(home);
         mockEmbeddedAgent();
         const job = {
           ...makeJob(),

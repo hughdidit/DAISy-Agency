@@ -153,9 +153,9 @@ function shellQuote(value) {
   return `'${String(value).replace(/'/g, `'\\''`)}'`;
 }
 
-function assertNonEmptyString(value, message) {
+function assertNonEmptyString(value, message, failureClass = "runtime-profile-mismatch") {
   if (typeof value !== "string" || value.trim() === "") {
-    throw new ScenarioError("runtime-profile-mismatch", message);
+    throw new ScenarioError(failureClass, message);
   }
   return value.trim();
 }
@@ -182,6 +182,7 @@ function assertSandboxedSessionExplain(payload, params) {
   assertNonEmptyString(
     payload?.sandbox?.profile,
     `sandbox explain did not report an effective runtime profile for ${params.sessionKey}`,
+    params.failureClass,
   );
 }
 
@@ -1145,8 +1146,9 @@ async function runSubagentSandboxInheritanceScenario(ctx) {
 }
 
 export async function runCronIsolationAndSubagentModelScenario(ctx) {
-  const runAt = new Date(ctx.now().getTime() + 20 * 60 * 1000).toISOString();
-  const jobName = `SBX-404 cron isolation ${ctx.now().toISOString()}`;
+  const now = ctx.now();
+  const runAt = new Date(now.getTime() + 20 * 60 * 1000).toISOString();
+  const jobName = `SBX-404 cron isolation ${now.toISOString()}`;
   const modelOverride = ctx.env.SBX404_CRON_MODEL?.trim() || "";
   let jobId = "";
 
@@ -1262,6 +1264,7 @@ async function runHostOnlyBlocksScenario(ctx) {
     cat > "$tmp_dir/openclaw.json" <<'JSON'
 {"acp":{"enabled":true},"agents":{"defaults":{"sandbox":{"mode":"all"}}}}
 JSON
+    cd /app
     OPENCLAW_CONFIG_PATH="$tmp_dir/openclaw.json" node --input-type=module -e ${shellQuote(
       probeScript,
     )}
