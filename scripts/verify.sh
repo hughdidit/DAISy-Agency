@@ -516,12 +516,14 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
   fi
   log "No MongoDB MCP startup crash signatures found in ${container} logs."
 
-  # Check 11: run the named sandbox-first acceptance scenarios and persist
-  # scenario artifacts for later inspection.
-  checks_run=$((checks_run + 1))
-  log "Running sandbox-first staging acceptance automation..."
-  bash "${repo_root}/scripts/verify/run-sandbox-first-acceptance.sh" \
-    || fail "Sandbox-first staging acceptance automation reported a required failure."
+  if [[ "${VERIFY_ENV:-}" == "staging" ]]; then
+    # Check 11: run the named sandbox-first acceptance scenarios and persist
+    # scenario artifacts for later inspection.
+    checks_run=$((checks_run + 1))
+    log "Running sandbox-first staging acceptance automation..."
+    bash "${repo_root}/scripts/verify/run-sandbox-first-acceptance.sh" \
+      || fail "Sandbox-first staging acceptance automation reported a required failure."
+  fi
 fi
 
 if [[ -n "${VERIFY_SSH_HOST:-}" ]]; then

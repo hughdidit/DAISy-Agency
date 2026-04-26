@@ -11,30 +11,35 @@ export const SANDBOX_FIRST_ACCEPTANCE_SCENARIOS = Object.freeze([
     manualChecklistId: "SBX-401-02",
     required: true,
     automatedScope: "full",
+    primaryFailureClass: "runtime-profile-mismatch",
   },
   {
     scenarioId: "sbx-401-03-readonly-diagnostics",
     manualChecklistId: "SBX-401-03",
     required: true,
     automatedScope: "full",
+    primaryFailureClass: "readonly-runtime-gap",
   },
   {
     scenarioId: "sbx-401-04-readiness-snapshot",
     manualChecklistId: "SBX-401-04",
     required: true,
     automatedScope: "full",
+    primaryFailureClass: "readiness-reporting-gap",
   },
   {
     scenarioId: "sbx-401-05-integration-path",
     manualChecklistId: "SBX-401-05",
     required: true,
     automatedScope: "full when GWS or memory-mongodb is configured; otherwise skipped with reason",
+    primaryFailureClass: "integration-config-gap",
   },
   {
     scenarioId: "sbx-401-08-isolated-cron",
     manualChecklistId: "SBX-401-08",
     required: true,
     automatedScope: "isolated execution only; chat delivery remains manual",
+    primaryFailureClass: "scheduler-gap",
   },
 ]);
 
@@ -335,6 +340,51 @@ function resolveGatewayConfigHostPath(credentialsPath) {
   return path.posix.join("/opt/DAISy/config", relativePath);
 }
 
+function areCapabilityCountsEqual(left, right) {
+  const leftKeys = Object.keys(left).sort();
+  const rightKeys = Object.keys(right).sort();
+  if (leftKeys.length !== rightKeys.length) {
+    return false;
+  }
+  for (let index = 0; index < leftKeys.length; index += 1) {
+    if (leftKeys[index] !== rightKeys[index]) {
+      return false;
+    }
+    if (left[leftKeys[index]] !== right[rightKeys[index]]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+async function readCredentialSourceType(ctx, credentialsPath) {
+  const classifierScript = `
+    const fs = require("node:fs");
+    const filePath = process.argv[1];
+    let classified = "credentials_file_unknown";
+    try {
+      const parsed = JSON.parse(fs.readFileSync(filePath, "utf8"));
+      if (parsed.type === "service_account") {
+        classified = "service_account_json";
+      } else if (parsed.type === "authorized_user") {
+        classified = "authorized_user";
+      } else if (
+        typeof parsed.refresh_token === "string" ||
+        typeof parsed.client_id === "string" ||
+        typeof parsed.client_secret === "string"
+      ) {
+        classified = "headless_oauth_export";
+      }
+    } catch {}
+    process.stdout.write(classified);
+  `.trim();
+  return stripAnsi(
+    ctx.dockerExecBash(
+      `cd /app && node -e ${shellQuote(classifierScript)} ${shellQuote(credentialsPath)}`,
+    ),
+  ).trim();
+}
+
 async function runRuntimeProfileSanityScenario(ctx) {
   const statusRaw = ctx.dockerExecBash("cd /app && node dist/index.js status --json");
   await ctx.writeArtifactText("status.json", statusRaw);
@@ -383,7 +433,7 @@ async function runRuntimeProfileSanityScenario(ctx) {
     );
   }
 
-  if (JSON.stringify(statusCounts) !== JSON.stringify(explainCounts)) {
+  if (!areCapabilityCountsEqual(statusCounts, explainCounts)) {
     throw new ScenarioError(
       "capability-consistency-gap",
       "status and sandbox explain disagreed on capability-class counts",
@@ -586,6 +636,11 @@ async function runGwsIntegrationScenario(ctx) {
       "secret-or-route-gap",
       "gws auth status did not return a parseable JSON payload",
     );
+    const credentialSourceType = await readCredentialSourceType(ctx, credentialsPath);
+    await ctx.writeArtifactJson("gws-credential-source.json", {
+      credentialsPath,
+      credentialSourceType,
+    });
 
     if (gwsAuth.plain_credentials_exists !== true) {
       throw new ScenarioError(
@@ -605,8 +660,9 @@ async function runGwsIntegrationScenario(ctx) {
     if (gwsAuth.token_valid !== true) {
       const omittedTokenValid =
         !Object.prototype.hasOwnProperty.call(gwsAuth, "token_valid") &&
-        gwsAuth.has_refresh_token === false &&
-        gwsAuth.type === "service_account";
+        credentialSourceType === "service_account_json" &&
+        gwsAuth.plain_credentials_exists === true &&
+        tokenError === "";
       if (!omittedTokenValid) {
         throw new ScenarioError(
           "secret-or-route-gap",
@@ -903,7 +959,8 @@ export async function runScenarioSet(params) {
         }),
       );
     } catch (error) {
-      const failureClass = error?.failureClass ?? "runtime-profile-mismatch";
+      const failureClass =
+        error?.failureClass ?? meta.primaryFailureClass ?? "runtime-profile-mismatch";
       const reason =
         typeof error?.message === "string" && error.message
           ? error.message

@@ -237,13 +237,13 @@ describe("runSandboxFirstAcceptance", () => {
           return JSON.stringify(
             {
               plain_credentials_exists: true,
-              token_valid: true,
-              type: "service_account",
-              has_refresh_token: false,
             },
             null,
             2,
           );
+        }
+        if (command.includes("process.stdout.write(classified)")) {
+          return "service_account_json";
         }
         if (command === "cd /app && node scripts/gws/select-delegate-subject.mjs") {
           return JSON.stringify(
