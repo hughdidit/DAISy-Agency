@@ -384,6 +384,30 @@ describe("runCronIsolatedAgentTurn", () => {
     });
   });
 
+  it("keeps delivered unset when delivery is disabled", async () => {
+    await withTelegramAnnounceFixture(async ({ home, storePath, deps }) => {
+      mockAgentPayloads([{ text: "hello from cron" }]);
+
+      const res = await runCronIsolatedAgentTurn({
+        cfg: makeCfg(home, storePath),
+        deps,
+        job: {
+          ...makeJob({ kind: "agentTurn", message: "do it" }),
+          delivery: { mode: "none", channel: "telegram", to: "123" },
+        },
+        message: "do it",
+        sessionKey: "cron:job-1",
+        lane: "cron",
+      });
+
+      expect(res.status).toBe("ok");
+      expect(res.delivered).toBeUndefined();
+      expect(res.deliveryAttempted).toBe(false);
+      expect(runSubagentAnnounceFlow).not.toHaveBeenCalled();
+      expect(deps.sendMessageTelegram).not.toHaveBeenCalled();
+    });
+  });
+
   it("fails when structured direct delivery fails and best-effort is disabled", async () => {
     await expectStructuredTelegramFailure({
       payload: { text: "hello from cron", mediaUrl: "https://example.com/img.png" },

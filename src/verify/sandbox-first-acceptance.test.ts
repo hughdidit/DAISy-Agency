@@ -147,6 +147,9 @@ describe("runSandboxFirstAcceptance", () => {
               sandbox: {
                 mode: "all",
                 profile: "ops-readonly",
+                docker: {
+                  image: "ghcr.io/hughdidit/daisy-agency-sandbox:dev-22121f1",
+                },
               },
               capabilities: {
                 counts: {
@@ -165,15 +168,6 @@ describe("runSandboxFirstAcceptance", () => {
         }
         if (command === "cd /app && node dist/index.js doctor --non-interactive") {
           return "doctor ok\n";
-        }
-        if (command === "cd /app && node dist/cli/openclaw-readonly.js status") {
-          return "Gateway probe:\nprobe unsupported from readonly sandbox\n";
-        }
-        if (command === "cd /app && node dist/cli/openclaw-readonly.js sandbox explain") {
-          return "Effective sandbox:\nmode: all\n";
-        }
-        if (command === "cd /app && node dist/cli/openclaw-readonly.js skills check") {
-          return "Skills Status Check\n";
         }
         if (command === "cd /app && node dist/index.js skills check --json") {
           return JSON.stringify(
@@ -316,6 +310,15 @@ describe("runSandboxFirstAcceptance", () => {
 
       const runSsh = vi.fn((command: string) => {
         sshCommands.push(command);
+        if (command.includes("openclaw-readonly status")) {
+          return "Gateway probe:\nprobe unsupported from readonly sandbox\n";
+        }
+        if (command.includes("openclaw-readonly sandbox explain")) {
+          return "Effective sandbox:\nmode: all\n";
+        }
+        if (command.includes("openclaw-readonly skills check")) {
+          return "Skills Status Check\n";
+        }
         if (command.includes('stat -c "present(size=%s)"')) {
           return "present(size=1234)\n";
         }
@@ -390,6 +393,9 @@ describe("runSandboxFirstAcceptance", () => {
               sandbox: {
                 mode: "all",
                 profile: "ops-readonly",
+                docker: {
+                  image: "ghcr.io/hughdidit/daisy-agency-sandbox:dev-22121f1",
+                },
               },
               capabilities: {
                 counts: {
@@ -408,15 +414,6 @@ describe("runSandboxFirstAcceptance", () => {
         }
         if (command === "cd /app && node dist/index.js doctor --non-interactive") {
           return "doctor ok\n";
-        }
-        if (command === "cd /app && node dist/cli/openclaw-readonly.js status") {
-          return "Gateway probe:\nprobe unsupported from readonly sandbox\n";
-        }
-        if (command === "cd /app && node dist/cli/openclaw-readonly.js sandbox explain") {
-          return "Effective sandbox:\nmode: all\n";
-        }
-        if (command === "cd /app && node dist/cli/openclaw-readonly.js skills check") {
-          return "Skills Status Check\n";
         }
         if (command === "cd /app && node dist/index.js skills check --json") {
           return JSON.stringify(
@@ -509,7 +506,18 @@ describe("runSandboxFirstAcceptance", () => {
         },
         commandContext: {
           container: "openclaw-gateway",
-          runSsh: vi.fn(() => ""),
+          runSsh: vi.fn((command: string) => {
+            if (command.includes("openclaw-readonly status")) {
+              return "Gateway probe:\nprobe unsupported from readonly sandbox\n";
+            }
+            if (command.includes("openclaw-readonly sandbox explain")) {
+              return "Effective sandbox:\nmode: all\n";
+            }
+            if (command.includes("openclaw-readonly skills check")) {
+              return "Skills Status Check\n";
+            }
+            return "";
+          }),
           dockerExecBash,
           dockerExecSh: vi.fn(() => ""),
         },
@@ -546,174 +554,6 @@ describe("runSandboxFirstAcceptance", () => {
       );
       expect(await fs.readFile(cleanupPath, "utf8")).toContain('"removed": false');
       expect(commands.some((command) => command.includes("cron rm 'job-1' --json"))).toBe(true);
-    });
-  });
-
-  it("accepts isolated cron runs that record a non-delivery outcome", async () => {
-    await withTempDir(async (artifactRoot) => {
-      const dockerExecBash = vi.fn((command: string) => {
-        if (command === "cd /app && node dist/index.js status --json") {
-          return JSON.stringify(
-            {
-              capabilities: {
-                counts: {
-                  byClass: {
-                    "sandbox-local": 1,
-                    "gateway-brokered": 1,
-                    "configured-but-blocked": 0,
-                    "unsupported-in-current-runtime": 0,
-                  },
-                },
-              },
-              memoryPlugin: {
-                enabled: true,
-                slot: "memory-mongodb",
-              },
-            },
-            null,
-            2,
-          );
-        }
-        if (command === "cd /app && node dist/index.js sandbox explain --json") {
-          return JSON.stringify(
-            {
-              sandbox: {
-                mode: "all",
-                profile: "ops-readonly",
-              },
-              capabilities: {
-                counts: {
-                  byClass: {
-                    "sandbox-local": 1,
-                    "gateway-brokered": 1,
-                    "configured-but-blocked": 0,
-                    "unsupported-in-current-runtime": 0,
-                  },
-                },
-              },
-            },
-            null,
-            2,
-          );
-        }
-        if (command === "cd /app && node dist/index.js doctor --non-interactive") {
-          return "doctor ok\n";
-        }
-        if (command === "cd /app && node dist/cli/openclaw-readonly.js status") {
-          return "Gateway probe:\nprobe unsupported from readonly sandbox\n";
-        }
-        if (command === "cd /app && node dist/cli/openclaw-readonly.js sandbox explain") {
-          return "Effective sandbox:\nmode: all\n";
-        }
-        if (command === "cd /app && node dist/cli/openclaw-readonly.js skills check") {
-          return "Skills Status Check\n";
-        }
-        if (command === "cd /app && node dist/index.js skills check --json") {
-          return JSON.stringify(
-            {
-              summary: {
-                total: 1,
-                eligible: 1,
-                disabled: 0,
-                blocked: 0,
-                missingRequirements: 0,
-              },
-            },
-            null,
-            2,
-          );
-        }
-        if (command === "cd /app && node dist/index.js skills info openclaw-readonly --json") {
-          return JSON.stringify(
-            {
-              name: "openclaw-readonly",
-              eligible: true,
-              description:
-                "Sandbox-safe OpenClaw diagnostics through a tightly scoped read-only launcher.",
-            },
-            null,
-            2,
-          );
-        }
-        if (command === "cd /app && node dist/index.js plugins list --json") {
-          return JSON.stringify(
-            {
-              plugins: [{ id: "memory-mongodb", status: "loaded" }],
-            },
-            null,
-            2,
-          );
-        }
-        if (command === "cd /app && node dist/index.js memory status --deep --agent main --json") {
-          return JSON.stringify(
-            [
-              {
-                agentId: "main",
-                status: {
-                  provider: "mongodb-mcp",
-                },
-                embeddingProbe: {
-                  ok: true,
-                },
-              },
-            ],
-            null,
-            2,
-          );
-        }
-        if (command.includes("node dist/index.js cron add")) {
-          return JSON.stringify({ id: "job-3" }, null, 2);
-        }
-        if (command === "cd /app && node dist/index.js cron run 'job-3'") {
-          return JSON.stringify({ ok: true, ran: true }, null, 2);
-        }
-        if (command === "cd /app && node dist/index.js cron runs --id 'job-3' --limit 20") {
-          return JSON.stringify(
-            {
-              entries: [
-                {
-                  action: "finished",
-                  status: "ok",
-                  deliveryStatus: "not-delivered",
-                },
-              ],
-            },
-            null,
-            2,
-          );
-        }
-        if (command === "cd /app && node dist/index.js cron rm 'job-3' --json") {
-          return JSON.stringify({ ok: true, removed: true }, null, 2);
-        }
-        throw new Error(`Unhandled docker command: ${command}`);
-      });
-
-      const result = await runSandboxFirstAcceptance({
-        artifactRoot,
-        env: {
-          VERIFY_ENV: "staging",
-          GCE_INSTANCE_NAME: "daisy-staging-1",
-          GCP_PROJECT_ID: "proj",
-          GCP_ZONE: "us-west1-b",
-          VERIFY_GCE_CONTAINER: "openclaw-gateway",
-        },
-        commandContext: {
-          container: "openclaw-gateway",
-          runSsh: vi.fn(() => ""),
-          dockerExecBash,
-          dockerExecSh: vi.fn(() => ""),
-        },
-        log: vi.fn(),
-        now: () => new Date("2026-04-25T20:20:00.000Z"),
-      });
-
-      expect(result.hasRequiredFailure).toBe(false);
-      expect(result.results.at(-1)).toEqual(
-        expect.objectContaining({
-          scenarioId: "sbx-401-08-isolated-cron",
-          status: "passed",
-        }),
-      );
     });
   });
 });

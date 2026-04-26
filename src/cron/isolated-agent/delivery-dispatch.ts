@@ -121,7 +121,7 @@ type DispatchCronDeliveryParams = {
 
 export type DispatchCronDeliveryState = {
   result?: RunCronAgentTurnResult;
-  delivered: boolean;
+  delivered?: boolean;
   deliveryAttempted: boolean;
   summary?: string;
   outputText?: string;
@@ -139,7 +139,7 @@ export async function dispatchCronDelivery(
 
   // `true` means we confirmed at least one outbound send reached the target.
   // Keep this strict so timer fallback can safely decide whether to wake main.
-  let delivered = params.skipMessagingToolDelivery;
+  let delivered = params.skipMessagingToolDelivery ? true : undefined;
   let deliveryAttempted = params.skipMessagingToolDelivery;
   const failDeliveryTarget = (error: string) =>
     params.withRunSession({
