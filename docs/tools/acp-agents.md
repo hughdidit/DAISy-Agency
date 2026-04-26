@@ -124,7 +124,7 @@ Interface details:
 
 ACP sessions currently run on the host runtime, not inside the OpenClaw sandbox.
 This host runtime limitation is tracked in the
-[Host-Only Workflows Inventory](/gateway/host-only-workflows-inventory).
+[Host-Only Workflows Inventory](../gateway/host-only-workflows-inventory.md).
 
 Current limitations:
 

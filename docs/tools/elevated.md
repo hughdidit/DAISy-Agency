@@ -13,7 +13,7 @@ title: "Elevated Mode"
 maintenance and migration cases that cannot run sandbox-first, but it should not
 be treated as the normal execution path.
 It is tracked in the
-[Host-Only Workflows Inventory](/gateway/host-only-workflows-inventory) as an
+[Host-Only Workflows Inventory](../gateway/host-only-workflows-inventory.md) as an
 explicit break-glass workflow.
 
 - `/elevated on` runs on the gateway host and keeps exec approvals (same as `/elevated ask`).

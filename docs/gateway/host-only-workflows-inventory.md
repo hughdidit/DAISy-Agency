@@ -29,12 +29,12 @@ DAISy is sandbox-first for normal tool-enabled agent work:
 
 Related references:
 
-- [Sandboxing](/gateway/sandboxing)
-- [Sandbox vs Tool Policy vs Elevated](/gateway/sandbox-vs-tool-policy-vs-elevated)
-- [Elevated Mode](/tools/elevated)
-- [Slash Commands](/tools/slash-commands)
-- [ACP Agents](/tools/acp-agents)
-- [Sandbox-First Staging Acceptance Checklist](/deployments/sandbox-first-staging-acceptance)
+- [Sandboxing](./sandboxing.md)
+- [Sandbox vs Tool Policy vs Elevated](./sandbox-vs-tool-policy-vs-elevated.md)
+- [Elevated Mode](../tools/elevated.md)
+- [Slash Commands](../tools/slash-commands.md)
+- [ACP Agents](../tools/acp-agents.md)
+- [Sandbox-First Staging Acceptance Checklist](../deployments/sandbox-first-staging-acceptance.md)
 
 ## Classification values
 

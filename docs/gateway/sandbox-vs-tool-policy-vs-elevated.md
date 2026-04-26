@@ -114,7 +114,7 @@ Gates:
 
 See [Elevated Mode](/tools/elevated).
 For the SBX-503 classification of remaining host-only and host-managed flows,
-see [Host-Only Workflows Inventory](/gateway/host-only-workflows-inventory).
+see [Host-Only Workflows Inventory](./host-only-workflows-inventory.md).
 
 ## Common “sandbox jail” fixes
 
