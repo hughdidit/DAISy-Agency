@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
+// @ts-expect-error The runner implementation is authored as a checked .mjs module.
 import {
   analyzeReadonlyDiagnostics,
   buildScenarioSummaryEntry,
@@ -351,7 +352,7 @@ describe("runSandboxFirstAcceptance", () => {
       });
 
       expect(result.hasRequiredFailure).toBe(false);
-      expect(result.results.map((entry) => entry.status)).toEqual([
+      expect(result.results.map((entry: { status: string }) => entry.status)).toEqual([
         "passed",
         "passed",
         "passed",
@@ -536,7 +537,7 @@ describe("runSandboxFirstAcceptance", () => {
       });
 
       expect(result.hasRequiredFailure).toBe(false);
-      expect(result.results.map((entry) => entry.status)).toEqual([
+      expect(result.results.map((entry: { status: string }) => entry.status)).toEqual([
         "passed",
         "passed",
         "passed",
