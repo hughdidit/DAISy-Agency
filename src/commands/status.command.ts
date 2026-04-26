@@ -62,7 +62,11 @@ function formatGatewayProbeReason(
       : reason
         ? `probe unsupported (${reason})`
         : "probe unsupported";
-  return options?.remoteUrlMissing ? `${detail}; gateway.remote.url missing` : detail;
+  if (!options?.remoteUrlMissing) {
+    return detail;
+  }
+  const separator = /[.!?]\s*$/.test(detail) ? " " : "; ";
+  return `${detail}${separator}gateway.remote.url missing`;
 }
 
 function resolvePairingRecoveryContext(params: {

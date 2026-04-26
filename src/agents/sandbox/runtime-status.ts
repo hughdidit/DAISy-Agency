@@ -122,10 +122,7 @@ export function formatSandboxToolPolicyBlockedMessage(params: {
     );
   }
 
-  const remediation: string[] = [];
-  for (const fix of fixes) {
-    remediation.push(fix);
-  }
+  const remediation: string[] = [...fixes];
   if (runtime.mode === "non-main") {
     remediation.push(`Use main session key (direct): ${runtime.mainSessionKey}.`);
   }

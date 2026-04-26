@@ -78,6 +78,19 @@ describe("sandbox failure messaging", () => {
     expect(message).not.toContain("failed..");
   });
 
+  it("honors classifier-supplied sanitized causes", () => {
+    const message = formatSandboxFailureMessage({
+      failureClass: "runtime-capability",
+      operation: "sandbox startup",
+      detail: "Docker CLI could not inspect the sandbox image in the gateway runtime.",
+      cause: "runtime/cgo: pthread_create failed: Operation not permitted",
+      sanitizedCause: "Docker inspect timed out.",
+    });
+
+    expect(message).toContain("Cause: Docker inspect timed out.");
+    expect(message).not.toContain("low-level runtime crash details redacted");
+  });
+
   it.each([
     {
       raw: "Failed to inspect sandbox image: runtime/cgo: pthread_create failed: Operation not permitted",

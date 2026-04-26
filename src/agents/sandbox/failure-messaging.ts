@@ -19,11 +19,10 @@ export type SandboxFailureMessageInput = {
   remediation?: string;
   hint?: string;
   cause?: string;
-};
-
-export type SandboxFailureClassification = SandboxFailureMessageInput & {
   sanitizedCause?: string;
 };
+
+export type SandboxFailureClassification = SandboxFailureMessageInput;
 
 const SANDBOX_FAILURE_LABELS: Record<SandboxFailureClass, string> = {
   "runtime-capability": "Sandbox runtime capability failure",
@@ -106,7 +105,9 @@ export function formatSandboxFailureMessage(input: SandboxFailureMessageInput): 
     input.remediation?.trim() ? input.remediation : DEFAULT_REMEDIATION[input.failureClass],
   );
   const hint = normalizeInline(input.hint ?? "");
-  const sanitizedCause = sanitizeSandboxFailureCause(input.cause);
+  const sanitizedCause = input.sanitizedCause?.trim()
+    ? sanitizeSandboxFailureCause(input.sanitizedCause)
+    : sanitizeSandboxFailureCause(input.cause);
 
   const parts = [
     `${label}${operation ? ` during ${operation}` : ""}${subject ? ` (${subject})` : ""}: ${detail}`,

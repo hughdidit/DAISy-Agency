@@ -645,6 +645,7 @@ describe("statusCommand", () => {
     expect(joined).toContain("host-loopback gateway probe is unsupported");
     expect(joined).toContain("gateway.remote.url missing");
     expect(joined).toContain("Gateway probe:");
+    expect(joined).not.toContain(".; gateway.remote.url missing");
     expect(joined).not.toContain("Fix reachability first:");
   });
 
