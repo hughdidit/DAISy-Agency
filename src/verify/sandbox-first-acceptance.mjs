@@ -459,7 +459,11 @@ function classifyReadonlyFailure(error) {
       "readonly diagnostics reported a projection or mount defect",
     );
   }
-  if (/openclaw-readonly" is not on path|readonly runtime command/i.test(combined)) {
+  if (
+    /openclaw-readonly" is not on path|readonly runtime command|openclaw-readonly: not found|executable file not found in \$path/i.test(
+      combined,
+    )
+  ) {
     return new ScenarioError(
       "readonly-runtime-gap",
       "openclaw-readonly is missing from the deployed sandbox runtime",
@@ -472,19 +476,50 @@ function classifyReadonlyFailure(error) {
 }
 
 async function runReadonlyDiagnosticsScenario(ctx) {
+  const sandboxExplainRaw = ctx.dockerExecBash(
+    "cd /app && node dist/index.js sandbox explain --json",
+  );
+  await ctx.writeArtifactText("gateway-sandbox-explain.json", sandboxExplainRaw);
+  const sandboxExplainPayload = parseJsonOrThrow(
+    sandboxExplainRaw,
+    "readonly-runtime-gap",
+    "sandbox explain --json did not return a parseable JSON payload for readonly diagnostics",
+  );
+  const sandboxImage = assertNonEmptyString(
+    sandboxExplainPayload?.sandbox?.docker?.image,
+    "sandbox explain did not report the deployed sandbox image",
+  );
+
+  const runReadonlyCommand = (args) => {
+    const script = `
+      set -euo pipefail
+      tmp_dir="$(mktemp -d /tmp/sbx-402-readonly.XXXXXX)"
+      cleanup() {
+        rm -rf "$tmp_dir"
+      }
+      trap cleanup EXIT
+      mkdir -p "$tmp_dir/state" "$tmp_dir/workspace"
+      sudo docker exec ${shellQuote(ctx.container)} bash -lc 'cat "\${OPENCLAW_CONFIG_PATH:?}"' > "$tmp_dir/openclaw.json"
+      sudo docker run --rm --network none \
+        -v "$tmp_dir/openclaw.json:/readonly/openclaw.json:ro" \
+        -v "$tmp_dir/state:/readonly/state:ro" \
+        -v "$tmp_dir/workspace:/agent:ro" \
+        -e OPENCLAW_READONLY_CONFIG_PATH=/readonly/openclaw.json \
+        -e OPENCLAW_READONLY_STATE_DIR=/readonly/state \
+        -e OPENCLAW_READONLY_AGENT_ID=main \
+        -e OPENCLAW_READONLY_WORKSPACE_DIR=/agent \
+        ${shellQuote(sandboxImage)} openclaw-readonly ${args.map(shellQuote).join(" ")}
+    `.trim();
+    return ctx.runSsh(`bash -lc ${shellQuote(script)}`);
+  };
+
   let readonlyStatus;
   let readonlyExplain;
   let readonlySkills;
   try {
-    readonlyStatus = ctx.dockerExecBash(
-      "cd /app && node skills/openclaw-readonly/scripts/openclaw-readonly.mjs status",
-    );
-    readonlyExplain = ctx.dockerExecBash(
-      "cd /app && node skills/openclaw-readonly/scripts/openclaw-readonly.mjs sandbox explain",
-    );
-    readonlySkills = ctx.dockerExecBash(
-      "cd /app && node skills/openclaw-readonly/scripts/openclaw-readonly.mjs skills check",
-    );
+    readonlyStatus = runReadonlyCommand(["status"]);
+    readonlyExplain = runReadonlyCommand(["sandbox", "explain"]);
+    readonlySkills = runReadonlyCommand(["skills", "check"]);
   } catch (error) {
     throw classifyReadonlyFailure(error);
   }
