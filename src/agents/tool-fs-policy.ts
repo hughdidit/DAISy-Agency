@@ -7,7 +7,7 @@ export type ToolFsPolicy = {
 
 export function createToolFsPolicy(params: { workspaceOnly?: boolean }): ToolFsPolicy {
   return {
-    workspaceOnly: params.workspaceOnly === true,
+    workspaceOnly: params.workspaceOnly !== false,
   };
 }
 
@@ -27,5 +27,5 @@ export function resolveEffectiveToolFsWorkspaceOnly(params: {
   cfg?: OpenClawConfig;
   agentId?: string;
 }): boolean {
-  return resolveToolFsConfig(params).workspaceOnly === true;
+  return resolveToolFsConfig(params).workspaceOnly !== false;
 }

@@ -203,7 +203,7 @@ describe("exec host env validation", () => {
     }
   });
 
-  it("defaults to sandbox when sandbox runtime is unavailable", async () => {
+  it("routes implicit no-sandbox compatibility through gateway approvals", async () => {
     const tool = createExecTool({ security: "full", ask: "off" });
 
     const result = await tool.execute("call1", {
@@ -211,17 +211,14 @@ describe("exec host env validation", () => {
     });
     const text = normalizeText(result.content.find((c) => c.type === "text")?.text);
     expect(text).toContain("ok");
+    expect(text).toContain("gateway exec approvals");
 
-    const err = await tool
-      .execute("call2", {
-        command: "echo ok",
-        host: "gateway",
-      })
-      .then(() => null)
-      .catch((error: unknown) => (error instanceof Error ? error : new Error(String(error))));
-    expect(err).toBeTruthy();
-    expect(err?.message).toMatch(/exec host not allowed/);
-    expect(err?.message).toMatch(/tools\.exec\.host=sandbox/);
+    const gatewayResult = await tool.execute("call2", {
+      command: "echo ok",
+      host: "gateway",
+    });
+    const gatewayText = normalizeText(gatewayResult.content.find((c) => c.type === "text")?.text);
+    expect(gatewayText).toContain("ok");
   });
 
   it("fails closed when sandbox host is explicitly configured without sandbox runtime", async () => {

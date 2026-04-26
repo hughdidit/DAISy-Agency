@@ -32,6 +32,9 @@ For webhook ingress, it warns when `hooks.defaultSessionKey` is unset, when requ
 It also warns about:
 
 - Sandbox Docker settings configured while the gateway is in reduced-trust host compatibility mode (`sandbox.mode=off`).
+- Unset/default `tools.exec.host="sandbox"` falling back to gateway-brokered host compatibility when sandboxing is off.
+- Explicit `tools.exec.host="sandbox"` configurations that now fail closed when no sandbox runtime is available.
+- Explicit host-mode stopgap opt-outs, including `tools.exec.host="gateway"`, `tools.exec.host="node"`, `tools.fs.workspaceOnly=false`, and `tools.elevated.enabled=true`.
 - Ineffective pattern-like or unknown `gateway.nodes.denyCommands` entries; matching is by exact node command name, not shell text.
 - Explicit dangerous node commands in `gateway.nodes.allowCommands`.
 - Global `tools.profile="minimal"` overridden by agent tool profiles.
@@ -78,3 +81,4 @@ openclaw security audit --fix --json | jq '{fix: .fix.ok, summary: .report.summa
 - disable tools (`gateway`, `cron`, `exec`, etc.)
 - change gateway bind/auth/network exposure choices
 - remove or rewrite plugins/skills
+- change host-mode stopgap policy opt-outs such as `tools.fs.workspaceOnly=false` or `tools.elevated.enabled=true`

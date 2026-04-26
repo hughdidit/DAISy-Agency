@@ -308,7 +308,17 @@ export function createExecTool(
       const sandboxHostConfigured = defaults?.host === "sandbox";
       const requestedHost = normalizeExecHost(params.host) ?? null;
       let host: ExecHost = requestedHost ?? configuredHost;
-      if (!elevatedRequested && requestedHost && requestedHost !== configuredHost) {
+      const sandboxRuntimeUnavailableForImplicitDefault =
+        configuredHost === "sandbox" &&
+        !defaults?.sandbox &&
+        !sandboxHostConfigured &&
+        requestedHost === "gateway";
+      if (
+        !elevatedRequested &&
+        requestedHost &&
+        requestedHost !== configuredHost &&
+        !sandboxRuntimeUnavailableForImplicitDefault
+      ) {
         throw new Error(
           `exec host not allowed (requested ${renderExecHostLabel(requestedHost)}; ` +
             `configure tools.exec.host=${renderExecHostLabel(configuredHost)} to allow).`,
@@ -316,6 +326,27 @@ export function createExecTool(
       }
       if (elevatedRequested) {
         host = "gateway";
+      }
+
+      let sandbox = host === "sandbox" ? defaults?.sandbox : undefined;
+      if (
+        host === "sandbox" &&
+        !sandbox &&
+        (sandboxHostConfigured || requestedHost === "sandbox")
+      ) {
+        throw new Error(
+          [
+            "exec host=sandbox is configured, but sandbox runtime is unavailable for this session.",
+            'Enable sandbox mode (`agents.defaults.sandbox.mode="non-main"` or `"all"`) or set tools.exec.host to "gateway"/"node".',
+          ].join("\n"),
+        );
+      }
+      if (host === "sandbox" && !sandbox) {
+        host = "gateway";
+        sandbox = undefined;
+        warnings.push(
+          "Warning: sandbox runtime unavailable; using reduced-trust host compatibility through gateway exec approvals.",
+        );
       }
 
       const configuredSecurity = defaults?.security ?? (host === "sandbox" ? "deny" : "allowlist");
@@ -332,20 +363,6 @@ export function createExecTool(
         ask = "off";
         warnings.push(
           "elevated mode is 'full': command will execute with unrestricted security and no approval prompt",
-        );
-      }
-
-      const sandbox = host === "sandbox" ? defaults?.sandbox : undefined;
-      if (
-        host === "sandbox" &&
-        !sandbox &&
-        (sandboxHostConfigured || requestedHost === "sandbox")
-      ) {
-        throw new Error(
-          [
-            "exec host=sandbox is configured, but sandbox runtime is unavailable for this session.",
-            'Enable sandbox mode (`agents.defaults.sandbox.mode="non-main"` or `"all"`) or set tools.exec.host to "gateway"/"node".',
-          ].join("\n"),
         );
       }
       const rawWorkdir = params.workdir?.trim() || defaults?.cwd || process.cwd();

@@ -38,6 +38,7 @@ be treated as the normal execution path.
 1. Inline directive on the message (applies only to that message).
 2. Session override (set by sending a directive-only message).
 3. Global default (`agents.defaults.elevatedDefault` in config).
+4. Off, when no directive/session/config default is set.
 
 ## Setting a session default
 
@@ -48,7 +49,7 @@ be treated as the normal execution path.
 
 ## Availability + allowlists
 
-- Feature gate: `tools.elevated.enabled` (default can be off via config even if the code supports it).
+- Feature gate: `tools.elevated.enabled=true`. If unset or false, elevated is unavailable even when allowlists are configured.
 - Sender allowlist: `tools.elevated.allowFrom` with per-provider allowlists (e.g. `discord`, `whatsapp`).
 - Unprefixed allowlist entries match sender-scoped identity values only (`SenderId`, `SenderE164`, `From`); recipient routing fields are never used for elevated authorization.
 - Mutable sender metadata requires explicit prefixes:
@@ -59,7 +60,7 @@ be treated as the normal execution path.
 - Per-agent gate: `agents.list[].tools.elevated.enabled` (optional; can only further restrict).
 - Per-agent allowlist: `agents.list[].tools.elevated.allowFrom` (optional; when set, the sender must match **both** global + per-agent allowlists).
 - Discord fallback: if `tools.elevated.allowFrom.discord` is omitted, the `channels.discord.allowFrom` list is used as a fallback (legacy: `channels.discord.dm.allowFrom`). Set `tools.elevated.allowFrom.discord` (even `[]`) to override. Per-agent allowlists do **not** use the fallback.
-- All gates must pass; otherwise elevated is treated as unavailable.
+- All gates must pass; otherwise elevated is treated as unavailable. Per-agent config is restrictive only and cannot enable elevated if the global gate is unset or false.
 
 ## Logging + status
 
