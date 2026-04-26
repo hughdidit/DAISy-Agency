@@ -239,16 +239,16 @@ sudo docker exec "$GATEWAY_CONTAINER" bash -lc \
   | tee "$EVIDENCE_DIR/gws-auth-health-delegated.json"
 ```
 
-  - Expected result: both routes resolve cleanly, stay on the intended
-    credential source, and do not report `token_error`.
-  - Evidence to capture: `plugins-list.txt`,
-    `gws-auth-health-agent-main.json`,
-    `gws-auth-health-delegated.json`.
-  - Failure classification / escalation:
-    - `secret-or-route-gap`: missing or broken staging credentials or route
-      bindings
-    - `delegated-capability-gap`: delegated subject health differs from
-      `agent:main`
+- Expected result: both routes resolve cleanly, stay on the intended
+  credential source, and do not report `token_error`.
+- Evidence to capture: `plugins-list.txt`,
+  `gws-auth-health-agent-main.json`,
+  `gws-auth-health-delegated.json`.
+- Failure classification / escalation:
+  - `secret-or-route-gap`: missing or broken staging credentials or route
+    bindings
+  - `delegated-capability-gap`: delegated subject health differs from
+    `agent:main`
 
 - Branch B: `gws-toolkit-phase1` is not enabled and the active memory slot is
   `memory-mongodb`.
@@ -260,12 +260,12 @@ sudo docker exec "$GATEWAY_CONTAINER" bash -lc \
   | tee "$EVIDENCE_DIR/memory-status-main.txt"
 ```
 
-  - Expected result: memory status completes and reports the active plugin path
-    without startup or readiness errors.
-  - Evidence to capture: `plugins-list.txt`, `memory-status-main.txt`.
-  - Failure classification / escalation:
-    - `memory-plugin-gap`: memory plugin startup or readiness is unhealthy
-    - `integration-config-gap`: required memory secret or dependency is missing
+- Expected result: memory status completes and reports the active plugin path
+  without startup or readiness errors.
+- Evidence to capture: `plugins-list.txt`, `memory-status-main.txt`.
+- Failure classification / escalation:
+  - `memory-plugin-gap`: memory plugin startup or readiness is unhealthy
+  - `integration-config-gap`: required memory secret or dependency is missing
 
 - Branch C: neither `gws-toolkit-phase1` nor `memory-mongodb` is active for
   this staging environment.
@@ -326,7 +326,7 @@ corroboration command.
 > sandbox mode, runtime profile, and whether openclaw-readonly is supported. Do
 > not mutate anything.
 
-  - after the run id is returned, send:
+- after the run id is returned, send:
 
 > /subagents info `<run-id-or-#>`
 
@@ -409,15 +409,15 @@ If staging is not using Discord for operator delivery, replace `--channel` and
 - Exact action: fill in the following matrix before closing the staging rollout.
 
 | Checklist ID | Status (`pass` / `fail` / `n/a`) | Evidence | Failure class / note |
-| --- | --- | --- | --- |
-| `SBX-401-01` |  |  |  |
-| `SBX-401-02` |  |  |  |
-| `SBX-401-03` |  |  |  |
-| `SBX-401-04` |  |  |  |
-| `SBX-401-05` |  |  |  |
-| `SBX-401-06` |  |  |  |
-| `SBX-401-07` |  |  |  |
-| `SBX-401-08` |  |  |  |
+| ------------ | -------------------------------- | -------- | -------------------- |
+| `SBX-401-01` |                                  |          |                      |
+| `SBX-401-02` |                                  |          |                      |
+| `SBX-401-03` |                                  |          |                      |
+| `SBX-401-04` |                                  |          |                      |
+| `SBX-401-05` |                                  |          |                      |
+| `SBX-401-06` |                                  |          |                      |
+| `SBX-401-07` |                                  |          |                      |
+| `SBX-401-08` |                                  |          |                      |
 
 - Expected result: every applicable item is recorded with evidence and any
   failure is classified into one of these buckets:
@@ -436,31 +436,32 @@ If staging is not using Discord for operator delivery, replace `--channel` and
     an unsandboxed session or host-only fallback
 - Canonical mapping for the exact step-level failure classes used above:
 
-| Step-level failure class | Canonical closeout bucket |
-| --- | --- |
-| `deployment-baseline-gap` | `runtime-profile-mismatch` |
-| `container-health-gap` | `runtime-profile-mismatch` |
-| `runtime-profile-mismatch` | `runtime-profile-mismatch` |
-| `capability-consistency-gap` | `runtime-profile-mismatch` |
-| `doctor-usefulness-gap` | `runtime-profile-mismatch` |
-| `projection-defect` | `projection-defect` |
-| `readonly-runtime-gap` | `runtime-profile-mismatch` |
-| `truthfulness-gap` | `projection-defect` |
-| `readiness-reporting-gap` | `policy-block` |
-| `sandbox-contract-gap` | `unsupported-host-only-behavior` |
-| `secret-or-route-gap` | `secret-or-integration-gap` |
-| `delegated-capability-gap` | `secret-or-integration-gap` |
-| `memory-plugin-gap` | `secret-or-integration-gap` |
-| `integration-config-gap` | `secret-or-integration-gap` |
-| `session-routing-gap` | `routing-or-delivery-gap` |
-| `unsandboxed-session-gap` | `unsupported-host-only-behavior` |
-| `agent-facing-messaging-gap` | `policy-block` |
-| `sandbox-inheritance-gap` | `policy-block` |
-| `routing-or-delivery-gap` | `routing-or-delivery-gap` |
-| `subagent-policy-gap` | `policy-block` |
-| `scheduler-gap` | `routing-or-delivery-gap` |
-| `sandbox-runtime-gap` | `runtime-profile-mismatch` |
-| `delivery-gap` | `routing-or-delivery-gap` |
+| Step-level failure class     | Canonical closeout bucket        |
+| ---------------------------- | -------------------------------- |
+| `deployment-baseline-gap`    | `runtime-profile-mismatch`       |
+| `container-health-gap`       | `runtime-profile-mismatch`       |
+| `runtime-profile-mismatch`   | `runtime-profile-mismatch`       |
+| `capability-consistency-gap` | `runtime-profile-mismatch`       |
+| `doctor-usefulness-gap`      | `runtime-profile-mismatch`       |
+| `projection-defect`          | `projection-defect`              |
+| `readonly-runtime-gap`       | `runtime-profile-mismatch`       |
+| `truthfulness-gap`           | `projection-defect`              |
+| `readiness-reporting-gap`    | `policy-block`                   |
+| `sandbox-contract-gap`       | `unsupported-host-only-behavior` |
+| `secret-or-route-gap`        | `secret-or-integration-gap`      |
+| `delegated-capability-gap`   | `secret-or-integration-gap`      |
+| `memory-plugin-gap`          | `secret-or-integration-gap`      |
+| `integration-config-gap`     | `secret-or-integration-gap`      |
+| `session-routing-gap`        | `routing-or-delivery-gap`        |
+| `unsandboxed-session-gap`    | `unsupported-host-only-behavior` |
+| `agent-facing-messaging-gap` | `policy-block`                   |
+| `sandbox-inheritance-gap`    | `policy-block`                   |
+| `routing-or-delivery-gap`    | `routing-or-delivery-gap`        |
+| `subagent-policy-gap`        | `policy-block`                   |
+| `scheduler-gap`              | `routing-or-delivery-gap`        |
+| `sandbox-runtime-gap`        | `runtime-profile-mismatch`       |
+| `delivery-gap`               | `routing-or-delivery-gap`        |
+
 - Closeout recording rule: keep the exact step-level failure class in the
   matrix, then use the table above to roll it into the required canonical
   closeout bucket for escalation and reporting.
@@ -470,6 +471,28 @@ If staging is not using Discord for operator delivery, replace `--channel` and
     complete
   - attach the completed matrix and the relevant evidence files to the rollout,
     then hand off to the owning runtime / diagnostics / deployment thread
+
+## SBX-402 Verify Mapping
+
+SBX-402 adds a selective automation layer to Verify. Verify now publishes a
+`sandbox-first-acceptance-summary.json` artifact plus per-scenario evidence
+files under the sandbox-first acceptance artifact directory. Those artifacts are
+evidence for the automated subset below; they do not replace the remaining
+manual checklist items.
+
+| SBX-401 item | Verify scenario id                  | Automated scope                                                                                                                                                                                                    | Manual remainder                                                                                                                   |
+| ------------ | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `SBX-401-02` | `sbx-401-02-runtime-profile-sanity` | `status --json`, `sandbox explain --json`, and `doctor --non-interactive` are checked automatically in staging Verify.                                                                                             | None, unless the rollout needs deeper operator investigation after a failure.                                                      |
+| `SBX-401-03` | `sbx-401-03-readonly-diagnostics`   | Readonly `status`, `sandbox explain`, and `skills check` truthfulness are checked automatically.                                                                                                                   | None for the baseline readonly smoke.                                                                                              |
+| `SBX-401-04` | `sbx-401-04-readiness-snapshot`     | `skills check` and `skills info openclaw-readonly` are checked automatically.                                                                                                                                      | None for the readiness snapshot baseline.                                                                                          |
+| `SBX-401-05` | `sbx-401-05-integration-path`       | Verify automatically chooses the highest-value configured branch: `gws-toolkit-phase1` auth-health if present, otherwise `memory-mongodb` deep status if that slot is active, otherwise explicit skip with reason. | Any staging-only integration not selected by the active branch, plus deeper operator evidence when a configured integration fails. |
+| `SBX-401-06` | not automated                       | Not automated in Verify.                                                                                                                                                                                           | Full item remains manual: live direct-agent chat reply plus session corroboration.                                                 |
+| `SBX-401-07` | not automated                       | Not automated in Verify.                                                                                                                                                                                           | Full item remains manual: requester-facing subagent spawn, completion announcement, and `/subagents info`.                         |
+| `SBX-401-08` | `sbx-401-08-isolated-cron`          | Verify creates, force-runs, inspects, and cleans up an isolated cron job with `--no-deliver`.                                                                                                                      | Delivery-target confirmation remains manual.                                                                                       |
+
+When Verify reports a failure for one of the scenario ids above, keep the
+scenario id and step-level failure class in the rollout notes so it still maps
+cleanly back to the SBX-401 checklist language.
 
 ## Pass / Fail Rule
 
@@ -482,6 +505,7 @@ Mark SBX-401 complete only when:
 - the evidence directory is preserved long enough to support SBX-402 automation
   work
 
-SBX-401 is intentionally manual. Use it to gather concrete staging evidence now.
-Do not widen scope into runtime fixes, workflow edits, or automation in this
-issue.
+SBX-401 still includes manual closeout steps. Use this runbook to gather
+concrete staging evidence for the remaining live chat, subagent, and
+delivery-target checks without widening scope into unrelated runtime or
+deployment changes during acceptance.

@@ -14,6 +14,11 @@ log "Verifying environment..."
 log "VERIFY_ENV: ${VERIFY_ENV:-<unset>}"
 log "DEPLOYED_REF: ${DEPLOYED_REF:-<unset>}"
 
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd -- "${script_dir}/.." && pwd)"
+VERIFY_ARTIFACT_DIR="${VERIFY_ARTIFACT_DIR:-${repo_root}/.artifacts/verify}"
+export VERIFY_ARTIFACT_DIR
+
 if [[ "${DRY_RUN:-}" == "1" ]]; then
   log "DRY_RUN=1, skipping verification checks."
   exit 0
@@ -333,8 +338,6 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
   fi
   log "Container health check passed (status: healthy)."
 
-  script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-  repo_root="$(cd -- "${script_dir}/.." && pwd)"
   # Check 3: required runtime binaries are present in the deployed app image.
   checks_run=$((checks_run + 1))
   log "Checking bundled runtime binaries in ${container}..."
@@ -375,199 +378,7 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
     printf '%s\n' "${trello_smoke_output}"
     log "Live Trello API smoke passed."
 
-    # Check 6: when the active gws-toolkit-phase1 default credential route uses
-    # credentials_file mode, the deployed credentials file must exist on the VM
-    # and remain usable.
-    checks_run=$((checks_run + 1))
-    log "Checking Google Workspace active credential route materialization and auth health on ${GCE_INSTANCE_NAME}..."
-    require_container_script "${container_escaped}" "scripts/gws/inspect-active-route.mjs" "GWS active route inspector"
-    gws_active_route_json="$(
-      gce_ssh_last_json_line "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; node scripts/gws/inspect-active-route.mjs\""
-    )" || fail "Failed to inspect active Google Workspace credential route mode in ${container}"
-    gws_active_config_path="$(jq -r '.configPath // empty' <<<"${gws_active_route_json}" | tr -d '[:space:]')" \
-      || fail "Failed to parse GWS active route JSON (configPath field) in ${container}"
-    if [[ -n "${gws_active_config_path}" ]]; then
-      log "Google Workspace verification is using active config ${gws_active_config_path} in ${container}."
-    fi
-    gws_active_route_mode="$(jq -r '.mode' <<<"${gws_active_route_json}" | tr -d '[:space:]')" \
-      || fail "Failed to parse GWS active route JSON (mode field) in ${container}"
-    gws_impersonation_configured="$(jq -r '.impersonationConfigured // false' <<<"${gws_active_route_json}")" \
-      || fail "Failed to parse GWS active route JSON (impersonationConfigured field) in ${container}"
-    gws_impersonation_source="$(jq -r '.impersonationSource // empty' <<<"${gws_active_route_json}")" \
-      || fail "Failed to parse GWS active route JSON (impersonationSource field) in ${container}"
-    gws_impersonated_user_env_var="$(jq -r '.impersonatedUserEnvVar // empty' <<<"${gws_active_route_json}")" \
-      || fail "Failed to parse GWS active route JSON (impersonatedUserEnvVar field) in ${container}"
-    gws_impersonation_missing="$(jq -r '.impersonationMissing // false' <<<"${gws_active_route_json}")" \
-      || fail "Failed to parse GWS active route JSON (impersonationMissing field) in ${container}"
-    gws_active_impersonated_user="$(jq -r '.impersonatedUser // empty' <<<"${gws_active_route_json}")" \
-      || fail "Failed to parse GWS active route JSON (impersonatedUser field) in ${container}"
-    if [[ "${gws_impersonation_configured}" == "true" && "${gws_impersonation_missing}" == "true" ]]; then
-      fail "Google Workspace impersonation is configured but unresolved for ${container} (source=${gws_impersonation_source:-unknown} envVar=${gws_impersonated_user_env_var:-n/a})"
-    fi
-    if [[ -n "${gws_active_impersonated_user}" ]] && \
-      [[ ! "${gws_active_impersonated_user}" =~ ^[A-Za-z0-9_.@+-]+$ ]]; then
-      fail "Impersonated user value contains unsafe characters in ${container}: ${gws_active_impersonated_user}"
-    fi
-    gws_impersonation_export=""
-    if [[ -n "${gws_active_impersonated_user}" ]]; then
-      gws_impersonation_export="export GOOGLE_WORKSPACE_CLI_IMPERSONATED_USER=${gws_active_impersonated_user}; "
-    fi
-    if [[ "${gws_active_route_mode}" == "credentials_file" ]]; then
-      gws_active_credentials_path="$(jq -r '.credentialsFile | select(type == "string" and length > 0)' <<<"${gws_active_route_json}")" \
-        || fail "Failed to inspect active Google Workspace credentials file path in ${container}"
-      case "${gws_active_credentials_path}" in
-        /home/node/.openclaw/*) ;;
-        *)
-          fail "Active Google Workspace credentials file path is outside the mounted OpenClaw config root in ${container}: ${gws_active_credentials_path}"
-          ;;
-      esac
-      if [[ ! "${gws_active_credentials_path}" =~ ^[A-Za-z0-9/_.-]+$ ]]; then
-        fail "Active Google Workspace credentials file path contains unsafe characters in ${container}: ${gws_active_credentials_path}"
-      fi
-      gws_credentials_host_path="/opt/DAISy/config${gws_active_credentials_path#/home/node/.openclaw}"
-      gws_credentials_status="$(
-        gce_ssh_lastline "sudo -n sh -c 'if [ -f \"${gws_credentials_host_path}\" ]; then stat -c \"present(size=%s)\" \"${gws_credentials_host_path}\"; else echo missing; fi'"
-      )" || fail "Failed to inspect Google Workspace credentials file on ${GCE_INSTANCE_NAME}"
-      if [[ "${gws_credentials_status}" == "missing" ]]; then
-        fail "gws-toolkit-phase1 requires credentials_file mode, but ${gws_credentials_host_path} is missing on ${GCE_INSTANCE_NAME}"
-      fi
-      log "Google Workspace credentials file status (${gws_credentials_host_path}): ${gws_credentials_status}"
-
-      gws_binary_path="$(
-        gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc 'command -v gws'"
-      )" || fail "gws binary is not available inside ${container}"
-      gws_binary_path="$(echo "${gws_binary_path}" | tr -d '[:space:]')"
-      if [[ -z "${gws_binary_path}" ]]; then
-        fail "gws binary is not available inside ${container}"
-      fi
-
-      gws_auth_status="$(
-        gce_ssh_lastline "sudo sh -c 'docker exec ${container_escaped} bash -lc \"set -euo pipefail; export GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE=\\\"${gws_active_credentials_path}\\\"; ${gws_impersonation_export}gws auth status | jq -c .\"'"
-      )" || fail "Failed to run gws auth status inside ${container}"
-      printf '%s\n' "${gws_auth_status}"
-
-      gws_plain_credentials_exists="$(jq -r '.plain_credentials_exists // false' <<<"${gws_auth_status}")" \
-        || fail "Failed to parse gws auth status plain_credentials_exists in ${container}"
-      gws_token_valid="$(jq -r '.token_valid // false' <<<"${gws_auth_status}")" \
-        || fail "Failed to parse gws auth status token_valid in ${container}"
-      gws_token_valid_present="$(jq -r 'has("token_valid")' <<<"${gws_auth_status}")" \
-        || fail "Failed to parse gws auth status token_valid presence in ${container}"
-      gws_has_refresh_token="$(jq -r '.has_refresh_token // false' <<<"${gws_auth_status}")" \
-        || fail "Failed to parse gws auth status has_refresh_token in ${container}"
-      gws_token_error="$(jq -r '.token_error // empty' <<<"${gws_auth_status}")" \
-        || fail "Failed to parse gws auth status token_error in ${container}"
-      gws_credentials_type="$(
-        gce_ssh_lastline "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; jq -r '.type // empty' \\\"${gws_active_credentials_path}\\\" 2>/dev/null\""
-      )" || fail "Failed to parse Google Workspace credentials file type inside ${container}"
-
-      if [[ "${gws_plain_credentials_exists}" != "true" ]]; then
-        fail "Google Workspace credentials file is not visible to gws inside ${container}"
-      fi
-      if [[ -n "${gws_token_error}" ]]; then
-        fail "Google Workspace credentials are present but invalid in ${container}: ${gws_token_error}"
-      fi
-      if [[ "${gws_token_valid}" != "true" ]]; then
-        if [[ "${gws_token_valid_present}" == "false" && "${gws_has_refresh_token}" == "false" && "${gws_credentials_type}" == "service_account" ]]; then
-          log "Google Workspace auth status omitted token_valid for non-refresh-token credentials; treating service-account posture as healthy."
-        else
-          fail "Google Workspace credentials are present but gws auth status is not healthy in ${container}"
-        fi
-      fi
-      log "Google Workspace auth status is healthy."
-    else
-      log "Google Workspace active credential route mode is ${gws_active_route_mode:-<unset>}; skipping credentials file check."
-    fi
-
-    # Check 7: route-bound auth-health policy gates for agent:main and one
-    # delegated subject. Both must stay healthy and service-account-backed.
-    checks_run=$((checks_run + 1))
-    log "Checking route-bound Google Workspace auth-health policy gates on ${GCE_INSTANCE_NAME}..."
-    require_container_script "${container_escaped}" "scripts/gws/select-delegate-subject.mjs" "GWS delegated subject selector"
-    require_container_script "${container_escaped}" "scripts/gws/run-auth-health.mjs" "GWS auth-health runner"
-    gws_delegate_subjects_json="$(
-      gce_ssh_last_json_line "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; node scripts/gws/select-delegate-subject.mjs\""
-    )" || fail "No delegated GWS binding subjects found for auth-health verification in ${container}."
-    gws_delegate_subject_config_path="$(jq -r '.configPath // empty' <<<"${gws_delegate_subjects_json}" | tr -d '[:space:]')" \
-      || fail "Failed to parse delegate subject selector configPath in ${container}"
-    if [[ -n "${gws_delegate_subject_config_path}" ]]; then
-      log "Delegated GWS subject selection is using active config ${gws_delegate_subject_config_path} in ${container}."
-    fi
-    mapfile -t gws_delegate_subject_candidates < <(jq -r '.delegateSubjects[]?' <<<"${gws_delegate_subjects_json}")
-    [[ "${#gws_delegate_subject_candidates[@]}" -gt 0 ]] \
-      || fail "No delegated GWS binding subject candidates found for auth-health verification in ${container}."
-
-    run_gws_auth_health_payload() {
-      local subject="${1:?binding subject required}"
-      local subject_escaped auth_health_json
-      if [[ ! "${subject}" =~ ^(agent|subagent):[A-Za-z0-9._-]+$ ]]; then
-        return 2
-      fi
-      printf -v subject_escaped '%q' "${subject}"
-      auth_health_json="$(
-        gce_ssh_last_json_line "sudo docker exec ${container_escaped} bash -lc \"set -euo pipefail; cd /app; node scripts/gws/run-auth-health.mjs --subject ${subject_escaped}\""
-      )" || return 1
-      printf '%s\n' "${auth_health_json}"
-    }
-
-    validate_gws_auth_health_payload() {
-      local subject="${1:?binding subject required}"
-      local auth_health_json="${2:?auth health payload required}"
-      jq -e '.ok == true' >/dev/null <<<"${auth_health_json}" \
-        || return 1
-      jq -e --arg subject "${subject}" '.data.route.bindingSubject == $subject' >/dev/null <<<"${auth_health_json}" \
-        || return 1
-      jq -e '.data.authHealth.tokenValid == true and ((.data.authHealth.tokenError // "") == "")' >/dev/null <<<"${auth_health_json}" \
-        || return 1
-    }
-
-    gws_main_auth_health_json="$(
-      run_gws_auth_health_payload "agent:main"
-    )" || fail "Route-bound auth-health command failed for subject agent:main in ${container}"
-    printf '%s\n' "${gws_main_auth_health_json}"
-    validate_gws_auth_health_payload "agent:main" "${gws_main_auth_health_json}" \
-      || fail "Auth-health baseline checks failed for subject agent:main in ${container}"
-    jq -e '.data.authHealth.credentialSourceType == "service_account_json"' >/dev/null <<<"${gws_main_auth_health_json}" \
-      || fail "Auth-health credential source drifted from service_account_json for subject agent:main in ${container}"
-    jq -e '.data.authHealth.serviceAccountPolicyEnforced == true and .data.authHealth.serviceAccountPolicyCompliant == true' >/dev/null <<<"${gws_main_auth_health_json}" \
-      || fail "Auth-health service-account policy gate failed for subject agent:main in ${container}"
-
-    gws_delegate_subject=""
-    for candidate_subject in "${gws_delegate_subject_candidates[@]}"; do
-      candidate_subject="$(echo "${candidate_subject}" | tr -d '[:space:]')"
-      if [[ ! "${candidate_subject}" =~ ^(agent|subagent):[A-Za-z0-9._-]+$ ]]; then
-        log "Skipping invalid delegated subject candidate: ${candidate_subject:-<empty>}"
-        continue
-      fi
-
-      candidate_auth_health_json="$(
-        run_gws_auth_health_payload "${candidate_subject}"
-      )" || {
-        log "Delegated auth-health command failed for ${candidate_subject}; trying next candidate."
-        continue
-      }
-      printf '%s\n' "${candidate_auth_health_json}"
-      if ! validate_gws_auth_health_payload "${candidate_subject}" "${candidate_auth_health_json}"; then
-        log "Delegated auth-health baseline checks failed for ${candidate_subject}; trying next candidate."
-        continue
-      fi
-      if ! jq -e '.data.authHealth.credentialSourceType == "service_account_json"' >/dev/null <<<"${candidate_auth_health_json}"; then
-        log "Delegated auth-health credential source is not service_account_json for ${candidate_subject}; trying next candidate."
-        continue
-      fi
-      if ! jq -e '.data.authHealth.serviceAccountPolicyEnforced == true and .data.authHealth.serviceAccountPolicyCompliant == true' >/dev/null <<<"${candidate_auth_health_json}"; then
-        log "Delegated auth-health service-account policy gate failed for ${candidate_subject}; trying next candidate."
-        continue
-      fi
-
-      gws_delegate_subject="${candidate_subject}"
-      break
-    done
-
-    [[ -n "${gws_delegate_subject}" ]] \
-      || fail "No delegated GWS binding subject passed service-account auth-health policy gates in ${container}."
-    log "Route-bound Google Workspace auth-health policy gates passed for agent:main and ${gws_delegate_subject}."
-
-    # Check 8: when monitoring env has been generated, Alertmanager must be
+    # Check 6: when monitoring env has been generated, Alertmanager must be
     # running from the host-rendered runtime config with locked-down permissions.
     checks_run=$((checks_run + 1))
     log "Checking monitoring Alertmanager runtime config delivery on ${GCE_INSTANCE_NAME}..."
@@ -620,7 +431,7 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
     log "VERIFY_ENV=${VERIFY_ENV:-<unset>}; skipping staging-specific verification."
   fi
 
-  # Check 9: when sandboxing is enabled, the deployed sandbox image must exist
+  # Check 7: when sandboxing is enabled, the deployed sandbox image must exist
   # locally and include the required runtime binaries.
   checks_run=$((checks_run + 1))
   log "Checking sandbox runtime config and image requirements from deployed config..."
@@ -666,7 +477,7 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
     log "Sandbox browser is disabled; skipping image presence check."
   fi
 
-  # Check 10: verify deployed image matches DEPLOYED_REF (if set)
+  # Check 8: verify deployed image matches DEPLOYED_REF (if set)
   if [[ -n "${DEPLOYED_REF:-}" ]]; then
     checks_run=$((checks_run + 1))
     log "Checking deployed image matches DEPLOYED_REF (${DEPLOYED_REF})..."
@@ -682,7 +493,7 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
     log "Container image: ${image_ref}"
   fi
 
-  # Check 11: smoke-test the bundled mongodb-mcp-server CLI inside the deployed
+  # Check 9: smoke-test the bundled mongodb-mcp-server CLI inside the deployed
   # container. This catches the Node 22 startup crash that can occur before MCP
   # stdio connects, even while the gateway health endpoint still reports healthy.
   checks_run=$((checks_run + 1))
@@ -692,7 +503,7 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
   )" || fail "mongodb-mcp-server startup smoke failed in ${container}"
   printf '%s\n' "${mcp_smoke_output}"
 
-  # Check 12: ensure the current container logs do not contain the known
+  # Check 10: ensure the current container logs do not contain the known
   # translator crash or the resulting MCP connection-closed failure.
   checks_run=$((checks_run + 1))
   log "Checking ${container} logs for MongoDB MCP startup crash signatures..."
@@ -704,6 +515,15 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
     fail "Detected MongoDB MCP startup crash signatures in ${container} logs"
   fi
   log "No MongoDB MCP startup crash signatures found in ${container} logs."
+
+  if [[ "${VERIFY_ENV:-}" == "staging" ]]; then
+    # Check 11: run the named sandbox-first acceptance scenarios and persist
+    # scenario artifacts for later inspection.
+    checks_run=$((checks_run + 1))
+    log "Running sandbox-first staging acceptance automation..."
+    bash "${repo_root}/scripts/verify/run-sandbox-first-acceptance.sh" \
+      || fail "Sandbox-first staging acceptance automation reported a required failure."
+  fi
 fi
 
 if [[ -n "${VERIFY_SSH_HOST:-}" ]]; then
