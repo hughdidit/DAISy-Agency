@@ -123,19 +123,18 @@ export async function buildContextReply(params: HandleCommandsParams): Promise<R
     return `- ${f.name}: ${status} | raw ${raw} | injected ${injected}`;
   });
 
-  const sandboxMode =
+  const knownSandboxMode =
     report.sandbox?.mode === "all" ||
     report.sandbox?.mode === "non-main" ||
     report.sandbox?.mode === "off"
       ? report.sandbox.mode
-      : "off";
+      : undefined;
+  const sandboxMode = knownSandboxMode ?? "unknown";
   const sandboxed = report.sandbox?.sandboxed ?? false;
-  const sandboxLine = `Sandbox: mode=${sandboxMode} sandboxed=${sandboxed} trust=${formatSandboxTrustPostureLine(
-    {
-      mode: sandboxMode,
-      sandboxed,
-    },
-  )}`;
+  const trustLabel = knownSandboxMode
+    ? formatSandboxTrustPostureLine({ mode: knownSandboxMode, sandboxed })
+    : "unknown";
+  const sandboxLine = `Sandbox: mode=${sandboxMode} sandboxed=${sandboxed} trust=${trustLabel}`;
   const toolSchemaLine = `Tool schemas (JSON): ${formatCharsAndTokens(report.tools.schemaChars)} (counts toward context; not shown as text)`;
   const toolListLine = `Tool list (system prompt text): ${formatCharsAndTokens(report.tools.listChars)}`;
   const skillNameSet = new Set(report.skills.entries.map((s) => s.name));

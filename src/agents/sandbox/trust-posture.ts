@@ -43,5 +43,5 @@ export function formatSandboxTrustPostureLine(params: {
   sandboxed: boolean;
 }): string {
   const posture = resolveSandboxTrustPosture(params);
-  return `${posture.trustLabel} (${posture.trustPosture})`;
+  return posture.trustLabel;
 }

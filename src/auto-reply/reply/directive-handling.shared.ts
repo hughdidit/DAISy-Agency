@@ -25,7 +25,7 @@ export const formatElevatedEvent = (level: ElevatedLevel) => {
   if (level === "ask" || level === "on") {
     return `Elevated ASK - ${BREAK_GLASS_HOST_LABEL}; exec runs on host and approvals may still apply.`;
   }
-  return "Elevated OFF — exec stays in sandbox.";
+  return "Elevated OFF - exec stays in sandbox.";
 };
 
 export const formatReasoningEvent = (level: ReasoningLevel) => {
