@@ -8,7 +8,10 @@ export interface SandboxFirstAcceptanceSummaryEntry {
   failureClass: string | null;
   reason: string | null;
   artifacts: string[];
-  automatedScope: "full" | "partial";
+  automatedScope: string;
+  operationalContext?: string;
+  expectedOutcome?: string;
+  manualRemainder?: string;
 }
 
 export interface SandboxFirstAcceptanceScenarioSummaryParams {
@@ -19,7 +22,21 @@ export interface SandboxFirstAcceptanceScenarioSummaryParams {
   failureClass?: string | null;
   reason?: string | null;
   artifacts?: string[];
-  automatedScope: "full" | "partial";
+  automatedScope: string;
+  operationalContext?: string;
+  expectedOutcome?: string;
+  manualRemainder?: string;
+}
+
+export interface SandboxFirstAcceptanceScenario {
+  scenarioId: string;
+  manualChecklistId: string;
+  required: boolean;
+  automatedScope: string;
+  primaryFailureClass: string;
+  operationalContext?: string;
+  expectedOutcome?: string;
+  manualRemainder?: string;
 }
 
 export interface SandboxFirstAcceptanceReadonlyDiagnosticsInput {
@@ -55,10 +72,12 @@ export interface SandboxFirstAcceptanceRunParams {
 }
 
 export interface SandboxFirstAcceptanceRunResult {
-  acceptanceRoot: string;
+  summaryPath: string | null;
   hasRequiredFailure: boolean;
   results: SandboxFirstAcceptanceSummaryEntry[];
 }
+
+export const SANDBOX_FIRST_ACCEPTANCE_SCENARIOS: readonly SandboxFirstAcceptanceScenario[];
 
 export function buildScenarioSummaryEntry(
   params: SandboxFirstAcceptanceScenarioSummaryParams,

@@ -41,6 +41,56 @@ export const SANDBOX_FIRST_ACCEPTANCE_SCENARIOS = Object.freeze([
     automatedScope: "isolated execution only; chat delivery remains manual",
     primaryFailureClass: "scheduler-gap",
   },
+  {
+    scenarioId: "sbx-404-01-direct-session-runtime",
+    manualChecklistId: "SBX-404-01",
+    required: true,
+    automatedScope: "direct session sandbox runtime truth; chat transcript remains manual",
+    primaryFailureClass: "unsandboxed-session-gap",
+    operationalContext: "direct-session",
+    expectedOutcome: "pass",
+    manualRemainder: "Live direct-chat transcript and screenshot evidence.",
+  },
+  {
+    scenarioId: "sbx-404-02-group-session-runtime",
+    manualChecklistId: "SBX-404-02",
+    required: true,
+    automatedScope: "group/channel session sandbox runtime truth and channel observability",
+    primaryFailureClass: "unsandboxed-session-gap",
+    operationalContext: "group-session",
+    expectedOutcome: "pass",
+    manualRemainder: "Live group/channel activation and transcript evidence.",
+  },
+  {
+    scenarioId: "sbx-404-03-subagent-sandbox-inheritance",
+    manualChecklistId: "SBX-404-03",
+    required: true,
+    automatedScope: "subagent child session runtime truth; spawn lifecycle remains unit-covered",
+    primaryFailureClass: "sandbox-inheritance-gap",
+    operationalContext: "subagent-session",
+    expectedOutcome: "pass",
+    manualRemainder: "Live requester-facing spawn acknowledgement and completion announcement.",
+  },
+  {
+    scenarioId: "sbx-404-04-cron-isolation-and-subagent-model",
+    manualChecklistId: "SBX-404-04",
+    required: true,
+    automatedScope: "isolated cron execution, run session key, and run history metadata",
+    primaryFailureClass: "scheduler-gap",
+    operationalContext: "cron-isolated-session",
+    expectedOutcome: "pass",
+    manualRemainder: "Delivery-target screenshot when announce delivery is part of the rollout.",
+  },
+  {
+    scenarioId: "sbx-404-05-host-only-blocks",
+    manualChecklistId: "SBX-404-05",
+    required: true,
+    automatedScope: "expected blocked host-only ACP spawn from sandboxed requester",
+    primaryFailureClass: "unsupported-host-only-behavior",
+    operationalContext: "host-only-exception",
+    expectedOutcome: "blocked",
+    manualRemainder: "None for ACP policy block baseline.",
+  },
 ]);
 
 const ANSI_ESCAPE_PREFIX = String.fromCharCode(0x1b);
@@ -108,6 +158,31 @@ function assertNonEmptyString(value, message) {
     throw new ScenarioError("runtime-profile-mismatch", message);
   }
   return value.trim();
+}
+
+function assertSandboxedSessionExplain(payload, params) {
+  if (payload?.sessionKey !== params.sessionKey) {
+    throw new ScenarioError(
+      params.failureClass,
+      `sandbox explain returned sessionKey=${String(payload?.sessionKey ?? "<empty>")} for ${params.sessionKey}`,
+    );
+  }
+  if (payload?.sandbox?.mode !== "all") {
+    throw new ScenarioError(
+      params.failureClass,
+      `sandbox explain reported sandbox.mode=${String(payload?.sandbox?.mode ?? "<empty>")} for ${params.sessionKey}`,
+    );
+  }
+  if (payload?.sandbox?.sessionIsSandboxed !== true) {
+    throw new ScenarioError(
+      params.failureClass,
+      `sandbox explain did not mark ${params.sessionKey} as sandboxed`,
+    );
+  }
+  assertNonEmptyString(
+    payload?.sandbox?.profile,
+    `sandbox explain did not report an effective runtime profile for ${params.sessionKey}`,
+  );
 }
 
 function spawnCommand(command, args, options = {}) {
@@ -192,6 +267,9 @@ export function buildScenarioSummaryEntry(params) {
     reason: params.reason ?? null,
     artifacts: Array.isArray(params.artifacts) ? params.artifacts : [],
     automatedScope: params.automatedScope,
+    ...(params.operationalContext ? { operationalContext: params.operationalContext } : {}),
+    ...(params.expectedOutcome ? { expectedOutcome: params.expectedOutcome } : {}),
+    ...(params.manualRemainder ? { manualRemainder: params.manualRemainder } : {}),
   };
 }
 
@@ -985,6 +1063,240 @@ export async function runIsolatedCronScenario(ctx) {
   }
 }
 
+async function runSandboxExplainForSession(ctx, params) {
+  const explainRaw = ctx.dockerExecBash(
+    `cd /app && node dist/index.js sandbox explain --session ${shellQuote(params.sessionKey)} --json`,
+  );
+  await ctx.writeArtifactText(params.artifactName, explainRaw);
+  const explainPayload = parseJsonOrThrow(
+    explainRaw,
+    params.failureClass,
+    `sandbox explain --session ${params.sessionKey} did not return a parseable JSON payload`,
+  );
+  assertSandboxedSessionExplain(explainPayload, {
+    sessionKey: params.sessionKey,
+    failureClass: params.failureClass,
+  });
+  return explainPayload;
+}
+
+async function runDirectSessionRuntimeScenario(ctx) {
+  const sessionKey = ctx.env.SBX404_DIRECT_SESSION_KEY?.trim() || "agent:main:main";
+  const payload = await runSandboxExplainForSession(ctx, {
+    sessionKey,
+    artifactName: "direct-session-sandbox-explain.json",
+    failureClass: "unsandboxed-session-gap",
+  });
+  await ctx.writeArtifactJson("direct-session-runtime.json", {
+    operationalContext: "direct-session",
+    sessionKey,
+    agentId: payload.agentId,
+    runtimeProfile: payload.sandbox.profile,
+    expectedOutcome: "pass",
+  });
+}
+
+async function runGroupSessionRuntimeScenario(ctx) {
+  const sessionKey =
+    ctx.env.SBX404_GROUP_SESSION_KEY?.trim() || "agent:main:discord:group:sbx-404-validation";
+  const payload = await runSandboxExplainForSession(ctx, {
+    sessionKey,
+    artifactName: "group-session-sandbox-explain.json",
+    failureClass: "unsandboxed-session-gap",
+  });
+  const observedChannel =
+    typeof payload?.elevated?.channel === "string" ? payload.elevated.channel.trim() : "";
+  if (!observedChannel) {
+    throw new ScenarioError(
+      "session-routing-gap",
+      `sandbox explain did not expose an operator-visible channel for ${sessionKey}`,
+    );
+  }
+  await ctx.writeArtifactJson("group-session-observability.json", {
+    operationalContext: "group-session",
+    sessionKey,
+    observedChannel,
+    runtimeProfile: payload.sandbox.profile,
+    expectedOutcome: "pass",
+  });
+}
+
+async function runSubagentSandboxInheritanceScenario(ctx) {
+  const sessionKey =
+    ctx.env.SBX404_SUBAGENT_SESSION_KEY?.trim() || "agent:main:subagent:sbx-404-validation";
+  if (!sessionKey.includes(":subagent:")) {
+    throw new ScenarioError(
+      "sandbox-inheritance-gap",
+      `SBX404_SUBAGENT_SESSION_KEY must be a subagent session key, got ${sessionKey}`,
+    );
+  }
+  const payload = await runSandboxExplainForSession(ctx, {
+    sessionKey,
+    artifactName: "subagent-session-sandbox-explain.json",
+    failureClass: "sandbox-inheritance-gap",
+  });
+  await ctx.writeArtifactJson("subagent-runtime-metadata.json", {
+    operationalContext: "subagent-session",
+    childSessionKey: sessionKey,
+    lane: "subagent",
+    runtimeProfile: payload.sandbox.profile,
+    expectedOutcome: "pass",
+  });
+}
+
+export async function runCronIsolationAndSubagentModelScenario(ctx) {
+  const runAt = new Date(ctx.now().getTime() + 20 * 60 * 1000).toISOString();
+  const jobName = `SBX-404 cron isolation ${ctx.now().toISOString()}`;
+  const modelOverride = ctx.env.SBX404_CRON_MODEL?.trim() || "";
+  let jobId = "";
+
+  try {
+    const addRaw = ctx.dockerExecBash(
+      [
+        "cd /app && node dist/index.js cron add",
+        `--name ${shellQuote(jobName)}`,
+        `--at ${shellQuote(runAt)}`,
+        "--session isolated",
+        `--message ${shellQuote(DEFAULT_CRON_PROMPT)}`,
+        modelOverride ? `--model ${shellQuote(modelOverride)}` : "",
+        "--no-deliver",
+        "--delete-after-run",
+      ]
+        .filter(Boolean)
+        .join(" "),
+    );
+    await ctx.writeArtifactText("cron-add.json", addRaw);
+    const addPayload = parseJsonOrThrow(
+      addRaw,
+      "scheduler-gap",
+      "SBX-404 cron add did not return a parseable JSON payload",
+    );
+    jobId = typeof addPayload?.id === "string" && addPayload.id.trim() ? addPayload.id.trim() : "";
+    if (!jobId) {
+      throw new ScenarioError("scheduler-gap", "SBX-404 cron add did not return a job id");
+    }
+
+    const runRaw = ctx.dockerExecBash(
+      `cd /app && node dist/index.js cron run ${shellQuote(jobId)}`,
+    );
+    await ctx.writeArtifactText("cron-run.json", runRaw);
+    const runPayload = parseJsonOrThrow(
+      runRaw,
+      "scheduler-gap",
+      "SBX-404 cron run did not return a parseable JSON payload",
+    );
+    if (runPayload?.ok !== true || runPayload?.ran !== true) {
+      throw new ScenarioError(
+        "scheduler-gap",
+        "SBX-404 cron run did not execute the isolated validation job",
+      );
+    }
+
+    const { last } = await pollForCronEntry(ctx, jobId);
+    if (last?.action !== "finished") {
+      throw new ScenarioError(
+        "scheduler-gap",
+        "SBX-404 cron run history did not record a finished event",
+      );
+    }
+    if (last?.status !== "ok") {
+      throw new ScenarioError(
+        "sandbox-runtime-gap",
+        `SBX-404 isolated cron job finished with status ${String(last?.status ?? "<empty>")}`,
+      );
+    }
+    if (last?.deliveryStatus !== "not-requested") {
+      throw new ScenarioError(
+        "delivery-gap",
+        `SBX-404 isolated cron job unexpectedly attempted delivery (${String(
+          last?.deliveryStatus ?? "<empty>",
+        )})`,
+      );
+    }
+    const runSessionKey = typeof last?.sessionKey === "string" ? last.sessionKey.trim() : "";
+    if (!/^agent:main:cron:[^:]+:run:[^:]+$/.test(runSessionKey)) {
+      throw new ScenarioError(
+        "scheduler-gap",
+        `SBX-404 isolated cron run did not expose a per-run session key, got ${runSessionKey || "<empty>"}`,
+      );
+    }
+    await ctx.writeArtifactJson("cron-isolation-metadata.json", {
+      operationalContext: "cron-isolated-session",
+      jobId,
+      sessionKey: runSessionKey,
+      model: typeof last?.model === "string" ? last.model : null,
+      provider: typeof last?.provider === "string" ? last.provider : null,
+      expectedOutcome: "pass",
+    });
+  } finally {
+    if (jobId) {
+      try {
+        const cleanupRaw = ctx.dockerExecBash(
+          `cd /app && node dist/index.js cron rm ${shellQuote(jobId)} --json`,
+        );
+        await ctx.writeArtifactText("cron-cleanup.json", cleanupRaw);
+      } catch (error) {
+        await ctx.writeArtifactText(
+          "cron-cleanup-error.txt",
+          `${error?.message ?? "cleanup failed"}\n${error?.stdout ?? ""}\n${error?.stderr ?? ""}`.trim(),
+        );
+      }
+    }
+  }
+}
+
+async function runHostOnlyBlocksScenario(ctx) {
+  const probeScript = `
+    import { spawnAcpDirect } from "./dist/agents/acp-spawn.js";
+    const result = await spawnAcpDirect(
+      { task: "SBX-404 host-only block probe", agentId: "codex" },
+      { agentSessionKey: "agent:main:subagent:sbx-404-parent", sandboxed: true },
+    );
+    console.log(JSON.stringify(result, null, 2));
+  `.trim();
+  const command = `
+    set -euo pipefail
+    tmp_dir="$(mktemp -d /tmp/sbx-404-host-only.XXXXXX)"
+    cleanup() { rm -rf "$tmp_dir"; }
+    trap cleanup EXIT
+    cat > "$tmp_dir/openclaw.json" <<'JSON'
+{"acp":{"enabled":true},"agents":{"defaults":{"sandbox":{"mode":"all"}}}}
+JSON
+    OPENCLAW_CONFIG_PATH="$tmp_dir/openclaw.json" node --input-type=module -e ${shellQuote(
+      probeScript,
+    )}
+  `.trim();
+  const raw = ctx.dockerExecBash(command);
+  await ctx.writeArtifactText("host-only-acp-spawn-result.json", raw);
+  const payload = parseJsonOrThrow(
+    raw,
+    "unsupported-host-only-behavior",
+    "ACP host-only block probe did not return a parseable JSON payload",
+  );
+  const error = typeof payload?.error === "string" ? payload.error : "";
+  if (payload?.status !== "forbidden") {
+    throw new ScenarioError(
+      "unsupported-host-only-behavior",
+      `ACP host-only block probe returned status ${String(payload?.status ?? "<empty>")}`,
+    );
+  }
+  if (
+    !error.includes("Sandbox unsupported host-only operation") ||
+    !error.includes('runtime="acp" runs on the host')
+  ) {
+    throw new ScenarioError(
+      "unsupported-host-only-behavior",
+      "ACP host-only block probe did not include the expected sandbox host-only failure text",
+    );
+  }
+  await ctx.writeArtifactJson("host-only-block-metadata.json", {
+    operationalContext: "host-only-exception",
+    expectedOutcome: "blocked",
+    status: payload.status,
+    failureClass: "unsupported-host-only-behavior",
+  });
+}
+
 export async function runScenarioSet(params) {
   const results = [];
   await fs.mkdir(params.runtime.acceptanceRoot, { recursive: true });
@@ -1059,11 +1371,16 @@ export async function runSandboxFirstAcceptance(params = {}) {
 
   await fs.mkdir(runtime.acceptanceRoot, { recursive: true });
   const scenarioHandlers = new Map([
-    [SANDBOX_FIRST_ACCEPTANCE_SCENARIOS[0].scenarioId, runRuntimeProfileSanityScenario],
-    [SANDBOX_FIRST_ACCEPTANCE_SCENARIOS[1].scenarioId, runReadonlyDiagnosticsScenario],
-    [SANDBOX_FIRST_ACCEPTANCE_SCENARIOS[2].scenarioId, runReadinessSnapshotScenario],
-    [SANDBOX_FIRST_ACCEPTANCE_SCENARIOS[3].scenarioId, runIntegrationPathScenario],
-    [SANDBOX_FIRST_ACCEPTANCE_SCENARIOS[4].scenarioId, runIsolatedCronScenario],
+    ["sbx-401-02-runtime-profile-sanity", runRuntimeProfileSanityScenario],
+    ["sbx-401-03-readonly-diagnostics", runReadonlyDiagnosticsScenario],
+    ["sbx-401-04-readiness-snapshot", runReadinessSnapshotScenario],
+    ["sbx-401-05-integration-path", runIntegrationPathScenario],
+    ["sbx-401-08-isolated-cron", runIsolatedCronScenario],
+    ["sbx-404-01-direct-session-runtime", runDirectSessionRuntimeScenario],
+    ["sbx-404-02-group-session-runtime", runGroupSessionRuntimeScenario],
+    ["sbx-404-03-subagent-sandbox-inheritance", runSubagentSandboxInheritanceScenario],
+    ["sbx-404-04-cron-isolation-and-subagent-model", runCronIsolationAndSubagentModelScenario],
+    ["sbx-404-05-host-only-blocks", runHostOnlyBlocksScenario],
   ]);
 
   const results = await runScenarioSet({

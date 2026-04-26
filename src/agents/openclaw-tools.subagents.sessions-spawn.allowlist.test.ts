@@ -74,6 +74,7 @@ describe("openclaw-tools: subagents (sessions_spawn allowlist)", () => {
         list: [
           {
             id: "main",
+            ...(params?.includeSandboxedDefault ? {} : { sandbox: { mode: "off" as const } }),
             subagents: {
               allowAgents: ["research"],
             },
@@ -217,6 +218,30 @@ describe("openclaw-tools: subagents (sessions_spawn allowlist)", () => {
     expect(details.error).toContain("Sandbox unsupported host-only operation");
     expect(details.error).toContain("Sandboxed sessions cannot spawn unsandboxed subagents.");
     expect(callGatewayMock).not.toHaveBeenCalled();
+  });
+
+  it("allows sandboxed same-agent spawns to inherit a sandboxed child runtime", async () => {
+    setSessionsSpawnConfigOverride({
+      session: {
+        mainKey: "main",
+        scope: "per-sender",
+      },
+      agents: {
+        defaults: {
+          sandbox: {
+            mode: "all",
+          },
+        },
+      },
+    });
+    const getChildSessionKey = mockAcceptedSpawn(5300);
+
+    const result = await executeSpawn("call-sandbox-inherit", "main", "require");
+    const details = result.details as { status?: string; childSessionKey?: string };
+
+    expect(details.status).toBe("accepted");
+    expect(getChildSessionKey()).toMatch(/^agent:main:subagent:/);
+    expect(details.childSessionKey).toBe(getChildSessionKey());
   });
 
   it('forbids sandbox="require" when target runtime is unsandboxed', async () => {

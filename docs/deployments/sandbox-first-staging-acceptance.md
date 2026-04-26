@@ -494,6 +494,26 @@ When Verify reports a failure for one of the scenario ids above, keep the
 scenario id and step-level failure class in the rollout notes so it still maps
 cleanly back to the SBX-401 checklist language.
 
+## SBX-404 Operational Validation Mapping
+
+SBX-404 extends the same Verify artifact contract with operational scenarios for
+direct, grouped, delegated, recurring, and expected-blocked sandbox-first paths.
+These scenarios are additive to the SBX-401/SBX-402 baseline and continue to
+write into `sandbox-first-acceptance-summary.json`.
+
+| SBX-404 item | Verify scenario id                             | Expected result  | Automated scope                                                                   | Manual remainder                                                                           |
+| ------------ | ---------------------------------------------- | ---------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `SBX-404-01` | `sbx-404-01-direct-session-runtime`            | expected pass    | `sandbox explain --session agent:main:main --json` reports `sandbox.mode=all`.    | Live direct-agent reply/transcript showing the same runtime truth.                         |
+| `SBX-404-02` | `sbx-404-02-group-session-runtime`             | expected pass    | Representative group/channel session reports sandboxed runtime and channel data.  | Live group/channel activation and transcript evidence.                                     |
+| `SBX-404-03` | `sbx-404-03-subagent-sandbox-inheritance`      | expected pass    | Representative subagent session key reports sandboxed child runtime metadata.     | Requester-facing subagent spawn acknowledgement, completion announcement, and info output. |
+| `SBX-404-04` | `sbx-404-04-cron-isolation-and-subagent-model` | expected pass    | Verify creates and force-runs an isolated cron job, then checks per-run key data. | Delivery-target screenshot when announce delivery is part of the rollout.                  |
+| `SBX-404-05` | `sbx-404-05-host-only-blocks`                  | expected blocked | ACP host-only spawn from a sandboxed requester returns the sandbox policy block.  | None for the ACP policy block baseline.                                                    |
+
+Use `SBX404_DIRECT_SESSION_KEY`, `SBX404_GROUP_SESSION_KEY`,
+`SBX404_SUBAGENT_SESSION_KEY`, and `SBX404_CRON_MODEL` only when the staging
+environment needs a specific representative session or model override. Do not
+set these to make a failing sandbox-first path pass through host-mode fallback.
+
 ## Pass / Fail Rule
 
 Mark SBX-401 complete only when:

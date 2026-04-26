@@ -6,6 +6,7 @@ import {
   analyzeReadonlyDiagnostics,
   buildScenarioSummaryEntry,
   runSandboxFirstAcceptance,
+  SANDBOX_FIRST_ACCEPTANCE_SCENARIOS,
   selectIntegrationPath,
 } from "./sandbox-first-acceptance.mjs";
 
@@ -113,6 +114,35 @@ describe("sandbox-first acceptance helpers", () => {
       automatedScope: "full",
     });
   });
+
+  it("keeps SBX-404 scenario metadata additive in the summary contract", () => {
+    const sbx404 = SANDBOX_FIRST_ACCEPTANCE_SCENARIOS.filter((entry: { scenarioId: string }) =>
+      entry.scenarioId.startsWith("sbx-404-"),
+    );
+    expect(sbx404.map((entry: { scenarioId: string }) => entry.scenarioId)).toEqual([
+      "sbx-404-01-direct-session-runtime",
+      "sbx-404-02-group-session-runtime",
+      "sbx-404-03-subagent-sandbox-inheritance",
+      "sbx-404-04-cron-isolation-and-subagent-model",
+      "sbx-404-05-host-only-blocks",
+    ]);
+
+    expect(
+      buildScenarioSummaryEntry({
+        ...sbx404[4],
+        status: "passed",
+        artifacts: ["sandbox-first-acceptance/sbx-404-05-host-only-blocks/result.json"],
+      }),
+    ).toEqual(
+      expect.objectContaining({
+        scenarioId: "sbx-404-05-host-only-blocks",
+        manualChecklistId: "SBX-404-05",
+        operationalContext: "host-only-exception",
+        expectedOutcome: "blocked",
+        manualRemainder: "None for ACP policy block baseline.",
+      }),
+    );
+  });
 });
 
 describe("runSandboxFirstAcceptance", () => {
@@ -120,6 +150,25 @@ describe("runSandboxFirstAcceptance", () => {
     await withTempDir(async (artifactRoot) => {
       const sshCommands: string[] = [];
       const dockerExecBash = vi.fn((command: string) => {
+        if (command.startsWith("cd /app && node dist/index.js sandbox explain --session ")) {
+          const sessionKey = command.match(/--session '([^']+)'/)?.[1] ?? "agent:main:main";
+          return JSON.stringify(
+            {
+              agentId: "main",
+              sessionKey,
+              sandbox: {
+                mode: "all",
+                profile: "ops-readonly",
+                sessionIsSandboxed: true,
+              },
+              elevated: {
+                channel: sessionKey.includes(":discord:") ? "discord" : "internal",
+              },
+            },
+            null,
+            2,
+          );
+        }
         if (command === "cd /app && node dist/index.js status --json") {
           return JSON.stringify(
             {
@@ -296,6 +345,9 @@ describe("runSandboxFirstAcceptance", () => {
                   action: "finished",
                   status: "ok",
                   deliveryStatus: "not-requested",
+                  sessionKey: "agent:main:cron:job-2:run:run-2",
+                  provider: "anthropic",
+                  model: "claude-sonnet-4-5",
                 },
               ],
             },
@@ -305,6 +357,17 @@ describe("runSandboxFirstAcceptance", () => {
         }
         if (command === "cd /app && node dist/index.js cron rm 'job-2' --json") {
           return JSON.stringify({ ok: true, removed: false }, null, 2);
+        }
+        if (command.includes("spawnAcpDirect")) {
+          return JSON.stringify(
+            {
+              status: "forbidden",
+              error:
+                'Sandbox unsupported host-only operation during ACP session spawn (runtime="acp"): runtime="acp" runs on the host and cannot be spawned from a sandboxed session.',
+            },
+            null,
+            2,
+          );
         }
         throw new Error(`Unhandled docker command: ${command}`);
       });
@@ -352,6 +415,11 @@ describe("runSandboxFirstAcceptance", () => {
         "passed",
         "passed",
         "passed",
+        "passed",
+        "passed",
+        "passed",
+        "passed",
+        "passed",
       ]);
       const hostPathProbeCommand = sshCommands.find((command) =>
         command.includes('stat -c "present(size=%s)"'),
@@ -366,6 +434,25 @@ describe("runSandboxFirstAcceptance", () => {
       const commands: string[] = [];
       const dockerExecBash = vi.fn((command: string) => {
         commands.push(command);
+        if (command.startsWith("cd /app && node dist/index.js sandbox explain --session ")) {
+          const sessionKey = command.match(/--session '([^']+)'/)?.[1] ?? "agent:main:main";
+          return JSON.stringify(
+            {
+              agentId: "main",
+              sessionKey,
+              sandbox: {
+                mode: "all",
+                profile: "ops-readonly",
+                sessionIsSandboxed: true,
+              },
+              elevated: {
+                channel: sessionKey.includes(":discord:") ? "discord" : "internal",
+              },
+            },
+            null,
+            2,
+          );
+        }
         if (command === "cd /app && node dist/index.js status --json") {
           return JSON.stringify(
             {
@@ -483,6 +570,9 @@ describe("runSandboxFirstAcceptance", () => {
                   action: "finished",
                   status: "ok",
                   deliveryStatus: "not-requested",
+                  sessionKey: "agent:main:cron:job-1:run:run-1",
+                  provider: "anthropic",
+                  model: "claude-sonnet-4-5",
                 },
               ],
             },
@@ -492,6 +582,17 @@ describe("runSandboxFirstAcceptance", () => {
         }
         if (command === "cd /app && node dist/index.js cron rm 'job-1' --json") {
           return JSON.stringify({ ok: true, removed: false }, null, 2);
+        }
+        if (command.includes("spawnAcpDirect")) {
+          return JSON.stringify(
+            {
+              status: "forbidden",
+              error:
+                'Sandbox unsupported host-only operation during ACP session spawn (runtime="acp"): runtime="acp" runs on the host and cannot be spawned from a sandboxed session.',
+            },
+            null,
+            2,
+          );
         }
         throw new Error(`Unhandled docker command: ${command}`);
       });
@@ -533,6 +634,11 @@ describe("runSandboxFirstAcceptance", () => {
         "passed",
         "passed",
         "passed",
+        "passed",
+        "passed",
+        "passed",
+        "passed",
+        "passed",
       ]);
 
       const summaryPath = path.join(
@@ -543,9 +649,13 @@ describe("runSandboxFirstAcceptance", () => {
       const summary = JSON.parse(await fs.readFile(summaryPath, "utf8")) as Array<{
         scenarioId: string;
         status: string;
+        expectedOutcome?: string;
       }>;
-      expect(summary).toHaveLength(5);
+      expect(summary).toHaveLength(10);
       expect(summary.every((entry) => entry.status === "passed")).toBe(true);
+      expect(summary.find((entry) => entry.scenarioId === "sbx-404-05-host-only-blocks")).toEqual(
+        expect.objectContaining({ expectedOutcome: "blocked" }),
+      );
 
       const cleanupPath = path.join(
         artifactRoot,
