@@ -97,10 +97,17 @@ describe("maybeRepairSandboxImages", () => {
     await runSandboxRepair({ mode: "off", dockerAvailable: false });
 
     expect(note).toHaveBeenCalled();
-    const message = note.mock.calls[0]?.[0] as string;
-    expect(message).toContain("reduced-trust host compatibility mode");
-    expect(message).toContain('agents.defaults.sandbox.mode="all"');
-    expect(message).not.toContain("Docker is required");
+    const messages = note.mock.calls
+      .map((call) => (typeof call[0] === "string" ? call[0] : ""))
+      .filter(Boolean);
+    expect(
+      messages.some(
+        (message) =>
+          message.includes("reduced-trust host compatibility mode") &&
+          message.includes('agents.defaults.sandbox.mode="all"'),
+      ),
+    ).toBe(true);
+    expect(messages.some((message) => message.includes("Docker is required"))).toBe(false);
   });
 
   it("does not warn when Docker is available", async () => {

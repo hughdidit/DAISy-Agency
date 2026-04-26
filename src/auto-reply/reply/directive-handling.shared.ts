@@ -1,4 +1,8 @@
-import { BREAK_GLASS_HOST_LABEL, HOST_COMPATIBILITY_LABEL } from "../../agents/sandbox.js";
+import {
+  BREAK_GLASS_HOST_LABEL,
+  HOST_COMPATIBILITY_LABEL,
+  SANDBOX_FIRST_LABEL,
+} from "../../agents/sandbox.js";
 import { formatCliCommand } from "../../cli/command-format.js";
 import { SYSTEM_MARK, prefixSystemMessage } from "../../infra/system-message.js";
 import type { ElevatedLevel, ReasoningLevel } from "./directives.js";
@@ -65,7 +69,7 @@ export function formatElevatedUnavailableText(params: {
   const lines: string[] = [];
   lines.push(
     `elevated is not available right now (runtime=${
-      params.runtimeSandboxed ? "sandbox-first" : HOST_COMPATIBILITY_LABEL
+      params.runtimeSandboxed ? SANDBOX_FIRST_LABEL : HOST_COMPATIBILITY_LABEL
     }).`,
   );
   const failures = params.failures ?? [];

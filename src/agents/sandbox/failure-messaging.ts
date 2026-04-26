@@ -64,6 +64,14 @@ const LOW_LEVEL_RUNTIME_PATTERNS = [
   /stack trace/i,
 ];
 
+const HOST_ONLY_SPAWN_PATTERNS = [
+  /Sandboxed sessions cannot spawn ACP sessions/i,
+  /runtime="acp" runs on the host/i,
+  /break-glass host(?:-only| authority)/i,
+  /Sandboxed sessions cannot spawn unsandboxed subagents/i,
+  /sandbox="require".*(?:runtime="acp"|unsandboxed|sandboxed target runtime)/i,
+];
+
 function normalizeSentence(value: string): string {
   const trimmed = value.trim();
   if (!trimmed) {
@@ -232,11 +240,7 @@ export function classifySandboxFailureText(
     };
   }
 
-  if (
-    /Sandboxed sessions cannot spawn ACP sessions|runtime="acp" runs on the host|break-glass host(?:-only| authority)|Sandboxed sessions cannot spawn unsandboxed subagents|sandbox="require".*(?:runtime="acp"|unsandboxed|sandboxed target runtime)/i.test(
-      normalized,
-    )
-  ) {
+  if (HOST_ONLY_SPAWN_PATTERNS.some((pattern) => pattern.test(normalized))) {
     return {
       failureClass: "unsupported-host-only",
       operation: "session spawn",
