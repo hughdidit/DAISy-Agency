@@ -1,3 +1,4 @@
+import { formatSandboxFailureMessage } from "../agents/sandbox/failure-messaging.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import { withProgress } from "../cli/progress.js";
 import { loadConfig, resolveGatewayPort } from "../config/config.js";
@@ -51,7 +52,13 @@ function formatGatewayProbeReason(
 ): string {
   const detail =
     reason === "readonly-sandbox-local-loopback-unsupported"
-      ? "Sandbox gateway reachability failure during sandbox gateway probe: A host-loopback gateway probe is unsupported from readonly sandbox context. Fix: Configure a non-loopback gateway.remote.url or use a brokered gateway status path."
+      ? formatSandboxFailureMessage({
+          failureClass: "gateway-reachability",
+          operation: "sandbox gateway probe",
+          detail: "A host-loopback gateway probe is unsupported from readonly sandbox context.",
+          remediation:
+            "Configure a non-loopback gateway.remote.url or use a brokered gateway status path.",
+        })
       : reason
         ? `probe unsupported (${reason})`
         : "probe unsupported";

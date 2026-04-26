@@ -78,6 +78,11 @@ describe("sandbox failure messaging", () => {
       expected: "Docker CLI is unavailable",
     },
     {
+      raw: "Sandbox image not found: ghcr.io/hughdidit/daisy-sandbox:2026.04.26. Build or pull it first.",
+      failureClass: "runtime-capability",
+      expected: "image ghcr.io/hughdidit/daisy-sandbox:2026.04.26",
+    },
+    {
       raw: 'Tool "browser" blocked by sandbox tool policy',
       failureClass: "policy-block",
       expected: "Sandbox policy blocked",

@@ -164,7 +164,9 @@ export function classifySandboxFailureText(
     };
   }
 
-  const missingImage = normalized.match(/Sandbox(?: browser)? image not found:\s*([^.\s]+)/i);
+  const missingImage = normalized.match(
+    /Sandbox(?: browser)? image not found:\s*((?:[^\s.]|\.(?!\s|$))+)/i,
+  );
   if (missingImage) {
     return {
       failureClass: "runtime-capability",
