@@ -520,7 +520,7 @@ Even with strong system prompts, **prompt injection is not solved**. System prom
 - Prefer mention gating in groups; avoid “always-on” bots in public rooms.
 - Treat links, attachments, and pasted instructions as hostile by default.
 - Run sensitive tool execution in a sandbox; keep secrets out of the agent’s reachable filesystem.
-- Note: if sandbox mode is off, exec runs on the gateway host in reduced-trust host compatibility mode even though `tools.exec.host` defaults to `sandbox`. Host exec does not require approvals unless you set `host=gateway` and configure exec approvals.
+- Note: if sandbox mode is off and `tools.exec.host` is unset, exec falls back from the implicit `sandbox` default into gateway-brokered reduced-trust host compatibility. The same approval/allowlist controls used by `tools.exec.host="gateway"` apply, including per-agent `agents.list[].sandbox.mode="off"` exceptions.
 - Limit high-risk tools (`exec`, `browser`, `web_fetch`, `web_search`) to trusted agents or explicit allowlists.
 - **Model choice matters:** older/smaller/legacy models are significantly less robust against prompt injection and tool misuse. For tool-enabled agents, use the strongest latest-generation, instruction-hardened model available.
 

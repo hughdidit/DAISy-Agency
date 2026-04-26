@@ -312,7 +312,7 @@ export function createExecTool(
         configuredHost === "sandbox" &&
         !defaults?.sandbox &&
         !sandboxHostConfigured &&
-        (requestedHost === null || requestedHost === "gateway");
+        requestedHost === "gateway";
       if (
         !elevatedRequested &&
         requestedHost &&

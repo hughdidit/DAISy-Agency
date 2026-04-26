@@ -480,6 +480,30 @@ description: test skill
         expectedDetail: "fails closed",
         expectedRemediation: 'agents.list[].sandbox.mode="all"',
       },
+      {
+        name: "agent override sandbox off inherits implicit sandbox host",
+        cfg: {
+          agents: {
+            defaults: {
+              sandbox: {
+                mode: "all",
+              },
+            },
+            list: [
+              {
+                id: "ops",
+                sandbox: {
+                  mode: "off",
+                },
+              },
+            ],
+          },
+        },
+        checkId: "tools.exec.host_sandbox_no_sandbox_agents",
+        expectedTitle: "sandbox host compatibility",
+        expectedDetail: "gateway-brokered reduced-trust host compatibility",
+        expectedRemediation: 'agents.list[].sandbox.mode="all"',
+      },
     ];
     await Promise.all(
       cases.map(async (testCase) => {

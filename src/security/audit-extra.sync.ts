@@ -13,6 +13,7 @@ import { isDangerousNetworkMode, normalizeNetworkMode } from "../agents/sandbox/
  */
 import type { SandboxToolPolicy } from "../agents/sandbox/types.js";
 import { getBlockedBindReason } from "../agents/sandbox/validate-sandbox-security.js";
+import { resolveEffectiveToolFsWorkspaceOnly } from "../agents/tool-fs-policy.js";
 import { resolveToolProfilePolicy } from "../agents/tool-policy.js";
 import { resolveBrowserConfig } from "../browser/config.js";
 import { formatCliCommand } from "../cli/command-format.js";
@@ -453,8 +454,10 @@ function collectRiskyToolExposureContexts(cfg: OpenClawConfig): {
     const fsTools = ["read", "write", "edit", "apply_patch"].filter((tool) =>
       isToolAllowedByPolicies(tool, policies),
     );
-    const fsWorkspaceOnly =
-      context.tools?.fs?.workspaceOnly ?? cfg.tools?.fs?.workspaceOnly ?? true;
+    const fsWorkspaceOnly = resolveEffectiveToolFsWorkspaceOnly({
+      cfg,
+      agentId: context.agentId,
+    });
     const runtimeUnguarded = runtimeTools.length > 0 && sandboxMode !== "all";
     const fsUnguarded = fsTools.length > 0 && sandboxMode !== "all" && !fsWorkspaceOnly;
     if (!runtimeUnguarded && !fsUnguarded) {

@@ -877,14 +877,15 @@ function collectExecRuntimeFindings(cfg: OpenClawConfig): SecurityAuditFinding[]
 
   const agents = Array.isArray(cfg.agents?.list) ? cfg.agents.list : [];
   const riskyAgents = agents
-    .filter(
-      (entry) =>
-        entry &&
-        typeof entry === "object" &&
-        typeof entry.id === "string" &&
-        entry.tools?.exec?.host === "sandbox" &&
-        resolveSandboxConfigForAgent(cfg, entry.id).mode === "off",
-    )
+    .filter((entry) => {
+      if (!entry || typeof entry !== "object" || typeof entry.id !== "string") {
+        return false;
+      }
+      const effectiveHost = entry.tools?.exec?.host ?? globalExecHost ?? "sandbox";
+      return (
+        effectiveHost === "sandbox" && resolveSandboxConfigForAgent(cfg, entry.id).mode === "off"
+      );
+    })
     .map((entry) => entry.id)
     .slice(0, 5);
 
@@ -892,10 +893,10 @@ function collectExecRuntimeFindings(cfg: OpenClawConfig): SecurityAuditFinding[]
     findings.push({
       checkId: "tools.exec.host_sandbox_no_sandbox_agents",
       severity: "warn",
-      title: "Agent exec host=sandbox cannot run while sandbox mode is off",
+      title: "Agent exec uses sandbox host compatibility while sandbox mode is off",
       detail:
-        `agents.list.*.tools.exec.host is set to sandbox for: ${riskyAgents.join(", ")}. ` +
-        "Explicit sandbox host selection fails closed until sandbox mode is enabled.",
+        `agents resolve exec host=sandbox while sandbox mode is off for: ${riskyAgents.join(", ")}. ` +
+        "Explicit sandbox host selection fails closed; inherited implicit sandbox defaults use gateway-brokered reduced-trust host compatibility.",
       remediation:
         'Prefer sandbox-first operation for these agents (`agents.list[].sandbox.mode="all"`), or set their tools.exec.host to "gateway" when host compatibility is intentional.',
     });

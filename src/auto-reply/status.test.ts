@@ -212,6 +212,21 @@ describe("buildStatusMessage", () => {
     expect(text).toContain("elevated");
   });
 
+  it("does not show elevated label when no elevated default is configured", () => {
+    const text = buildStatusMessage({
+      agent: { model: "anthropic/claude-opus-4-5" },
+      sessionEntry: { sessionId: "v1", updatedAt: 0 },
+      sessionKey: "agent:main:main",
+      sessionScope: "per-sender",
+      resolvedVerbose: "off",
+      queue: { mode: "collect", depth: 0 },
+    });
+
+    const optionsLine = text.split("\n").find((line) => line.trim().startsWith("⚙️"));
+    expect(optionsLine).toBeTruthy();
+    expect(optionsLine).not.toContain("elevated");
+  });
+
   it("includes media understanding decisions when present", () => {
     const text = buildStatusMessage({
       agent: { model: "anthropic/claude-opus-4-5" },
