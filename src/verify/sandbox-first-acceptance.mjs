@@ -230,7 +230,10 @@ export function analyzeReadonlyDiagnostics(params) {
   if (statusText.includes("gateway unreachable")) {
     issues.push("readonly status regressed to a gateway unreachable false negative");
   }
-  if (!statusText.includes("probe unsupported from readonly sandbox")) {
+  if (
+    !statusText.includes("host-loopback gateway probe is unsupported") &&
+    !statusText.includes("probe unsupported from readonly sandbox")
+  ) {
     issues.push("readonly status lost the expected probe unsupported marker");
   }
   if (!sandboxExplainText.includes("mode:") && !sandboxExplainText.includes("effective sandbox")) {
