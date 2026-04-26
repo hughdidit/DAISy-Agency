@@ -76,7 +76,7 @@ describe("host-only workflows inventory docs", () => {
     const rows = parseInventoryRows(markdown);
 
     expect(rows.length).toBeGreaterThanOrEqual(10);
-    expect(new Set(rows.map((row) => row.ID))).toHaveSize(rows.length);
+    expect(new Set(rows.map((row) => row.ID)).size).toBe(rows.length);
     expect(rows.every((row) => /^`HWI-\d{3}`$/.test(row.ID))).toBe(true);
 
     for (const classification of REQUIRED_CLASSIFICATIONS) {
