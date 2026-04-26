@@ -132,7 +132,7 @@ describe("openclaw-readonly sandbox smoke", () => {
       );
       expect(status.status, status.stderr || status.stdout).toBe(0);
       expect(status.stdout).toContain("Gateway probe:");
-      expect(status.stdout).toContain("probe unsupported from readonly sandbox");
+      expect(status.stdout).toContain("Sandbox gateway reachability failure");
       expect(status.stdout).not.toContain("gateway unreachable");
       expect(status.stdout).not.toContain("Fix reachability first:");
 

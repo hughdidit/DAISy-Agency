@@ -40,9 +40,10 @@ describe("sanitizeUserFacingText", () => {
       "goroutine 1 gp=0xc000002540 m=0 mp=0x56522ed81000 [running]:";
 
     expect(sanitizeUserFacingText(raw, { errorContext: true })).toBe(
-      "Sandbox startup failed: Docker CLI could not inspect the sandbox image in the gateway " +
-        "runtime. Fix Docker CLI/socket access or disable sandbox mode " +
-        "(`agents.defaults.sandbox.mode=off`).",
+      "Sandbox runtime capability failure during sandbox startup (sandbox image inspection): " +
+        "Docker CLI could not inspect the sandbox image in the gateway runtime. " +
+        "Fix: Check Docker CLI/socket access and provision the configured sandbox image/profile. " +
+        "See: openclaw doctor sandbox. Cause: low-level runtime crash details redacted.",
     );
   });
 

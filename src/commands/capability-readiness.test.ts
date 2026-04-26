@@ -33,8 +33,11 @@ vi.mock("../agents/agent-scope.js", () => ({
   resolveDefaultAgentId: mocks.resolveDefaultAgentId,
 }));
 
-const { collectCommandCapabilitySnapshot, formatCapabilityClassLabel } =
-  await import("./capability-readiness.js");
+const {
+  collectCommandCapabilitySnapshot,
+  formatCapabilityClassLabel,
+  formatCommandCapabilityFindingFailureMessage,
+} = await import("./capability-readiness.js");
 
 function createCollectedInputs() {
   return {
@@ -281,6 +284,9 @@ describe("capability readiness helper", () => {
     expect(normalizeCapabilitySnapshotParityRows(snapshot)).toEqual(
       CAPABILITY_READINESS_PARITY_MATRIX.filter((row) => row.subject !== "local-skill"),
     );
+    const gatewayFinding = snapshot.findings.find((finding) => finding.label === "Web Fetch");
+    expect(gatewayFinding?.primaryReasonCategory).toBe("gateway-brokered-availability");
+    expect(formatCommandCapabilityFindingFailureMessage(gatewayFinding!)).toBeNull();
   });
 
   it("returns capability class labels directly", () => {

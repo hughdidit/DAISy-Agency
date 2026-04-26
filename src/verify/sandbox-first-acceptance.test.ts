@@ -83,7 +83,8 @@ describe("sandbox-first acceptance helpers", () => {
 
   it("accepts the current readonly sandbox smoke markers", () => {
     const issues = analyzeReadonlyDiagnostics({
-      statusText: "Gateway probe:\nprobe unsupported from readonly sandbox\n",
+      statusText:
+        "Gateway probe:\nSandbox gateway reachability failure during sandbox gateway probe: A host-loopback gateway probe is unsupported from readonly sandbox context.\n",
       sandboxExplainText: "Effective sandbox:\nmode: all\n",
       skillsCheckText: "Skills Status Check\n",
     });
@@ -311,7 +312,7 @@ describe("runSandboxFirstAcceptance", () => {
       const runSsh = vi.fn((command: string) => {
         sshCommands.push(command);
         if (command.includes("openclaw-readonly status")) {
-          return "Gateway probe:\nprobe unsupported from readonly sandbox\n";
+          return "Gateway probe:\nSandbox gateway reachability failure during sandbox gateway probe: A host-loopback gateway probe is unsupported from readonly sandbox context.\n";
         }
         if (command.includes("openclaw-readonly sandbox explain")) {
           return "Effective sandbox:\nmode: all\n";
@@ -508,7 +509,7 @@ describe("runSandboxFirstAcceptance", () => {
           container: "openclaw-gateway",
           runSsh: vi.fn((command: string) => {
             if (command.includes("openclaw-readonly status")) {
-              return "Gateway probe:\nprobe unsupported from readonly sandbox\n";
+              return "Gateway probe:\nSandbox gateway reachability failure during sandbox gateway probe: A host-loopback gateway probe is unsupported from readonly sandbox context.\n";
             }
             if (command.includes("openclaw-readonly sandbox explain")) {
               return "Effective sandbox:\nmode: all\n";

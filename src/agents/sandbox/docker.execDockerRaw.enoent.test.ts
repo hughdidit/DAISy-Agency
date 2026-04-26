@@ -14,8 +14,9 @@ describe("execDockerRaw", () => {
 
       expect(err).toBeInstanceOf(Error);
       expect(err).toMatchObject({ code: "INVALID_CONFIG" });
-      expect((err as Error).message).toContain("Sandbox mode requires Docker");
-      expect((err as Error).message).toContain("agents.defaults.sandbox.mode=off");
+      expect((err as Error).message).toContain("Sandbox runtime capability failure");
+      expect((err as Error).message).toContain("Docker CLI is unavailable");
+      expect((err as Error).message).not.toContain("agents.defaults.sandbox.mode=off");
     });
   });
 });

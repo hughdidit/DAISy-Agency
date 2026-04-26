@@ -116,7 +116,14 @@ export function execDockerRaw(
       ) {
         const friendly = Object.assign(
           new Error(
-            'Sandbox mode requires Docker, but the "docker" command was not found in PATH. Install Docker (and ensure "docker" is available), or set `agents.defaults.sandbox.mode=off` to disable sandboxing.',
+            formatSandboxFailureMessage({
+              failureClass: "runtime-capability",
+              operation: "sandbox startup",
+              subject: "Docker CLI",
+              detail: "Docker CLI is unavailable to the gateway runtime.",
+              remediation: "Install Docker and ensure the docker command and socket are available.",
+              hint: formatCliCommand("openclaw doctor sandbox"),
+            }),
           ),
           { code: "INVALID_CONFIG", cause: error },
         );
@@ -168,6 +175,7 @@ import { formatCliCommand } from "../../cli/command-format.js";
 import { defaultRuntime } from "../../runtime.js";
 import { computeSandboxConfigHash } from "./config-hash.js";
 import { DEFAULT_SANDBOX_IMAGE } from "./constants.js";
+import { formatSandboxFailureMessage } from "./failure-messaging.js";
 import { readRegistry, updateRegistry } from "./registry.js";
 import { resolveSandboxAgentId, resolveSandboxScopeKey, slugifySessionKey } from "./shared.js";
 import type { SandboxConfig, SandboxDockerConfig, SandboxWorkspaceAccess } from "./types.js";
@@ -531,7 +539,18 @@ async function dockerImageExists(image: string) {
   if (stderr.includes("No such image")) {
     return false;
   }
-  throw new Error(`Failed to inspect sandbox image: ${stderr}`);
+  throw new Error(
+    formatSandboxFailureMessage({
+      failureClass: "runtime-capability",
+      operation: "sandbox startup",
+      subject: "sandbox image inspection",
+      detail: "Docker CLI could not inspect the sandbox image in the gateway runtime.",
+      remediation:
+        "Check Docker CLI/socket access and provision the configured sandbox image/profile.",
+      hint: formatCliCommand("openclaw doctor sandbox"),
+      cause: stderr,
+    }),
+  );
 }
 
 async function readDockerImageId(image: string): Promise<string | null> {
@@ -573,12 +592,28 @@ export async function ensureDockerImage(image: string) {
   }
   if (image === DEFAULT_SANDBOX_IMAGE) {
     throw new Error(
-      `Sandbox image not found: ${image}. Build the default sandbox image with ${formatCliCommand(
-        "bash scripts/sandbox-setup.sh",
-      )} or pull the published sandbox image before running sandboxed agents.`,
+      formatSandboxFailureMessage({
+        failureClass: "runtime-capability",
+        operation: "sandbox startup",
+        subject: `image ${image}`,
+        detail: "The default sandbox image is not available to Docker.",
+        remediation: `Build the default sandbox image with ${formatCliCommand(
+          "bash scripts/sandbox-setup.sh",
+        )} or pull the published sandbox image before running sandboxed agents.`,
+        hint: formatCliCommand("openclaw doctor sandbox"),
+      }),
     );
   }
-  throw new Error(`Sandbox image not found: ${image}. Build or pull it first.`);
+  throw new Error(
+    formatSandboxFailureMessage({
+      failureClass: "runtime-capability",
+      operation: "sandbox startup",
+      subject: `image ${image}`,
+      detail: "The configured sandbox image is not available to Docker.",
+      remediation: "Build, pull, or deploy the configured sandbox image/profile before retrying.",
+      hint: formatCliCommand("openclaw doctor sandbox"),
+    }),
+  );
 }
 
 export async function dockerContainerState(name: string) {
