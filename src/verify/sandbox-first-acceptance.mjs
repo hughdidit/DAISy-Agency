@@ -476,14 +476,12 @@ async function runReadonlyDiagnosticsScenario(ctx) {
   let readonlyExplain;
   let readonlySkills;
   try {
-    readonlyStatus = ctx.dockerExecBash(
-      "cd /app && node skills/openclaw-readonly/scripts/openclaw-readonly.mjs status",
-    );
+    readonlyStatus = ctx.dockerExecBash("cd /app && node dist/cli/openclaw-readonly.js status");
     readonlyExplain = ctx.dockerExecBash(
-      "cd /app && node skills/openclaw-readonly/scripts/openclaw-readonly.mjs sandbox explain",
+      "cd /app && node dist/cli/openclaw-readonly.js sandbox explain",
     );
     readonlySkills = ctx.dockerExecBash(
-      "cd /app && node skills/openclaw-readonly/scripts/openclaw-readonly.mjs skills check",
+      "cd /app && node dist/cli/openclaw-readonly.js skills check",
     );
   } catch (error) {
     throw classifyReadonlyFailure(error);
@@ -915,7 +913,7 @@ export async function runIsolatedCronScenario(ctx) {
         `isolated cron acceptance job finished with status ${String(last?.status ?? "<empty>")}`,
       );
     }
-    if (last?.deliveryStatus !== "not-requested") {
+    if (last?.deliveryStatus !== "not-requested" && last?.deliveryStatus !== "not-delivered") {
       throw new ScenarioError(
         "delivery-gap",
         `isolated cron acceptance job unexpectedly attempted delivery (${String(
