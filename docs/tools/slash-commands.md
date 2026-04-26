@@ -10,6 +10,8 @@ title: "Slash Commands"
 
 Commands are handled by the Gateway. Most commands must be sent as a **standalone** message that starts with `/`.
 The host-only bash chat command uses `! <cmd>` (with `/bash <cmd>` as an alias).
+Host-only and host-managed command surfaces are inventoried in
+[Host-Only Workflows Inventory](/gateway/host-only-workflows-inventory).
 
 There are two related systems:
 

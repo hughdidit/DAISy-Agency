@@ -1194,7 +1194,8 @@
                       "gateway/security/index",
                       "gateway/sandboxing",
                       "gateway/sandbox-runtime-profiles",
-                      "gateway/sandbox-vs-tool-policy-vs-elevated"
+                      "gateway/sandbox-vs-tool-policy-vs-elevated",
+                      "gateway/host-only-workflows-inventory"
                     ]
                   },
                   {

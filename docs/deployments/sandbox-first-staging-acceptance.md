@@ -20,6 +20,7 @@ Related docs:
 
 - [Staging VM Setup Guide](./staging-setup.md)
 - [Deployments](../deployments.md)
+- [Host-Only Workflows Inventory](../gateway/host-only-workflows-inventory.md)
 - [Sandbox CLI](../cli/sandbox.md)
 - [Doctor](../cli/doctor.md)
 - [Skills](../cli/skills.md)
