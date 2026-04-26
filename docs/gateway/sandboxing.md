@@ -8,8 +8,10 @@ status: active
 # Sandboxing
 
 OpenClaw can run **tools inside Docker containers** to reduce blast radius.
-This is **optional** and controlled by configuration (`agents.defaults.sandbox` or
-`agents.list[].sandbox`). If sandboxing is off, tools run on the host.
+Sandbox-first operation is the canonical trust posture for normal tool-enabled
+agent work. It is controlled by configuration (`agents.defaults.sandbox` or
+`agents.list[].sandbox`). If sandboxing is off, tools run on the host in
+**reduced-trust host compatibility mode**.
 The Gateway stays on the host; tool execution runs in an isolated sandbox
 when enabled.
 
@@ -36,16 +38,16 @@ Not sandboxed:
 
 - The Gateway process itself.
 - Any tool explicitly allowed to run on the host (e.g. `tools.elevated`).
-  - **Elevated exec runs on the host and bypasses sandboxing.**
-  - If sandboxing is off, `tools.elevated` does not change execution (already on host). See [Elevated Mode](/tools/elevated).
+  - **Elevated exec is break-glass host authority and bypasses sandboxing.**
+  - If sandboxing is off, `tools.elevated` does not change execution location because the session is already in reduced-trust host compatibility mode. See [Elevated Mode](/tools/elevated).
 
 ## Modes
 
 `agents.defaults.sandbox.mode` controls **when** sandboxing is used:
 
-- `"off"`: no sandboxing.
-- `"non-main"`: sandbox only **non-main** sessions (default if you want normal chats on host).
-- `"all"`: every session runs in a sandbox.
+- `"off"`: no sandboxing; all tool execution uses reduced-trust host compatibility mode.
+- `"non-main"`: sandbox only **non-main** sessions. Main sessions remain reduced-trust host compatibility for compatibility workloads.
+- `"all"`: every session runs in a sandbox. This is the sandbox-first target posture.
   Note: `"non-main"` is based on `session.mainKey` (default `"main"`), not agent id.
   Group/channel sessions use their own keys, so they count as non-main and will be sandboxed.
 
@@ -293,7 +295,7 @@ Security defaults:
 
 - `network: "host"` is blocked.
 - `network: "container:<id>"` is blocked by default (namespace join bypass risk).
-- Break-glass override: `agents.defaults.sandbox.docker.dangerouslyAllowContainerNamespaceJoin: true`.
+- Break-glass host-authority override: `agents.defaults.sandbox.docker.dangerouslyAllowContainerNamespaceJoin: true`.
 
 Docker installs and the containerized gateway live here:
 [Docker](/install/docker)
@@ -316,7 +318,7 @@ Paths:
 Common pitfalls:
 
 - Default `docker.network` is `"none"` (no egress), so package installs will fail.
-- `docker.network: "container:<id>"` requires `dangerouslyAllowContainerNamespaceJoin: true` and is break-glass only.
+- `docker.network: "container:<id>"` requires `dangerouslyAllowContainerNamespaceJoin: true` and is break-glass host authority only.
 - `readOnlyRoot: true` prevents writes; set `readOnlyRoot: false` or bake a custom image.
 - `user` must be root for package installs (omit `user` or set `user: "0:0"`).
 - Sandbox exec does **not** inherit host `process.env`. Use
@@ -331,7 +333,7 @@ does not redefine what DAISy officially supports in production.
 Tool allow/deny policies still apply before sandbox rules. If a tool is denied
 globally or per-agent, sandboxing doesn’t bring it back.
 
-`tools.elevated` is an explicit escape hatch that runs `exec` on the host.
+`tools.elevated` is an explicit break-glass escape hatch that runs `exec` on the host.
 `/exec` directives only apply for authorized senders and persist per session; to hard-disable
 `exec`, use tool policy deny (see [Sandbox vs Tool Policy vs Elevated](/gateway/sandbox-vs-tool-policy-vs-elevated)).
 

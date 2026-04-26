@@ -363,7 +363,7 @@ describe("runSandboxFirstAcceptance", () => {
             {
               status: "forbidden",
               error:
-                'Sandbox unsupported host-only operation during ACP session spawn (runtime="acp"): runtime="acp" runs on the host and cannot be spawned from a sandboxed session.',
+                'Sandbox blocked break-glass host-only operation during ACP session spawn (runtime="acp"): runtime="acp" uses break-glass host authority and cannot be spawned from a sandboxed session.',
             },
             null,
             2,
@@ -588,7 +588,7 @@ describe("runSandboxFirstAcceptance", () => {
             {
               status: "forbidden",
               error:
-                'Sandbox unsupported host-only operation during ACP session spawn (runtime="acp"): runtime="acp" runs on the host and cannot be spawned from a sandboxed session.',
+                'Sandbox blocked break-glass host-only operation during ACP session spawn (runtime="acp"): runtime="acp" uses break-glass host authority and cannot be spawned from a sandboxed session.',
             },
             null,
             2,

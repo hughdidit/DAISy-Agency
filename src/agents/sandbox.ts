@@ -39,6 +39,15 @@ export {
   formatSandboxToolPolicyBlockedMessage,
   resolveSandboxRuntimeStatus,
 } from "./sandbox/runtime-status.js";
+export {
+  BREAK_GLASS_HOST_LABEL,
+  HOST_COMPATIBILITY_LABEL,
+  SANDBOX_FIRST_LABEL,
+  formatSandboxTrustPostureLine,
+  resolveSandboxTrustPosture,
+  type SandboxTrustPosture,
+  type SandboxTrustPostureInfo,
+} from "./sandbox/trust-posture.js";
 
 export { resolveSandboxToolPolicyForAgent } from "./sandbox/tool-policy.js";
 

@@ -88,7 +88,7 @@ describe("buildStatusMessage", () => {
     expect(normalized).toContain("Compactions: 2");
     expect(normalized).toContain("Session: agent:main:main");
     expect(normalized).toContain("updated 10m ago");
-    expect(normalized).toContain("Runtime: direct");
+    expect(normalized).toContain("Runtime: reduced-trust host compatibility mode");
     expect(normalized).toContain("Think: medium");
     expect(normalized).not.toContain("verbose");
     expect(normalized).toContain("elevated");
@@ -193,7 +193,7 @@ describe("buildStatusMessage", () => {
       queue: { mode: "collect", depth: 0 },
     });
 
-    expect(normalizeTestText(text)).toContain("Runtime: docker/all");
+    expect(normalizeTestText(text)).toContain("Runtime: sandbox-first runtime");
   });
 
   it("shows verbose/elevated labels only when enabled", () => {
@@ -430,7 +430,7 @@ describe("buildStatusMessage", () => {
     });
     const normalized = normalizeTestText(text);
 
-    expect(normalized).toContain("Runtime: docker/all");
+    expect(normalized).toContain("Runtime: sandbox-first runtime");
     expect(normalized).toContain("Activation: mention");
     expect(normalized).toContain("Session: agent:main:discord:group:sbx-404-validation");
   });

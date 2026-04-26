@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 import { buildContextReply } from "./commands-context-report.js";
 import type { HandleCommandsParams } from "./commands-types.js";
 
-function makeParams(commandBodyNormalized: string, truncated: boolean): HandleCommandsParams {
+function makeParams(
+  commandBodyNormalized: string,
+  truncated: boolean,
+  sandbox: { mode?: string; sandboxed?: boolean } = { mode: "off", sandboxed: false },
+): HandleCommandsParams {
   return {
     command: {
       commandBodyNormalized,
@@ -27,7 +31,7 @@ function makeParams(commandBodyNormalized: string, truncated: boolean): HandleCo
         workspaceDir: "/tmp/workspace",
         bootstrapMaxChars: 20_000,
         bootstrapTotalMaxChars: 150_000,
-        sandbox: { mode: "off", sandboxed: false },
+        sandbox,
         systemPrompt: {
           chars: 1_000,
           projectContextChars: 500,
@@ -75,5 +79,12 @@ describe("buildContextReply", () => {
   it("does not show bootstrap truncation warning when there is no truncation", async () => {
     const result = await buildContextReply(makeParams("/context list", false));
     expect(result.text).not.toContain("Bootstrap context is over configured limits");
+  });
+
+  it("does not coerce unknown sandbox report modes to host compatibility", async () => {
+    const result = await buildContextReply(
+      makeParams("/context list", false, { mode: "future-mode", sandboxed: false }),
+    );
+    expect(result.text).toContain("Sandbox: mode=unknown sandboxed=false trust=unknown");
   });
 });

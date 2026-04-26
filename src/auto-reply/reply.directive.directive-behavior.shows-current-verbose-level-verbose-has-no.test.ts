@@ -256,7 +256,7 @@ describe("directive behavior", () => {
           config: makeAllowlistedElevatedConfig(home, { sandbox: { mode: "off" } }),
           expectedSnippets: [
             "Elevated mode disabled.",
-            "Runtime is direct; sandboxing does not apply.",
+            "Runtime is reduced-trust host compatibility mode",
           ],
         },
         {

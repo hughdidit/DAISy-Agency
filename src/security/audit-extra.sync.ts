@@ -1,5 +1,7 @@
 import { isToolAllowedByPolicies } from "../agents/pi-tools.policy.js";
 import {
+  BREAK_GLASS_HOST_LABEL,
+  HOST_COMPATIBILITY_LABEL,
   resolveSandboxConfigForAgent,
   resolveSandboxToolPolicyForAgent,
 } from "../agents/sandbox.js";
@@ -757,12 +759,12 @@ export function collectSandboxDockerNoopFindings(cfg: OpenClawConfig): SecurityA
   findings.push({
     checkId: "sandbox.docker_config_mode_off",
     severity: "warn",
-    title: "Sandbox docker settings configured while sandbox mode is off",
+    title: "Sandbox docker settings inactive in reduced-trust host compatibility mode",
     detail:
-      "These docker settings will not take effect until sandbox mode is enabled:\n" +
+      `The gateway is using ${HOST_COMPATIBILITY_LABEL}; these docker settings will not take effect until sandbox mode is enabled:\n` +
       configuredPaths.map((entry) => `- ${entry}`).join("\n"),
     remediation:
-      'Enable sandbox mode (`agents.defaults.sandbox.mode="non-main"` or `"all"`) where needed, or remove unused docker settings.',
+      'Prefer sandbox-first operation with `agents.defaults.sandbox.mode="all"` where needed, or remove unused docker settings.',
   });
 
   return findings;
@@ -845,7 +847,7 @@ export function collectSandboxDangerousConfigFindings(cfg: OpenClawConfig): Secu
         detail,
         remediation:
           `Set ${source}.network to "bridge", "none", or a custom bridge network name.` +
-          ` Use ${source}.dangerouslyAllowContainerNamespaceJoin=true only as a break-glass override when you fully trust this runtime.`,
+          ` Use ${source}.dangerouslyAllowContainerNamespaceJoin=true only as ${BREAK_GLASS_HOST_LABEL} when you fully trust this runtime.`,
       });
     }
 

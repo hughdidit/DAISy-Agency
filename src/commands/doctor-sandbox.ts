@@ -5,6 +5,7 @@ import {
   DEFAULT_SANDBOX_BROWSER_IMAGE,
   DEFAULT_SANDBOX_COMMON_IMAGE,
   DEFAULT_SANDBOX_IMAGE,
+  HOST_COMPATIBILITY_LABEL,
   resolveSandboxConfigForAgent,
   resolveSandboxScope,
 } from "../agents/sandbox.js";
@@ -341,6 +342,14 @@ export async function maybeRepairSandboxImages(
   const resolvedSandbox = resolveSandboxConfigForAgent(cfg);
   const mode = resolvedSandbox.mode;
   if (mode === "off") {
+    note(
+      [
+        `Sandbox mode is off: the gateway is using ${HOST_COMPATIBILITY_LABEL}.`,
+        "Host execution remains functional for migration and maintenance, but it is lower trust than sandbox-first operation.",
+        'Corrective path: set agents.defaults.sandbox.mode="all" when this workflow does not require host compatibility.',
+      ].join("\n"),
+      "Sandbox",
+    );
     return cfg;
   }
 

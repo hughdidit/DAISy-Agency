@@ -29,15 +29,24 @@ It also emits `security.trust_model.multi_user_heuristic` when config suggests l
 For intentional shared-user setups, the audit guidance is to sandbox all sessions, keep filesystem access workspace-scoped, and keep personal/private identities or credentials off that runtime.
 It also warns when small models (`<=300B`) are used without sandboxing and with web/browser tools enabled.
 For webhook ingress, it warns when `hooks.defaultSessionKey` is unset, when request `sessionKey` overrides are enabled, and when overrides are enabled without `hooks.allowedSessionKeyPrefixes`.
-It also warns when sandbox Docker settings are configured while sandbox mode is off, when `gateway.nodes.denyCommands` uses ineffective pattern-like/unknown entries (exact node command-name matching only, not shell-text filtering), when `gateway.nodes.allowCommands` explicitly enables dangerous node commands, when global `tools.profile="minimal"` is overridden by agent tool profiles, when open groups expose runtime/filesystem tools without sandbox/workspace guards, and when installed extension plugin tools may be reachable under permissive tool policy.
-It also flags `gateway.allowRealIpFallback=true` (header-spoofing risk if proxies are misconfigured) and `discovery.mdns.mode="full"` (metadata leakage via mDNS TXT records).
-It also warns when sandbox browser uses Docker `bridge` network without `sandbox.browser.cdpSourceRange`.
-It also flags dangerous sandbox Docker network modes (including `host` and `container:*` namespace joins).
-It also warns when existing sandbox browser Docker containers have missing/stale hash labels (for example pre-migration containers missing `openclaw.browserConfigEpoch`) and recommends `openclaw sandbox recreate --browser --all`.
-It also warns when npm-based plugin/hook install records are unpinned, missing integrity metadata, or drift from currently installed package versions.
-It warns when channel allowlists rely on mutable names/emails/tags instead of stable IDs (Discord, Slack, Google Chat, MS Teams, Mattermost, IRC scopes where applicable).
-It warns when `gateway.auth.mode="none"` leaves Gateway HTTP APIs reachable without a shared secret (`/tools/invoke` plus any enabled `/v1/*` endpoint).
-Settings prefixed with `dangerous`/`dangerously` are explicit break-glass operator overrides; enabling one is not, by itself, a security vulnerability report.
+It also warns about:
+
+- Sandbox Docker settings configured while the gateway is in reduced-trust host compatibility mode (`sandbox.mode=off`).
+- Ineffective pattern-like or unknown `gateway.nodes.denyCommands` entries; matching is by exact node command name, not shell text.
+- Explicit dangerous node commands in `gateway.nodes.allowCommands`.
+- Global `tools.profile="minimal"` overridden by agent tool profiles.
+- Open groups exposing runtime/filesystem tools without sandbox/workspace guards.
+- Installed extension plugin tools reachable under permissive tool policy.
+- `gateway.allowRealIpFallback=true`, which can expose header-spoofing risk if proxies are misconfigured.
+- `discovery.mdns.mode="full"`, which can leak metadata through mDNS TXT records.
+- Sandbox browser using Docker `bridge` network without `sandbox.browser.cdpSourceRange`.
+- Dangerous sandbox Docker network modes, including `host` and `container:*` namespace joins.
+- Existing sandbox browser Docker containers with missing or stale hash labels, such as pre-migration containers missing `openclaw.browserConfigEpoch`.
+- Npm-based plugin/hook install records that are unpinned, missing integrity metadata, or drift from installed package versions.
+- Channel allowlists that rely on mutable names/emails/tags instead of stable IDs.
+- `gateway.auth.mode="none"` exposing Gateway HTTP APIs without a shared secret.
+
+Settings prefixed with `dangerous`/`dangerously` are explicit break-glass operator overrides, often granting host-level or isolation-bypass authority; enabling one is not, by itself, a security vulnerability report.
 For the complete dangerous-parameter inventory, see the "Insecure or dangerous flags summary" section in [Security](/gateway/security).
 
 ## JSON output

@@ -2,6 +2,7 @@ import { resolveAgentConfig } from "../agents/agent-scope.js";
 import {
   resolveSandboxConfigForAgent,
   resolveSandboxToolPolicyForAgent,
+  resolveSandboxTrustPosture,
 } from "../agents/sandbox.js";
 import { normalizeAnyChannelId } from "../channels/registry.js";
 import type { OpenClawConfig } from "../config/config.js";
@@ -181,6 +182,10 @@ export async function sandboxExplainCommand(
         : sandboxCfg.mode === "off"
           ? false
           : sessionKey.trim() !== mainSessionKey.trim();
+    const sandboxTrustPosture = resolveSandboxTrustPosture({
+      mode: sandboxCfg.mode,
+      sandboxed: sessionIsSandboxed,
+    });
 
     const channel = resolveActiveChannel({
       cfg,
@@ -274,6 +279,10 @@ export async function sandboxExplainCommand(
           enabled: sandboxCfg.browser.enabled,
           image: sandboxCfg.browser.image,
         },
+        trustPosture: sandboxTrustPosture.trustPosture,
+        trustLabel: sandboxTrustPosture.trustLabel,
+        trustSummary: sandboxTrustPosture.trustSummary,
+        correctiveAction: sandboxTrustPosture.correctiveAction,
         tools: {
           allow: toolPolicy.allow,
           deny: toolPolicy.deny,
@@ -316,7 +325,16 @@ export async function sandboxExplainCommand(
     lines.push(`  ${key("sessionKey:")} ${value(payload.sessionKey)}`);
     lines.push(`  ${key("mainSessionKey:")} ${value(payload.mainSessionKey)}`);
     lines.push(
-      `  ${key("runtime:")} ${payload.sandbox.sessionIsSandboxed ? warn("sandboxed") : ok("direct")}`,
+      `  ${key("runtime:")} ${
+        payload.sandbox.sessionIsSandboxed
+          ? ok(payload.sandbox.trustLabel)
+          : warn(payload.sandbox.trustLabel)
+      }`,
+    );
+    lines.push(
+      `  ${key("trustPosture:")} ${value(payload.sandbox.trustPosture)} ${key(
+        "sandboxed:",
+      )} ${bool(payload.sandbox.sessionIsSandboxed)}`,
     );
     lines.push(
       `  ${key("mode:")} ${value(payload.sandbox.mode)} ${key("scope:")} ${value(
@@ -357,10 +375,19 @@ export async function sandboxExplainCommand(
     if (payload.sandbox.mode === "non-main" && payload.sandbox.sessionIsSandboxed) {
       lines.push("");
       lines.push(
-        `${warn("Hint:")} sandbox mode is non-main; use main session key to run direct: ${value(
-          payload.mainSessionKey,
-        )}`,
+        `${warn("Hint:")} sandbox mode is non-main; the main session is ${warn(
+          "reduced-trust host compatibility",
+        )}: ${value(payload.mainSessionKey)}. Prefer ${value(
+          'agents.defaults.sandbox.mode="all"',
+        )} for sandbox-first operation.`,
       );
+    }
+    if (!payload.sandbox.sessionIsSandboxed) {
+      lines.push("");
+      lines.push(`${warn("Reduced trust:")} ${payload.sandbox.trustSummary}`);
+      if (payload.sandbox.correctiveAction) {
+        lines.push(`${key("Corrective path:")} ${payload.sandbox.correctiveAction}`);
+      }
     }
     lines.push("");
     lines.push(heading("Effective capabilities:"));

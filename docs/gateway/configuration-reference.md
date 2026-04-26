@@ -1066,7 +1066,10 @@ See [Typing Indicators](/concepts/typing-indicators).
 
 ### `agents.defaults.sandbox`
 
-Optional **Docker sandboxing** for the embedded agent. See [Sandboxing](/gateway/sandboxing) for the full guide.
+Docker sandboxing for the embedded agent. Sandbox-first execution is the
+canonical trust posture for normal tool-enabled work. `mode: "off"` remains
+available as reduced-trust host compatibility for migration and maintenance
+cases. See [Sandboxing](/gateway/sandboxing) for the full guide.
 
 ```json5
 {
@@ -1165,7 +1168,7 @@ Optional **Docker sandboxing** for the embedded agent. See [Sandboxing](/gateway
 
 **Containers default to `network: "none"`** — set to `"bridge"` (or a custom bridge network) if the agent needs outbound access.
 `"host"` is blocked. `"container:<id>"` is blocked by default unless you explicitly set
-`sandbox.docker.dangerouslyAllowContainerNamespaceJoin: true` (break-glass).
+`sandbox.docker.dangerouslyAllowContainerNamespaceJoin: true` (break-glass host authority).
 
 **Inbound attachments** are staged into `media/inbound/*` in the active workspace.
 
@@ -1680,7 +1683,8 @@ Further restrict tools for specific providers or models. Order: base profile →
 
 ### `tools.elevated`
 
-Controls elevated (host) exec access:
+Controls elevated `exec` access. Elevated is break-glass host authority for
+workflows that cannot run sandbox-first:
 
 ```json5
 {
@@ -1698,7 +1702,7 @@ Controls elevated (host) exec access:
 
 - Per-agent override (`agents.list[].tools.elevated`) can only further restrict.
 - `/elevated on|off|ask|full` stores state per session; inline directives apply to single message.
-- Elevated `exec` runs on the host, bypasses sandboxing.
+- Elevated `exec` runs on the host as break-glass host authority, bypasses sandboxing.
 
 ### `tools.exec`
 

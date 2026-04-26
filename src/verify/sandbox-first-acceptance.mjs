@@ -1284,8 +1284,8 @@ JSON
     );
   }
   if (
-    !error.includes("Sandbox unsupported host-only operation") ||
-    !error.includes('runtime="acp" runs on the host')
+    !error.includes("Sandbox blocked break-glass host-only operation") ||
+    !error.includes("break-glass host authority")
   ) {
     throw new ScenarioError(
       "unsupported-host-only-behavior",

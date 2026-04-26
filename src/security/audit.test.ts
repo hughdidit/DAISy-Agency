@@ -408,6 +408,7 @@ description: test skill
       checkId:
         | "tools.exec.host_sandbox_no_sandbox_defaults"
         | "tools.exec.host_sandbox_no_sandbox_agents";
+      expectedRemediation: string;
     }> = [
       {
         name: "defaults host is sandbox",
@@ -426,6 +427,7 @@ description: test skill
           },
         },
         checkId: "tools.exec.host_sandbox_no_sandbox_defaults",
+        expectedRemediation: 'agents.defaults.sandbox.mode="all"',
       },
       {
         name: "agent override host is sandbox",
@@ -454,12 +456,17 @@ description: test skill
           },
         },
         checkId: "tools.exec.host_sandbox_no_sandbox_agents",
+        expectedRemediation: 'agents.list[].sandbox.mode="all"',
       },
     ];
     await Promise.all(
       cases.map(async (testCase) => {
         const res = await audit(testCase.cfg);
         expect(hasFinding(res, testCase.checkId, "warn"), testCase.name).toBe(true);
+        const finding = res.findings.find((entry) => entry.checkId === testCase.checkId);
+        expect(finding?.title).toContain("reduced-trust host compatibility");
+        expect(finding?.detail).toContain("reduced-trust host compatibility mode");
+        expect(finding?.remediation).toContain(testCase.expectedRemediation);
       }),
     );
   });
@@ -1015,9 +1022,15 @@ description: test skill
     await Promise.all(
       cases.map(async (testCase) => {
         const res = await audit(testCase.cfg);
-        expect(hasFinding(res, "sandbox.docker_config_mode_off"), testCase.name).toBe(
-          testCase.expectedPresent,
+        const finding = res.findings.find(
+          (entry) => entry.checkId === "sandbox.docker_config_mode_off",
         );
+        expect(Boolean(finding), testCase.name).toBe(testCase.expectedPresent);
+        if (testCase.expectedPresent) {
+          expect(finding?.title).toContain("reduced-trust host compatibility");
+          expect(finding?.detail).toContain("reduced-trust host compatibility mode");
+          expect(finding?.remediation).toContain('agents.defaults.sandbox.mode="all"');
+        }
       }),
     );
   });
@@ -1047,6 +1060,7 @@ description: test skill
         expect.objectContaining({
           checkId: "sandbox.dangerous_network_mode",
           severity: "critical",
+          remediation: expect.stringContaining("break-glass host authority"),
         }),
         expect.objectContaining({
           checkId: "sandbox.dangerous_seccomp_profile",
@@ -1247,6 +1261,11 @@ description: test skill
     const res = await audit(cfg);
 
     expectFinding(res, "tools.elevated.allowFrom.whatsapp.wildcard", "critical");
+    const finding = res.findings.find(
+      (entry) => entry.checkId === "tools.elevated.allowFrom.whatsapp.wildcard",
+    );
+    expect(finding?.title).toContain("Break-glass host authority");
+    expect(finding?.detail).toContain("break-glass host authority");
   });
 
   it("flags browser control without auth when browser is enabled", async () => {

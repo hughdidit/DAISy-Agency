@@ -1,4 +1,5 @@
 import { formatCliCommand } from "../../cli/command-format.js";
+import { BREAK_GLASS_HOST_LABEL } from "./trust-posture.js";
 
 export const SANDBOX_FAILURE_CLASSES = [
   "runtime-capability",
@@ -30,7 +31,7 @@ const SANDBOX_FAILURE_LABELS: Record<SandboxFailureClass, string> = {
   "policy-block": "Sandbox policy block",
   "projection-defect": "Sandbox projection defect",
   "gateway-reachability": "Sandbox gateway reachability failure",
-  "unsupported-host-only": "Sandbox unsupported host-only operation",
+  "unsupported-host-only": "Sandbox blocked break-glass host-only operation",
 };
 
 const DEFAULT_DETAILS: Record<SandboxFailureClass, string> = {
@@ -39,8 +40,7 @@ const DEFAULT_DETAILS: Record<SandboxFailureClass, string> = {
   "policy-block": "Sandbox policy blocked the requested action.",
   "projection-defect": "Required sandbox-projected files or manifests are missing.",
   "gateway-reachability": "The sandboxed flow cannot reach the required gateway or broker path.",
-  "unsupported-host-only":
-    "The requested operation depends on host execution and is not supported from this sandboxed context.",
+  "unsupported-host-only": `The requested operation depends on ${BREAK_GLASS_HOST_LABEL} and is not supported from this sandboxed context.`,
 };
 
 const DEFAULT_REMEDIATION: Record<SandboxFailureClass, string> = {
@@ -53,7 +53,7 @@ const DEFAULT_REMEDIATION: Record<SandboxFailureClass, string> = {
   "gateway-reachability":
     "Restore or configure a reachable gateway/provider path for the sandboxed runtime.",
   "unsupported-host-only":
-    'Use a sandbox-supported alternative such as runtime="subagent" or a sandboxed target agent.',
+    'Use a sandbox-supported alternative such as runtime="subagent" or a sandboxed target agent; reserve host-only paths for explicit operator break-glass.',
 };
 
 const LOW_LEVEL_RUNTIME_PATTERNS = [
@@ -62,6 +62,14 @@ const LOW_LEVEL_RUNTIME_PATTERNS = [
   /\bSIG(?:ABRT|SEGV|BUS|ILL)\b/i,
   /pthread_create failed/i,
   /stack trace/i,
+];
+
+const HOST_ONLY_SPAWN_PATTERNS = [
+  /Sandboxed sessions cannot spawn ACP sessions/i,
+  /runtime="acp" runs on the host/i,
+  /break-glass host(?:-only| authority)/i,
+  /Sandboxed sessions cannot spawn unsandboxed subagents/i,
+  /sandbox="require".*(?:runtime="acp"|unsandboxed|sandboxed target runtime)/i,
 ];
 
 function normalizeSentence(value: string): string {
@@ -232,16 +240,11 @@ export function classifySandboxFailureText(
     };
   }
 
-  if (
-    /Sandboxed sessions cannot spawn ACP sessions|runtime="acp" runs on the host|Sandboxed sessions cannot spawn unsandboxed subagents|sandbox="require".*(?:runtime="acp"|unsandboxed|sandboxed target runtime)/i.test(
-      normalized,
-    )
-  ) {
+  if (HOST_ONLY_SPAWN_PATTERNS.some((pattern) => pattern.test(normalized))) {
     return {
       failureClass: "unsupported-host-only",
       operation: "session spawn",
-      detail:
-        "The requested spawn path depends on host execution and is blocked from this sandboxed context.",
+      detail: `The requested spawn path depends on ${BREAK_GLASS_HOST_LABEL} and is blocked from this sandboxed context.`,
       remediation: DEFAULT_REMEDIATION["unsupported-host-only"],
       cause: raw,
       sanitizedCause: sanitizeSandboxFailureCause(raw),

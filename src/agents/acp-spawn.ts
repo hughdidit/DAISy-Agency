@@ -34,6 +34,7 @@ import { normalizeAgentId } from "../routing/session-key.js";
 import { normalizeDeliveryContext } from "../utils/delivery-context.js";
 import { formatSandboxFailureMessage } from "./sandbox/failure-messaging.js";
 import { resolveSandboxRuntimeStatus } from "./sandbox/runtime-status.js";
+import { BREAK_GLASS_HOST_LABEL } from "./sandbox/trust-posture.js";
 
 export const ACP_SPAWN_MODES = ["run", "session"] as const;
 export type SpawnAcpMode = (typeof ACP_SPAWN_MODES)[number];
@@ -247,7 +248,7 @@ export async function spawnAcpDirect(
         failureClass: "unsupported-host-only",
         operation: "ACP session spawn",
         subject: 'runtime="acp"',
-        detail: 'runtime="acp" runs on the host and cannot be spawned from a sandboxed session.',
+        detail: `runtime="acp" uses ${BREAK_GLASS_HOST_LABEL} and cannot be spawned from a sandboxed session.`,
         remediation: 'Use runtime="subagent" from sandboxed sessions.',
       }),
     };
@@ -259,8 +260,7 @@ export async function spawnAcpDirect(
         failureClass: "unsupported-host-only",
         operation: "ACP session spawn",
         subject: 'sandbox="require"',
-        detail:
-          'sessions_spawn sandbox="require" is unsupported for runtime="acp" because ACP sessions run outside the sandbox.',
+        detail: `sessions_spawn sandbox="require" is unsupported for runtime="acp" because ACP sessions use ${BREAK_GLASS_HOST_LABEL} outside the sandbox.`,
         remediation: 'Use runtime="subagent" or sandbox="inherit".',
       }),
     };

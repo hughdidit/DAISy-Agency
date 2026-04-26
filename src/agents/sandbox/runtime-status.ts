@@ -9,6 +9,7 @@ import {
   resolveSandboxToolPolicyDecision,
   resolveSandboxToolPolicyForAgent,
 } from "./tool-policy.js";
+import { resolveSandboxTrustPosture } from "./trust-posture.js";
 import type { SandboxConfig, SandboxToolPolicyResolved } from "./types.js";
 
 function shouldSandboxSession(cfg: SandboxConfig, sessionKey: string, mainSessionKey: string) {
@@ -56,6 +57,8 @@ export function resolveSandboxRuntimeStatus(params: {
   mainSessionKey: string;
   mode: SandboxConfig["mode"];
   sandboxed: boolean;
+  trustPosture: ReturnType<typeof resolveSandboxTrustPosture>["trustPosture"];
+  trustLabel: string;
   toolPolicy: SandboxToolPolicyResolved;
 } {
   const sessionKey = params.sessionKey?.trim() ?? "";
@@ -76,12 +79,18 @@ export function resolveSandboxRuntimeStatus(params: {
   const sandboxed = comparableSessionKey
     ? shouldSandboxSession(sandboxCfg, comparableSessionKey, mainSessionKey)
     : false;
+  const trustPosture = resolveSandboxTrustPosture({
+    mode: sandboxCfg.mode,
+    sandboxed,
+  });
   return {
     agentId,
     sessionKey,
     mainSessionKey,
     mode: sandboxCfg.mode,
     sandboxed,
+    trustPosture: trustPosture.trustPosture,
+    trustLabel: trustPosture.trustLabel,
     toolPolicy: resolveSandboxToolPolicyForAgent(cfg, agentId),
   };
 }
@@ -124,7 +133,9 @@ export function formatSandboxToolPolicyBlockedMessage(params: {
 
   const remediation: string[] = [...fixes];
   if (runtime.mode === "non-main") {
-    remediation.push(`Use main session key (direct): ${runtime.mainSessionKey}.`);
+    remediation.push(
+      `Prefer a sandbox-first fix; if this is intentionally host-only, the main session key is reduced-trust host compatibility: ${runtime.mainSessionKey}.`,
+    );
   }
 
   return formatSandboxFailureMessage({

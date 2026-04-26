@@ -401,8 +401,8 @@ describe("spawnAcpDirect", () => {
     );
 
     expect(result.status).toBe("forbidden");
-    expect(result.error).toContain("Sandbox unsupported host-only operation");
-    expect(result.error).toContain('runtime="acp" runs on the host');
+    expect(result.error).toContain("Sandbox blocked break-glass host-only operation");
+    expect(result.error).toContain("break-glass host authority");
     expect(hoisted.callGatewayMock).not.toHaveBeenCalled();
     expect(hoisted.initializeSessionMock).not.toHaveBeenCalled();
   });
