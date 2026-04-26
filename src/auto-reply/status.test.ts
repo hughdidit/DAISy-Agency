@@ -30,6 +30,11 @@ describe("buildStatusMessage", () => {
   it("summarizes agent readiness and context usage", () => {
     const text = buildStatusMessage({
       config: {
+        agents: {
+          defaults: {
+            sandbox: { mode: "off" },
+          },
+        },
         models: {
           providers: {
             anthropic: {
@@ -400,6 +405,34 @@ describe("buildStatusMessage", () => {
     });
 
     expect(text).toContain("Activation: always");
+  });
+
+  it("keeps sandbox runtime visible for group/channel sessions", () => {
+    const text = buildStatusMessage({
+      config: {
+        agents: {
+          defaults: {
+            sandbox: { mode: "all" },
+          },
+        },
+      } as unknown as OpenClawConfig,
+      agent: {},
+      sessionEntry: {
+        sessionId: "g2",
+        updatedAt: 0,
+        groupActivation: "mention",
+        chatType: "group",
+      },
+      sessionKey: "agent:main:discord:group:sbx-404-validation",
+      sessionScope: "per-sender",
+      queue: { mode: "collect", depth: 0 },
+      modelAuth: "api-key",
+    });
+    const normalized = normalizeTestText(text);
+
+    expect(normalized).toContain("Runtime: docker/all");
+    expect(normalized).toContain("Activation: mention");
+    expect(normalized).toContain("Session: agent:main:discord:group:sbx-404-validation");
   });
 
   it("shows queue details when overridden", () => {

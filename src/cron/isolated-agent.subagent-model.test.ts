@@ -192,4 +192,45 @@ describe("runCronIsolatedAgentTurn: subagent model resolution (#11461)", () => {
       expect(call?.model).toBe("gpt-4o");
     });
   });
+
+  it("uses a fresh labeled per-run session key for isolated cron runs", async () => {
+    await withTempHome(async (home) => {
+      const previousFast = process.env.OPENCLAW_TEST_FAST;
+      try {
+        delete process.env.OPENCLAW_TEST_FAST;
+        const storePath = await writeSessionStore(home);
+        mockEmbeddedAgent();
+        const job = {
+          ...makeJob(),
+          name: "SBX-404 cron isolation",
+        };
+
+        const result = await runCronIsolatedAgentTurn({
+          cfg: makeCfg(home, storePath),
+          deps: makeDeps(),
+          job,
+          message: "do work",
+          sessionKey: "cron:job-sub",
+          lane: "cron",
+        });
+
+        expect(result.status).toBe("ok");
+        expect(result.sessionKey).toMatch(/^agent:main:cron:job-sub:run:/);
+        expect(result.sessionKey).not.toBe("agent:main:cron:job-sub");
+
+        const store = JSON.parse(await fs.readFile(storePath, "utf-8")) as Record<
+          string,
+          { label?: string; sessionId?: string }
+        >;
+        expect(store[result.sessionKey ?? ""]?.label).toBe("Cron: SBX-404 cron isolation");
+        expect(store[result.sessionKey ?? ""]?.sessionId).toBe(result.sessionId);
+      } finally {
+        if (previousFast === undefined) {
+          delete process.env.OPENCLAW_TEST_FAST;
+        } else {
+          process.env.OPENCLAW_TEST_FAST = previousFast;
+        }
+      }
+    });
+  });
 });
