@@ -408,6 +408,7 @@ description: test skill
       checkId:
         | "tools.exec.host_sandbox_no_sandbox_defaults"
         | "tools.exec.host_sandbox_no_sandbox_agents";
+      expectedRemediation: string;
     }> = [
       {
         name: "defaults host is sandbox",
@@ -426,6 +427,7 @@ description: test skill
           },
         },
         checkId: "tools.exec.host_sandbox_no_sandbox_defaults",
+        expectedRemediation: 'agents.defaults.sandbox.mode="all"',
       },
       {
         name: "agent override host is sandbox",
@@ -454,6 +456,7 @@ description: test skill
           },
         },
         checkId: "tools.exec.host_sandbox_no_sandbox_agents",
+        expectedRemediation: 'agents.list[].sandbox.mode="all"',
       },
     ];
     await Promise.all(
@@ -463,7 +466,7 @@ description: test skill
         const finding = res.findings.find((entry) => entry.checkId === testCase.checkId);
         expect(finding?.title).toContain("reduced-trust host compatibility");
         expect(finding?.detail).toContain("reduced-trust host compatibility mode");
-        expect(finding?.remediation).toContain('agents.defaults.sandbox.mode="all"');
+        expect(finding?.remediation).toContain(testCase.expectedRemediation);
       }),
     );
   });

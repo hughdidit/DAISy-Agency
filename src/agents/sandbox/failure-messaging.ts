@@ -40,8 +40,7 @@ const DEFAULT_DETAILS: Record<SandboxFailureClass, string> = {
   "policy-block": "Sandbox policy blocked the requested action.",
   "projection-defect": "Required sandbox-projected files or manifests are missing.",
   "gateway-reachability": "The sandboxed flow cannot reach the required gateway or broker path.",
-  "unsupported-host-only":
-    `The requested operation depends on ${BREAK_GLASS_HOST_LABEL} and is not supported from this sandboxed context.`,
+  "unsupported-host-only": `The requested operation depends on ${BREAK_GLASS_HOST_LABEL} and is not supported from this sandboxed context.`,
 };
 
 const DEFAULT_REMEDIATION: Record<SandboxFailureClass, string> = {
@@ -241,8 +240,7 @@ export function classifySandboxFailureText(
     return {
       failureClass: "unsupported-host-only",
       operation: "session spawn",
-      detail:
-        `The requested spawn path depends on ${BREAK_GLASS_HOST_LABEL} and is blocked from this sandboxed context.`,
+      detail: `The requested spawn path depends on ${BREAK_GLASS_HOST_LABEL} and is blocked from this sandboxed context.`,
       remediation: DEFAULT_REMEDIATION["unsupported-host-only"],
       cause: raw,
       sanitizedCause: sanitizeSandboxFailureCause(raw),

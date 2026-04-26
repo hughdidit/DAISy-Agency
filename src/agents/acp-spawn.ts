@@ -260,8 +260,7 @@ export async function spawnAcpDirect(
         failureClass: "unsupported-host-only",
         operation: "ACP session spawn",
         subject: 'sandbox="require"',
-        detail:
-          `sessions_spawn sandbox="require" is unsupported for runtime="acp" because ACP sessions use ${BREAK_GLASS_HOST_LABEL} outside the sandbox.`,
+        detail: `sessions_spawn sandbox="require" is unsupported for runtime="acp" because ACP sessions use ${BREAK_GLASS_HOST_LABEL} outside the sandbox.`,
         remediation: 'Use runtime="subagent" or sandbox="inherit".',
       }),
     };
