@@ -9,9 +9,9 @@ status: active
 
 OpenClaw has three related (but different) controls:
 
-1. **Sandbox** (`agents.defaults.sandbox.*` / `agents.list[].sandbox.*`) decides **where tools run** (Docker vs host).
+1. **Sandbox** (`agents.defaults.sandbox.*` / `agents.list[].sandbox.*`) decides **where tools run** (sandbox-first Docker boundary vs reduced-trust host compatibility).
 2. **Tool policy** (`tools.*`, `tools.sandbox.tools.*`, `agents.list[].tools.*`) decides **which tools are available/allowed**.
-3. **Elevated** (`tools.elevated.*`, `agents.list[].tools.elevated.*`) is an **exec-only escape hatch** to run on the host when you’re sandboxed.
+3. **Elevated** (`tools.elevated.*`, `agents.list[].tools.elevated.*`) is an **exec-only break-glass escape hatch** to run on the host when you’re sandboxed.
 
 ## Quick debug
 
@@ -27,7 +27,7 @@ openclaw sandbox explain --json
 It prints:
 
 - effective sandbox mode/scope/workspace access
-- whether the session is currently sandboxed (main vs non-main)
+- whether the session is currently sandbox-first or reduced-trust host compatibility (main vs non-main)
 - effective sandbox tool allow/deny (and whether it came from agent/global/default)
 - elevated gates and fix-it key paths
 
@@ -35,9 +35,9 @@ It prints:
 
 Sandboxing is controlled by `agents.defaults.sandbox.mode`:
 
-- `"off"`: everything runs on the host.
-- `"non-main"`: only non-main sessions are sandboxed (common “surprise” for groups/channels).
-- `"all"`: everything is sandboxed.
+- `"off"`: everything runs on the host in reduced-trust host compatibility mode.
+- `"non-main"`: only non-main sessions are sandboxed; main sessions remain reduced-trust host compatibility.
+- `"all"`: everything is sandboxed and follows the sandbox-first posture.
 
 See [Sandboxing](/gateway/sandboxing) for the full matrix (scope, workspace mounts, images).
 
@@ -95,13 +95,13 @@ Available groups:
 - `group:nodes`: `nodes`
 - `group:openclaw`: all built-in OpenClaw tools (excludes provider plugins)
 
-## Elevated: exec-only “run on host”
+## Elevated: exec-only break-glass host authority
 
 Elevated does **not** grant extra tools; it only affects `exec`.
 
-- If you’re sandboxed, `/elevated on` (or `exec` with `elevated: true`) runs on the host (approvals may still apply).
+- If you’re sandboxed, `/elevated on` (or `exec` with `elevated: true`) runs on the host as break-glass host authority (approvals may still apply).
 - Use `/elevated full` to skip exec approvals for the session.
-- If you’re already running direct, elevated is effectively a no-op (still gated).
+- If you’re already in reduced-trust host compatibility mode, elevated is effectively a no-op for execution location (still gated).
 - Elevated is **not** skill-scoped and does **not** override tool allow/deny.
 - `/exec` is separate from elevated. It only adjusts per-session exec defaults for authorized senders.
 
@@ -118,11 +118,11 @@ See [Elevated Mode](/tools/elevated).
 
 Fix-it keys (pick one):
 
-- Disable sandbox: `agents.defaults.sandbox.mode=off` (or per-agent `agents.list[].sandbox.mode=off`)
 - Allow the tool inside sandbox:
   - remove it from `tools.sandbox.tools.deny` (or per-agent `agents.list[].tools.sandbox.tools.deny`)
   - or add it to `tools.sandbox.tools.allow` (or per-agent allow)
+- If the workflow is intentionally host-only, use `agents.defaults.sandbox.mode=off` (or per-agent `agents.list[].sandbox.mode=off`) as reduced-trust host compatibility, not the normal sandbox-first fix.
 
 ### “I thought this was main, why is it sandboxed?”
 
-In `"non-main"` mode, group/channel keys are _not_ main. Use the main session key (shown by `sandbox explain`) or switch mode to `"off"`.
+In `"non-main"` mode, group/channel keys are _not_ main. `sandbox explain` shows the main session key, but that path is reduced-trust host compatibility. Prefer `agents.defaults.sandbox.mode="all"` when the workflow can run sandbox-first.

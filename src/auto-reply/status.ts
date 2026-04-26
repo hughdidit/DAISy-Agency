@@ -7,7 +7,10 @@ import {
   resolveConfiguredModelRef,
   resolveModelRefFromString,
 } from "../agents/model-selection.js";
-import { resolveSandboxRuntimeStatus } from "../agents/sandbox.js";
+import {
+  formatSandboxTrustPostureLine,
+  resolveSandboxRuntimeStatus,
+} from "../agents/sandbox.js";
 import type { SkillCommandSpec } from "../agents/skills.js";
 import { derivePromptTokens, normalizeUsage, type UsageLike } from "../agents/usage.js";
 import { resolveChannelModelOverride } from "../channels/model-overrides.js";
@@ -129,16 +132,15 @@ function resolveRuntimeLabel(
       sessionKey,
     });
     const sandboxMode = runtimeStatus.mode ?? "off";
-    if (sandboxMode === "off") {
-      return "direct";
-    }
-    const runtime = runtimeStatus.sandboxed ? "docker" : sessionKey ? "direct" : "unknown";
-    return `${runtime}/${sandboxMode}`;
+    return `${formatSandboxTrustPostureLine({
+      mode: sandboxMode,
+      sandboxed: runtimeStatus.sandboxed,
+    })}/${sandboxMode}`;
   }
 
   const sandboxMode = args.agent?.sandbox?.mode ?? "off";
   if (sandboxMode === "off") {
-    return "direct";
+    return `${formatSandboxTrustPostureLine({ mode: "off", sandboxed: false })}/off`;
   }
   const sandboxed = (() => {
     if (!sessionKey) {
@@ -159,8 +161,7 @@ function resolveRuntimeLabel(
     });
     return sessionKey !== mainKey.trim();
   })();
-  const runtime = sandboxed ? "docker" : sessionKey ? "direct" : "unknown";
-  return `${runtime}/${sandboxMode}`;
+  return `${formatSandboxTrustPostureLine({ mode: sandboxMode, sandboxed })}/${sandboxMode}`;
 }
 
 const formatTokens = (total: number | null | undefined, contextTokens: number | null) => {

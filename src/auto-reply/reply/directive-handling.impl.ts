@@ -3,7 +3,7 @@ import {
   resolveAgentDir,
   resolveSessionAgentId,
 } from "../../agents/agent-scope.js";
-import { resolveSandboxRuntimeStatus } from "../../agents/sandbox.js";
+import { BREAK_GLASS_HOST_LABEL, resolveSandboxRuntimeStatus } from "../../agents/sandbox.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import { type SessionEntry, updateSessionStore } from "../../config/sessions.js";
 import type { ExecAsk, ExecHost, ExecSecurity } from "../../infra/exec-approvals.js";
@@ -403,8 +403,12 @@ export async function handleDirectiveOnly(
       directives.elevatedLevel === "off"
         ? formatDirectiveAck("Elevated mode disabled.")
         : directives.elevatedLevel === "full"
-          ? formatDirectiveAck("Elevated mode set to full (auto-approve).")
-          : formatDirectiveAck("Elevated mode set to ask (approvals may still apply)."),
+          ? formatDirectiveAck(
+              `Elevated mode set to full (${BREAK_GLASS_HOST_LABEL}, auto-approve).`,
+            )
+          : formatDirectiveAck(
+              `Elevated mode set to ask (${BREAK_GLASS_HOST_LABEL}; approvals may still apply).`,
+            ),
     );
     if (shouldHintDirectRuntime) {
       parts.push(formatElevatedRuntimeHint());

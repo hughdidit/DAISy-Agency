@@ -29,7 +29,7 @@ describe("sandbox failure messaging", () => {
     },
     {
       failureClass: "unsupported-host-only" as const,
-      expected: "Sandbox unsupported host-only operation",
+      expected: "Sandbox blocked break-glass host-only operation",
     },
   ])("formats $failureClass messages deterministically", ({ failureClass, expected }) => {
     const message = formatSandboxFailureMessage({
@@ -130,7 +130,7 @@ describe("sandbox failure messaging", () => {
     {
       raw: 'Sandboxed sessions cannot spawn ACP sessions because runtime="acp" runs on the host.',
       failureClass: "unsupported-host-only",
-      expected: "depends on host execution",
+      expected: "depends on break-glass host authority",
     },
     {
       raw: "missing-required-env for skill",

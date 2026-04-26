@@ -2,6 +2,7 @@ import {
   resolveBootstrapMaxChars,
   resolveBootstrapTotalMaxChars,
 } from "../../agents/pi-embedded-helpers.js";
+import { formatSandboxTrustPostureLine } from "../../agents/sandbox.js";
 import { buildSystemPromptReport } from "../../agents/system-prompt-report.js";
 import type { SessionSystemPromptReport } from "../../config/sessions/types.js";
 import type { ReplyPayload } from "../types.js";
@@ -122,7 +123,19 @@ export async function buildContextReply(params: HandleCommandsParams): Promise<R
     return `- ${f.name}: ${status} | raw ${raw} | injected ${injected}`;
   });
 
-  const sandboxLine = `Sandbox: mode=${report.sandbox?.mode ?? "unknown"} sandboxed=${report.sandbox?.sandboxed ?? false}`;
+  const sandboxMode =
+    report.sandbox?.mode === "all" ||
+    report.sandbox?.mode === "non-main" ||
+    report.sandbox?.mode === "off"
+      ? report.sandbox.mode
+      : "off";
+  const sandboxed = report.sandbox?.sandboxed ?? false;
+  const sandboxLine = `Sandbox: mode=${sandboxMode} sandboxed=${sandboxed} trust=${formatSandboxTrustPostureLine(
+    {
+      mode: sandboxMode,
+      sandboxed,
+    },
+  )}`;
   const toolSchemaLine = `Tool schemas (JSON): ${formatCharsAndTokens(report.tools.schemaChars)} (counts toward context; not shown as text)`;
   const toolListLine = `Tool list (system prompt text): ${formatCharsAndTokens(report.tools.listChars)}`;
   const skillNameSet = new Set(report.skills.entries.map((s) => s.name));

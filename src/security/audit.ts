@@ -1,6 +1,10 @@
 import { isIP } from "node:net";
 import path from "node:path";
-import { resolveSandboxConfigForAgent } from "../agents/sandbox.js";
+import {
+  BREAK_GLASS_HOST_LABEL,
+  HOST_COMPATIBILITY_LABEL,
+  resolveSandboxConfigForAgent,
+} from "../agents/sandbox.js";
 import { execDockerRaw } from "../agents/sandbox/docker.js";
 import { resolveBrowserConfig, resolveProfile } from "../browser/config.js";
 import { resolveBrowserControlAuth } from "../browser/control-auth.js";
@@ -829,15 +833,15 @@ function collectElevatedFindings(cfg: OpenClawConfig): SecurityAuditFinding[] {
       findings.push({
         checkId: `tools.elevated.allowFrom.${provider}.wildcard`,
         severity: "critical",
-        title: "Elevated exec allowlist contains wildcard",
-        detail: `tools.elevated.allowFrom.${provider} includes "*" which effectively approves everyone on that channel for elevated mode.`,
+        title: "Break-glass host authority allowlist contains wildcard",
+        detail: `tools.elevated.allowFrom.${provider} includes "*" which effectively approves everyone on that channel for ${BREAK_GLASS_HOST_LABEL}.`,
       });
     } else if (normalized.length > 25) {
       findings.push({
         checkId: `tools.elevated.allowFrom.${provider}.large`,
         severity: "warn",
-        title: "Elevated exec allowlist is large",
-        detail: `tools.elevated.allowFrom.${provider} has ${normalized.length} entries; consider tightening elevated access.`,
+        title: "Break-glass host authority allowlist is large",
+        detail: `tools.elevated.allowFrom.${provider} has ${normalized.length} entries; consider tightening elevated access to ${BREAK_GLASS_HOST_LABEL}.`,
       });
     }
   }
@@ -855,12 +859,12 @@ function collectExecRuntimeFindings(cfg: OpenClawConfig): SecurityAuditFinding[]
     findings.push({
       checkId: "tools.exec.host_sandbox_no_sandbox_defaults",
       severity: "warn",
-      title: "Exec host is sandbox but sandbox mode is off",
+      title: "Exec is reduced-trust host compatibility while sandbox mode is off",
       detail:
         "tools.exec.host is explicitly set to sandbox while agents.defaults.sandbox.mode=off. " +
-        "In this mode, exec runs directly on the gateway host.",
+        `In this mode, exec runs on the gateway host as ${HOST_COMPATIBILITY_LABEL}.`,
       remediation:
-        'Enable sandbox mode (`agents.defaults.sandbox.mode="non-main"` or `"all"`) or set tools.exec.host to "gateway" with approvals.',
+        'Prefer sandbox-first operation with `agents.defaults.sandbox.mode="all"`, or set tools.exec.host to "gateway" with approvals when host compatibility is intentional.',
     });
   }
 
@@ -881,12 +885,12 @@ function collectExecRuntimeFindings(cfg: OpenClawConfig): SecurityAuditFinding[]
     findings.push({
       checkId: "tools.exec.host_sandbox_no_sandbox_agents",
       severity: "warn",
-      title: "Agent exec host uses sandbox while sandbox mode is off",
+      title: "Agent exec is reduced-trust host compatibility while sandbox mode is off",
       detail:
         `agents.list.*.tools.exec.host is set to sandbox for: ${riskyAgents.join(", ")}. ` +
-        "With sandbox mode off, exec runs directly on the gateway host.",
+        `With sandbox mode off, exec runs on the gateway host as ${HOST_COMPATIBILITY_LABEL}.`,
       remediation:
-        'Enable sandbox mode for these agents (`agents.list[].sandbox.mode`) or set their tools.exec.host to "gateway".',
+        'Prefer sandbox-first operation for these agents (`agents.list[].sandbox.mode="all"`), or set their tools.exec.host to "gateway" when host compatibility is intentional.',
     });
   }
 

@@ -9,11 +9,15 @@ title: "Elevated Mode"
 
 ## What it does
 
+`tools.elevated` is break-glass host authority for `exec`. It is useful for
+maintenance and migration cases that cannot run sandbox-first, but it should not
+be treated as the normal execution path.
+
 - `/elevated on` runs on the gateway host and keeps exec approvals (same as `/elevated ask`).
 - `/elevated full` runs on the gateway host **and** auto-approves exec (skips exec approvals).
 - `/elevated ask` runs on the gateway host but keeps exec approvals (same as `/elevated on`).
 - `on`/`ask` do **not** force `exec.security=full`; configured security/ask policy still applies.
-- Only changes behavior when the agent is **sandboxed** (otherwise exec already runs on the host).
+- Only changes execution location when the agent is **sandboxed**. In reduced-trust host compatibility mode, exec already runs on the host.
 - Directive forms: `/elevated on|off|ask|full`, `/elev on|off|ask|full`.
 - Only `on|off|ask|full` are accepted; anything else returns a hint and does not change state.
 
@@ -23,9 +27,9 @@ title: "Elevated Mode"
 - **Per-session state**: `/elevated on|off|ask|full` sets the elevated level for the current session key.
 - **Inline directive**: `/elevated on|ask|full` inside a message applies to that message only.
 - **Groups**: In group chats, elevated directives are only honored when the agent is mentioned. Command-only messages that bypass mention requirements are treated as mentioned.
-- **Host execution**: elevated forces `exec` onto the gateway host; `full` also sets `security=full`.
+- **Host execution**: elevated forces `exec` onto the gateway host as break-glass host authority; `full` also sets `security=full`.
 - **Approvals**: `full` skips exec approvals; `on`/`ask` honor them when allowlist/ask rules require.
-- **Unsandboxed agents**: no-op for location; only affects gating, logging, and status.
+- **Unsandboxed agents**: no-op for location because the session is already in reduced-trust host compatibility mode; only affects gating, logging, and status.
 - **Tool policy still applies**: if `exec` is denied by tool policy, elevated cannot be used.
 - **Separate from `/exec`**: `/exec` adjusts per-session defaults for authorized senders and does not require elevated.
 
@@ -59,5 +63,5 @@ title: "Elevated Mode"
 
 ## Logging + status
 
-- Elevated exec calls are logged at info level.
+- Elevated exec calls are logged at info level as break-glass host authority.
 - Session status includes elevated mode (e.g. `elevated=ask`, `elevated=full`).

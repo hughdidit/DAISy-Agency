@@ -1,3 +1,4 @@
+import { BREAK_GLASS_HOST_LABEL, HOST_COMPATIBILITY_LABEL } from "../../agents/sandbox.js";
 import { formatCliCommand } from "../../cli/command-format.js";
 import { SYSTEM_MARK, prefixSystemMessage } from "../../infra/system-message.js";
 import type { ElevatedLevel, ReasoningLevel } from "./directives.js";
@@ -11,14 +12,14 @@ export const withOptions = (line: string, options: string) =>
   `${line}\n${formatOptionsLine(options)}`;
 
 export const formatElevatedRuntimeHint = () =>
-  `${SYSTEM_MARK} Runtime is direct; sandboxing does not apply.`;
+  `${SYSTEM_MARK} Runtime is ${HOST_COMPATIBILITY_LABEL}; sandboxing does not apply to host execution.`;
 
 export const formatElevatedEvent = (level: ElevatedLevel) => {
   if (level === "full") {
-    return "Elevated FULL — exec runs on host with auto-approval.";
+    return `Elevated FULL - ${BREAK_GLASS_HOST_LABEL}; exec runs on host with auto-approval.`;
   }
   if (level === "ask" || level === "on") {
-    return "Elevated ASK — exec runs on host; approvals may still apply.";
+    return `Elevated ASK - ${BREAK_GLASS_HOST_LABEL}; exec runs on host and approvals may still apply.`;
   }
   return "Elevated OFF — exec stays in sandbox.";
 };
@@ -63,7 +64,9 @@ export function formatElevatedUnavailableText(params: {
 }): string {
   const lines: string[] = [];
   lines.push(
-    `elevated is not available right now (runtime=${params.runtimeSandboxed ? "sandboxed" : "direct"}).`,
+    `elevated is not available right now (runtime=${
+      params.runtimeSandboxed ? "sandbox-first" : HOST_COMPATIBILITY_LABEL
+    }).`,
   );
   const failures = params.failures ?? [];
   if (failures.length > 0) {

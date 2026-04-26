@@ -87,6 +87,8 @@ describe("sandbox explain command", () => {
     const parsed = JSON.parse(out);
     expect(parsed).toHaveProperty("docsUrl", "https://docs.openclaw.ai/sandbox");
     expect(parsed).toHaveProperty("sandbox.mode", "all");
+    expect(parsed).toHaveProperty("sandbox.trustPosture", "sandbox-first");
+    expect(parsed).toHaveProperty("sandbox.trustLabel", "sandbox-first runtime");
     expect(parsed).toHaveProperty("sandbox.tools.sources.allow.source");
     expect(parsed).toHaveProperty("capabilities.counts.byClass.gateway-brokered", 1);
     expect(parsed).toHaveProperty("capabilities.counts.byClass.unsupported-in-current-runtime", 2);
@@ -132,6 +134,8 @@ describe("sandbox explain command", () => {
 
     const out = logs.join("\n");
     expect(out).toContain("Effective capabilities:");
+    expect(out).toContain("trustPosture:");
+    expect(out).toContain("sandbox-first");
     expect(out).toContain("gateway-brokered");
     expect(out).toContain("remote-node-assisted");
     expect(out).toContain("configured-but-blocked");
@@ -141,5 +145,29 @@ describe("sandbox explain command", () => {
     expect(out).toContain("projection-defect");
     expect(out).toContain("remote-assisted-availability");
     expect(out).toContain("gateway-brokered-availability");
+  });
+
+  it("labels unsandboxed explain output as reduced-trust host compatibility", async () => {
+    mockCfg = {
+      agents: {
+        defaults: {
+          sandbox: { mode: "off", scope: "session", workspaceAccess: "none" },
+        },
+      },
+      session: { store: "/tmp/openclaw-test-sessions-{agentId}.json" },
+    };
+
+    const logs: string[] = [];
+    await sandboxExplainCommand({ json: false, session: "agent:main:main" }, {
+      log: (msg: string) => logs.push(msg),
+      error: (msg: string) => logs.push(msg),
+      exit: (_code: number) => {},
+    } as unknown as Parameters<typeof sandboxExplainCommand>[1]);
+
+    const out = logs.join("\n");
+    expect(out).toContain("reduced-trust host compatibility mode");
+    expect(out).toContain("host-compatibility");
+    expect(out).toContain('agents.defaults.sandbox.mode="all"');
+    expect(out).not.toContain("runtime: direct");
   });
 });
