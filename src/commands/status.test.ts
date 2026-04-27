@@ -405,6 +405,8 @@ const runtimeLogMock = runtime.log as Mock<(...args: unknown[]) => void>;
 
 describe("statusCommand", () => {
   it("prints JSON when requested", async () => {
+    collectCommandCapabilitySnapshot.mockClear();
+
     await statusCommand({ json: true }, runtime as never);
     const payload = JSON.parse(String(runtimeLogMock.mock.calls[0]?.[0]));
     expect(payload.linkChannel.linked).toBe(true);
@@ -448,6 +450,13 @@ describe("statusCommand", () => {
           primaryReasonCategory: "projection-defect",
         }),
       ]),
+    );
+    expect(collectCommandCapabilitySnapshot).toHaveBeenCalledWith(
+      expect.objectContaining({
+        agentId: "main",
+        mode: "gateway",
+        sessionKey: "agent:main:main",
+      }),
     );
   });
 

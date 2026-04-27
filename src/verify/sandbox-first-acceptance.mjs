@@ -1250,20 +1250,25 @@ export async function runCronIsolationAndSubagentModelScenario(ctx) {
 async function runHostOnlyBlocksScenario(ctx) {
   const probeScript = `
     import { spawnAcpDirect } from "./dist/agents/acp-spawn.js";
-    const result = await spawnAcpDirect(
-      { task: "SBX-404 host-only block probe", agentId: "codex" },
-      { agentSessionKey: "agent:main:subagent:sbx-404-parent", sandboxed: true },
-    );
-    console.log(JSON.stringify(result, null, 2));
+    try {
+      const result = await spawnAcpDirect(
+        { task: "SBX-404 host-only block probe", agentId: "codex" },
+        { agentSessionKey: "agent:main:subagent:sbx-404-parent", sandboxed: true },
+      );
+      console.log(JSON.stringify(result, null, 2));
+    } catch (error) {
+      console.log(JSON.stringify({
+        status: "error",
+        error: error?.message ?? String(error),
+      }, null, 2));
+    }
   `.trim();
   const command = `
     set -euo pipefail
     tmp_dir="$(mktemp -d /tmp/sbx-404-host-only.XXXXXX)"
     cleanup() { rm -rf "$tmp_dir"; }
     trap cleanup EXIT
-    cat > "$tmp_dir/openclaw.json" <<'JSON'
-{"acp":{"enabled":true},"agents":{"defaults":{"sandbox":{"mode":"all"}}}}
-JSON
+    printf '%s\\n' '{"acp":{"enabled":true},"agents":{"defaults":{"sandbox":{"mode":"all"}}}}' > "$tmp_dir/openclaw.json"
     cd /app
     OPENCLAW_CONFIG_PATH="$tmp_dir/openclaw.json" node --input-type=module -e ${shellQuote(
       probeScript,
