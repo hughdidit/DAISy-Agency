@@ -25,6 +25,14 @@ export default defineConfig([
     platform: "node",
   },
   {
+    // Ensure staging acceptance can exercise the direct ACP policy gate from built output.
+    entry: "src/agents/acp-spawn.ts",
+    outDir: "dist/agents",
+    env,
+    fixedExtension: false,
+    platform: "node",
+  },
+  {
     entry: "src/cli/openclaw-readonly.ts",
     env,
     fixedExtension: false,
