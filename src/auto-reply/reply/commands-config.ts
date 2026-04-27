@@ -17,6 +17,11 @@ import {
   setConfigOverride,
   unsetConfigOverride,
 } from "../../config/runtime-overrides.js";
+import { logInfo } from "../../logger.js";
+import {
+  formatBreakGlassHostAuditEvent,
+  formatBreakGlassHostFlowLabel,
+} from "../../security/break-glass-host-flows.js";
 import { rejectUnauthorizedCommand, requireCommandFlagEnabled } from "./command-gates.js";
 import type { CommandHandler } from "./commands-types.js";
 import { parseConfigCommand } from "./config-commands.js";
@@ -204,22 +209,27 @@ export const handleDebugCommand: CommandHandler = async (params, allowTextComman
     if (!hasOverrides) {
       return {
         shouldContinue: false,
-        reply: { text: "⚙️ Debug overrides: (none)" },
+        reply: {
+          text: `⚙️ Debug overrides (${formatBreakGlassHostFlowLabel("runtime-debug")}): (none)`,
+        },
       };
     }
     const json = JSON.stringify(overrides, null, 2);
     return {
       shouldContinue: false,
       reply: {
-        text: `⚙️ Debug overrides (memory-only):\n\`\`\`json\n${json}\n\`\`\``,
+        text: `⚙️ Debug overrides (${formatBreakGlassHostFlowLabel("runtime-debug")}, memory-only):\n\`\`\`json\n${json}\n\`\`\``,
       },
     };
   }
   if (debugCommand.action === "reset") {
     resetConfigOverrides();
+    logInfo(formatBreakGlassHostAuditEvent({ flowId: "runtime-debug", action: "reset" }));
     return {
       shouldContinue: false,
-      reply: { text: "⚙️ Debug overrides cleared; using config on disk." },
+      reply: {
+        text: `⚙️ ${formatBreakGlassHostFlowLabel("runtime-debug")} overrides cleared; using config on disk.`,
+      },
     };
   }
   if (debugCommand.action === "unset") {
@@ -238,9 +248,18 @@ export const handleDebugCommand: CommandHandler = async (params, allowTextComman
         },
       };
     }
+    logInfo(
+      formatBreakGlassHostAuditEvent({
+        flowId: "runtime-debug",
+        action: "unset",
+        subject: debugCommand.path,
+      }),
+    );
     return {
       shouldContinue: false,
-      reply: { text: `⚙️ Debug override removed for ${debugCommand.path}.` },
+      reply: {
+        text: `⚙️ ${formatBreakGlassHostFlowLabel("runtime-debug")} override removed for ${debugCommand.path}.`,
+      },
     };
   }
   if (debugCommand.action === "set") {
@@ -255,10 +274,17 @@ export const handleDebugCommand: CommandHandler = async (params, allowTextComman
       typeof debugCommand.value === "string"
         ? `"${debugCommand.value}"`
         : JSON.stringify(debugCommand.value);
+    logInfo(
+      formatBreakGlassHostAuditEvent({
+        flowId: "runtime-debug",
+        action: "set",
+        subject: debugCommand.path,
+      }),
+    );
     return {
       shouldContinue: false,
       reply: {
-        text: `⚙️ Debug override set: ${debugCommand.path}=${valueLabel ?? "null"}`,
+        text: `⚙️ ${formatBreakGlassHostFlowLabel("runtime-debug")} override set: ${debugCommand.path}=${valueLabel ?? "null"}`,
       },
     };
   }

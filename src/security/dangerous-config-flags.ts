@@ -24,5 +24,34 @@ export function collectEnabledInsecureOrDangerousFlags(cfg: OpenClawConfig): str
   if (cfg.tools?.exec?.applyPatch?.workspaceOnly === false) {
     enabledFlags.push("tools.exec.applyPatch.workspaceOnly=false");
   }
+  const agents = Array.isArray(cfg.agents?.list) ? cfg.agents.list : [];
+  const sandboxDockerConfigs: Array<{ source: string; docker: Record<string, unknown> }> = [];
+  const defaultDocker = cfg.agents?.defaults?.sandbox?.docker;
+  if (defaultDocker && typeof defaultDocker === "object") {
+    sandboxDockerConfigs.push({
+      source: "agents.defaults.sandbox.docker",
+      docker: defaultDocker as Record<string, unknown>,
+    });
+  }
+  for (const [index, agent] of agents.entries()) {
+    const docker = agent?.sandbox?.docker;
+    if (docker && typeof docker === "object") {
+      sandboxDockerConfigs.push({
+        source: `agents.list[${index}].sandbox.docker`,
+        docker: docker as Record<string, unknown>,
+      });
+    }
+  }
+  for (const { source, docker } of sandboxDockerConfigs) {
+    for (const key of [
+      "dangerouslyAllowReservedContainerTargets",
+      "dangerouslyAllowExternalBindSources",
+      "dangerouslyAllowContainerNamespaceJoin",
+    ]) {
+      if (docker[key] === true) {
+        enabledFlags.push(`${source}.${key}=true`);
+      }
+    }
+  }
   return enabledFlags;
 }

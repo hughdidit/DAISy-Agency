@@ -242,11 +242,15 @@ High-signal `checkId` values you will most likely see in real deployments (not e
 | `gateway.real_ip_fallback_enabled`                 | warn/critical | Trusting `X-Real-IP` fallback can enable source-IP spoofing via proxy misconfig                          | `gateway.allowRealIpFallback`, `gateway.trustedProxies`                                           | no       |
 | `discovery.mdns_full_mode`                         | warn/critical | mDNS full mode advertises `cliPath`/`sshPort` metadata on local network                                  | `discovery.mdns.mode`, `gateway.bind`                                                             | no       |
 | `config.insecure_or_dangerous_flags`               | warn          | Any insecure/dangerous debug flags enabled                                                               | multiple keys (see finding detail)                                                                | no       |
+| `commands.bash.break_glass_enabled`                | warn          | Host shell chat command is enabled as break-glass host authority                                         | `commands.bash`, `tools.elevated.*`                                                               | no       |
+| `commands.debug.break_glass_enabled`               | warn          | Runtime debug override command can mutate gateway memory state                                           | `commands.debug`                                                                                  | no       |
+| `commands.restart.break_glass_enabled`             | warn          | Chat-triggered gateway restart path is enabled                                                           | `commands.restart`                                                                                | no       |
 | `hooks.token_too_short`                            | warn          | Easier brute force on hook ingress                                                                       | `hooks.token`                                                                                     | no       |
 | `hooks.request_session_key_enabled`                | warn/critical | External caller can choose sessionKey                                                                    | `hooks.allowRequestSessionKey`                                                                    | no       |
 | `hooks.request_session_key_prefixes_missing`       | warn/critical | No bound on external session key shapes                                                                  | `hooks.allowedSessionKeyPrefixes`                                                                 | no       |
 | `logging.redact_off`                               | warn          | Sensitive values leak to logs/status                                                                     | `logging.redactSensitive`                                                                         | yes      |
 | `sandbox.docker_config_mode_off`                   | warn          | Sandbox Docker config present but inactive                                                               | `agents.*.sandbox.mode`                                                                           | no       |
+| `sandbox.dangerous_override_enabled`               | warn          | `dangerouslyAllow*` sandbox override explicitly widens a trusted runtime boundary                        | `agents.*.sandbox.docker.dangerouslyAllow*`                                                       | no       |
 | `sandbox.dangerous_network_mode`                   | critical      | Sandbox Docker network uses `host` or `container:*` namespace-join mode                                  | `agents.*.sandbox.docker.network`                                                                 | no       |
 | `tools.exec.host_sandbox_no_sandbox_defaults`      | warn          | Unset exec host uses gateway-brokered compatibility when sandbox is off; explicit `sandbox` fails closed | `tools.exec.host`, `agents.defaults.sandbox.mode`                                                 | no       |
 | `tools.exec.host_sandbox_no_sandbox_agents`        | warn          | Per-agent explicit `exec host=sandbox` fails closed when that agent's sandbox mode is off                | `agents.list[].tools.exec.host`, `agents.list[].sandbox.mode`                                     | no       |
@@ -289,7 +293,9 @@ aggregates:
 - `hooks.gmail.allowUnsafeExternalContent=true`
 - `hooks.mappings[<index>].allowUnsafeExternalContent=true`
 - `tools.exec.applyPatch.workspaceOnly=false`
-- `tools.fs.workspaceOnly=false`
+- `agents.*.sandbox.docker.dangerouslyAllowReservedContainerTargets=true`
+- `agents.*.sandbox.docker.dangerouslyAllowExternalBindSources=true`
+- `agents.*.sandbox.docker.dangerouslyAllowContainerNamespaceJoin=true`
 
 Complete `dangerous*` / `dangerously*` config keys defined in OpenClaw config
 schema:

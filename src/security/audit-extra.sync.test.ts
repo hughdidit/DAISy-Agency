@@ -3,6 +3,7 @@ import type { OpenClawConfig } from "../config/config.js";
 import {
   collectAttackSurfaceSummaryFindings,
   collectHostModeStopgapFindings,
+  collectSandboxDangerousConfigFindings,
 } from "./audit-extra.sync.js";
 import { safeEqualSecret } from "./secret-equal.js";
 
@@ -41,6 +42,7 @@ describe("collectAttackSurfaceSummaryFindings", () => {
 describe("collectHostModeStopgapFindings", () => {
   it("reports explicit host-mode filesystem and elevated opt-outs", () => {
     const cfg: OpenClawConfig = {
+      commands: { bash: true, debug: true, restart: true },
       tools: {
         fs: { workspaceOnly: false },
         exec: { host: "gateway" },
@@ -61,9 +63,59 @@ describe("collectHostModeStopgapFindings", () => {
       expect.arrayContaining([
         expect.objectContaining({ checkId: "tools.fs.workspace_only_disabled_defaults" }),
         expect.objectContaining({ checkId: "tools.fs.workspace_only_disabled_agents" }),
+        expect.objectContaining({ checkId: "commands.bash.break_glass_enabled" }),
+        expect.objectContaining({ checkId: "commands.debug.break_glass_enabled" }),
+        expect.objectContaining({ checkId: "commands.restart.break_glass_enabled" }),
         expect.objectContaining({ checkId: "tools.elevated.enabled_explicit" }),
         expect.objectContaining({ checkId: "tools.exec.host_compatibility_explicit_defaults" }),
         expect.objectContaining({ checkId: "tools.exec.host_compatibility_explicit_agents" }),
+      ]),
+    );
+  });
+
+  it("does not report restart when the command is explicitly disabled", () => {
+    const findings = collectHostModeStopgapFindings({
+      commands: { restart: false },
+    });
+
+    expect(findings).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ checkId: "commands.restart.break_glass_enabled" }),
+      ]),
+    );
+  });
+});
+
+describe("collectSandboxDangerousConfigFindings", () => {
+  it("reports explicit dangerous sandbox overrides as break-glass", () => {
+    const findings = collectSandboxDangerousConfigFindings({
+      agents: {
+        defaults: {
+          sandbox: {
+            docker: {
+              dangerouslyAllowContainerNamespaceJoin: true,
+            },
+          },
+        },
+        list: [
+          {
+            id: "ops",
+            sandbox: {
+              docker: {
+                dangerouslyAllowExternalBindSources: true,
+              },
+            },
+          },
+        ],
+      },
+    });
+
+    expect(findings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          checkId: "sandbox.dangerous_override_enabled",
+          detail: expect.stringContaining("break-glass host authority"),
+        }),
       ]),
     );
   });

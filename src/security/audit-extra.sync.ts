@@ -17,6 +17,7 @@ import { resolveEffectiveToolFsWorkspaceOnly } from "../agents/tool-fs-policy.js
 import { resolveToolProfilePolicy } from "../agents/tool-policy.js";
 import { resolveBrowserConfig } from "../browser/config.js";
 import { formatCliCommand } from "../cli/command-format.js";
+import { isRestartEnabled } from "../config/commands.js";
 import type { OpenClawConfig } from "../config/config.js";
 import {
   resolveAgentModelFallbackValues,
@@ -30,6 +31,10 @@ import {
 } from "../gateway/node-command-policy.js";
 import { inferParamBFromIdOrName } from "../shared/model-param-b.js";
 import { pickSandboxToolPolicy } from "./audit-tool-policy.js";
+import {
+  formatBreakGlassHostFlowLabel,
+  formatBreakGlassHostFlowSummary,
+} from "./break-glass-host-flows.js";
 
 export type SecurityAuditFinding = {
   checkId: string;
@@ -513,6 +518,45 @@ export function collectAttackSurfaceSummaryFindings(cfg: OpenClawConfig): Securi
 export function collectHostModeStopgapFindings(cfg: OpenClawConfig): SecurityAuditFinding[] {
   const findings: SecurityAuditFinding[] = [];
 
+  if (cfg.commands?.bash === true) {
+    findings.push({
+      checkId: "commands.bash.break_glass_enabled",
+      severity: "warn",
+      title: "Host shell chat command is enabled",
+      detail:
+        "commands.bash=true enables /bash and ! host shell execution. " +
+        formatBreakGlassHostFlowSummary("chat-bash"),
+      remediation:
+        "Keep commands.bash disabled unless maintainers need this audited break-glass path; prefer sandbox-first exec for routine work.",
+    });
+  }
+
+  if (cfg.commands?.debug === true) {
+    findings.push({
+      checkId: "commands.debug.break_glass_enabled",
+      severity: "warn",
+      title: "Runtime debug overrides are enabled",
+      detail:
+        "commands.debug=true enables /debug gateway runtime override mutations. " +
+        formatBreakGlassHostFlowSummary("runtime-debug"),
+      remediation:
+        "Keep commands.debug disabled except during active operator diagnostics, then remove runtime overrides after use.",
+    });
+  }
+
+  if (isRestartEnabled(cfg)) {
+    findings.push({
+      checkId: "commands.restart.break_glass_enabled",
+      severity: "warn",
+      title: "Gateway restart command is enabled",
+      detail:
+        "commands.restart is enabled unless explicitly set to false. " +
+        formatBreakGlassHostFlowSummary("gateway-restart"),
+      remediation:
+        "Set commands.restart=false where chat-triggered gateway restarts are not an intentional operator path.",
+    });
+  }
+
   if (cfg.tools?.fs?.workspaceOnly === false) {
     findings.push({
       checkId: "tools.fs.workspace_only_disabled_defaults",
@@ -567,7 +611,11 @@ export function collectHostModeStopgapFindings(cfg: OpenClawConfig): SecurityAud
       checkId: "tools.exec.host_compatibility_explicit_defaults",
       severity: "warn",
       title: "Exec host compatibility is explicitly enabled",
-      detail: `tools.exec.host="${globalExecHost}" runs exec outside the sandbox boundary under the configured gateway/node approval rules.`,
+      detail:
+        `tools.exec.host="${globalExecHost}" runs exec outside the sandbox boundary under the configured gateway/node approval rules. ` +
+        formatBreakGlassHostFlowSummary(
+          globalExecHost === "gateway" ? "exec-gateway" : "exec-node",
+        ),
       remediation:
         'Prefer tools.exec.host="sandbox" with agents.defaults.sandbox.mode="all" when the workflow can run sandbox-first.',
     });
@@ -590,7 +638,7 @@ export function collectHostModeStopgapFindings(cfg: OpenClawConfig): SecurityAud
       title: "Agent exec host compatibility is explicitly enabled",
       detail:
         `agents.list[].tools.exec.host uses gateway/node for: ${hostCompatibilityAgents.join(", ")}. ` +
-        "These agents run exec outside the sandbox boundary under the configured approval rules.",
+        `These agents run exec outside the sandbox boundary under the configured approval rules as ${BREAK_GLASS_HOST_LABEL}.`,
       remediation:
         'Prefer per-agent sandbox-first operation with tools.exec.host="sandbox" and agents.list[].sandbox.mode="all" when possible.',
     });
@@ -889,6 +937,26 @@ export function collectSandboxDangerousConfigFindings(cfg: OpenClawConfig): Secu
   }
 
   for (const { source, docker } of configs) {
+    const dangerousOverrideKeys = [
+      "dangerouslyAllowReservedContainerTargets",
+      "dangerouslyAllowExternalBindSources",
+      "dangerouslyAllowContainerNamespaceJoin",
+    ] as const;
+    for (const key of dangerousOverrideKeys) {
+      if (docker[key] !== true) {
+        continue;
+      }
+      findings.push({
+        checkId: "sandbox.dangerous_override_enabled",
+        severity: "warn",
+        title: "Dangerous sandbox override is enabled",
+        detail: `${source}.${key}=true is an explicit ${formatBreakGlassHostFlowLabel(
+          "sandbox-dangerous-override",
+        )}. Review the trusted runtime and remove the override when it is no longer needed.`,
+        remediation: `Remove ${source}.${key}=true unless this sandbox intentionally needs reduced isolation for a documented maintenance workflow.`,
+      });
+    }
+
     const binds = Array.isArray(docker.binds) ? docker.binds : [];
     for (const bind of binds) {
       if (typeof bind !== "string") {

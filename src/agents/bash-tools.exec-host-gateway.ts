@@ -13,6 +13,7 @@ import {
 import { detectCommandObfuscation } from "../infra/exec-obfuscation-detect.js";
 import type { SafeBinProfile } from "../infra/exec-safe-bin-policy.js";
 import { logInfo } from "../logger.js";
+import { formatBreakGlassHostFlowLabel } from "../security/break-glass-host-flows.js";
 import { markBackgrounded, tail } from "./bash-process-registry.js";
 import {
   buildExecApprovalRequesterContext,
@@ -67,6 +68,7 @@ export type ProcessGatewayAllowlistResult = {
 export async function processGatewayAllowlist(
   params: ProcessGatewayAllowlistParams,
 ): Promise<ProcessGatewayAllowlistResult> {
+  const breakGlassLabel = formatBreakGlassHostFlowLabel("exec-gateway");
   const { approvals, hostSecurity, hostAsk, askFallback } = resolveExecHostApprovalContext({
     agentId: params.agentId,
     security: params.security,
@@ -173,7 +175,7 @@ export async function processGatewayAllowlist(
         preResolvedDecision,
         onFailure: () =>
           emitExecSystemEvent(
-            `Exec denied (gateway id=${approvalId}, approval-request-failed): ${params.command}`,
+            `Exec denied (gateway id=${approvalId}, ${breakGlassLabel}, approval-request-failed): ${params.command}`,
             {
               sessionKey: params.notifySessionKey,
               contextKey,
@@ -228,7 +230,7 @@ export async function processGatewayAllowlist(
 
       if (deniedReason) {
         emitExecSystemEvent(
-          `Exec denied (gateway id=${approvalId}, ${deniedReason}): ${params.command}`,
+          `Exec denied (gateway id=${approvalId}, ${breakGlassLabel}, ${deniedReason}): ${params.command}`,
           {
             sessionKey: params.notifySessionKey,
             contextKey,
@@ -260,7 +262,7 @@ export async function processGatewayAllowlist(
         });
       } catch {
         emitExecSystemEvent(
-          `Exec denied (gateway id=${approvalId}, spawn-failed): ${params.command}`,
+          `Exec denied (gateway id=${approvalId}, ${breakGlassLabel}, spawn-failed): ${params.command}`,
           {
             sessionKey: params.notifySessionKey,
             contextKey,
@@ -275,7 +277,7 @@ export async function processGatewayAllowlist(
       if (params.approvalRunningNoticeMs > 0) {
         runningTimer = setTimeout(() => {
           emitExecSystemEvent(
-            `Exec running (gateway id=${approvalId}, session=${run?.session.id}, >${noticeSeconds}s): ${params.command}`,
+            `Exec running (gateway id=${approvalId}, ${breakGlassLabel}, session=${run?.session.id}, >${noticeSeconds}s): ${params.command}`,
             { sessionKey: params.notifySessionKey, contextKey },
           );
         }, params.approvalRunningNoticeMs);
@@ -290,8 +292,8 @@ export async function processGatewayAllowlist(
       );
       const exitLabel = outcome.timedOut ? "timeout" : `code ${outcome.exitCode ?? "?"}`;
       const summary = output
-        ? `Exec finished (gateway id=${approvalId}, session=${run.session.id}, ${exitLabel})\n${output}`
-        : `Exec finished (gateway id=${approvalId}, session=${run.session.id}, ${exitLabel})`;
+        ? `Exec finished (gateway id=${approvalId}, ${breakGlassLabel}, session=${run.session.id}, ${exitLabel})\n${output}`
+        : `Exec finished (gateway id=${approvalId}, ${breakGlassLabel}, session=${run.session.id}, ${exitLabel})`;
       emitExecSystemEvent(summary, { sessionKey: params.notifySessionKey, contextKey });
     })();
 

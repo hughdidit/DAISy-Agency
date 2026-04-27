@@ -67,5 +67,5 @@ explicit break-glass workflow.
 
 ## Logging + status
 
-- Elevated exec calls are logged at info level as break-glass host authority.
+- Elevated and `/bash` host exec calls are logged with break-glass host-authority labels; approval-pending, denied, running, and finished gateway/node exec events include the host target.
 - Session status includes elevated mode (e.g. `elevated=ask`, `elevated=full`).

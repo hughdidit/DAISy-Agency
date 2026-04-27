@@ -38,6 +38,14 @@ const REQUIRED_MARKERS = [
   "cron",
   "Docker Release",
   "staging deploy",
+  "SBX-504 outcome",
+  "chat-bash",
+  "exec-gateway",
+  "exec-node",
+  "acp-runtime",
+  "gateway-restart",
+  "runtime-debug",
+  "sandbox-dangerous-override",
 ] as const;
 
 function parseTableLine(line: string): string[] {

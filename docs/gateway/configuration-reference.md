@@ -721,8 +721,10 @@ Include your own number in `allowFrom` to enable self-chat mode (ignores native 
 - `native: "auto"` turns on native commands for Discord/Telegram, leaves Slack off.
 - Override per channel: `channels.discord.commands.native` (bool or `"auto"`). `false` clears previously registered commands.
 - `channels.telegram.customCommands` adds extra Telegram bot menu entries.
-- `bash: true` enables `! <cmd>` for host shell. Requires `tools.elevated.enabled` and sender in `tools.elevated.allowFrom.<channel>`.
+- `bash: true` enables `! <cmd>` for host shell. Requires `tools.elevated.enabled` and sender in `tools.elevated.allowFrom.<channel>`; security audit reports this as break-glass host authority.
 - `config: true` enables `/config` (reads/writes `openclaw.json`).
+- `debug: true` enables `/debug` runtime overrides; set/unset/reset are logged as operator break-glass control-plane mutations.
+- `restart` defaults to enabled unless set to `false`; leave it disabled where chat-triggered gateway restarts are not an intentional operator path.
 - `channels.<provider>.configWrites` gates config mutations per channel (default: true).
 - `allowFrom` is per-provider. When set, it is the **only** authorization source (channel allowlists/pairing and `useAccessGroups` are ignored).
 - `useAccessGroups: false` allows commands to bypass access-group policies when `allowFrom` is not set.
@@ -1723,6 +1725,9 @@ workflows that cannot run sandbox-first:
   },
 }
 ```
+
+- `tools.exec.host: "gateway"` and `"node"` route exec outside the sandbox boundary. Security audit reports these as explicit break-glass host-authority paths; keep `host: "sandbox"` for routine sandbox-first work.
+- Per-agent `agents.list[].tools.exec.host` has the same trust implication and should be used only for documented compatibility or maintenance needs.
 
 ### `tools.loopDetection`
 
