@@ -1,7 +1,9 @@
+import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { resolveCommandSecretRefsViaGateway } from "../cli/command-secret-gateway.js";
 import { getStatusCommandSecretTargetIds } from "../cli/command-secret-targets.js";
 import { withProgress } from "../cli/progress.js";
 import { loadConfig } from "../config/config.js";
+import { resolveAgentMainSessionKey } from "../config/sessions.js";
 import { buildGatewayConnectionDetails, callGateway } from "../gateway/call.js";
 import { normalizeControlUiBasePath } from "../gateway/control-ui-shared.js";
 import { isLoopbackHost } from "../gateway/net.js";
@@ -277,10 +279,17 @@ async function scanStatusJsonWithCapabilities(opts: {
   const channelsStatusPromise = resolveChannelsStatus({ gatewayReachability, opts });
   const memoryPlugin = resolveMemoryPluginStatus(cfg);
   const memoryPromise = resolveMemoryStatusSnapshot({ cfg, agentStatus, memoryPlugin });
+  const capabilityAgentId =
+    opts.runtimeContext?.kind === "readonly-sandbox"
+      ? opts.runtimeContext.agentId
+      : resolveDefaultAgentId(cfg);
   const capabilities = collectCommandCapabilitySnapshot({
     config: cfg,
-    agentId:
-      opts.runtimeContext?.kind === "readonly-sandbox" ? opts.runtimeContext.agentId : undefined,
+    agentId: capabilityAgentId,
+    sessionKey:
+      opts.runtimeContext?.kind === "readonly-sandbox"
+        ? undefined
+        : resolveAgentMainSessionKey({ cfg, agentId: capabilityAgentId }),
     mode: opts.runtimeContext?.kind === "readonly-sandbox" ? "readonly-sandbox" : "gateway",
   });
   const [channelsStatus, memory] = await Promise.all([channelsStatusPromise, memoryPromise]);

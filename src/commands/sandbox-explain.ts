@@ -4,7 +4,7 @@ import {
   resolveSandboxToolPolicyForAgent,
   resolveSandboxTrustPosture,
 } from "../agents/sandbox.js";
-import { normalizeAnyChannelId } from "../channels/registry.js";
+import { normalizeAnyChannelId, normalizeChannelId } from "../channels/registry.js";
 import type { OpenClawConfig } from "../config/config.js";
 import { loadConfig } from "../config/config.js";
 import {
@@ -95,7 +95,13 @@ function inferProviderFromSessionKey(params: {
   if (candidate === INTERNAL_MESSAGE_CHANNEL) {
     return INTERNAL_MESSAGE_CHANNEL;
   }
-  return normalizeAnyChannelId(candidate) ?? undefined;
+  let normalizedFromRegistry: string | null = null;
+  try {
+    normalizedFromRegistry = normalizeAnyChannelId(candidate);
+  } catch {
+    normalizedFromRegistry = null;
+  }
+  return normalizedFromRegistry ?? normalizeChannelId(candidate) ?? undefined;
 }
 
 function resolveActiveChannel(params: {

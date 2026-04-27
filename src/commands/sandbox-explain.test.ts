@@ -112,6 +112,31 @@ describe("sandbox explain command", () => {
     expect(parsed.fixIt).toContain("tools.sandbox.tools.deny");
   });
 
+  it("infers a static chat channel from group session keys when plugin lookup is unavailable", async () => {
+    mockCfg = {
+      agents: {
+        defaults: {
+          sandbox: { mode: "all", scope: "session", workspaceAccess: "none" },
+        },
+      },
+      session: { store: "/tmp/openclaw-test-sessions-{agentId}.json" },
+    };
+
+    const logs: string[] = [];
+    await sandboxExplainCommand(
+      { json: true, session: "agent:main:discord:group:sbx-404-validation" },
+      {
+        log: (msg: string) => logs.push(msg),
+        error: (msg: string) => logs.push(msg),
+        exit: (_code: number) => {},
+      } as unknown as Parameters<typeof sandboxExplainCommand>[1],
+    );
+
+    const parsed = JSON.parse(logs.join(""));
+    expect(parsed).toHaveProperty("elevated.channel", "discord");
+    expect(parsed).toHaveProperty("sessionKey", "agent:main:discord:group:sbx-404-validation");
+  });
+
   it("reports elevated disabled when enabled is unset", async () => {
     mockCfg = {
       agents: {
