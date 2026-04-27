@@ -143,7 +143,7 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
         agents?: {
           defaults?: {
             workspace?: string;
-            sandbox?: { mode?: string; scope?: string; profile?: string };
+            sandbox?: { mode?: string; scope?: string; profile?: string; workspaceAccess?: string };
           };
         };
         tools?: { profile?: string };
@@ -154,6 +154,7 @@ describe("onboard (non-interactive): gateway and remote auth", () => {
         mode: "all",
         scope: "session",
         profile: "coding-base",
+        workspaceAccess: "none",
       });
       expect(cfg?.tools?.profile).toBe("messaging");
       expect(cfg?.gateway?.auth?.mode).toBe("token");

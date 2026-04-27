@@ -509,24 +509,17 @@ fi
 if [[ -n "$SANDBOX_ENABLED" ]]; then
   # Enable sandbox in OpenClaw config.
   sandbox_config_ok=true
-  if ! docker compose "${COMPOSE_ARGS[@]}" run --rm --no-deps openclaw-cli \
-    config set agents.defaults.sandbox.mode "all" >/dev/null; then
-    echo "WARNING: Failed to set agents.defaults.sandbox.mode" >&2
-    sandbox_config_ok=false
-  fi
-  if ! docker compose "${COMPOSE_ARGS[@]}" run --rm --no-deps openclaw-cli \
-    config set agents.defaults.sandbox.scope "session" >/dev/null; then
-    echo "WARNING: Failed to set agents.defaults.sandbox.scope" >&2
-    sandbox_config_ok=false
-  fi
-  if ! docker compose "${COMPOSE_ARGS[@]}" run --rm --no-deps openclaw-cli \
-    config set agents.defaults.sandbox.profile "coding-base" >/dev/null; then
-    echo "WARNING: Failed to set agents.defaults.sandbox.profile" >&2
-    sandbox_config_ok=false
-  fi
-  if ! docker compose "${COMPOSE_ARGS[@]}" run --rm --no-deps openclaw-cli \
-    config set agents.defaults.sandbox.workspaceAccess "none" >/dev/null; then
-    echo "WARNING: Failed to set agents.defaults.sandbox.workspaceAccess" >&2
+  if ! docker compose "${COMPOSE_ARGS[@]}" run --rm --no-deps --entrypoint sh openclaw-cli -c '
+    current_mode="$(node dist/index.js config get agents.defaults.sandbox.mode 2>/dev/null || true)"
+    if [ -n "$current_mode" ] && [ "$current_mode" != "null" ]; then
+      exit 0
+    fi
+    node dist/index.js config set agents.defaults.sandbox.mode "all" >/dev/null &&
+      node dist/index.js config set agents.defaults.sandbox.scope "session" >/dev/null &&
+      node dist/index.js config set agents.defaults.sandbox.profile "coding-base" >/dev/null &&
+      node dist/index.js config set agents.defaults.sandbox.workspaceAccess "none" >/dev/null
+  '; then
+    echo "WARNING: Failed to apply sandbox configuration" >&2
     sandbox_config_ok=false
   fi
 

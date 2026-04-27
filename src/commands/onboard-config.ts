@@ -13,6 +13,7 @@ export const ONBOARDING_DEFAULT_SANDBOX_CONFIG: AgentSandboxConfig = {
   mode: ONBOARDING_DEFAULT_SANDBOX_MODE,
   scope: ONBOARDING_DEFAULT_SANDBOX_SCOPE,
   profile: ONBOARDING_DEFAULT_SANDBOX_PROFILE,
+  workspaceAccess: "none",
 };
 
 export function applyOnboardingLocalWorkspaceConfig(

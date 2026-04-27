@@ -22,6 +22,7 @@ describe("applyOnboardingLocalWorkspaceConfig", () => {
     expect(result.agents?.defaults?.sandbox?.mode).toBe(ONBOARDING_DEFAULT_SANDBOX_MODE);
     expect(result.agents?.defaults?.sandbox?.scope).toBe(ONBOARDING_DEFAULT_SANDBOX_SCOPE);
     expect(result.agents?.defaults?.sandbox?.profile).toBe(ONBOARDING_DEFAULT_SANDBOX_PROFILE);
+    expect(result.agents?.defaults?.sandbox?.workspaceAccess).toBe("none");
     expect(result.tools?.profile).toBe(ONBOARDING_DEFAULT_TOOLS_PROFILE);
   });
 
@@ -97,6 +98,23 @@ describe("applyOnboardingLocalWorkspaceConfig", () => {
     expect(result.agents?.defaults?.sandbox).toEqual({
       mode: "off",
       scope: "shared",
+    });
+  });
+
+  it("preserves partial explicit sandbox settings without backfilling defaults", () => {
+    const baseConfig: OpenClawConfig = {
+      agents: {
+        defaults: {
+          sandbox: {
+            mode: "non-main",
+          },
+        },
+      },
+    };
+    const result = applyOnboardingLocalWorkspaceConfig(baseConfig, "/tmp/workspace");
+
+    expect(result.agents?.defaults?.sandbox).toEqual({
+      mode: "non-main",
     });
   });
 });
