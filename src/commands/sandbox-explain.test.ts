@@ -134,10 +134,7 @@ describe("sandbox explain command", () => {
 
     const parsed = JSON.parse(logs.join(""));
     expect(parsed).toHaveProperty("elevated.channel", "discord");
-    expect(parsed).toHaveProperty(
-      "sessionKey",
-      "agent:main:discord:group:sbx-404-validation",
-    );
+    expect(parsed).toHaveProperty("sessionKey", "agent:main:discord:group:sbx-404-validation");
   });
 
   it("reports elevated disabled when enabled is unset", async () => {
