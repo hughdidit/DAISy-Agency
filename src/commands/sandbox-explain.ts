@@ -95,7 +95,13 @@ function inferProviderFromSessionKey(params: {
   if (candidate === INTERNAL_MESSAGE_CHANNEL) {
     return INTERNAL_MESSAGE_CHANNEL;
   }
-  return normalizeAnyChannelId(candidate) ?? normalizeChannelId(candidate) ?? undefined;
+  let normalizedFromRegistry: string | null = null;
+  try {
+    normalizedFromRegistry = normalizeAnyChannelId(candidate);
+  } catch {
+    normalizedFromRegistry = null;
+  }
+  return normalizedFromRegistry ?? normalizeChannelId(candidate) ?? undefined;
 }
 
 function resolveActiveChannel(params: {

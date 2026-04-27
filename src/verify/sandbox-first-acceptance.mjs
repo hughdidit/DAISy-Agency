@@ -1249,8 +1249,8 @@ export async function runCronIsolationAndSubagentModelScenario(ctx) {
 
 async function runHostOnlyBlocksScenario(ctx) {
   const probeScript = `
-    import { spawnAcpDirect } from "./dist/agents/acp-spawn.js";
     try {
+      const { spawnAcpDirect } = await import("./dist/agents/acp-spawn.js");
       const result = await spawnAcpDirect(
         { task: "SBX-404 host-only block probe", agentId: "codex" },
         { agentSessionKey: "agent:main:subagent:sbx-404-parent", sandboxed: true },
@@ -1260,6 +1260,7 @@ async function runHostOnlyBlocksScenario(ctx) {
       console.log(JSON.stringify({
         status: "error",
         error: error?.message ?? String(error),
+        stack: error?.stack ?? null,
       }, null, 2));
     }
   `.trim();
