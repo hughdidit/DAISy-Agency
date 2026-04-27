@@ -15,7 +15,7 @@ function createDefaultSpawnConfig(): OpenClawConfig {
     },
     agents: {
       defaults: {
-        sandbox: { mode: "off" },
+        sandbox: { mode: "non-main" },
       },
     },
     channels: {

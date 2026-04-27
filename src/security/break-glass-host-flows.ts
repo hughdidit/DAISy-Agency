@@ -12,6 +12,20 @@ export const BREAK_GLASS_HOST_FLOW_IDS = [
 
 export type BreakGlassHostFlowId = (typeof BREAK_GLASS_HOST_FLOW_IDS)[number];
 
+export const BREAK_GLASS_HOST_AUDIT_ACTIONS = [
+  "requested",
+  "accepted",
+  "started",
+  "finished",
+  "completed",
+  "failed",
+  "reset",
+  "set",
+  "unset",
+] as const;
+
+export type BreakGlassHostAuditAction = (typeof BREAK_GLASS_HOST_AUDIT_ACTIONS)[number];
+
 export type BreakGlassHostFlow = {
   id: BreakGlassHostFlowId;
   title: string;
@@ -80,12 +94,39 @@ export function formatBreakGlassHostFlowSummary(id: BreakGlassHostFlowId): strin
 
 export function formatBreakGlassHostAuditEvent(params: {
   flowId: BreakGlassHostFlowId;
-  action: string;
+  action: BreakGlassHostAuditAction;
   subject?: string;
   result?: string;
 }): string {
   const flow = getBreakGlassHostFlow(params.flowId);
-  const subject = params.subject?.trim() ? ` subject=${params.subject.trim()}` : "";
-  const result = params.result?.trim() ? ` result=${params.result.trim()}` : "";
+  const subjectValue = sanitizeBreakGlassAuditField(params.subject);
+  const resultValue = sanitizeBreakGlassAuditField(params.result);
+  const subject = subjectValue ? ` subject=${JSON.stringify(subjectValue)}` : "";
+  const result = resultValue ? ` result=${JSON.stringify(resultValue)}` : "";
   return `${BREAK_GLASS_HOST_LABEL}: ${flow.id} ${params.action}${subject}${result}`;
+}
+
+function sanitizeBreakGlassAuditField(value: string | undefined): string {
+  if (!value) {
+    return "";
+  }
+  const normalized = Array.from(value, (char) => {
+    const code = char.charCodeAt(0);
+    return code < 32 || code === 127 ? " " : char;
+  })
+    .join("")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(
+      /(\b(?:password|passwd|pwd|token|secret|api[_-]?key|access[_-]?token|refresh[_-]?token)\s*=\s*)("[^"]*"|'[^']*'|\S+)/gi,
+      "$1[redacted]",
+    )
+    .replace(
+      /(--(?:password|token|secret|api-key|access-token|refresh-token)(?:=|\s+))("[^"]*"|'[^']*'|\S+)/gi,
+      "$1[redacted]",
+    );
+  if (normalized.length <= 512) {
+    return normalized;
+  }
+  return `${normalized.slice(0, 252)}...${normalized.slice(-252)}`;
 }

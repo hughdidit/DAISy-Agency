@@ -43,7 +43,20 @@ describe("break-glass host flows", () => {
         result: "accepted",
       }),
     ).toBe(
-      "break-glass host authority: gateway-restart requested subject=/restart result=accepted",
+      'break-glass host authority: gateway-restart requested subject="/restart" result="accepted"',
+    );
+  });
+
+  it("normalizes and redacts audit fields before formatting", () => {
+    expect(
+      formatBreakGlassHostAuditEvent({
+        flowId: "chat-bash",
+        action: "failed",
+        subject: "curl\n--token super-secret https://example.test",
+        result: "password=hunter2\nfailed",
+      }),
+    ).toBe(
+      'break-glass host authority: chat-bash failed subject="curl --token [redacted] https://example.test" result="password=[redacted] failed"',
     );
   });
 });

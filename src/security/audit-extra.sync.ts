@@ -35,6 +35,7 @@ import {
   formatBreakGlassHostFlowLabel,
   formatBreakGlassHostFlowSummary,
 } from "./break-glass-host-flows.js";
+import { SANDBOX_DANGEROUS_OVERRIDE_KEYS } from "./dangerous-config-flags.js";
 
 export type SecurityAuditFinding = {
   checkId: string;
@@ -937,12 +938,7 @@ export function collectSandboxDangerousConfigFindings(cfg: OpenClawConfig): Secu
   }
 
   for (const { source, docker } of configs) {
-    const dangerousOverrideKeys = [
-      "dangerouslyAllowReservedContainerTargets",
-      "dangerouslyAllowExternalBindSources",
-      "dangerouslyAllowContainerNamespaceJoin",
-    ] as const;
-    for (const key of dangerousOverrideKeys) {
+    for (const key of SANDBOX_DANGEROUS_OVERRIDE_KEYS) {
       if (docker[key] !== true) {
         continue;
       }

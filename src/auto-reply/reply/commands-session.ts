@@ -454,6 +454,14 @@ export const handleRestartCommand: CommandHandler = async (params, allowTextComm
   );
   if (hasSigusr1Listener) {
     scheduleGatewaySigusr1Restart({ reason: "/restart" });
+    logInfo(
+      formatBreakGlassHostAuditEvent({
+        flowId: "gateway-restart",
+        action: "completed",
+        subject: "/restart",
+        result: "sigusr1",
+      }),
+    );
     return {
       shouldContinue: false,
       reply: {
@@ -464,6 +472,14 @@ export const handleRestartCommand: CommandHandler = async (params, allowTextComm
   const restartMethod = triggerOpenClawRestart();
   if (!restartMethod.ok) {
     const detail = restartMethod.detail ? ` Details: ${restartMethod.detail}` : "";
+    logInfo(
+      formatBreakGlassHostAuditEvent({
+        flowId: "gateway-restart",
+        action: "failed",
+        subject: "/restart",
+        result: `${restartMethod.method}${restartMethod.detail ? `: ${restartMethod.detail}` : ""}`,
+      }),
+    );
     return {
       shouldContinue: false,
       reply: {
@@ -471,6 +487,14 @@ export const handleRestartCommand: CommandHandler = async (params, allowTextComm
       },
     };
   }
+  logInfo(
+    formatBreakGlassHostAuditEvent({
+      flowId: "gateway-restart",
+      action: "completed",
+      subject: "/restart",
+      result: restartMethod.method,
+    }),
+  );
   return {
     shouldContinue: false,
     reply: {

@@ -95,11 +95,6 @@ vi.mock("../../infra/system-events.js", () => ({
   enqueueSystemEvent: vi.fn(),
 }));
 
-vi.mock("../../infra/restart.js", () => ({
-  scheduleGatewaySigusr1Restart: vi.fn(),
-  triggerOpenClawRestart: vi.fn(() => ({ ok: true, method: "test-restart" })),
-}));
-
 vi.mock("./session-updates.js", () => ({
   incrementCompactionCount: vi.fn(),
 }));

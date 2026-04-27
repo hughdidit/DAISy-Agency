@@ -110,14 +110,12 @@ describe("collectSandboxDangerousConfigFindings", () => {
       },
     });
 
-    expect(findings).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          checkId: "sandbox.dangerous_override_enabled",
-          detail: expect.stringContaining("break-glass host authority"),
-        }),
-      ]),
+    const matches = findings.filter(
+      (finding) =>
+        finding.checkId === "sandbox.dangerous_override_enabled" &&
+        finding.detail.includes("break-glass host authority"),
     );
+    expect(matches).toHaveLength(2);
   });
 });
 
