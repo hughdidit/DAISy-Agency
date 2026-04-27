@@ -48,7 +48,9 @@ If the agent is sandboxed, the browser tool defaults to the sandbox. To allow ho
   agents: {
     defaults: {
       sandbox: {
-        mode: "non-main",
+        mode: "all",
+        scope: "session",
+        profile: "browser-automation",
         browser: {
           allowHostControl: true,
         },
@@ -64,4 +66,5 @@ Then target the host browser:
 openclaw browser open https://x.com --browser-profile openclaw --target host
 ```
 
-Or disable sandboxing for the agent that posts updates.
+Or disable sandboxing for the agent that posts updates as an explicit
+reduced-trust host compatibility choice.

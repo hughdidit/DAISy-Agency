@@ -58,6 +58,9 @@ Check your Node version with `node --version` if you are unsure.
     ```
 
     The wizard configures auth, gateway settings, and optional channels.
+    New local configs start sandbox-first with session-scoped containers and
+    messaging-only tools; host compatibility is available for explicit
+    migration or break-glass cases.
     See [Onboarding Wizard](/start/wizard) for details.
 
   </Step>

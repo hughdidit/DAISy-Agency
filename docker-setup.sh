@@ -510,13 +510,18 @@ if [[ -n "$SANDBOX_ENABLED" ]]; then
   # Enable sandbox in OpenClaw config.
   sandbox_config_ok=true
   if ! docker compose "${COMPOSE_ARGS[@]}" run --rm --no-deps openclaw-cli \
-    config set agents.defaults.sandbox.mode "non-main" >/dev/null; then
+    config set agents.defaults.sandbox.mode "all" >/dev/null; then
     echo "WARNING: Failed to set agents.defaults.sandbox.mode" >&2
     sandbox_config_ok=false
   fi
   if ! docker compose "${COMPOSE_ARGS[@]}" run --rm --no-deps openclaw-cli \
-    config set agents.defaults.sandbox.scope "agent" >/dev/null; then
+    config set agents.defaults.sandbox.scope "session" >/dev/null; then
     echo "WARNING: Failed to set agents.defaults.sandbox.scope" >&2
+    sandbox_config_ok=false
+  fi
+  if ! docker compose "${COMPOSE_ARGS[@]}" run --rm --no-deps openclaw-cli \
+    config set agents.defaults.sandbox.profile "coding-base" >/dev/null; then
+    echo "WARNING: Failed to set agents.defaults.sandbox.profile" >&2
     sandbox_config_ok=false
   fi
   if ! docker compose "${COMPOSE_ARGS[@]}" run --rm --no-deps openclaw-cli \
@@ -526,7 +531,7 @@ if [[ -n "$SANDBOX_ENABLED" ]]; then
   fi
 
   if [[ "$sandbox_config_ok" == true ]]; then
-    echo "Sandbox enabled: mode=non-main, scope=agent, workspaceAccess=none"
+    echo "Sandbox enabled: mode=all, scope=session, profile=coding-base, workspaceAccess=none"
     echo "Docs: https://docs.openclaw.ai/gateway/sandboxing"
     # Restart gateway with sandbox compose overlay to pick up socket mount + config.
     docker compose "${COMPOSE_ARGS[@]}" up -d openclaw-gateway

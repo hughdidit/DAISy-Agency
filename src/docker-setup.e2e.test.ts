@@ -315,8 +315,10 @@ describe("docker-setup.sh", () => {
         );
       expect(gatewayStarts).toHaveLength(2);
       expect(log).toContain(
-        "run --rm --no-deps openclaw-cli config set agents.defaults.sandbox.mode non-main",
+        "run --rm --no-deps openclaw-cli config set agents.defaults.sandbox.mode all",
       );
+      expect(log).toContain("config set agents.defaults.sandbox.scope session");
+      expect(log).toContain("config set agents.defaults.sandbox.profile coding-base");
       expect(log).toContain("config set agents.defaults.sandbox.mode off");
       const forceRecreateLine = log
         .split("\n")

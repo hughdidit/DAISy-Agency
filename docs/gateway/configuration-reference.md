@@ -1072,6 +1072,8 @@ Docker sandboxing for the embedded agent. Sandbox-first execution is the
 canonical trust posture for normal tool-enabled work. `mode: "off"` remains
 available as reduced-trust host compatibility for migration and maintenance
 cases. See [Sandboxing](/gateway/sandboxing) for the full guide.
+Local onboarding writes `mode: "all"`, `scope: "session"`, and
+`profile: "coding-base"` for new local configs when sandbox settings are unset.
 
 ```json5
 {
@@ -1079,8 +1081,8 @@ cases. See [Sandboxing](/gateway/sandboxing) for the full guide.
     defaults: {
       sandbox: {
         profile: "coding-base",
-        mode: "non-main", // off | non-main | all
-        scope: "agent", // session | agent | shared
+        mode: "all", // off | non-main | all
+        scope: "session", // session | agent | shared
         workspaceAccess: "none", // none | ro | rw
         workspaceRoot: "~/.openclaw/sandboxes",
         docker: {
@@ -1243,13 +1245,13 @@ scripts/sandbox-browser-setup.sh   # optional browser image
           avatar: "avatars/samantha.png",
         },
         groupChat: { mentionPatterns: ["@openclaw"] },
-        sandbox: { mode: "off" },
+        sandbox: { mode: "all", scope: "session" },
         subagents: { allowAgents: ["*"] },
         tools: {
           profile: "coding",
           allow: ["browser"],
           deny: ["canvas"],
-          elevated: { enabled: true },
+          elevated: { enabled: false },
         },
       },
     ],
@@ -1307,7 +1309,10 @@ Within each tier, the first matching `bindings` entry wins.
 
 ### Per-agent access profiles
 
-<Accordion title="Full access (no sandbox)">
+<Accordion title="Host compatibility (no sandbox)">
+
+This is reduced-trust compatibility for migration or maintenance workflows, not
+the recommended default for new agents.
 
 ```json5
 {

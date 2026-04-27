@@ -80,8 +80,8 @@ After it finishes:
 
 ### Enable agent sandbox for Docker gateway (opt-in)
 
-`docker-setup.sh` can also bootstrap `agents.defaults.sandbox.*` for Docker
-deployments.
+`docker-setup.sh` can also bootstrap sandbox-first
+`agents.defaults.sandbox.*` for Docker deployments.
 
 Enable with:
 
@@ -101,6 +101,9 @@ export OPENCLAW_DOCKER_SOCKET=/run/user/1000/docker.sock
 Notes:
 
 - The script mounts `docker.sock` only after sandbox prerequisites pass.
+- When prerequisites pass, the script writes
+  `agents.defaults.sandbox.mode: "all"`, `scope: "session"`,
+  `profile: "coding-base"`, and `workspaceAccess: "none"`.
 - If sandbox setup cannot be completed, the script resets
   `agents.defaults.sandbox.mode` to `off` to avoid stale/broken sandbox config
   on reruns.
@@ -510,11 +513,12 @@ Deep dive: [Sandboxing](/gateway/sandboxing)
 
 ### What it does
 
-When `agents.defaults.sandbox` is enabled, **non-main sessions** run tools inside a Docker
-container. The gateway stays on your host, but the tool execution is isolated:
+When `agents.defaults.sandbox` is enabled, sandbox-first configs run tool-enabled
+sessions inside Docker containers. The gateway stays on your host, but the tool
+execution is isolated:
 
-- scope: `"agent"` by default (one container + workspace per agent)
 - scope: `"session"` for per-session isolation
+- scope: `"agent"` for one container + workspace per agent
 - per-scope workspace folder mounted at `/workspace`
 - optional agent workspace access (`agents.defaults.sandbox.workspaceAccess`)
 - allow/deny tool policy (deny wins)
@@ -529,7 +533,7 @@ If you use multi-agent routing, each agent can override sandbox + tool settings:
 `agents.list[].sandbox` and `agents.list[].tools` (plus `agents.list[].tools.sandbox.tools`). This lets you run
 mixed access levels in one gateway:
 
-- Full access (personal agent)
+- Explicit host compatibility access (personal agent)
 - Read-only tools + read-only workspace (family/work agent)
 - No filesystem/shell tools (public agent)
 
@@ -545,7 +549,7 @@ precedence, and troubleshooting.
 ### Default behavior
 
 - Image: `openclaw-sandbox:bookworm-slim`
-- One container per agent
+- One container per session
 - Agent workspace access: `workspaceAccess: "rw"` (default) mounts the agent workspace read/write at `/workspace`
   - `"ro"` keeps the sandbox workspace at `/workspace` and mounts the agent workspace read-only at `/agent` (disables `write`/`edit`/`apply_patch`)
   - `"none"` keeps tools on the sandbox workspace under `~/.openclaw/sandboxes`
@@ -579,8 +583,9 @@ invent a new supported profile.
   agents: {
     defaults: {
       sandbox: {
-        mode: "non-main", // off | non-main | all
-        scope: "agent", // session | agent | shared (agent is default)
+        mode: "all", // off | non-main | all
+        scope: "session", // session | agent | shared
+        profile: "coding-base",
         workspaceAccess: "rw", // rw | ro | none
         workspaceRoot: "~/.openclaw/sandboxes",
         docker: {

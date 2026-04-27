@@ -51,6 +51,7 @@ The wizard starts with **QuickStart** (defaults) vs **Advanced** (full control).
     - Gateway port **18789**
     - Gateway auth **Token** (auto‑generated, even on loopback)
     - Tool policy default for new local setups: `tools.profile: "messaging"` (existing explicit profile is preserved)
+    - Sandbox default for new local setups: `agents.defaults.sandbox.mode: "all"`, `scope: "session"`, and `profile: "coding-base"` (existing explicit sandbox config is preserved)
     - DM isolation default: local onboarding writes `session.dmScope: "per-channel-peer"` when unset. Details: [CLI Onboarding Reference](/start/wizard-cli-reference#outputs-and-internals)
     - Tailscale exposure **Off**
     - Telegram + WhatsApp DMs default to **allowlist** (you'll be prompted for your phone number)
@@ -71,11 +72,12 @@ The wizard starts with **QuickStart** (defaults) vs **Advanced** (full control).
    In non-interactive `ref` mode, the provider env var must be set; passing inline key flags without that env var fails fast.
    In interactive runs, choosing secret reference mode lets you point at either an environment variable or a configured provider ref (`file` or `exec`), with a fast preflight validation before saving.
 2. **Workspace** — Location for agent files (default `~/.openclaw/workspace`). Seeds bootstrap files.
-3. **Gateway** — Port, bind address, auth mode, Tailscale exposure.
-4. **Channels** — WhatsApp, Telegram, Discord, Google Chat, Mattermost, Signal, BlueBubbles, or iMessage.
-5. **Daemon** — Installs a LaunchAgent (macOS) or systemd user unit (Linux/WSL2).
-6. **Health check** — Starts the Gateway and verifies it's running.
-7. **Skills** — Installs recommended skills and optional dependencies.
+3. **Sandbox + tools defaults** — New local configs start sandbox-first with messaging-only tools; host compatibility remains an explicit migration or break-glass choice.
+4. **Gateway** — Port, bind address, auth mode, Tailscale exposure.
+5. **Channels** — WhatsApp, Telegram, Discord, Google Chat, Mattermost, Signal, BlueBubbles, or iMessage.
+6. **Daemon** — Installs a LaunchAgent (macOS) or systemd user unit (Linux/WSL2).
+7. **Health check** — Starts the Gateway and verifies it's running.
+8. **Skills** — Installs recommended skills and optional dependencies.
 
 <Note>
 Re-running the wizard does **not** wipe anything unless you explicitly choose **Reset** (or pass `--reset`).

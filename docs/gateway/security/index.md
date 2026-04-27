@@ -975,17 +975,21 @@ Example strict policy:
 ## Per-agent access profiles (multi-agent)
 
 With multi-agent routing, each agent can have its own sandbox + tool policy:
-use this to give **full access**, **read-only**, or **no access** per agent.
+use this to give **explicit host compatibility**, **read-only**, or **no access**
+per agent.
 See [Multi-Agent Sandbox & Tools](/tools/multi-agent-sandbox-tools) for full details
 and precedence rules.
 
 Common use cases:
 
-- Personal agent: full access, no sandbox
+- Personal agent: reduced-trust host compatibility, no sandbox
 - Family/work agent: sandboxed + read-only tools
 - Public agent: sandboxed + no filesystem/shell tools
 
-### Example: full access (no sandbox)
+### Example: host compatibility (no sandbox)
+
+Use this only for migration or maintenance workflows that cannot run
+sandbox-first.
 
 ```json5
 {
