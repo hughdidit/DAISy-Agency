@@ -182,7 +182,8 @@ Minimal example:
     defaults: {
       sandbox: {
         mode: "all",
-        scope: "agent",
+        scope: "session",
+        profile: "coding-base",
         workspaceAccess: "rw",
         docker: {
           network: "none",
@@ -359,8 +360,9 @@ See [Multi-Agent Sandbox & Tools](/tools/multi-agent-sandbox-tools) for preceden
   agents: {
     defaults: {
       sandbox: {
-        mode: "non-main",
+        mode: "all",
         scope: "session",
+        profile: "coding-base",
         workspaceAccess: "none",
       },
     },

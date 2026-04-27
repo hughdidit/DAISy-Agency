@@ -17,7 +17,13 @@ Examples below are aligned with the current config schema. For the exhaustive re
 
 ```json5
 {
-  agent: { workspace: "~/.openclaw/workspace" },
+  agents: {
+    defaults: {
+      workspace: "~/.openclaw/workspace",
+      sandbox: { mode: "all", scope: "session", profile: "coding-base" },
+    },
+  },
+  tools: { profile: "messaging" },
   channels: { whatsapp: { allowFrom: ["+15555550123"] } },
 }
 ```
@@ -33,9 +39,16 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
     theme: "helpful assistant",
     emoji: "🦞",
   },
-  agent: {
-    workspace: "~/.openclaw/workspace",
-    model: { primary: "anthropic/claude-sonnet-4-5" },
+  agents: {
+    defaults: {
+      workspace: "~/.openclaw/workspace",
+      model: { primary: "anthropic/claude-sonnet-4-5" },
+      sandbox: { mode: "all", scope: "session", profile: "coding-base" },
+    },
+  },
+  tools: {
+    profile: "messaging",
+    elevated: { enabled: false },
   },
   channels: {
     whatsapp: {
@@ -251,7 +264,7 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
       },
       thinkingDefault: "low",
       verboseDefault: "off",
-      elevatedDefault: "on",
+      elevatedDefault: "off",
       blockStreamingDefault: "off",
       blockStreamingBreak: "text_end",
       blockStreamingChunk: {
@@ -287,8 +300,9 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
         extraPaths: ["../team-docs", "/srv/shared-notes"],
       },
       sandbox: {
-        mode: "non-main",
-        perSession: true,
+        profile: "coding-base",
+        mode: "all",
+        scope: "session",
         workspaceRoot: "~/.openclaw/sandboxes",
         docker: {
           image: "openclaw-sandbox:bookworm-slim",
@@ -314,7 +328,7 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
       cleanupMs: 1800000,
     },
     elevated: {
-      enabled: true,
+      enabled: false,
       allowFrom: {
         whatsapp: ["+15555550123"],
         telegram: ["123456789"],

@@ -16,7 +16,7 @@ Each agent in a multi-agent setup can now have its own:
 
 This allows you to run multiple agents with different security profiles:
 
-- Personal assistant with full access
+- Personal assistant with explicit host compatibility access
 - Family/work agents with restricted tools
 - Public-facing agents in sandboxes
 
@@ -93,7 +93,7 @@ For debugging “why is this blocked?”, see [Sandbox vs Tool Policy vs Elevate
 
 **Result:**
 
-- `main` agent: Runs on host, full tool access
+- `main` agent: Runs on host in reduced-trust compatibility mode
 - `family` agent: Runs in Docker (one container per agent), only `read` tool
 
 ---
@@ -159,7 +159,7 @@ For debugging “why is this blocked?”, see [Sandbox vs Tool Policy vs Elevate
   "agents": {
     "defaults": {
       "sandbox": {
-        "mode": "non-main", // Global default
+        "mode": "all", // Sandbox-first global default
         "scope": "session"
       }
     },
@@ -299,7 +299,7 @@ Mitigation patterns:
 }
 ```
 
-Legacy `agent.*` configs are migrated by `openclaw doctor`; prefer `agents.defaults` + `agents.list` going forward.
+Legacy `agent.*` configs are migrated by `openclaw doctor`; prefer `agents.defaults` + `agents.list` going forward. Use `sandbox.mode: "off"` only when that agent intentionally needs reduced-trust host compatibility.
 
 ---
 

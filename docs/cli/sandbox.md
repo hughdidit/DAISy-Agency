@@ -154,7 +154,8 @@ Sandbox settings live in `~/.openclaw/openclaw.json` under `agents.defaults.sand
     "defaults": {
       "sandbox": {
         "mode": "all", // off, non-main, all
-        "scope": "agent", // session, agent, shared
+        "scope": "session", // session, agent, shared
+        "profile": "coding-base",
         "docker": {
           "image": "openclaw-sandbox:bookworm-slim",
           "containerPrefix": "openclaw-sbx-",

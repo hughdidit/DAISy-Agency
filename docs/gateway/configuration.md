@@ -211,8 +211,9 @@ When validation fails:
       agents: {
         defaults: {
           sandbox: {
-            mode: "non-main",  // off | non-main | all
-            scope: "agent",    // session | agent | shared
+            mode: "all",          // off | non-main | all
+            scope: "session",     // session | agent | shared
+            profile: "coding-base",
           },
         },
       },
@@ -227,6 +228,8 @@ When validation fails:
     and browser workflows require `browser-automation` plus the dedicated
     browser runtime. Custom images and `setupCommand` do not create new
     official profile ids by themselves.
+    Use `mode: "off"` only as reduced-trust host compatibility for migration
+    or explicit break-glass workflows.
 
     See [Sandboxing](/gateway/sandboxing) for the full guide and [full reference](/gateway/configuration-reference#sandbox) for all options.
 

@@ -297,11 +297,11 @@ describe("docker-setup.sh", () => {
       const result = runDockerSetup(activeSandbox, {
         OPENCLAW_SANDBOX: "1",
         OPENCLAW_DOCKER_SOCKET: socketPath,
-        DOCKER_STUB_FAIL_MATCH: "config set agents.defaults.sandbox.scope",
+        DOCKER_STUB_FAIL_MATCH: "agents.defaults.sandbox.scope",
       });
 
       expect(result.status).toBe(0);
-      expect(result.stderr).toContain("Failed to set agents.defaults.sandbox.scope");
+      expect(result.stderr).toContain("Failed to apply sandbox configuration");
       expect(result.stderr).toContain("Skipping gateway restart to avoid exposing Docker socket");
 
       const log = await readFile(activeSandbox.logPath, "utf8");
@@ -314,9 +314,13 @@ describe("docker-setup.sh", () => {
             line.includes("openclaw-gateway"),
         );
       expect(gatewayStarts).toHaveLength(2);
-      expect(log).toContain(
-        "run --rm --no-deps openclaw-cli config set agents.defaults.sandbox.mode non-main",
-      );
+      expect(log).toContain("run --rm --no-deps --entrypoint sh openclaw-cli -c");
+      expect(log).toContain("OPENCLAW_CONFIG_PATH");
+      expect(log).toContain("agents?.defaults?.sandbox");
+      expect(log).toContain('config set agents.defaults.sandbox.mode "all"');
+      expect(log).toContain('config set agents.defaults.sandbox.scope "session"');
+      expect(log).toContain('config set agents.defaults.sandbox.profile "coding-base"');
+      expect(log).toContain('config set agents.defaults.sandbox.workspaceAccess "none"');
       expect(log).toContain("config set agents.defaults.sandbox.mode off");
       const forceRecreateLine = log
         .split("\n")

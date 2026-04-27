@@ -1072,6 +1072,9 @@ Docker sandboxing for the embedded agent. Sandbox-first execution is the
 canonical trust posture for normal tool-enabled work. `mode: "off"` remains
 available as reduced-trust host compatibility for migration and maintenance
 cases. See [Sandboxing](/gateway/sandboxing) for the full guide.
+Local onboarding writes `mode: "all"`, `scope: "session"`,
+`profile: "coding-base"`, and `workspaceAccess: "none"` for new local configs
+when sandbox settings are unset.
 
 ```json5
 {
@@ -1079,8 +1082,8 @@ cases. See [Sandboxing](/gateway/sandboxing) for the full guide.
     defaults: {
       sandbox: {
         profile: "coding-base",
-        mode: "non-main", // off | non-main | all
-        scope: "agent", // session | agent | shared
+        mode: "all", // off | non-main | all
+        scope: "session", // session | agent | shared
         workspaceAccess: "none", // none | ro | rw
         workspaceRoot: "~/.openclaw/sandboxes",
         docker: {
@@ -1163,7 +1166,7 @@ cases. See [Sandboxing](/gateway/sandboxing) for the full guide.
 **Scope:**
 
 - `session`: per-session container + workspace
-- `agent`: one container + workspace per agent (default)
+- `agent`: one container + workspace per agent
 - `shared`: shared container and workspace (no cross-session isolation)
 
 **`setupCommand`** runs once after container creation (via `sh -lc`). Needs network egress, writable root, root user. Use it to help a container satisfy an official profile, not to define a new supported profile.
@@ -1243,13 +1246,13 @@ scripts/sandbox-browser-setup.sh   # optional browser image
           avatar: "avatars/samantha.png",
         },
         groupChat: { mentionPatterns: ["@openclaw"] },
-        sandbox: { mode: "off" },
+        sandbox: { mode: "all", scope: "session" },
         subagents: { allowAgents: ["*"] },
         tools: {
           profile: "coding",
           allow: ["browser"],
           deny: ["canvas"],
-          elevated: { enabled: true },
+          elevated: { enabled: false },
         },
       },
     ],
@@ -1307,7 +1310,10 @@ Within each tier, the first matching `bindings` entry wins.
 
 ### Per-agent access profiles
 
-<Accordion title="Full access (no sandbox)">
+<Accordion title="Host compatibility (no sandbox)">
+
+This is reduced-trust compatibility for migration or maintenance workflows, not
+the recommended default for new agents.
 
 ```json5
 {
