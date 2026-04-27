@@ -13,6 +13,11 @@ function createDefaultSpawnConfig(): OpenClawConfig {
       mainKey: "main",
       scope: "per-sender",
     },
+    agents: {
+      defaults: {
+        sandbox: { mode: "non-main" },
+      },
+    },
     channels: {
       discord: {
         threadBindings: {

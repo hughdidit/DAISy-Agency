@@ -12,6 +12,7 @@ import { detectCommandObfuscation } from "../infra/exec-obfuscation-detect.js";
 import { buildNodeShellCommand } from "../infra/node-shell.js";
 import { parsePreparedSystemRunPayload } from "../infra/system-run-approval-context.js";
 import { logInfo } from "../logger.js";
+import { formatBreakGlassHostFlowLabel } from "../security/break-glass-host-flows.js";
 import {
   buildExecApprovalRequesterContext,
   buildExecApprovalTurnSourceContext,
@@ -56,6 +57,7 @@ export type ExecuteNodeHostCommandParams = {
 export async function executeNodeHostCommand(
   params: ExecuteNodeHostCommandParams,
 ): Promise<AgentToolResult<ExecToolDetails>> {
+  const breakGlassLabel = formatBreakGlassHostFlowLabel("exec-node");
   const { hostSecurity, hostAsk, askFallback } = resolveExecHostApprovalContext({
     agentId: params.agentId,
     security: params.security,
@@ -244,7 +246,7 @@ export async function executeNodeHostCommand(
         preResolvedDecision,
         onFailure: () =>
           emitExecSystemEvent(
-            `Exec denied (node=${nodeId} id=${approvalId}, approval-request-failed): ${params.command}`,
+            `Exec denied (node=${nodeId} id=${approvalId}, ${breakGlassLabel}, approval-request-failed): ${params.command}`,
             { sessionKey: params.notifySessionKey, contextKey },
           ),
       });
@@ -279,7 +281,7 @@ export async function executeNodeHostCommand(
 
       if (deniedReason) {
         emitExecSystemEvent(
-          `Exec denied (node=${nodeId} id=${approvalId}, ${deniedReason}): ${params.command}`,
+          `Exec denied (node=${nodeId} id=${approvalId}, ${breakGlassLabel}, ${deniedReason}): ${params.command}`,
           {
             sessionKey: params.notifySessionKey,
             contextKey,
@@ -292,7 +294,7 @@ export async function executeNodeHostCommand(
       if (params.approvalRunningNoticeMs > 0) {
         runningTimer = setTimeout(() => {
           emitExecSystemEvent(
-            `Exec running (node=${nodeId} id=${approvalId}, >${noticeSeconds}s): ${params.command}`,
+            `Exec running (node=${nodeId} id=${approvalId}, ${breakGlassLabel}, >${noticeSeconds}s): ${params.command}`,
             { sessionKey: params.notifySessionKey, contextKey },
           );
         }, params.approvalRunningNoticeMs);
@@ -306,7 +308,7 @@ export async function executeNodeHostCommand(
         );
       } catch {
         emitExecSystemEvent(
-          `Exec denied (node=${nodeId} id=${approvalId}, invoke-failed): ${params.command}`,
+          `Exec denied (node=${nodeId} id=${approvalId}, ${breakGlassLabel}, invoke-failed): ${params.command}`,
           {
             sessionKey: params.notifySessionKey,
             contextKey,

@@ -13,6 +13,11 @@ import {
 import { logVerbose } from "../../globals.js";
 import { scheduleGatewaySigusr1Restart, triggerOpenClawRestart } from "../../infra/restart.js";
 import { loadCostUsageSummary, loadSessionCostSummary } from "../../infra/session-cost-usage.js";
+import { logInfo } from "../../logger.js";
+import {
+  formatBreakGlassHostAuditEvent,
+  formatBreakGlassHostFlowLabel,
+} from "../../security/break-glass-host-flows.js";
 import { formatTokenCount, formatUsd } from "../../utils/usage-format.js";
 import { parseActivationCommand } from "../group-activation.js";
 import { parseSendPolicyCommand } from "../send-policy.js";
@@ -440,18 +445,41 @@ export const handleRestartCommand: CommandHandler = async (params, allowTextComm
     };
   }
   const hasSigusr1Listener = process.listenerCount("SIGUSR1") > 0;
+  logInfo(
+    formatBreakGlassHostAuditEvent({
+      flowId: "gateway-restart",
+      action: "requested",
+      subject: "/restart",
+    }),
+  );
   if (hasSigusr1Listener) {
     scheduleGatewaySigusr1Restart({ reason: "/restart" });
+    logInfo(
+      formatBreakGlassHostAuditEvent({
+        flowId: "gateway-restart",
+        action: "completed",
+        subject: "/restart",
+        result: "sigusr1",
+      }),
+    );
     return {
       shouldContinue: false,
       reply: {
-        text: "⚙️ Restarting OpenClaw in-process (SIGUSR1); back in a few seconds.",
+        text: `⚙️ ${formatBreakGlassHostFlowLabel("gateway-restart")} requested in-process (SIGUSR1); back in a few seconds.`,
       },
     };
   }
   const restartMethod = triggerOpenClawRestart();
   if (!restartMethod.ok) {
     const detail = restartMethod.detail ? ` Details: ${restartMethod.detail}` : "";
+    logInfo(
+      formatBreakGlassHostAuditEvent({
+        flowId: "gateway-restart",
+        action: "failed",
+        subject: "/restart",
+        result: `${restartMethod.method}${restartMethod.detail ? `: ${restartMethod.detail}` : ""}`,
+      }),
+    );
     return {
       shouldContinue: false,
       reply: {
@@ -459,10 +487,18 @@ export const handleRestartCommand: CommandHandler = async (params, allowTextComm
       },
     };
   }
+  logInfo(
+    formatBreakGlassHostAuditEvent({
+      flowId: "gateway-restart",
+      action: "completed",
+      subject: "/restart",
+      result: restartMethod.method,
+    }),
+  );
   return {
     shouldContinue: false,
     reply: {
-      text: `⚙️ Restarting OpenClaw via ${restartMethod.method}; give me a few seconds to come back online.`,
+      text: `⚙️ ${formatBreakGlassHostFlowLabel("gateway-restart")} requested via ${restartMethod.method}; give me a few seconds to come back online.`,
     },
   };
 };

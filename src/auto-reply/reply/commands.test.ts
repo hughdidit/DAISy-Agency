@@ -567,6 +567,20 @@ describe("handleCommands /config configWrites gating", () => {
 });
 
 describe("handleCommands bash alias", () => {
+  it("labels /bash help as break-glass host authority", async () => {
+    const cfg = {
+      commands: { bash: true, text: true },
+      whatsapp: { allowFrom: ["*"] },
+    } as OpenClawConfig;
+    const params = buildParams("/bash", cfg);
+
+    const result = await handleCommands(params);
+
+    expect(result.shouldContinue).toBe(false);
+    expect(result.reply?.text).toContain("break-glass host authority");
+    expect(result.reply?.text).toContain("Host shell chat command");
+  });
+
   it("routes !poll and !stop through the /bash handler", async () => {
     const cfg = {
       commands: { bash: true, text: true },
@@ -579,6 +593,36 @@ describe("handleCommands bash alias", () => {
       expect(result.shouldContinue).toBe(false);
       expect(result.reply?.text).toContain("No active bash job");
     }
+  });
+});
+
+describe("handleCommands break-glass control-plane commands", () => {
+  it("labels /debug output as break-glass host authority", async () => {
+    const cfg = {
+      commands: { debug: true, text: true },
+      channels: { whatsapp: { allowFrom: ["*"] } },
+    } as OpenClawConfig;
+    const params = buildParams("/debug show", cfg);
+
+    const result = await handleCommands(params);
+
+    expect(result.shouldContinue).toBe(false);
+    expect(result.reply?.text).toContain("break-glass host authority");
+    expect(result.reply?.text).toContain("Runtime debug override");
+  });
+
+  it("labels /restart as break-glass host authority", async () => {
+    const cfg = {
+      commands: { restart: true, text: true },
+      channels: { whatsapp: { allowFrom: ["*"] } },
+    } as OpenClawConfig;
+    const params = buildParams("/restart", cfg);
+
+    const result = await handleCommands(params);
+
+    expect(result.shouldContinue).toBe(false);
+    expect(result.reply?.text).toContain("break-glass host authority");
+    expect(result.reply?.text).toContain("Gateway restart");
   });
 });
 

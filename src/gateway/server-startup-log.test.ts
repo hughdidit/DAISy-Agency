@@ -13,6 +13,15 @@ describe("gateway startup log", () => {
             dangerouslyDisableDeviceAuth: true,
           },
         },
+        agents: {
+          defaults: {
+            sandbox: {
+              docker: {
+                dangerouslyAllowContainerNamespaceJoin: true,
+              },
+            },
+          },
+        },
       },
       bindHost: "127.0.0.1",
       port: 18789,
@@ -24,6 +33,11 @@ describe("gateway startup log", () => {
     expect(warn).toHaveBeenCalledWith(expect.stringContaining("dangerous config flags enabled"));
     expect(warn).toHaveBeenCalledWith(
       expect.stringContaining("gateway.controlUi.dangerouslyDisableDeviceAuth=true"),
+    );
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining(
+        "agents.defaults.sandbox.docker.dangerouslyAllowContainerNamespaceJoin=true",
+      ),
     );
     expect(warn).toHaveBeenCalledWith(expect.stringContaining("openclaw security audit"));
   });

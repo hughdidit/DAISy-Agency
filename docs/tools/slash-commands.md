@@ -10,6 +10,7 @@ title: "Slash Commands"
 
 Commands are handled by the Gateway. Most commands must be sent as a **standalone** message that starts with `/`.
 The host-only bash chat command uses `! <cmd>` (with `/bash <cmd>` as an alias).
+When enabled, it is an explicit break-glass host-authority path, not routine sandbox-first tool execution.
 Host-only and host-managed command surfaces are inventoried in
 [Host-Only Workflows Inventory](../gateway/host-only-workflows-inventory.md).
 
@@ -58,10 +59,10 @@ They run immediately, are stripped before the model sees the message, and the re
 - `commands.nativeSkills` (default `"auto"`) registers **skill** commands natively when supported.
   - Auto: on for Discord/Telegram; off for Slack (Slack requires creating a slash command per skill).
   - Set `channels.discord.commands.nativeSkills`, `channels.telegram.commands.nativeSkills`, or `channels.slack.commands.nativeSkills` to override per provider (bool or `"auto"`).
-- `commands.bash` (default `false`) enables `! <cmd>` to run host shell commands (`/bash <cmd>` is an alias; requires `tools.elevated` allowlists).
+- `commands.bash` (default `false`) enables `! <cmd>` to run host shell commands (`/bash <cmd>` is an alias; requires `tools.elevated` allowlists). This is audited as break-glass host authority.
 - `commands.bashForegroundMs` (default `2000`) controls how long bash waits before switching to background mode (`0` backgrounds immediately).
 - `commands.config` (default `false`) enables `/config` (reads/writes `openclaw.json`).
-- `commands.debug` (default `false`) enables `/debug` (runtime-only overrides).
+- `commands.debug` (default `false`) enables `/debug` (runtime-only overrides). Treat set/unset/reset as operator-only break-glass control-plane mutations.
 - `commands.allowFrom` (optional) sets a per-provider allowlist for command authorization. When configured, it is the
   only authorization source for commands and directives (channel allowlists/pairing and `commands.useAccessGroups`
   are ignored). Use `"*"` for a global default; provider-specific keys override it.
@@ -91,12 +92,12 @@ Text + native (when enabled):
 - `/steer <id|#> <message>` (steer a running sub-agent immediately: in-run when possible, otherwise abort current work and restart on the steer message)
 - `/tell <id|#> <message>` (alias for `/steer`)
 - `/config show|get|set|unset` (persist config to disk, owner-only; requires `commands.config: true`)
-- `/debug show|set|unset|reset` (runtime overrides, owner-only; requires `commands.debug: true`)
+- `/debug show|set|unset|reset` (runtime overrides, owner-only break-glass control-plane path; requires `commands.debug: true`)
 - `/usage off|tokens|full|cost` (per-response usage footer or local cost summary)
 - `/tts off|always|inbound|tagged|status|provider|limit|summary|audio` (control TTS; see [/tts](/tts))
   - Discord: native command is `/voice` (Discord reserves `/tts`); text `/tts` still works.
 - `/stop`
-- `/restart`
+- `/restart` (operator break-glass gateway process control)
 - `/dock-telegram` (alias: `/dock_telegram`) (switch replies to Telegram)
 - `/dock-discord` (alias: `/dock_discord`) (switch replies to Discord)
 - `/dock-slack` (alias: `/dock_slack`) (switch replies to Slack)
@@ -110,12 +111,12 @@ Text + native (when enabled):
 - `/exec host=<sandbox|gateway|node> security=<deny|allowlist|full> ask=<off|on-miss|always> node=<id>` (send `/exec` to show current)
 - `/model <name>` (alias: `/models`; or `/<alias>` from `agents.defaults.models.*.alias`)
 - `/queue <mode>` (plus options like `debounce:2s cap:25 drop:summarize`; send `/queue` to see current settings)
-- `/bash <command>` (host-only; alias for `! <command>`; requires `commands.bash: true` + `tools.elevated` allowlists)
+- `/bash <command>` (break-glass host-only shell; alias for `! <command>`; requires `commands.bash: true` + `tools.elevated` allowlists)
 
 Text-only:
 
 - `/compact [instructions]` (see [/concepts/compaction](/concepts/compaction))
-- `! <command>` (host-only; one at a time; use `!poll` + `!stop` for long-running jobs)
+- `! <command>` (break-glass host-only shell; one at a time; use `!poll` + `!stop` for long-running jobs)
 - `!poll` (check output / status; accepts optional `sessionId`; `/bash poll` also works)
 - `!stop` (stop the running bash job; accepts optional `sessionId`; `/bash stop` also works)
 
@@ -126,7 +127,7 @@ Notes:
 - For full provider usage breakdown, use `openclaw status --usage`.
 - `/allowlist add|remove` requires `commands.config=true` and honors channel `configWrites`.
 - `/usage` controls the per-response usage footer; `/usage cost` prints a local cost summary from OpenClaw session logs.
-- `/restart` is enabled by default; set `commands.restart: false` to disable it.
+- `/restart` is enabled by default; set `commands.restart: false` to disable it where chat-triggered gateway restarts are not an intentional operator path.
 - Discord-only native command: `/vc join|leave|status` controls voice channels (requires `channels.discord.voice` and native commands; not available as text).
 - Discord thread-binding commands (`/focus`, `/unfocus`, `/agents`, `/session idle`, `/session max-age`) require effective thread bindings to be enabled (`session.threadBindings.enabled` and/or `channels.discord.threadBindings.enabled`).
 - ACP command reference and runtime behavior: [ACP Agents](/tools/acp-agents).

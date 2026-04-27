@@ -6,6 +6,11 @@ import { killProcessTree } from "../../agents/shell-utils.js";
 import { isCommandFlagEnabled } from "../../config/commands.js";
 import type { OpenClawConfig } from "../../config/config.js";
 import { logVerbose } from "../../globals.js";
+import { logInfo } from "../../logger.js";
+import {
+  formatBreakGlassHostAuditEvent,
+  formatBreakGlassHostFlowLabel,
+} from "../../security/break-glass-host-flows.js";
 import { clampInt } from "../../utils.js";
 import type { MsgContext } from "../templating.js";
 import type { ReplyPayload } from "../types.js";
@@ -167,7 +172,7 @@ function attachActiveWatcher(sessionId: string) {
 function buildUsageReply(): ReplyPayload {
   return {
     text: [
-      "⚙️ Usage:",
+      `⚙️ Usage (${formatBreakGlassHostFlowLabel("chat-bash")}):`,
       "- ! <command>",
       "- !poll | ! poll",
       "- !stop | ! stop",
@@ -329,6 +334,13 @@ export async function handleBashChatCommand(params: {
     startedAt: Date.now(),
     command: commandText,
   };
+  logInfo(
+    formatBreakGlassHostAuditEvent({
+      flowId: "chat-bash",
+      action: "requested",
+      subject: commandText,
+    }),
+  );
 
   try {
     const foregroundMs = resolveForegroundMs(params.cfg);
@@ -369,8 +381,16 @@ export async function handleBashChatCommand(params: {
       attachActiveWatcher(sessionId);
       const snippet = formatSessionSnippet(sessionId);
       logVerbose(`Started bash session ${snippet}: ${commandText}`);
+      logInfo(
+        formatBreakGlassHostAuditEvent({
+          flowId: "chat-bash",
+          action: "started",
+          subject: commandText,
+          result: `session=${snippet}`,
+        }),
+      );
       return {
-        text: `⚙️ bash started (session ${sessionId}). Still running; use !poll / !stop (or /bash poll / /bash stop).`,
+        text: `⚙️ ${formatBreakGlassHostFlowLabel("chat-bash")} started (session ${sessionId}). Still running; use !poll / !stop (or /bash poll / /bash stop).`,
       };
     }
 
@@ -381,9 +401,17 @@ export async function handleBashChatCommand(params: {
       result.details?.status === "completed"
         ? result.details.aggregated
         : result.content.map((chunk) => (chunk.type === "text" ? chunk.text : "")).join("\n");
+    logInfo(
+      formatBreakGlassHostAuditEvent({
+        flowId: "chat-bash",
+        action: "finished",
+        subject: commandText,
+        result: `exit=${exitCode}`,
+      }),
+    );
     return {
       text: [
-        `⚙️ bash: ${commandText}`,
+        `⚙️ ${formatBreakGlassHostFlowLabel("chat-bash")}: ${commandText}`,
         `Exit: ${exitCode}`,
         formatOutputBlock(output || "(no output)"),
       ].join("\n"),
@@ -391,8 +419,19 @@ export async function handleBashChatCommand(params: {
   } catch (err) {
     activeJob = null;
     const message = err instanceof Error ? err.message : String(err);
+    logInfo(
+      formatBreakGlassHostAuditEvent({
+        flowId: "chat-bash",
+        action: "failed",
+        subject: commandText,
+        result: message,
+      }),
+    );
     return {
-      text: [`⚠️ bash failed: ${commandText}`, formatOutputBlock(message)].join("\n"),
+      text: [
+        `⚠️ ${formatBreakGlassHostFlowLabel("chat-bash")} failed: ${commandText}`,
+        formatOutputBlock(message),
+      ].join("\n"),
     };
   }
 }

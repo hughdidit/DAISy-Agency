@@ -11,7 +11,7 @@ OpenClaw has three related (but different) controls:
 
 1. **Sandbox** (`agents.defaults.sandbox.*` / `agents.list[].sandbox.*`) decides **where tools run** (sandbox-first Docker boundary vs reduced-trust host compatibility).
 2. **Tool policy** (`tools.*`, `tools.sandbox.tools.*`, `agents.list[].tools.*`) decides **which tools are available/allowed**.
-3. **Elevated** (`tools.elevated.*`, `agents.list[].tools.elevated.*`) is an **exec-only break-glass escape hatch** to run on the host when you’re sandboxed.
+3. **Elevated and explicit host exec** (`tools.elevated.*`, `tools.exec.host="gateway"|"node"`, `agents.list[].tools.*`) are **break-glass host-authority paths** to run exec outside the sandbox when a retained workflow requires it.
 
 ## Quick debug
 
@@ -29,7 +29,7 @@ It prints:
 - effective sandbox mode/scope/workspace access
 - whether the session is currently sandbox-first or reduced-trust host compatibility (main vs non-main)
 - effective sandbox tool allow/deny (and whether it came from agent/global/default)
-- elevated gates and fix-it key paths
+- elevated/host-exec gates and fix-it key paths
 
 ## Sandbox: where tools run
 
@@ -96,7 +96,7 @@ Available groups:
 - `group:nodes`: `nodes`
 - `group:openclaw`: all built-in OpenClaw tools (excludes provider plugins)
 
-## Elevated: exec-only break-glass host authority
+## Elevated and host exec: break-glass host authority
 
 Elevated does **not** grant extra tools; it only affects `exec`.
 
@@ -105,7 +105,7 @@ Elevated does **not** grant extra tools; it only affects `exec`.
 - Use `/elevated full` to skip exec approvals for the session.
 - If you’re already in reduced-trust host compatibility mode, elevated is effectively a no-op for execution location (still gated).
 - Elevated is **not** skill-scoped and does **not** override tool allow/deny.
-- `/exec` is separate from elevated. It only adjusts per-session exec defaults for authorized senders.
+- `/exec` is separate from elevated. It only adjusts per-session exec defaults for authorized senders; selecting `host=gateway` or `host=node` is still logged and audited as break-glass host authority.
 
 Gates:
 
