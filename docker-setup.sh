@@ -509,22 +509,38 @@ fi
 if [[ -n "$SANDBOX_ENABLED" ]]; then
   # Enable sandbox in OpenClaw config.
   sandbox_config_ok=true
-  if ! docker compose "${COMPOSE_ARGS[@]}" run --rm --no-deps --entrypoint sh openclaw-cli -c '
-    current_mode="$(node dist/index.js config get agents.defaults.sandbox.mode 2>/dev/null || true)"
-    if [ -n "$current_mode" ] && [ "$current_mode" != "null" ]; then
+  sandbox_config_status=""
+  if sandbox_config_output="$(docker compose "${COMPOSE_ARGS[@]}" run --rm --no-deps --entrypoint sh openclaw-cli -c '
+    sandbox_state="$(node -e "const fs = require(\"node:fs\"); const path = process.env.OPENCLAW_CONFIG_PATH || \"/home/node/.openclaw/openclaw.json\"; let state = \"unset\"; try { const cfg = JSON.parse(fs.readFileSync(path, \"utf8\")); const sandbox = cfg?.agents?.defaults?.sandbox; if (sandbox && typeof sandbox === \"object\" && !Array.isArray(sandbox)) { state = sandbox.mode === \"off\" ? \"disabled\" : \"preserved\"; } } catch {} process.stdout.write(state);")"
+    if [ "$sandbox_state" = "disabled" ] || [ "$sandbox_state" = "preserved" ]; then
+      echo "$sandbox_state"
       exit 0
     fi
     node dist/index.js config set agents.defaults.sandbox.mode "all" >/dev/null &&
       node dist/index.js config set agents.defaults.sandbox.scope "session" >/dev/null &&
       node dist/index.js config set agents.defaults.sandbox.profile "coding-base" >/dev/null &&
-      node dist/index.js config set agents.defaults.sandbox.workspaceAccess "none" >/dev/null
-  '; then
+      node dist/index.js config set agents.defaults.sandbox.workspaceAccess "none" >/dev/null &&
+      echo "applied"
+  ')"; then
+    sandbox_config_output="${sandbox_config_output//$'\r'/}"
+    sandbox_config_status="${sandbox_config_output##*$'\n'}"
+  else
     echo "WARNING: Failed to apply sandbox configuration" >&2
     sandbox_config_ok=false
   fi
 
-  if [[ "$sandbox_config_ok" == true ]]; then
-    echo "Sandbox enabled: mode=all, scope=session, profile=coding-base, workspaceAccess=none"
+  if [[ "$sandbox_config_status" == "disabled" ]]; then
+    echo "WARNING: Sandbox config explicitly sets mode=off; leaving Docker socket overlay disabled." >&2
+    if [[ -n "${SANDBOX_COMPOSE_FILE:-}" ]]; then
+      rm -f "$SANDBOX_COMPOSE_FILE"
+    fi
+    docker compose "${BASE_COMPOSE_ARGS[@]}" up -d --force-recreate openclaw-gateway
+  elif [[ "$sandbox_config_ok" == true ]]; then
+    if [[ "$sandbox_config_status" == "preserved" ]]; then
+      echo "Sandbox enabled with existing agents.defaults.sandbox settings."
+    else
+      echo "Sandbox enabled: mode=all, scope=session, profile=coding-base, workspaceAccess=none"
+    fi
     echo "Docs: https://docs.openclaw.ai/gateway/sandboxing"
     # Restart gateway with sandbox compose overlay to pick up socket mount + config.
     docker compose "${COMPOSE_ARGS[@]}" up -d openclaw-gateway

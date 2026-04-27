@@ -246,7 +246,7 @@ Typical fields in `~/.openclaw/openclaw.json`:
 - `agents.defaults.workspace`
 - `agents.defaults.model` / `models.providers` (if Minimax chosen)
 - `tools.profile` (local onboarding defaults to `"messaging"` when unset; existing explicit values are preserved)
-- `agents.defaults.sandbox` (local onboarding defaults new configs to `mode: "all"`, `scope: "session"`, and `profile: "coding-base"` when unset; existing explicit values are preserved)
+- `agents.defaults.sandbox` (local onboarding defaults new configs to `mode: "all"`, `scope: "session"`, `profile: "coding-base"`, and `workspaceAccess: "none"` when unset; existing explicit values are preserved)
 - `gateway.*` (mode, bind, auth, tailscale)
 - `session.dmScope` (behavior details: [CLI Onboarding Reference](/start/wizard-cli-reference#outputs-and-internals))
 - `channels.telegram.botToken`, `channels.discord.token`, `channels.signal.*`, `channels.imessage.*`

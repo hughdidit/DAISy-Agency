@@ -51,7 +51,7 @@ The wizard starts with **QuickStart** (defaults) vs **Advanced** (full control).
     - Gateway port **18789**
     - Gateway auth **Token** (auto‑generated, even on loopback)
     - Tool policy default for new local setups: `tools.profile: "messaging"` (existing explicit profile is preserved)
-    - Sandbox default for new local setups: `agents.defaults.sandbox.mode: "all"`, `scope: "session"`, and `profile: "coding-base"` (existing explicit sandbox config is preserved)
+    - Sandbox default for new local setups: `agents.defaults.sandbox.mode: "all"`, `scope: "session"`, `profile: "coding-base"`, and `workspaceAccess: "none"` (existing explicit sandbox config is preserved)
     - DM isolation default: local onboarding writes `session.dmScope: "per-channel-peer"` when unset. Details: [CLI Onboarding Reference](/start/wizard-cli-reference#outputs-and-internals)
     - Tailscale exposure **Off**
     - Telegram + WhatsApp DMs default to **allowlist** (you'll be prompted for your phone number)

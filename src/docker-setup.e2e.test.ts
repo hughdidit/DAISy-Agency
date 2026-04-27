@@ -315,7 +315,8 @@ describe("docker-setup.sh", () => {
         );
       expect(gatewayStarts).toHaveLength(2);
       expect(log).toContain("run --rm --no-deps --entrypoint sh openclaw-cli -c");
-      expect(log).toContain("config get agents.defaults.sandbox.mode");
+      expect(log).toContain("OPENCLAW_CONFIG_PATH");
+      expect(log).toContain("agents?.defaults?.sandbox");
       expect(log).toContain('config set agents.defaults.sandbox.mode "all"');
       expect(log).toContain('config set agents.defaults.sandbox.scope "session"');
       expect(log).toContain('config set agents.defaults.sandbox.profile "coding-base"');

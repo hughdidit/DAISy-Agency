@@ -1072,8 +1072,9 @@ Docker sandboxing for the embedded agent. Sandbox-first execution is the
 canonical trust posture for normal tool-enabled work. `mode: "off"` remains
 available as reduced-trust host compatibility for migration and maintenance
 cases. See [Sandboxing](/gateway/sandboxing) for the full guide.
-Local onboarding writes `mode: "all"`, `scope: "session"`, and
-`profile: "coding-base"` for new local configs when sandbox settings are unset.
+Local onboarding writes `mode: "all"`, `scope: "session"`,
+`profile: "coding-base"`, and `workspaceAccess: "none"` for new local configs
+when sandbox settings are unset.
 
 ```json5
 {
@@ -1165,7 +1166,7 @@ Local onboarding writes `mode: "all"`, `scope: "session"`, and
 **Scope:**
 
 - `session`: per-session container + workspace
-- `agent`: one container + workspace per agent (default)
+- `agent`: one container + workspace per agent
 - `shared`: shared container and workspace (no cross-session isolation)
 
 **`setupCommand`** runs once after container creation (via `sh -lc`). Needs network egress, writable root, root user. Use it to help a container satisfy an official profile, not to define a new supported profile.

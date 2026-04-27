@@ -550,7 +550,8 @@ precedence, and troubleshooting.
 
 - Image: `openclaw-sandbox:bookworm-slim`
 - One container per session
-- Agent workspace access: `workspaceAccess: "rw"` (default) mounts the agent workspace read/write at `/workspace`
+- Onboarding default agent workspace access: `workspaceAccess: "none"` keeps tools on the sandbox workspace under `~/.openclaw/sandboxes`
+  - `"rw"` mounts the agent workspace read/write at `/workspace`
   - `"ro"` keeps the sandbox workspace at `/workspace` and mounts the agent workspace read-only at `/agent` (disables `write`/`edit`/`apply_patch`)
   - `"none"` keeps tools on the sandbox workspace under `~/.openclaw/sandboxes`
 - Auto-prune: idle > 24h OR age > 7d
@@ -586,7 +587,7 @@ invent a new supported profile.
         mode: "all", // off | non-main | all
         scope: "session", // session | agent | shared
         profile: "coding-base",
-        workspaceAccess: "rw", // rw | ro | none
+        workspaceAccess: "none", // none | ro | rw
         workspaceRoot: "~/.openclaw/sandboxes",
         docker: {
           image: "openclaw-sandbox:bookworm-slim",
