@@ -1,8 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { Type } from "@sinclair/typebox";
-import type { AnyAgentTool } from "../../src/agents/tools/common.js";
 import { resolveAgentConfig } from "../../src/agents/agent-scope.js";
+import type { AnyAgentTool } from "../../src/agents/tools/common.js";
 import type { OpenClawConfig } from "../../src/config/config.js";
 import type { OpenClawPluginApi, OpenClawPluginToolContext } from "../../src/plugins/types.js";
 import { createAuditLogger } from "./src/audit.js";
@@ -76,7 +76,10 @@ function defaultConfig(): GwsToolkitConfig {
   };
 }
 
-function resolveGoogleWorkspaceEmail(config: OpenClawConfig | undefined, agentId: string | undefined) {
+function resolveGoogleWorkspaceEmail(
+  config: OpenClawConfig | undefined,
+  agentId: string | undefined,
+) {
   if (!config || !agentId) {
     return undefined;
   }

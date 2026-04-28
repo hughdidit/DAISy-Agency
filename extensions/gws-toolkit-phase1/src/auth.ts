@@ -519,11 +519,9 @@ export function getAuthSourceStatus(config: GwsToolkitConfig): {
         : "credentials_file_unknown";
     const serviceAccountPolicyEnforced = isServiceAccountPolicyEnforced();
     const serviceAccountPolicyCompliant =
-      delegatedUser
-        ? credentialSourceType === "service_account_json"
-        : !impersonation.configured ||
-          !serviceAccountPolicyEnforced ||
-          credentialSourceType === "service_account_json";
+      !impersonation.configured ||
+      !serviceAccountPolicyEnforced ||
+      credentialSourceType === "service_account_json";
     if (probe.allowed && probe.resolvedPath) {
       return {
         routeName,
@@ -629,10 +627,11 @@ export function getActiveRouteAuthStatus(
         ? classifyCredentialSourceType(probe.resolvedPath)
         : "credentials_file_unknown";
     const serviceAccountPolicyEnforced = isServiceAccountPolicyEnforced();
-    const serviceAccountPolicyCompliant =
-      !impersonation.configured ||
-      !serviceAccountPolicyEnforced ||
-      credentialSourceType === "service_account_json";
+    const serviceAccountPolicyCompliant = delegatedUser
+      ? credentialSourceType === "service_account_json"
+      : !impersonation.configured ||
+        !serviceAccountPolicyEnforced ||
+        credentialSourceType === "service_account_json";
     return {
       bindingSubject: resolved.bindingSubject,
       inherited: resolved.inherited,

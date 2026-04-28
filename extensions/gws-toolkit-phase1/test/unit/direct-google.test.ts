@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  buildDirectGoogleRequest,
-  resolveDirectGoogleScopes,
-} from "../../src/direct-google.js";
+import { buildDirectGoogleRequest, resolveDirectGoogleScopes } from "../../src/direct-google.js";
 import type { GwsToolkitConfig } from "../../src/types.js";
 
 const config: GwsToolkitConfig = {

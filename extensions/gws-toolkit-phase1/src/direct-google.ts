@@ -117,7 +117,10 @@ function getCredentialsFile(auth: AuthResolution): string {
 function buildRawEmail(payload: Record<string, unknown>): string {
   const values = (value: unknown): string[] =>
     Array.isArray(value)
-      ? value.map(String).map((entry) => entry.trim()).filter(Boolean)
+      ? value
+          .map(String)
+          .map((entry) => entry.trim())
+          .filter(Boolean)
       : typeof value === "string" && value.trim()
         ? [value.trim()]
         : [];

@@ -8,8 +8,8 @@ import {
   resolveAuth,
 } from "../auth.js";
 import { discoverBinary } from "../binary.js";
-import { executeDirectAuthHealth } from "../direct-google.js";
 import { summarizeCredentialRoutes } from "../credential-routing.js";
+import { executeDirectAuthHealth } from "../direct-google.js";
 import { PluginError, toStructuredError } from "../errors.js";
 import { executeCommand } from "../executor.js";
 import { normalizeExecution } from "../normalize.js";
@@ -253,18 +253,19 @@ export async function executeStatus(params: {
     const authStatus = getAuthSourceStatus(activeConfig);
     const activeRoute = getActiveRouteAuthStatus(activeConfig, params.ctx);
     const usesDirectTransport = activeRoute.details.transport === "google_api";
-    const discovery = params.skipBinaryDiscovery || usesDirectTransport
-      ? null
-      : await discoverBinary({
-          configuredPath: activeConfig.binaryPath,
-          runVersion: async (binaryPath) =>
-            executeCommand({
-              config: activeConfig,
-              binaryPath,
-              argv: ["--version"],
-              env: runtimeEnv,
-            }),
-        });
+    const discovery =
+      params.skipBinaryDiscovery || usesDirectTransport
+        ? null
+        : await discoverBinary({
+            configuredPath: activeConfig.binaryPath,
+            runVersion: async (binaryPath) =>
+              executeCommand({
+                config: activeConfig,
+                binaryPath,
+                argv: ["--version"],
+                env: runtimeEnv,
+              }),
+          });
 
     const latencyMs = Date.now() - startedAt;
     const includeVersion = statusParams.includeVersion !== false;

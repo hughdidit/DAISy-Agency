@@ -3,9 +3,9 @@ import { logConfigUpdated } from "../config/logging.js";
 import { normalizeAgentId } from "../routing/session-key.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { defaultRuntime } from "../runtime.js";
+import { requireValidConfig } from "./agents.command-shared.js";
 import { applyAgentConfig, buildAgentSummaries } from "./agents.config.js";
 import { applyAgentGwsBindings } from "./agents.gws-bindings.js";
-import { requireValidConfig } from "./agents.command-shared.js";
 
 type AgentsGoogleWorkspaceSetOptions = {
   agent?: string;

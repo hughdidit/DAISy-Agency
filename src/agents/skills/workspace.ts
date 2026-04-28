@@ -546,9 +546,7 @@ function buildGwsRuntimeNote(params: {
   if (!email) {
     return "";
   }
-  const pluginConfig = asRecord(
-    params.config?.plugins?.entries?.["gws-toolkit-phase1"]?.config,
-  );
+  const pluginConfig = asRecord(params.config?.plugins?.entries?.["gws-toolkit-phase1"]?.config);
   const bindings = asRecord(pluginConfig?.agentCredentialBindings);
   const routeName =
     typeof bindings?.[`agent:${params.agentId?.trim().toLowerCase()}`] === "string"
