@@ -1,7 +1,7 @@
 {
   "id": "gws-toolkit-phase1",
   "name": "GWS Toolkit",
-  "description": "Security-hardened Google Workspace integration via gws CLI with per-agent credential routing and policy-controlled writes.",
+  "description": "Security-hardened Google Workspace integration with per-agent credential routing, delegated Google API transport, and policy-controlled writes.",
   "skills": ["./skills"],
   "configSchema": {
     "type": "object",
@@ -163,6 +163,13 @@
         "additionalProperties": {
           "type": "string"
         }
+      },
+      "workspaceIdentityDomains": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "default": []
       }
     }
   },
@@ -223,6 +230,10 @@
     "agentCredentialBindings": {
       "label": "Agent Credential Bindings",
       "help": "Bind subjects like agent:ops or subagent:research to named routes."
+    },
+    "workspaceIdentityDomains": {
+      "label": "Workspace Identity Domains",
+      "help": "Optional allowed Google Workspace email domains for delegated agent identities."
     },
     "requireHumanApprovalFor": {
       "label": "Approval Hints",

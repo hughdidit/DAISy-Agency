@@ -14,6 +14,29 @@ The plugin routes requests by explicit subject:
 
 There is no implicit parent-route inheritance for subagents.
 
+For DAISy delegated Google Workspace routes, the effective Google user comes
+from the agent entry:
+
+```jsonc
+{
+  "agents": {
+    "list": [
+      {
+        "id": "daisy",
+        "googleWorkspace": {
+          "email": "daisy.ai@hughdidit.com",
+        },
+      },
+    ],
+  },
+}
+```
+
+`credentialRoutes[].impersonatedUser` is now a compatibility/projection field.
+When present, it must match `agents.list[].googleWorkspace.email`; when absent,
+the direct Google API transport uses the agent email as the delegated JWT
+subject. Impersonated routes without an agent Workspace email fail closed.
+
 Delegate posture should treat step 3 as disabled:
 
 - keep `allowUnboundAgents: false`
@@ -27,6 +50,7 @@ config exists.
 Recommended CLI flow:
 
 ```bash
+openclaw agents google-workspace set --agent ops --email daisy.ai@hughdidit.com --gws-route ops-main
 openclaw agents bind --agent ops --gws-route ops-main
 openclaw agents bind --agent ops --gws-route ops-main --subagent-gws-route ops-subagent
 ```
@@ -41,3 +65,4 @@ openclaw agents bind --agent ops --gws-route ops-main --subagent-gws-route ops-s
 - credential pointer field for the chosen auth mode
 - optional impersonation field (`impersonatedUser` or `impersonatedUserEnvVar`)
   for `credentials_file` routes
+- optional `workspaceIdentityDomains` allowlist at plugin config level

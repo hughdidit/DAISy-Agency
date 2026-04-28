@@ -273,6 +273,113 @@ export function getRouteImpersonationStatus(route: ResolvedRoute): RouteImperson
   };
 }
 
+function normalizeWorkspaceEmail(value: string | undefined): string | undefined {
+  const normalized = value?.trim().toLowerCase();
+  return normalized || undefined;
+}
+
+function getEmailDomain(email: string): string | null {
+  const atIndex = email.lastIndexOf("@");
+  if (atIndex <= 0 || atIndex >= email.length - 1) {
+    return null;
+  }
+  return email.slice(atIndex + 1).toLowerCase();
+}
+
+function ensureWorkspaceIdentityAllowed(config: GwsToolkitConfig, email: string): void {
+  const domain = getEmailDomain(email);
+  if (!domain) {
+    throw new PluginError("AUTH_ERROR", "Agent Google Workspace identity is not a valid email.", {
+      googleWorkspaceEmail: email,
+      failureCategory: "WORKSPACE_IDENTITY",
+    });
+  }
+  if (
+    config.workspaceIdentityDomains.length > 0 &&
+    !config.workspaceIdentityDomains.includes(domain)
+  ) {
+    throw new PluginError(
+      "AUTH_ERROR",
+      "Agent Google Workspace identity domain is not allowed by GWS plugin config.",
+      {
+        googleWorkspaceEmail: email,
+        domain,
+        allowedDomains: config.workspaceIdentityDomains,
+        failureCategory: "WORKSPACE_IDENTITY",
+      },
+    );
+  }
+}
+
+function resolveDelegatedWorkspaceIdentity(params: {
+  config: GwsToolkitConfig;
+  ctx: InvocationContext;
+  route: ResolvedRoute;
+  bindingSubject: string;
+  impersonation: RouteImpersonationStatus;
+}): string | undefined {
+  const agentEmail = normalizeWorkspaceEmail(params.ctx.googleWorkspaceEmail);
+  const routeEmail = normalizeWorkspaceEmail(params.impersonation.value);
+  if (agentEmail) {
+    ensureWorkspaceIdentityAllowed(params.config, agentEmail);
+    if (params.route.mode !== "credentials_file") {
+      throw new PluginError(
+        "AUTH_ERROR",
+        "Agent Google Workspace identity requires a credentials_file GWS route.",
+        {
+          routeName: params.route.name,
+          bindingSubject: params.bindingSubject,
+          googleWorkspaceEmail: agentEmail,
+          mode: params.route.mode,
+          failureCategory: "WORKSPACE_IDENTITY",
+        },
+      );
+    }
+    if (params.impersonation.configured && !routeEmail) {
+      throw new PluginError(
+        "AUTH_ERROR",
+        "Route impersonation is configured but no impersonated user value is available.",
+        {
+          routeName: params.route.name,
+          bindingSubject: params.bindingSubject,
+          impersonatedUserEnvVar: params.impersonation.envVar,
+          googleWorkspaceEmail: agentEmail,
+          failureCategory: "WORKSPACE_IDENTITY",
+        },
+      );
+    }
+    if (routeEmail && routeEmail !== agentEmail) {
+      throw new PluginError(
+        "AUTH_ERROR",
+        "Route impersonated user does not match the agent Google Workspace identity.",
+        {
+          routeName: params.route.name,
+          bindingSubject: params.bindingSubject,
+          impersonatedUser: routeEmail,
+          googleWorkspaceEmail: agentEmail,
+          failureCategory: "WORKSPACE_IDENTITY",
+        },
+      );
+    }
+    return agentEmail;
+  }
+
+  if (params.impersonation.configured) {
+    throw new PluginError(
+      "AUTH_ERROR",
+      "Impersonated GWS routes require agents.list[].googleWorkspace.email.",
+      {
+        routeName: params.route.name,
+        bindingSubject: params.bindingSubject,
+        impersonatedUser: routeEmail,
+        impersonationSource: params.impersonation.source,
+        failureCategory: "WORKSPACE_IDENTITY",
+      },
+    );
+  }
+  return undefined;
+}
+
 export type RouteAuthStatus = {
   routeName: string;
   mode: CredentialMode;
@@ -412,9 +519,11 @@ export function getAuthSourceStatus(config: GwsToolkitConfig): {
         : "credentials_file_unknown";
     const serviceAccountPolicyEnforced = isServiceAccountPolicyEnforced();
     const serviceAccountPolicyCompliant =
-      !impersonation.configured ||
-      !serviceAccountPolicyEnforced ||
-      credentialSourceType === "service_account_json";
+      delegatedUser
+        ? credentialSourceType === "service_account_json"
+        : !impersonation.configured ||
+          !serviceAccountPolicyEnforced ||
+          credentialSourceType === "service_account_json";
     if (probe.allowed && probe.resolvedPath) {
       return {
         routeName,
@@ -479,23 +588,42 @@ export function getActiveRouteAuthStatus(
       const envVar = route.tokenEnvVar ?? config.tokenEnvVar;
       const tokenPresent =
         typeof process.env[envVar] === "string" && Boolean(process.env[envVar]?.trim());
+      const googleWorkspaceEmail = normalizeWorkspaceEmail(ctx.googleWorkspaceEmail);
       return {
         bindingSubject: resolved.bindingSubject,
         inherited: resolved.inherited,
         routeName: route.name,
         mode: route.mode,
-        available: modeAllowed && tokenPresent,
+        available: modeAllowed && tokenPresent && !googleWorkspaceEmail,
         details: {
           tokenEnvVar: envVar,
           tokenPresent,
           modeAllowed,
           impersonationConfigured: false,
+          transport: "gws_cli",
+          googleWorkspaceEmail,
+          ...(googleWorkspaceEmail
+            ? { error: "Agent Google Workspace identity requires a credentials_file GWS route." }
+            : {}),
         },
       };
     }
 
     const probe = probeCredentialFile(config, route.credentialsFile, route);
     const impersonation = getRouteImpersonationStatus(route);
+    let delegatedUser: string | undefined;
+    let delegatedIdentityError: string | undefined;
+    try {
+      delegatedUser = resolveDelegatedWorkspaceIdentity({
+        config,
+        ctx,
+        route,
+        bindingSubject: resolved.bindingSubject,
+        impersonation,
+      });
+    } catch (error) {
+      delegatedIdentityError = error instanceof Error ? error.message : String(error);
+    }
     const credentialSourceType =
       probe.allowed && probe.resolvedPath
         ? classifyCredentialSourceType(probe.resolvedPath)
@@ -511,7 +639,11 @@ export function getActiveRouteAuthStatus(
       routeName: route.name,
       mode: route.mode,
       available:
-        modeAllowed && probe.allowed && !impersonation.missing && serviceAccountPolicyCompliant,
+        modeAllowed &&
+        probe.allowed &&
+        !impersonation.missing &&
+        serviceAccountPolicyCompliant &&
+        !delegatedIdentityError,
       details: {
         ...(probe.resolvedPath ? { credentialsFile: path.basename(probe.resolvedPath) } : {}),
         configuredCredentialsFile: probe.configuredPath,
@@ -526,6 +658,9 @@ export function getActiveRouteAuthStatus(
         impersonatedUserEnvVar: impersonation.envVar,
         impersonatedUser: impersonation.value,
         impersonatedUserMissing: impersonation.missing,
+        googleWorkspaceEmail: delegatedUser ?? normalizeWorkspaceEmail(ctx.googleWorkspaceEmail),
+        transport: delegatedUser ? "google_api" : "gws_cli",
+        ...(delegatedIdentityError ? { error: delegatedIdentityError } : {}),
         serviceAccountPolicyEnforced,
         serviceAccountPolicyCompliant,
       },
@@ -554,6 +689,20 @@ export function resolveAuth(config: GwsToolkitConfig, ctx: InvocationContext): A
   }
 
   if (route.mode === "token") {
+    const googleWorkspaceEmail = normalizeWorkspaceEmail(ctx.googleWorkspaceEmail);
+    if (googleWorkspaceEmail) {
+      throw new PluginError(
+        "AUTH_ERROR",
+        "Agent Google Workspace identity requires a credentials_file GWS route.",
+        {
+          routeName: route.name,
+          bindingSubject: resolved.bindingSubject,
+          googleWorkspaceEmail,
+          mode: route.mode,
+          failureCategory: "WORKSPACE_IDENTITY",
+        },
+      );
+    }
     const envVar = route.tokenEnvVar ?? config.tokenEnvVar;
     const tokenValue = process.env[envVar];
     if (typeof tokenValue !== "string" || !tokenValue.trim()) {
@@ -568,13 +717,36 @@ export function resolveAuth(config: GwsToolkitConfig, ctx: InvocationContext): A
       args: [],
       route,
       bindingSubject: resolved.bindingSubject,
+      transport: "gws_cli",
     };
   }
 
   const filePath = ensureCredentialFileAllowed(config, route.credentialsFile, route);
   const impersonation = getRouteImpersonationStatus(route);
+  const delegatedUser = resolveDelegatedWorkspaceIdentity({
+    config,
+    ctx,
+    route,
+    bindingSubject: resolved.bindingSubject,
+    impersonation,
+  });
   const credentialSourceType = classifyCredentialSourceType(filePath);
   const serviceAccountPolicyEnforced = isServiceAccountPolicyEnforced();
+  if (delegatedUser && credentialSourceType !== "service_account_json") {
+    throw new PluginError(
+      "AUTH_ERROR",
+      "Agent Google Workspace identity requires service-account JSON with Domain-Wide Delegation.",
+      {
+        routeName: route.name,
+        bindingSubject: resolved.bindingSubject,
+        credentialSourceType,
+        failureCategory: "CREDENTIAL_POLICY",
+        googleWorkspaceEmail: delegatedUser,
+        serviceAccountPolicyEnforced,
+        serviceAccountPolicyCompliant: false,
+      },
+    );
+  }
   if (impersonation.configured && serviceAccountPolicyEnforced) {
     if (
       credentialSourceType === "authorized_user" ||
@@ -617,7 +789,7 @@ export function resolveAuth(config: GwsToolkitConfig, ctx: InvocationContext): A
   const env: Record<string, string> = {
     GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE: filePath,
   };
-  if (impersonation.configured) {
+  if (impersonation.configured && !delegatedUser) {
     if (!impersonation.value) {
       throw new PluginError(
         "AUTH_ERROR",
@@ -637,6 +809,7 @@ export function resolveAuth(config: GwsToolkitConfig, ctx: InvocationContext): A
     args: [],
     route,
     bindingSubject: resolved.bindingSubject,
-    impersonatedUser: impersonation.value,
+    impersonatedUser: delegatedUser,
+    transport: delegatedUser ? "google_api" : "gws_cli",
   };
 }

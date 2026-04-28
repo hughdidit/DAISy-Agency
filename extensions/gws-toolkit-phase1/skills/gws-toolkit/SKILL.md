@@ -1,7 +1,8 @@
 # GWS Toolkit Skill (Guidance Only)
 
-This skill helps operators and agents use `gws-toolkit-phase1` safely after the
-Phase 2 upgrade.
+This skill helps operators and agents use `gws-toolkit-phase1` safely. The
+tools are the enforcement layer; this skill is guidance for choosing the right
+tool and workflow.
 
 ## Scope
 
@@ -18,7 +19,8 @@ Phase 2 upgrade.
 
 ## Recommended Flow
 
-1. Run `gws_status` before reads or writes.
+1. Run `gws_status` before reads or writes and treat its route, delegated
+   identity, transport, and write-readiness fields as the source of truth.
 2. Prefer the narrowest tool and action needed.
 3. Treat route and policy denials as configuration issues, not retry candidates.
 4. Escalate auth or API enablement issues to operators.
@@ -26,3 +28,6 @@ Phase 2 upgrade.
 ## Important
 
 This skill is advisory only. Security enforcement is implemented in plugin code.
+For DAISy agent identities, GWS tools should report `transport: "google_api"`
+and the effective delegated Google Workspace user before higher-level workflows
+use Calendar, Gmail, Drive, Docs, or Sheets.

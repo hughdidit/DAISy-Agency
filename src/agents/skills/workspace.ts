@@ -506,6 +506,7 @@ export function buildWorkspaceSkillsPrompt(
 
 type WorkspaceSkillBuildOptions = {
   config?: OpenClawConfig;
+  agentId?: string;
   managedSkillsDir?: string;
   bundledSkillsDir?: string;
   entries?: SkillEntry[];
@@ -515,6 +516,64 @@ type WorkspaceSkillBuildOptions = {
   skillFilter?: string[];
   eligibility?: SkillEligibilityContext;
 };
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
+}
+
+function resolveAgentGoogleWorkspaceEmail(config: OpenClawConfig | undefined, agentId?: string) {
+  const id = agentId?.trim().toLowerCase();
+  if (!config || !id) {
+    return undefined;
+  }
+  return config.agents?.list
+    ?.find((entry) => entry.id?.trim().toLowerCase() === id)
+    ?.googleWorkspace?.email?.trim()
+    .toLowerCase();
+}
+
+function buildGwsRuntimeNote(params: {
+  config?: OpenClawConfig;
+  agentId?: string;
+  eligible: SkillEntry[];
+}): string {
+  if (!params.eligible.some((entry) => entry.skill.name === "gws-toolkit")) {
+    return "";
+  }
+  const email = resolveAgentGoogleWorkspaceEmail(params.config, params.agentId);
+  if (!email) {
+    return "";
+  }
+  const pluginConfig = asRecord(
+    params.config?.plugins?.entries?.["gws-toolkit-phase1"]?.config,
+  );
+  const bindings = asRecord(pluginConfig?.agentCredentialBindings);
+  const routeName =
+    typeof bindings?.[`agent:${params.agentId?.trim().toLowerCase()}`] === "string"
+      ? String(bindings[`agent:${params.agentId?.trim().toLowerCase()}`])
+      : undefined;
+  const routes = asRecord(pluginConfig?.credentialRoutes);
+  const route = routeName ? asRecord(routes?.[routeName]) : null;
+  const services = Array.isArray(route?.allowedServices)
+    ? route.allowedServices.filter((entry): entry is string => typeof entry === "string")
+    : [];
+  const writesEnabled =
+    pluginConfig?.allowWriteOperations === true &&
+    Array.isArray(pluginConfig.enabledWriteServices) &&
+    pluginConfig.enabledWriteServices.length > 0;
+  return [
+    "Google Workspace context:",
+    `- Active identity: ${email}`,
+    routeName ? `- GWS route: ${routeName}` : "- GWS route: not bound",
+    services.length > 0 ? `- Available services: ${services.join(", ")}` : "",
+    `- Writes: ${writesEnabled ? "route-gated" : "disabled"}`,
+    "- Use gws_status first; tools enforce policy and skills only guide workflows.",
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
 
 function resolveWorkspaceSkillPromptState(
   workspaceDir: string,
@@ -547,9 +606,15 @@ function resolveWorkspaceSkillPromptState(
   const truncationNote = truncated
     ? `⚠️ Skills truncated: included ${skillsForPrompt.length} of ${resolvedSkills.length}. Run \`openclaw skills check\` to audit.`
     : "";
+  const gwsRuntimeNote = buildGwsRuntimeNote({
+    config: opts?.config,
+    agentId: opts?.agentId,
+    eligible,
+  });
   const prompt = [
     remoteNote,
     truncationNote,
+    gwsRuntimeNote,
     formatSkillsForPrompt(compactSkillPaths(skillsForPrompt)),
   ]
     .filter(Boolean)

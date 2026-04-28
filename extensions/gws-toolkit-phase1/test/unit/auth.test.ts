@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { getAuthSourceStatus, resolveAuth } from "../../src/auth.js";
+import { getActiveRouteAuthStatus, getAuthSourceStatus, resolveAuth } from "../../src/auth.js";
 import { resolveConfig } from "../../src/config.js";
 import { PluginError } from "../../src/errors.js";
 import type { GwsToolkitConfig } from "../../src/types.js";
@@ -38,6 +38,7 @@ function baseConfig(overrides: Partial<GwsToolkitConfig> = {}): GwsToolkitConfig
     agentCredentialBindings: {
       "agent:main": "default",
     },
+    workspaceIdentityDomains: [],
     defaultScopesProfile: "minimal",
     requireHumanApprovalFor: [],
     warnings: [],
@@ -245,10 +246,18 @@ describe("auth resolution", () => {
     expect(resolved.value.config.credentialRoutes["legacy-default"]?.mode).toBe("token");
   });
 
-  it("propagates literal impersonated user for credentials_file routes", async () => {
+  it("uses agent Google Workspace identity for delegated credentials_file routes", async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "gws-auth-impersonate-"));
     const allowedFile = path.join(root, "cred.json");
-    await fs.writeFile(allowedFile, "{}", "utf8");
+    await fs.writeFile(
+      allowedFile,
+      JSON.stringify({
+        type: "service_account",
+        client_email: "svc@example.iam.gserviceaccount.com",
+        private_key: "-----BEGIN PRIVATE KEY-----\nabc\n-----END PRIVATE KEY-----\n",
+      }),
+      "utf8",
+    );
     if (process.platform !== "win32") {
       await fs.chmod(allowedFile, 0o600);
     }
@@ -267,15 +276,29 @@ describe("auth resolution", () => {
           },
         },
       }),
-      { agentId: "main", sessionKey: "agent:main:main" },
+      {
+        agentId: "main",
+        sessionKey: "agent:main:main",
+        googleWorkspaceEmail: "delegate@example.com",
+      },
     );
-    expect(resolved.env.GOOGLE_WORKSPACE_CLI_IMPERSONATED_USER).toBe("delegate@example.com");
+    expect(resolved.transport).toBe("google_api");
+    expect(resolved.impersonatedUser).toBe("delegate@example.com");
+    expect(resolved.env.GOOGLE_WORKSPACE_CLI_IMPERSONATED_USER).toBeUndefined();
   });
 
-  it("resolves env-var impersonated user and fails if missing", async () => {
+  it("requires route impersonation to match agent Google Workspace identity", async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "gws-auth-impersonate-env-"));
     const allowedFile = path.join(root, "cred.json");
-    await fs.writeFile(allowedFile, "{}", "utf8");
+    await fs.writeFile(
+      allowedFile,
+      JSON.stringify({
+        type: "service_account",
+        client_email: "svc@example.iam.gserviceaccount.com",
+        private_key: "-----BEGIN PRIVATE KEY-----\nabc\n-----END PRIVATE KEY-----\n",
+      }),
+      "utf8",
+    );
     if (process.platform !== "win32") {
       await fs.chmod(allowedFile, 0o600);
     }
@@ -298,6 +321,7 @@ describe("auth resolution", () => {
       resolveAuth(config, {
         agentId: "main",
         sessionKey: "agent:main:main",
+        googleWorkspaceEmail: "delegate2@example.com",
       }),
     ).toThrow(/no impersonated user value is available/i);
 
@@ -305,8 +329,94 @@ describe("auth resolution", () => {
     const resolved = resolveAuth(config, {
       agentId: "main",
       sessionKey: "agent:main:main",
+      googleWorkspaceEmail: "delegate2@example.com",
     });
-    expect(resolved.env.GOOGLE_WORKSPACE_CLI_IMPERSONATED_USER).toBe("delegate2@example.com");
+    expect(resolved.transport).toBe("google_api");
+    expect(resolved.impersonatedUser).toBe("delegate2@example.com");
+
+    process.env.ORG_DELEGATE_USER = "other@example.com";
+    expect(() =>
+      resolveAuth(config, {
+        agentId: "main",
+        sessionKey: "agent:main:main",
+        googleWorkspaceEmail: "delegate2@example.com",
+      }),
+    ).toThrow(/does not match/);
+  });
+
+  it("fails closed when an impersonated route has no agent Google Workspace identity", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "gws-auth-missing-identity-"));
+    const credentialsFile = path.join(root, "service-account.json");
+    await fs.writeFile(
+      credentialsFile,
+      JSON.stringify({
+        type: "service_account",
+        client_email: "svc@example.iam.gserviceaccount.com",
+        private_key: "-----BEGIN PRIVATE KEY-----\nabc\n-----END PRIVATE KEY-----\n",
+      }),
+      "utf8",
+    );
+    if (process.platform !== "win32") {
+      await fs.chmod(credentialsFile, 0o600);
+    }
+    expect(() =>
+      resolveAuth(
+        baseConfig({
+          allowedCredentialModes: ["credentials_file"],
+          approvedCredentialDirs: [root],
+          credentialRoutes: {
+            default: {
+              mode: "credentials_file",
+              allowedServices: ["drive"],
+              allowedTools: ["gws_drive_read"],
+              credentialsFile,
+              impersonatedUser: "delegate@example.com",
+            },
+          },
+        }),
+        { agentId: "main", sessionKey: "agent:main:main" },
+      ),
+    ).toThrow(/googleWorkspace.email/);
+  });
+
+  it("rejects delegated identities outside configured Workspace domains", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "gws-auth-domain-"));
+    const credentialsFile = path.join(root, "service-account.json");
+    await fs.writeFile(
+      credentialsFile,
+      JSON.stringify({
+        type: "service_account",
+        client_email: "svc@example.iam.gserviceaccount.com",
+        private_key: "-----BEGIN PRIVATE KEY-----\nabc\n-----END PRIVATE KEY-----\n",
+      }),
+      "utf8",
+    );
+    if (process.platform !== "win32") {
+      await fs.chmod(credentialsFile, 0o600);
+    }
+
+    expect(() =>
+      resolveAuth(
+        baseConfig({
+          allowedCredentialModes: ["credentials_file"],
+          approvedCredentialDirs: [root],
+          workspaceIdentityDomains: ["hughdidit.com"],
+          credentialRoutes: {
+            default: {
+              mode: "credentials_file",
+              allowedServices: ["calendar"],
+              allowedTools: ["gws_calendar_read"],
+              credentialsFile,
+            },
+          },
+        }),
+        {
+          agentId: "main",
+          sessionKey: "agent:main:main",
+          googleWorkspaceEmail: "person@example.com",
+        },
+      ),
+    ).toThrow(/domain is not allowed/);
   });
 
   it("rejects oauth credential route mode during config resolution", () => {
@@ -408,6 +518,7 @@ describe("auth resolution", () => {
       resolveAuth(config, {
         agentId: "main",
         sessionKey: "agent:main:main",
+        googleWorkspaceEmail: "delegate@example.com",
       });
       expect.unreachable(
         "resolveAuth should fail for authorized_user in enforced impersonated route",
@@ -418,10 +529,56 @@ describe("auth resolution", () => {
       expect(pluginError.code).toBe("AUTH_ERROR");
       expect(pluginError.details).toMatchObject({
         credentialSourceType: "authorized_user",
-        runtimeEnvironment: "staging",
         failureCategory: "CREDENTIAL_POLICY",
+        googleWorkspaceEmail: "delegate@example.com",
       });
     }
+  });
+
+  it("marks delegated active route unavailable when credentials are not service-account JSON", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "gws-auth-status-authorized-user-"));
+    const credentialsFile = path.join(root, "authorized-user.json");
+    await fs.writeFile(
+      credentialsFile,
+      JSON.stringify({
+        type: "authorized_user",
+        client_id: "client-id",
+        client_secret: "client-secret",
+        refresh_token: "refresh-token",
+      }),
+      "utf8",
+    );
+    if (process.platform !== "win32") {
+      await fs.chmod(credentialsFile, 0o600);
+    }
+
+    const status = getActiveRouteAuthStatus(
+      baseConfig({
+        allowedCredentialModes: ["credentials_file"],
+        approvedCredentialDirs: [root],
+        credentialRoutes: {
+          default: {
+            mode: "credentials_file",
+            allowedServices: ["drive"],
+            allowedTools: ["gws_drive_read"],
+            credentialsFile,
+          },
+        },
+      }),
+      {
+        agentId: "main",
+        sessionKey: "agent:main:main",
+        googleWorkspaceEmail: "delegate@example.com",
+      },
+    );
+
+    expect(status.available).toBe(false);
+    expect(status.details).toMatchObject({
+      credentialSourceType: "authorized_user",
+      googleWorkspaceEmail: "delegate@example.com",
+      serviceAccountPolicyCompliant: false,
+      transport: "google_api",
+    });
   });
 
   it("fails closed in enforced environments when impersonated route uses headless export credentials", async () => {
@@ -459,6 +616,7 @@ describe("auth resolution", () => {
       resolveAuth(config, {
         agentId: "main",
         sessionKey: "agent:main:main",
+        googleWorkspaceEmail: "delegate@example.com",
       });
       expect.unreachable(
         "resolveAuth should fail for headless export in enforced impersonated route",
@@ -469,8 +627,8 @@ describe("auth resolution", () => {
       expect(pluginError.code).toBe("AUTH_ERROR");
       expect(pluginError.details).toMatchObject({
         credentialSourceType: "headless_oauth_export",
-        runtimeEnvironment: "staging",
         failureCategory: "CREDENTIAL_POLICY",
+        googleWorkspaceEmail: "delegate@example.com",
       });
     }
   });

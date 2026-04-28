@@ -123,6 +123,7 @@ export async function resolveCronSkillsSnapshot(params: {
   if (!skillSnapshotWorkspaceDir) {
     return buildWorkspaceSkillSnapshot(params.workspaceDir, {
       config: params.config,
+      agentId: params.agentId,
       skillFilter,
       eligibility: { remote: getRemoteSkillEligibility() },
       snapshotVersion,
@@ -133,6 +134,7 @@ export async function resolveCronSkillsSnapshot(params: {
 
   return buildWorkspaceSkillSnapshot(skillSnapshotWorkspaceDir, {
     config: params.config,
+    agentId: params.agentId,
     skillFilter,
     eligibility: { remote: getRemoteSkillEligibility() },
     snapshotVersion,

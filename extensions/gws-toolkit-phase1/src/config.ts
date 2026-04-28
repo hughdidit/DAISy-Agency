@@ -30,6 +30,7 @@ const ALLOWED_CONFIG_KEYS = new Set([
   "allowUnboundAgents",
   "credentialRoutes",
   "agentCredentialBindings",
+  "workspaceIdentityDomains",
   "defaultCredentialRoute",
   "defaultScopesProfile",
   "customScopes",
@@ -367,6 +368,9 @@ export function resolveConfig(
           ? null
           : null,
     agentCredentialBindings: {},
+    workspaceIdentityDomains: normalizeStringArray(raw.workspaceIdentityDomains).map((domain) =>
+      domain.toLowerCase(),
+    ),
     defaultScopesProfile,
     customScopes: defaultScopesProfile === "custom" ? customScopes : undefined,
     requireHumanApprovalFor: normalizeStringArray(raw.requireHumanApprovalFor),

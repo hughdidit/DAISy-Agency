@@ -6,6 +6,7 @@ const agentsAddCommandMock = vi.fn();
 const agentsBindingsCommandMock = vi.fn();
 const agentsBindCommandMock = vi.fn();
 const agentsDeleteCommandMock = vi.fn();
+const agentsGoogleWorkspaceSetCommandMock = vi.fn();
 const agentsListCommandMock = vi.fn();
 const agentsSetIdentityCommandMock = vi.fn();
 const agentsUnbindCommandMock = vi.fn();
@@ -27,6 +28,7 @@ vi.mock("../../commands/agents.js", () => ({
   agentsBindingsCommand: agentsBindingsCommandMock,
   agentsBindCommand: agentsBindCommandMock,
   agentsDeleteCommand: agentsDeleteCommandMock,
+  agentsGoogleWorkspaceSetCommand: agentsGoogleWorkspaceSetCommandMock,
   agentsListCommand: agentsListCommandMock,
   agentsSetIdentityCommand: agentsSetIdentityCommandMock,
   agentsUnbindCommand: agentsUnbindCommandMock,
@@ -64,6 +66,7 @@ describe("registerAgentCommands", () => {
     agentsBindingsCommandMock.mockResolvedValue(undefined);
     agentsBindCommandMock.mockResolvedValue(undefined);
     agentsDeleteCommandMock.mockResolvedValue(undefined);
+    agentsGoogleWorkspaceSetCommandMock.mockResolvedValue(undefined);
     agentsListCommandMock.mockResolvedValue(undefined);
     agentsSetIdentityCommandMock.mockResolvedValue(undefined);
     agentsUnbindCommandMock.mockResolvedValue(undefined);
@@ -255,6 +258,33 @@ describe("registerAgentCommands", () => {
         theme: "ops",
         emoji: ":lobster:",
         avatar: "https://example.com/openclaw.png",
+        json: true,
+      },
+      runtime,
+    );
+  });
+
+  it("forwards agents google-workspace set options", async () => {
+    await runCli([
+      "agents",
+      "google-workspace",
+      "set",
+      "--agent",
+      "daisy",
+      "--email",
+      "daisy.ai@hughdidit.com",
+      "--gws-route",
+      "daisy-main",
+      "--subagent-gws-route",
+      "daisy-subagent",
+      "--json",
+    ]);
+    expect(agentsGoogleWorkspaceSetCommandMock).toHaveBeenCalledWith(
+      {
+        agent: "daisy",
+        email: "daisy.ai@hughdidit.com",
+        gwsRoute: "daisy-main",
+        subagentGwsRoute: "daisy-subagent",
         json: true,
       },
       runtime,

@@ -36,6 +36,10 @@ export type AgentConfig = {
   heartbeat?: AgentDefaultsConfig["heartbeat"];
   /** Optional delegate posture and hardening settings. */
   delegate?: DelegateConfig;
+  /** Real Google Workspace identity used by delegated Google API tools. */
+  googleWorkspace?: {
+    email?: string;
+  };
   identity?: IdentityConfig;
   groupChat?: GroupChatConfig;
   subagents?: {

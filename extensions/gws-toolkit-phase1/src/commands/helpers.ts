@@ -2,6 +2,7 @@ import type { AuditLogger } from "../audit.js";
 import { resolveAuth } from "../auth.js";
 import { discoverBinary } from "../binary.js";
 import type { GwsCommandSpec } from "../command-builder.js";
+import { executeDirectGoogleApi, type DirectGoogleResult } from "../direct-google.js";
 import { toStructuredError } from "../errors.js";
 import { executeCommand } from "../executor.js";
 import { normalizeExecution } from "../normalize.js";
@@ -22,6 +23,7 @@ export type RuntimeDeps = {
   config: GwsToolkitConfig;
   audit: AuditLogger;
   resolveRuntimeEnv?: () => Promise<Record<string, string> | undefined>;
+  directGoogleExecutor?: typeof executeDirectGoogleApi;
 };
 
 export function buildValidationDeniedEnvelope(params: {
@@ -130,6 +132,60 @@ export async function runToolkitCommand(params: {
       };
     }
 
+    if (auth.transport === "google_api") {
+      const directExecutor = params.deps.directGoogleExecutor ?? executeDirectGoogleApi;
+      const direct: DirectGoogleResult = await directExecutor({
+        config: params.deps.config,
+        auth,
+        service: params.service,
+        action: params.action,
+        payload: params.payload,
+        write: !params.readOnly,
+      });
+      const latencyMs = Date.now() - startedAt;
+      params.deps.audit.emit({
+        ctx: {
+          ...params.ctx,
+          bindingSubject: auth.bindingSubject,
+          routeName: auth.route.name,
+        },
+        toolName: params.tool,
+        action: params.action,
+        targetService: params.service,
+        readOnly: params.readOnly,
+        decision: "allow",
+        credentialMode: auth.mode,
+        routeName: auth.route.name,
+        bindingSubject: auth.bindingSubject,
+        latencyMs,
+        exitCode: 0,
+        resultCode: "OK",
+      });
+      return {
+        ok: true,
+        data: {
+          service: params.service,
+          action: params.action,
+          route: {
+            name: auth.route.name,
+            bindingSubject: auth.bindingSubject,
+            mode: auth.mode,
+            transport: auth.transport,
+            delegatedSubject: auth.impersonatedUser,
+          },
+          payload: direct.payload,
+          output: direct.output,
+        },
+        meta: {
+          tool: params.tool,
+          action: params.action,
+          service: params.service,
+          resultCode: "OK",
+          latencyMs,
+        },
+      };
+    }
+
     const runtimeEnv = params.deps.resolveRuntimeEnv
       ? await params.deps.resolveRuntimeEnv()
       : undefined;
@@ -187,6 +243,7 @@ export async function runToolkitCommand(params: {
           name: auth.route.name,
           bindingSubject: auth.bindingSubject,
           mode: auth.mode,
+          transport: auth.transport,
         },
         payload: normalized.payload as Record<string, unknown>,
         output: {

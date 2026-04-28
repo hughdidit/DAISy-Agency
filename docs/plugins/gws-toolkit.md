@@ -14,6 +14,8 @@ toolkit. The implementation now covers:
 - Phase 1 legacy-compatible read tools
 - Phase 2 route-aware writes for Drive, Gmail, Calendar, Docs, and Sheets
 - per-agent and per-sub-agent credential routing
+- first-class DAISy agent Google Workspace identities for delegated Google API
+  calls
 - deny-by-default write gates and structured audit events
 
 ## Architecture
@@ -22,8 +24,9 @@ toolkit. The implementation now covers:
 - typed tool registration through the native plugin system
 - centralized config, routing, auth, policy, command building, execution,
   normalization, and audit logging
-- argv-only subprocess execution to `gws`; no shell interpolation and no raw
-  passthrough tool
+- delegated Google API transport for agent Workspace identities; legacy routes
+  can still use argv-only subprocess execution to `gws`
+- no shell interpolation and no raw passthrough tool
 - plugin-owned runtime directories under the OpenClaw state directory for
   hardened read-only container roots
 
@@ -57,6 +60,10 @@ Write tools:
 - no parent-agent route inheritance for sub-agents
 - delegate agents should use `allowUnboundAgents: false` plus explicit
   bindings for both `agent:<id>` and `subagent:<id>`
+- real DAISy agent Workspace users are configured at
+  `agents.list[].googleWorkspace.email`
+- `credentialRoutes[].impersonatedUser` is compatibility-only and must match
+  the agent Workspace email when present
 - credential files must exist, be regular files, stay inside approved
   credential directories, and cannot be symlinks
 - legacy single-credential compatibility mode synthesizes a default route to
@@ -81,6 +88,11 @@ Each subject resolves to exactly one named route. A route declares:
 - optional allowed actions
 - credential source pointer
 - optional impersonation pointer (`impersonatedUser` or `impersonatedUserEnvVar`)
+- optional Workspace identity domain allowlist (`workspaceIdentityDomains`)
+
+For delegated DAISy agents, the Google API subject comes from
+`agents.list[].googleWorkspace.email`. The route still controls which
+credentials, services, tools, and actions are allowed.
 
 ## Auth Workflow Matrix
 
@@ -95,8 +107,10 @@ Repository posture for `gws-toolkit-phase1`:
 
 - `credentials_file`: first-class for Headless OAuth2 exported credentials
 - `credentials_file`: first-class for service-account JSON
-- route-level impersonation: supported via `impersonatedUser` or
-  `impersonatedUserEnvVar` on `credentials_file` routes
+- agent Workspace identity: supported via `agents.list[].googleWorkspace.email`
+  on explicitly bound `credentials_file` routes
+- route-level impersonation fields are accepted only as compatibility checks
+  against the agent Workspace email
 - `token`: supported for transient pre-obtained token break-glass routes
 - interactive OAuth2: upstream capability, not first-class in plugin runtime
 
@@ -108,8 +122,8 @@ those impersonated routes.
 ## Diagnostics Commands
 
 - `openclaw gws auth-posture`: route posture and auth-source diagnostics
-- `openclaw gws auth-health`: real `gws auth status` health under resolved route
-  environment
+- `openclaw gws auth-health`: route-bound health; delegated agent identities
+  use direct Google API smoke checks instead of `gws auth status`
 - add `--subject agent:<id>` or `--subject subagent:<id>` to run diagnostics for
   an explicit binding subject
 - `openclaw gws auth-status`: deprecated alias to `auth-health` for one release
@@ -133,6 +147,7 @@ Core Phase 2 fields:
 - `allowedCredentialModes`
 - `credentialRoutes`
 - `agentCredentialBindings`
+- `workspaceIdentityDomains`
 - `defaultCredentialRoute`
 - `allowUnboundAgents`
 - `credentialsFile` for Phase 1 compatibility

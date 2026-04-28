@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import path from "node:path";
 import { resolveUserTimezone } from "../../agents/date-time.js";
+import { resolveAgentIdFromSessionKey } from "../../agents/agent-scope.js";
 import {
   peekSkillSnapshotVisibleWorkspaceDir,
   peekSkillSnapshotWorkspaceDir,
@@ -164,6 +165,7 @@ export async function ensureSkillSnapshot(params: {
   let nextEntry = sessionEntry;
   let systemSent = sessionEntry?.systemSent ?? false;
   const remoteEligibility = getRemoteSkillEligibility();
+  const sessionAgentId = resolveAgentIdFromSessionKey(sessionKey);
   const expectedSkillSnapshotWorkspaceDir = peekSkillSnapshotWorkspaceDir({
     config: cfg,
     sessionKey,
@@ -213,6 +215,7 @@ export async function ensureSkillSnapshot(params: {
     builtSkillsSnapshot = skillSnapshotWorkspaceDir
       ? buildWorkspaceSkillSnapshot(skillSnapshotWorkspaceDir, {
           config: cfg,
+          agentId: sessionAgentId,
           skillFilter,
           eligibility: { remote: remoteEligibility },
           snapshotVersion,
@@ -220,6 +223,7 @@ export async function ensureSkillSnapshot(params: {
         })
       : buildWorkspaceSkillSnapshot(workspaceDir, {
           config: cfg,
+          agentId: sessionAgentId,
           skillFilter,
           eligibility: { remote: remoteEligibility },
           snapshotVersion,
