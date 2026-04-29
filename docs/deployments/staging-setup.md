@@ -172,13 +172,70 @@ For a brand-new staging VM, the real deploy requires the config file to exist at
    - `BRAVE_API_KEY` - Optional, for Brave search
    - `FIRECRAWL_API_KEY` - Optional, for firecrawl-enabled environments
    - `TRELLO_API_KEY` / `TRELLO_TOKEN` - Optional, for Trello integration
-   - `GWS_CREDENTIALS` - Optional, for `gws-toolkit-phase1` `credentials_file` mode (service-account JSON recommended; headless OAuth2 export is not valid for impersonated enforced routes)
+   - `GWS_CREDENTIALS` - Optional, for `gws-toolkit-phase1` `credentials_file` mode (service-account JSON required for delegated agent Workspace identities)
    - `GOOGLE_WORKSPACE_CLI_TOKEN` - Optional, only if staging switches to token mode
    - `GRAFANA_ADMIN_PASSWORD` - Required when monitoring `.env.monitoring` should be regenerated
    - `DISCORD_ALERTS_WEBHOOK_URL` - Sensitive Discord webhook for Alertmanager; store as a secret, not a variable
    - `ALERT_SMTP_USERNAME` / `ALERT_SMTP_PASSWORD` - Optional SMTP auth for email alerts
 
    Staging currently runs `gws-toolkit-phase1` in `credentials_file` mode, so `GWS_CREDENTIALS` is the active path and `GOOGLE_WORKSPACE_CLI_TOKEN` is expected to stay empty unless the config changes. For DAISy agent identities, configure `agents.list[].googleWorkspace.email` with the real Workspace user and bind the agent to a `credentials_file` GWS route; the toolkit uses direct Google API calls with service-account domain-wide delegation instead of relying on `gws` CLI impersonation. Verify checks both file presence and route-bound auth health inside the live gateway container. For delegated routes in enforced environments, credentials must be service-account JSON; exported user OAuth credentials are rejected. Delegated sandbox containers do not receive `/opt/DAISy/config`; they only receive explicit capability projections, so GWS availability in sandboxed delegated runs depends on the route-authorized credential file being derived into the sandbox at container creation time. The sandbox capability-mount resolver is the delegated secret-delivery surface, and GWS is currently the only capability wired through it.
+
+   Minimal staging GWS config fragment:
+
+   ```json5
+   {
+     agents: {
+       list: [
+         {
+           id: "daisy",
+           googleWorkspace: { email: "daisy.ai@hughdidit.com" },
+         },
+         {
+           id: "finn",
+           googleWorkspace: { email: "finn.ai@hughdidit.com" },
+         },
+       ],
+     },
+     plugins: {
+       entries: {
+         "gws-toolkit-phase1": {
+           enabled: true,
+           config: {
+             workspaceIdentityDomains: ["hughdidit.com"],
+             allowUnboundAgents: false,
+             approvedCredentialDirs: ["/opt/DAISy/config/secrets/gws"],
+             credentialRoutes: {
+               "hughdidit-agent-gws": {
+                 mode: "credentials_file",
+                 credentialsFile: "/opt/DAISy/config/secrets/gws/domain-wide-delegation.json",
+                 allowedServices: ["calendar", "gmail", "drive", "docs", "sheets"],
+                 allowedTools: [
+                   "gws_status",
+                   "gws_calendar_read",
+                   "gws_gmail_read",
+                   "gws_drive_read",
+                   "gws_docs_read",
+                   "gws_sheets_read",
+                 ],
+               },
+             },
+             agentCredentialBindings: {
+               "agent:daisy": "hughdidit-agent-gws",
+               "subagent:daisy": "hughdidit-agent-gws",
+               "agent:finn": "hughdidit-agent-gws",
+               "subagent:finn": "hughdidit-agent-gws",
+             },
+           },
+         },
+       },
+     },
+   }
+   ```
+
+   Omit `impersonatedUser` on shared delegated routes. If a compatibility route
+   includes `impersonatedUser`, it must match the active agent's
+   `googleWorkspace.email`; otherwise `gws_status`, `auth-health`, and tool
+   calls fail closed before any Google API call.
 
    After any GWS route, approved-directory, or credential-file change, recreate the affected sandbox containers before validating delegated runs. The projection is computed at sandbox container creation, so existing hot sandboxes keep their previous bind set until they are explicitly recreated.
 
@@ -242,7 +299,10 @@ sudo chown "$(whoami):$(whoami)" /opt/DAISy
 - [ ] API keys - Use staging keys or shared keys with tracking
 - [ ] `FIRECRAWL_API_KEY` - Optional; set only for firecrawl-enabled environments
 - [ ] `TRELLO_API_KEY` / `TRELLO_TOKEN` - Optional; set when Trello integration is enabled
-- [ ] `GWS_CREDENTIALS` - Required for the current staging `gws-toolkit-phase1` `credentials_file` path (service-account JSON for impersonated routes); must pass route-bound `openclaw gws auth-health` after deploy
+- [ ] `GWS_CREDENTIALS` - Required for the current staging `gws-toolkit-phase1` `credentials_file` path (service-account JSON with Domain-Wide Delegation for delegated agent Workspace identities); must pass route-bound `openclaw gws auth-health` after deploy
+- [ ] `workspaceIdentityDomains` - Includes only approved Workspace domains, for example `hughdidit.com`
+- [ ] Agent Workspace identities - Each GWS-capable agent has `agents.list[].googleWorkspace.email`
+- [ ] GWS route bindings - Each GWS-capable `agent:<id>` and `subagent:<id>` has an explicit `agentCredentialBindings` entry
 - [ ] `GOOGLE_WORKSPACE_CLI_TOKEN` - Optional; leave unset unless staging explicitly switches to token mode
 - [ ] `GWS Auth Smoke` workflow passing (daily scheduled or manual dispatch) for `agent:main` plus one delegated subject
 - [ ] `GRAFANA_ADMIN_PASSWORD` - Required if monitoring `.env.monitoring` should be regenerated on deploy

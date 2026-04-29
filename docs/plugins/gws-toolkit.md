@@ -94,6 +94,122 @@ For delegated DAISy agents, the Google API subject comes from
 `agents.list[].googleWorkspace.email`. The route still controls which
 credentials, services, tools, and actions are allowed.
 
+## Human Setup For Agent Workspace Identities
+
+Use this flow when an agent such as `daisy` or `finn` should act as a real
+Google Workspace user such as `daisy.ai@hughdidit.com`.
+
+1. In Google Workspace Admin, authorize the service account for Domain-Wide
+   Delegation with only the scopes required by the enabled services.
+2. Store the service-account JSON as `GWS_CREDENTIALS` for deploy-managed
+   environments, or place it inside an approved credential directory for manual
+   environments.
+3. Configure `workspaceIdentityDomains` so only expected Workspace domains are
+   accepted.
+4. Create named `credentials_file` routes that point at the service-account JSON
+   and declare the allowed GWS services, tools, and actions.
+5. Set each agent's Workspace identity and explicit route binding with
+   `openclaw agents google-workspace set`.
+6. Validate with route-bound `openclaw gws auth-health --subject agent:<id>`
+   and `gws_status` before using higher-level workflows.
+
+Recommended reusable-route shape:
+
+```json5
+{
+  agents: {
+    list: [
+      {
+        id: "daisy",
+        googleWorkspace: { email: "daisy.ai@hughdidit.com" },
+      },
+      {
+        id: "finn",
+        googleWorkspace: { email: "finn.ai@hughdidit.com" },
+      },
+    ],
+  },
+  plugins: {
+    entries: {
+      "gws-toolkit-phase1": {
+        enabled: true,
+        config: {
+          workspaceIdentityDomains: ["hughdidit.com"],
+          allowUnboundAgents: false,
+          allowWriteOperations: true,
+          enabledServices: ["calendar", "gmail", "drive", "docs", "sheets"],
+          enabledWriteServices: ["calendar", "gmail", "drive", "docs", "sheets"],
+          approvedCredentialDirs: ["./config/secrets/gws"],
+          credentialRoutes: {
+            "hughdidit-agent-gws": {
+              mode: "credentials_file",
+              label: "HughDidIt agent DWD service account",
+              credentialsFile: "./config/secrets/gws/domain-wide-delegation.json",
+              allowedServices: ["calendar", "gmail", "drive", "docs", "sheets"],
+              allowedTools: [
+                "gws_status",
+                "gws_calendar_read",
+                "gws_calendar_write",
+                "gws_gmail_read",
+                "gws_gmail_write",
+                "gws_drive_read",
+                "gws_drive_write",
+                "gws_docs_read",
+                "gws_docs_write",
+                "gws_sheets_read",
+                "gws_sheets_write",
+              ],
+              allowedActions: [
+                "calendar:list_events",
+                "calendar:create_event",
+                "gmail:list_messages",
+                "gmail:draft_message",
+                "drive:list_files",
+                "drive:upload_file",
+                "docs:get_document",
+                "docs:append_text",
+                "sheets:get_values",
+                "sheets:update_values",
+              ],
+            },
+          },
+          agentCredentialBindings: {
+            "agent:daisy": "hughdidit-agent-gws",
+            "subagent:daisy": "hughdidit-agent-gws",
+            "agent:finn": "hughdidit-agent-gws",
+            "subagent:finn": "hughdidit-agent-gws",
+          },
+        },
+      },
+    },
+  },
+}
+```
+
+The reusable route intentionally omits `impersonatedUser`; each tool call uses
+the active agent's `googleWorkspace.email` as the delegated JWT subject. If a
+route does include `impersonatedUser` or `impersonatedUserEnvVar`, it is only a
+compatibility/projection check and must resolve to the same email as the active
+agent, so per-user routes are required.
+
+CLI helper:
+
+```bash
+openclaw agents google-workspace set \
+  --agent daisy \
+  --email daisy.ai@hughdidit.com \
+  --gws-route hughdidit-agent-gws
+
+openclaw agents google-workspace set \
+  --agent finn \
+  --email finn.ai@hughdidit.com \
+  --gws-route hughdidit-agent-gws
+```
+
+The helper writes agent metadata and explicit `agent:<id>` /
+`subagent:<id>` bindings together. It does not create routes, broaden route
+policy, or weaken the domain allowlist.
+
 ## Auth Workflow Matrix
 
 Upstream `gws` workflows:
@@ -114,10 +230,10 @@ Repository posture for `gws-toolkit-phase1`:
 - `token`: supported for transient pre-obtained token break-glass routes
 - interactive OAuth2: upstream capability, not first-class in plugin runtime
 
-In enforced runtime environments (`staging`, `production`), impersonated
+In enforced runtime environments (`staging`, `production`), delegated agent
 `credentials_file` routes must resolve to service-account JSON. User OAuth
 export credentials (`authorized_user` / headless exports) are rejected for
-those impersonated routes.
+routes that resolve an agent Workspace identity.
 
 ## Diagnostics Commands
 

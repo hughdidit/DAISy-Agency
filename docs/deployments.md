@@ -114,9 +114,9 @@ These secrets are passed to docker compose on the target VM.
 - `TRELLO_API_KEY` - Trello API key for Trello integration features
 - `TRELLO_TOKEN` - Trello token for Trello integration features
 - `GOOGLE_WORKSPACE_CLI_TOKEN` - optional bearer token for `gws-toolkit-phase1` token mode
-- `GWS_CREDENTIALS` - optional Google Workspace credentials JSON for `gws-toolkit-phase1` `credentials_file` mode (service-account JSON recommended; headless export is not valid for impersonated staging/production routes)
+- `GWS_CREDENTIALS` - optional Google Workspace credentials JSON for `gws-toolkit-phase1` `credentials_file` mode (service-account JSON required for delegated agent Workspace identities in staging/production)
 
-Trello secrets are optional and only needed when Trello integration is enabled. Staging currently uses `gws-toolkit-phase1` in `credentials_file` mode, so `GWS_CREDENTIALS` is the active path and `GOOGLE_WORKSPACE_CLI_TOKEN` can remain unset. Route-level service-account impersonation is configured through plugin route fields (`impersonatedUser` or `impersonatedUserEnvVar`), not through token mode. In enforced runtime environments (`staging`, `production`), impersonated routes reject `authorized_user`/headless-export credential files and require service-account JSON.
+Trello secrets are optional and only needed when Trello integration is enabled. Staging currently uses `gws-toolkit-phase1` in `credentials_file` mode, so `GWS_CREDENTIALS` is the active path and `GOOGLE_WORKSPACE_CLI_TOKEN` can remain unset. DAISy agent Workspace users are configured in `agents.list[].googleWorkspace.email`; route-level `impersonatedUser` is only a compatibility/projection check and must match that agent email when present. In enforced runtime environments (`staging`, `production`), delegated agent routes reject `authorized_user`/headless-export credential files and require service-account JSON with Google Workspace Domain-Wide Delegation.
 
 ### Monitoring Secrets
 
@@ -214,7 +214,7 @@ The `deploy-staging-on-release` workflow reads a repo variable named `STAGING_DE
 
 ### Verify
 
-Runs post-deploy smoke checks against the target VM. On the GCE Docker path it verifies the gateway container is running, becomes healthy, matches the requested image ref when provided, and that the manifest-defined runtime binaries are present in the live gateway container. When sandboxing is enabled in the deployed config, Verify also smoke-tests the same manifest-defined binaries in the configured sandbox image before continuing and fails if that image does not expose the `gws` CLI on `PATH`. It also checks that the bundled mongodb-mcp-server CLI starts inside the live container without the known Node 22 translator crash signatures. For staging, Verify also checks the active `gws-toolkit-phase1` credentials-file path on the VM and runs route-bound `gws auth status` inside the live gateway container (including impersonation env projection when configured), failing if the deployed credential reports an invalid token or any `token_error`. It also requires `monitoring-alertmanager-1` to be healthy when `.env.monitoring` is present. When `agents.defaults.sandbox.browser.enabled=true`, Verify also fails if the resolved sandbox browser image is missing on the VM. Prefer running Verify after staging deploy and after production promote.
+Runs post-deploy smoke checks against the target VM. On the GCE Docker path it verifies the gateway container is running, becomes healthy, matches the requested image ref when provided, and that the manifest-defined runtime binaries are present in the live gateway container. When sandboxing is enabled in the deployed config, Verify also smoke-tests the same manifest-defined binaries in the configured sandbox image before continuing and fails if that image does not expose required runtime binaries. It also checks that the bundled mongodb-mcp-server CLI starts inside the live container without the known Node 22 translator crash signatures. For staging, Verify checks the active `gws-toolkit-phase1` credentials-file path on the VM and runs route-bound `openclaw gws auth-health` inside the live gateway container. Delegated agent identity routes use direct Google API smoke checks with the configured service-account JSON and the agent's `googleWorkspace.email` as the delegated subject; they do not rely on `gws auth status` or CLI impersonation. It also requires `monitoring-alertmanager-1` to be healthy when `.env.monitoring` is present. When `agents.defaults.sandbox.browser.enabled=true`, Verify also fails if the resolved sandbox browser image is missing on the VM. Prefer running Verify after staging deploy and after production promote.
 
 Verify now also enforces route-bound `openclaw gws auth-health` policy gates for `agent:main` plus one delegated binding subject, and fails if either route drifts away from `service_account_json` credentials or reports unhealthy token status.
 
@@ -231,6 +231,8 @@ and cron-oriented execution under `sandbox.mode="all"`.
 - credential source drift away from service-account JSON
 - `token_valid=false`
 - non-empty `token_error`
+- missing delegated Workspace identity for a delegated agent route
+- `impersonatedUser` mismatch with `agents.list[].googleWorkspace.email`
 
 ---
 
