@@ -48,6 +48,7 @@ export type InvocationContext = {
   sessionId?: string;
   sessionKey?: string;
   messageChannel?: string;
+  workspaceDir?: string;
   bindingSubject?: string;
   routeName?: string;
   googleWorkspaceEmail?: string;

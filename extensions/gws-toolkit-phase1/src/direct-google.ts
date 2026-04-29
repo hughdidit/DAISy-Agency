@@ -7,6 +7,7 @@ import {
   WRITE_SCOPES,
   type AuthResolution,
   type GwsToolkitConfig,
+  type InvocationContext,
   type ServiceFamily,
 } from "./types.js";
 
@@ -42,6 +43,88 @@ function encodeSegment(value: string): string {
 
 function compactParams(input: Record<string, unknown>): Record<string, unknown> {
   return Object.fromEntries(Object.entries(input).filter(([, value]) => value !== undefined));
+}
+
+function isPathInside(parent: string, child: string): boolean {
+  const normalize = (value: string) => {
+    const stripped = path.resolve(value).replace(/[\\/]+$/, "");
+    return process.platform === "win32" ? stripped.toLowerCase() : stripped;
+  };
+  const normalizedParent = normalize(parent);
+  const normalizedChild = normalize(child);
+  return (
+    normalizedChild === normalizedParent ||
+    normalizedChild.startsWith(`${normalizedParent}${path.sep}`)
+  );
+}
+
+function resolveWorkspaceUploadFile(params: { filePath: unknown; workspaceDir?: string }): {
+  filePath: string;
+  fileBytes: Buffer;
+} {
+  const rawFilePath = typeof params.filePath === "string" ? params.filePath.trim() : "";
+  const rawWorkspaceDir = params.workspaceDir?.trim();
+  if (!rawFilePath || !rawWorkspaceDir) {
+    throw new PluginError(
+      "VALIDATION_ERROR",
+      "Direct Drive upload requires filePath inside the active agent workspace.",
+    );
+  }
+
+  let workspaceRoot: string;
+  try {
+    workspaceRoot = fs.realpathSync(path.resolve(rawWorkspaceDir));
+  } catch {
+    throw new PluginError("VALIDATION_ERROR", "Active agent workspace could not be resolved.");
+  }
+
+  const candidate = path.isAbsolute(rawFilePath)
+    ? path.resolve(rawFilePath)
+    : path.resolve(workspaceRoot, rawFilePath);
+  if (!isPathInside(workspaceRoot, candidate)) {
+    throw new PluginError(
+      "VALIDATION_ERROR",
+      "Direct Drive upload filePath must remain inside the active agent workspace.",
+      { workspaceDir: workspaceRoot },
+    );
+  }
+
+  let fd: number | undefined;
+  try {
+    fd = fs.openSync(candidate, "r");
+    const stat = fs.fstatSync(fd);
+    if (!stat.isFile()) {
+      throw new PluginError("VALIDATION_ERROR", "Direct Drive upload filePath must be a file.");
+    }
+    const resolvedFilePath = fs.realpathSync(candidate);
+    if (!isPathInside(workspaceRoot, resolvedFilePath)) {
+      throw new PluginError(
+        "VALIDATION_ERROR",
+        "Direct Drive upload filePath cannot resolve outside the active agent workspace.",
+        { workspaceDir: workspaceRoot },
+      );
+    }
+    return { filePath: resolvedFilePath, fileBytes: fs.readFileSync(fd) };
+  } catch (error) {
+    if (error instanceof PluginError) {
+      throw error;
+    }
+    throw new PluginError("VALIDATION_ERROR", "Direct Drive upload filePath could not be read.", {
+      cause: error instanceof Error ? error.message : String(error),
+    });
+  } finally {
+    if (fd !== undefined) {
+      fs.closeSync(fd);
+    }
+  }
+}
+
+function sanitizeHeaderValue(value: string): string {
+  return value.replace(/[\r\n]/g, "").trim();
+}
+
+function commaList(value: unknown): unknown {
+  return Array.isArray(value) ? value.map(String).join(",") : value;
 }
 
 function readServiceAccountJson(credentialsFile: string): ServiceAccountJson {
@@ -119,17 +202,18 @@ function buildRawEmail(payload: Record<string, unknown>): string {
     Array.isArray(value)
       ? value
           .map(String)
-          .map((entry) => entry.trim())
+          .map((entry) => sanitizeHeaderValue(entry))
           .filter(Boolean)
       : typeof value === "string" && value.trim()
-        ? [value.trim()]
+        ? [sanitizeHeaderValue(value)]
         : [];
+  const replyTo = values(payload.replyTo);
   const headers = [
     `To: ${values(payload.to).join(", ")}`,
     ...(values(payload.cc).length ? [`Cc: ${values(payload.cc).join(", ")}`] : []),
     ...(values(payload.bcc).length ? [`Bcc: ${values(payload.bcc).join(", ")}`] : []),
-    ...(typeof payload.replyTo === "string" ? [`Reply-To: ${payload.replyTo}`] : []),
-    `Subject: ${typeof payload.subject === "string" ? payload.subject : ""}`,
+    ...(replyTo.length ? [`Reply-To: ${replyTo.join(", ")}`] : []),
+    `Subject: ${typeof payload.subject === "string" ? sanitizeHeaderValue(payload.subject) : ""}`,
     "MIME-Version: 1.0",
   ];
   const html = typeof payload.bodyHtml === "string" ? payload.bodyHtml : undefined;
@@ -148,6 +232,7 @@ export function buildDirectGoogleRequest(params: {
   service: ServiceFamily;
   action: string;
   payload: Record<string, unknown>;
+  ctx?: InvocationContext;
 }): DirectGoogleRequest {
   const p = params.payload;
   switch (params.service) {
@@ -185,21 +270,23 @@ export function buildDirectGoogleRequest(params: {
         };
       }
       if (params.action === "upload_file") {
-        const filePath = String(p.filePath);
+        const upload = resolveWorkspaceUploadFile({
+          filePath: p.filePath,
+          workspaceDir: params.ctx?.workspaceDir,
+        });
         const metadata = compactParams({
-          name: p.name ?? path.basename(filePath),
+          name: p.name ?? path.basename(upload.filePath),
           parents: p.parentId ? [p.parentId] : undefined,
         });
         const mimeType = typeof p.mimeType === "string" ? p.mimeType : "application/octet-stream";
         const boundary = `daisy-${Date.now().toString(36)}`;
-        const fileBytes = fs.readFileSync(filePath);
         const body = Buffer.concat([
           Buffer.from(
             `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n`,
             "utf8",
           ),
           Buffer.from(`--${boundary}\r\nContent-Type: ${mimeType}\r\n\r\n`, "utf8"),
-          fileBytes,
+          upload.fileBytes,
           Buffer.from(`\r\n--${boundary}--\r\n`, "utf8"),
         ]);
         return {
@@ -214,7 +301,10 @@ export function buildDirectGoogleRequest(params: {
         return {
           method: "PATCH",
           url: `https://www.googleapis.com/drive/v3/files/${encodeSegment(String(p.fileId))}`,
-          params: compactParams({ addParents: p.addParents, removeParents: p.removeParents }),
+          params: compactParams({
+            addParents: commaList(p.addParents),
+            removeParents: commaList(p.removeParents),
+          }),
           data: compactParams({ name: p.name, description: p.description }),
         };
       }
@@ -387,6 +477,7 @@ function mapGoogleError(error: unknown, auth: AuthResolution): PluginError {
 export async function executeDirectGoogleApi(params: {
   config: GwsToolkitConfig;
   auth: AuthResolution;
+  ctx?: InvocationContext;
   service: ServiceFamily;
   action: string;
   payload: Record<string, unknown>;
@@ -412,6 +503,7 @@ export async function executeDirectGoogleApi(params: {
     service: params.service,
     action: params.action,
     payload: params.payload,
+    ctx: params.ctx,
   });
   try {
     const response = await client.request({
@@ -488,18 +580,22 @@ export async function executeDirectAuthHealth(params: {
               url: "https://www.googleapis.com/drive/v3/about",
               params: { fields: "user" },
             }
-          : null;
+          : service === "docs"
+            ? {
+                method: "GET" as const,
+                url: "https://docs.googleapis.com/v1/documents/daisy_auth_health_probe",
+                acceptNotFoundAsValid: true,
+              }
+            : {
+                method: "GET" as const,
+                url: "https://sheets.googleapis.com/v4/spreadsheets/daisy_auth_health_probe",
+                acceptNotFoundAsValid: true,
+              };
   try {
-    if (!request) {
-      const tokens = await client.authorize();
-      return {
-        service,
-        tokenValid: Boolean(tokens.access_token),
-        tokenError: null,
-      };
-    }
     const response = await client.request({
-      ...request,
+      method: request.method,
+      url: request.url,
+      params: "params" in request ? request.params : undefined,
       timeout: params.config.timeoutMs,
     });
     return {
@@ -509,6 +605,18 @@ export async function executeDirectAuthHealth(params: {
       payload: response.data,
     };
   } catch (error) {
+    const status =
+      typeof (error as { response?: { status?: unknown } }).response?.status === "number"
+        ? (error as { response: { status: number } }).response.status
+        : undefined;
+    if ("acceptNotFoundAsValid" in request && request.acceptNotFoundAsValid && status === 404) {
+      return {
+        service,
+        tokenValid: true,
+        tokenError: null,
+        payload: { status, notFoundAcceptedAsDelegatedSmoke: true },
+      };
+    }
     throw mapGoogleError(error, params.auth);
   }
 }

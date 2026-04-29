@@ -106,6 +106,7 @@ function createToolContext(ctx: OpenClawPluginToolContext): InvocationContext {
     sessionId: ctx.sessionId,
     sessionKey: ctx.sessionKey,
     messageChannel: ctx.messageChannel,
+    workspaceDir: ctx.workspaceDir,
     googleWorkspaceEmail: resolveGoogleWorkspaceEmail(ctx.config, ctx.agentId),
   };
 }

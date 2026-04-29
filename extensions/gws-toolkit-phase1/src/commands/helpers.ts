@@ -137,6 +137,7 @@ export async function runToolkitCommand(params: {
       const direct: DirectGoogleResult = await directExecutor({
         config: params.deps.config,
         auth,
+        ctx: params.ctx,
         service: params.service,
         action: params.action,
         payload: params.payload,
