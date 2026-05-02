@@ -21,6 +21,7 @@ const config: GwsToolkitConfig = {
   defaultCredentialRoute: null,
   credentialRoutes: {},
   agentCredentialBindings: {},
+  workspaceIdentityDomains: [],
   defaultScopesProfile: "minimal",
   requireHumanApprovalFor: [],
   warnings: [],

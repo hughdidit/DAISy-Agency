@@ -93,6 +93,51 @@ describe("buildWorkspaceSkillSnapshot", () => {
     ]);
   });
 
+  it("adds identity-aware GWS context when the GWS skill is available", async () => {
+    const workspaceDir = await fixtureSuite.createCaseDir("workspace-gws-context");
+    await writeSkill({
+      dir: path.join(workspaceDir, "skills", "gws-toolkit"),
+      name: "gws-toolkit",
+      description: "Use Google Workspace tools.",
+    });
+
+    const snapshot = withWorkspaceHome(workspaceDir, () =>
+      buildWorkspaceSkillSnapshot(workspaceDir, {
+        agentId: "daisy",
+        managedSkillsDir: path.join(workspaceDir, ".managed"),
+        bundledSkillsDir: path.join(workspaceDir, ".bundled"),
+        config: {
+          agents: {
+            list: [{ id: "daisy", googleWorkspace: { email: "daisy.ai@hughdidit.com" } }],
+          },
+          plugins: {
+            entries: {
+              "gws-toolkit-phase1": {
+                enabled: true,
+                config: {
+                  allowWriteOperations: false,
+                  credentialRoutes: {
+                    "daisy-main": {
+                      allowedServices: ["calendar", "gmail"],
+                    },
+                  },
+                  agentCredentialBindings: {
+                    "agent:daisy": "daisy-main",
+                  },
+                },
+              },
+            },
+          },
+        },
+      }),
+    );
+
+    expect(snapshot.prompt).toContain("Active identity: daisy.ai@hughdidit.com");
+    expect(snapshot.prompt).toContain("GWS route: daisy-main");
+    expect(snapshot.prompt).toContain("Available services: calendar, gmail");
+    expect(snapshot.prompt).not.toContain("service-account");
+  });
+
   it("keeps prompt output aligned with buildWorkspaceSkillsPrompt", async () => {
     const workspaceDir = await fixtureSuite.createCaseDir("workspace");
     await writeSkill({

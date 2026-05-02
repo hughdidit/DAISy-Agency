@@ -50,6 +50,9 @@ function formatSummary(summary: AgentSummary) {
   if (summary.model) {
     lines.push(`  Model: ${summary.model}`);
   }
+  if (summary.googleWorkspaceEmail) {
+    lines.push(`  Google Workspace: ${summary.googleWorkspaceEmail}`);
+  }
   lines.push(`  Routing rules: ${summary.bindings}`);
 
   if (summary.routes?.length) {

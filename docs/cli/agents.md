@@ -23,6 +23,7 @@ openclaw agents add ops --workspace ~/.openclaw/workspace-ops --preset delegate 
 openclaw agents bindings
 openclaw agents bind --agent work --bind telegram:ops
 openclaw agents bind --agent ops --gws-route ops-main
+openclaw agents google-workspace set --agent ops --email ops.ai@example.com --gws-route ops-main
 openclaw agents unbind --agent work --bind telegram:ops
 openclaw agents set-identity --workspace ~/.openclaw/workspace --from-identity
 openclaw agents set-identity --agent main --avatar avatars/openclaw.png
@@ -57,6 +58,42 @@ If you omit `accountId` (`--bind <channel>`), OpenClaw resolves it from channel 
 - `subagent:<agentId>`
 
 Use `--subagent-gws-route` only when the subagent route must differ from the top-level agent route.
+
+## Google Workspace identity
+
+Use `google-workspace set` when an agent should execute Google API calls as a
+real Workspace user through the GWS Toolkit service-account delegated transport:
+
+```bash
+openclaw agents google-workspace set \
+  --agent daisy \
+  --email daisy.ai@hughdidit.com \
+  --gws-route hughdidit-agent-gws
+```
+
+The command writes two pieces of config together:
+
+- `agents.list[].googleWorkspace.email`
+- explicit `agent:<id>` and `subagent:<id>` GWS route bindings
+
+Use `--subagent-gws-route` only when subagents need a different route policy:
+
+```bash
+openclaw agents google-workspace set \
+  --agent daisy \
+  --email daisy.ai@hughdidit.com \
+  --gws-route daisy-main-gws \
+  --subagent-gws-route daisy-subagent-gws
+```
+
+The GWS route must already exist in `plugins.entries["gws-toolkit-phase1"].config.credentialRoutes`.
+This helper does not create routes or broaden policy. If the GWS plugin
+configures `workspaceIdentityDomains`, the email domain must be present in that
+allowlist.
+
+For DAISy delegated routes, `agents.list[].googleWorkspace.email` is the Google
+JWT delegated subject. Route-level `impersonatedUser` is only a compatibility
+check; when present it must match the agent email.
 
 ### Binding scope behavior
 

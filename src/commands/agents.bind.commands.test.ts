@@ -34,7 +34,12 @@ vi.mock("../channels/plugins/index.js", async (importOriginal) => {
   };
 });
 
-import { agentsBindCommand, agentsBindingsCommand, agentsUnbindCommand } from "./agents.js";
+import {
+  agentsBindCommand,
+  agentsBindingsCommand,
+  agentsGoogleWorkspaceSetCommand,
+  agentsUnbindCommand,
+} from "./agents.js";
 
 const runtime = createTestRuntime();
 
@@ -128,6 +133,110 @@ describe("agents bind/unbind commands", () => {
     );
     expect(runtime.log).toHaveBeenCalledWith("Added GWS bindings:");
     expect(runtime.exit).not.toHaveBeenCalled();
+  });
+
+  it("sets Google Workspace identity and GWS bindings together", async () => {
+    readConfigFileSnapshotMock.mockResolvedValue({
+      ...baseConfigSnapshot,
+      config: {
+        agents: { list: [{ id: "daisy", workspace: "/tmp/daisy" }] },
+        plugins: {
+          entries: {
+            "gws-toolkit-phase1": {
+              enabled: true,
+              config: {
+                workspaceIdentityDomains: ["hughdidit.com"],
+                credentialRoutes: {
+                  "daisy-main": {
+                    mode: "credentials_file",
+                    allowedServices: ["calendar"],
+                    allowedTools: ["gws_calendar_read"],
+                  },
+                },
+                agentCredentialBindings: {},
+              },
+            },
+          },
+        },
+      },
+    });
+
+    await agentsGoogleWorkspaceSetCommand(
+      {
+        agent: "daisy",
+        email: "DAISY.AI@HUGHDIDIT.COM",
+        gwsRoute: "daisy-main",
+      },
+      runtime,
+    );
+
+    expect(writeConfigFileMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        agents: expect.objectContaining({
+          list: [
+            expect.objectContaining({
+              id: "daisy",
+              googleWorkspace: { email: "daisy.ai@hughdidit.com" },
+            }),
+          ],
+        }),
+        plugins: expect.objectContaining({
+          entries: expect.objectContaining({
+            "gws-toolkit-phase1": expect.objectContaining({
+              config: expect.objectContaining({
+                agentCredentialBindings: {
+                  "agent:daisy": "daisy-main",
+                  "subagent:daisy": "daisy-main",
+                },
+              }),
+            }),
+          }),
+        }),
+      }),
+    );
+    expect(runtime.exit).not.toHaveBeenCalled();
+  });
+
+  it("rejects Google Workspace identities outside the configured GWS domain allowlist", async () => {
+    readConfigFileSnapshotMock.mockResolvedValue({
+      ...baseConfigSnapshot,
+      config: {
+        agents: { list: [{ id: "daisy", workspace: "/tmp/daisy" }] },
+        plugins: {
+          entries: {
+            "gws-toolkit-phase1": {
+              enabled: true,
+              config: {
+                workspaceIdentityDomains: ["hughdidit.com"],
+                credentialRoutes: {
+                  "daisy-main": {
+                    mode: "credentials_file",
+                    allowedServices: ["calendar"],
+                    allowedTools: ["gws_calendar_read"],
+                  },
+                },
+                agentCredentialBindings: {},
+              },
+            },
+          },
+        },
+      },
+    });
+
+    await agentsGoogleWorkspaceSetCommand(
+      {
+        agent: "daisy",
+        email: "daisy.ai@example.com",
+        gwsRoute: "daisy-main",
+      },
+      runtime,
+    );
+
+    expect(runtime.error).toHaveBeenCalledWith(
+      expect.stringContaining('domain "example.com" is not allowed'),
+    );
+    expect(runtime.exit).toHaveBeenCalledWith(1);
+    expect(writeConfigFileMock).not.toHaveBeenCalled();
   });
 
   it("supports a distinct subagent GWS route override", async () => {

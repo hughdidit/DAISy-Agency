@@ -5,6 +5,7 @@ import {
   agentsBindingsCommand,
   agentsBindCommand,
   agentsDeleteCommand,
+  agentsGoogleWorkspaceSetCommand,
   agentsListCommand,
   agentsSetIdentityCommand,
   agentsUnbindCommand,
@@ -272,6 +273,31 @@ ${formatHelpExamples([
             theme: opts.theme as string | undefined,
             emoji: opts.emoji as string | undefined,
             avatar: opts.avatar as string | undefined,
+            json: Boolean(opts.json),
+          },
+          defaultRuntime,
+        );
+      });
+    });
+
+  agents
+    .command("google-workspace")
+    .description("Manage an agent's real Google Workspace identity")
+    .command("set")
+    .description("Set an agent Google Workspace identity and explicit GWS route binding")
+    .requiredOption("--agent <id>", "Agent id to update")
+    .requiredOption("--email <email>", "Google Workspace user email for delegated API calls")
+    .requiredOption("--gws-route <routeName>", "GWS credential route for agent:<id>")
+    .option("--subagent-gws-route <routeName>", "Override the GWS route used for subagent:<id>")
+    .option("--json", "Output JSON summary", false)
+    .action(async (opts) => {
+      await runCommandWithRuntime(defaultRuntime, async () => {
+        await agentsGoogleWorkspaceSetCommand(
+          {
+            agent: opts.agent as string | undefined,
+            email: opts.email as string | undefined,
+            gwsRoute: opts.gwsRoute as string | undefined,
+            subagentGwsRoute: opts.subagentGwsRoute as string | undefined,
             json: Boolean(opts.json),
           },
           defaultRuntime,

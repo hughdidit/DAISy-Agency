@@ -34,6 +34,7 @@ type ResolvedAgentConfig = {
   humanDelay?: AgentEntry["humanDelay"];
   heartbeat?: AgentEntry["heartbeat"];
   delegate?: AgentEntry["delegate"];
+  googleWorkspace?: AgentEntry["googleWorkspace"];
   identity?: AgentEntry["identity"];
   groupChat?: AgentEntry["groupChat"];
   subagents?: AgentEntry["subagents"];
@@ -137,6 +138,10 @@ export function resolveAgentConfig(
     humanDelay: entry.humanDelay,
     heartbeat: entry.heartbeat,
     delegate: entry.delegate,
+    googleWorkspace:
+      typeof entry.googleWorkspace === "object" && entry.googleWorkspace
+        ? entry.googleWorkspace
+        : undefined,
     identity: entry.identity,
     groupChat: entry.groupChat,
     subagents: typeof entry.subagents === "object" && entry.subagents ? entry.subagents : undefined,

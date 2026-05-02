@@ -27,11 +27,20 @@ Reference plugin posture:
 
 ```json5
 {
+  agents: {
+    list: [
+      {
+        id: "ops",
+        googleWorkspace: { email: "daisy.ai@hughdidit.com" },
+      },
+    ],
+  },
   plugins: {
     entries: {
       "gws-toolkit-phase1": {
         enabled: true,
         config: {
+          workspaceIdentityDomains: ["hughdidit.com"],
           allowUnboundAgents: false,
           allowWriteOperations: true,
           enabledServices: ["gmail", "calendar"],
@@ -43,10 +52,13 @@ Reference plugin posture:
               allowedServices: ["gmail", "calendar"],
               allowedTools: ["gws_gmail_read", "gws_calendar_read", "gws_gmail_write"],
               allowedActions: ["draft_message"],
-              credentialsFile: "./config/secrets/gws/ops.json",
+              credentialsFile: "./config/secrets/gws/domain-wide-delegation.json",
             },
           },
-          agentCredentialBindings: {},
+          agentCredentialBindings: {
+            "agent:ops": "ops-main",
+            "subagent:ops": "ops-main",
+          },
         },
       },
     },
@@ -54,16 +66,27 @@ Reference plugin posture:
 }
 ```
 
-Then bind the subjects:
+The reusable delegated route usually omits `impersonatedUser`; the effective
+Google user is `agents.list[].googleWorkspace.email`. If a route does include
+`impersonatedUser`, it must match that agent email.
+
+To write the agent identity and bindings together after the route exists:
 
 ```bash
-openclaw agents bind --agent ops --gws-route ops-main
+openclaw agents google-workspace set \
+  --agent ops \
+  --email daisy.ai@hughdidit.com \
+  --gws-route ops-main
 ```
 
 If top-level and subagent posture differ:
 
 ```bash
-openclaw agents bind --agent ops --gws-route ops-main --subagent-gws-route ops-subagent
+openclaw agents google-workspace set \
+  --agent ops \
+  --email daisy.ai@hughdidit.com \
+  --gws-route ops-main \
+  --subagent-gws-route ops-subagent
 ```
 
 ## 3. Verify auth isolation
@@ -97,6 +120,9 @@ Delegate-specific failures usually mean one of these:
 
 - missing `agent:<id>` binding
 - missing `subagent:<id>` binding
+- missing `agents.list[].googleWorkspace.email`
+- Workspace email domain not present in `workspaceIdentityDomains`
+- route `impersonatedUser` does not match the agent Workspace email
 - `allowUnboundAgents: true`
 - legacy synthesized GWS routing still active
 - delegate still in `authIsolation: "legacy"`

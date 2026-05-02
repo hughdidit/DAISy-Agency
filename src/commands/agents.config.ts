@@ -19,6 +19,7 @@ export type AgentSummary = {
   identityName?: string;
   identityEmoji?: string;
   identitySource?: "identity" | "config";
+  googleWorkspaceEmail?: string;
   workspace: string;
   agentDir: string;
   model?: string;
@@ -108,12 +109,16 @@ export function buildAgentSummaries(cfg: OpenClawConfig): AgentSummary[] {
       : configIdentity && (identityName || identityEmoji)
         ? "config"
         : undefined;
+    const googleWorkspaceEmail = configuredAgents
+      .find((agent) => normalizeAgentId(agent.id) === id)
+      ?.googleWorkspace?.email?.trim();
     return {
       id,
       name: resolveAgentName(cfg, id),
       identityName,
       identityEmoji,
       identitySource,
+      ...(googleWorkspaceEmail ? { googleWorkspaceEmail } : {}),
       workspace,
       agentDir: resolveAgentDir(cfg, id),
       model: resolveAgentModel(cfg, id),
@@ -132,6 +137,7 @@ export function applyAgentConfig(
     agentDir?: string;
     model?: string;
     delegate?: AgentEntry["delegate"];
+    googleWorkspace?: AgentEntry["googleWorkspace"];
     identity?: AgentEntry["identity"];
     subagents?: AgentEntry["subagents"];
     sandbox?: AgentEntry["sandbox"];
@@ -150,6 +156,7 @@ export function applyAgentConfig(
     ...(params.agentDir ? { agentDir: params.agentDir } : {}),
     ...(params.model ? { model: params.model } : {}),
     ...(params.delegate ? { delegate: params.delegate } : {}),
+    ...(params.googleWorkspace ? { googleWorkspace: params.googleWorkspace } : {}),
     ...(params.identity ? { identity: params.identity } : {}),
     ...(params.subagents ? { subagents: params.subagents } : {}),
     ...(params.sandbox ? { sandbox: params.sandbox } : {}),

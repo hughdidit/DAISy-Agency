@@ -27,46 +27,76 @@ Supported modes:
 `oauth` remains an upstream `gws` capability, but it is intentionally not a
 first-class route mode in plugin runtime.
 
-For delegate routes with impersonation, use service-account JSON credentials
-with Domain-Wide Delegation. First-class impersonation controls delegated
-identity routing; it does not automate user OAuth reauthentication.
+For delegated agent Workspace routes, use service-account JSON credentials with
+Domain-Wide Delegation. `agents.list[].googleWorkspace.email` controls the
+delegated Google subject; it does not automate user OAuth reauthentication.
 
-## 3. Configure named routes and bindings
+## 3. Configure named routes, identities, and bindings
 
-Example local/dev config:
+For DAISy agent identities, humans configure the route policy first, then bind
+agents to that route with a real Workspace email. The service-account JSON is
+the credential root; each tool call selects the real Workspace user through the
+agent's delegated JWT subject.
+
+Example service-account delegated config:
 
 ```json5
 {
+  agents: {
+    list: [
+      {
+        id: "daisy",
+        googleWorkspace: { email: "daisy.ai@hughdidit.com" },
+      },
+      {
+        id: "finn",
+        googleWorkspace: { email: "finn.ai@hughdidit.com" },
+      },
+    ],
+  },
   plugins: {
     entries: {
       "gws-toolkit-phase1": {
         enabled: true,
         config: {
+          workspaceIdentityDomains: ["hughdidit.com"],
           enabledServices: ["drive", "gmail", "calendar", "docs", "sheets"],
-          enabledWriteServices: ["docs", "sheets"],
+          enabledWriteServices: ["calendar", "gmail", "docs", "sheets"],
           allowWriteOperations: true,
           safeMode: true,
           approvedCredentialDirs: ["./config/secrets/gws"],
           credentialRoutes: {
-            "local-main": {
-              mode: "token",
-              label: "Local dev token",
+            "hughdidit-agent-gws": {
+              mode: "credentials_file",
+              label: "HughDidIt agent DWD service account",
+              credentialsFile: "./config/secrets/gws/domain-wide-delegation.json",
               allowedServices: ["drive", "gmail", "calendar", "docs", "sheets"],
               allowedTools: [
+                "gws_status",
                 "gws_drive_read",
                 "gws_gmail_read",
                 "gws_calendar_read",
                 "gws_docs_read",
                 "gws_sheets_read",
+                "gws_gmail_write",
+                "gws_calendar_write",
                 "gws_docs_write",
                 "gws_sheets_write",
               ],
-              allowedActions: ["docs:append_text", "sheets:update_values"],
-              tokenEnvVar: "GOOGLE_WORKSPACE_CLI_TOKEN",
+              allowedActions: [
+                "gmail:draft_message",
+                "calendar:list_events",
+                "calendar:create_event",
+                "docs:append_text",
+                "sheets:update_values",
+              ],
             },
           },
           agentCredentialBindings: {
-            "agent:main": "local-main",
+            "agent:daisy": "hughdidit-agent-gws",
+            "subagent:daisy": "hughdidit-agent-gws",
+            "agent:finn": "hughdidit-agent-gws",
+            "subagent:finn": "hughdidit-agent-gws",
           },
         },
       },
@@ -75,12 +105,32 @@ Example local/dev config:
 }
 ```
 
-Example staging route pattern:
+Equivalent CLI binding flow after the route exists:
+
+```bash
+openclaw agents google-workspace set \
+  --agent daisy \
+  --email daisy.ai@hughdidit.com \
+  --gws-route hughdidit-agent-gws
+
+openclaw agents google-workspace set \
+  --agent finn \
+  --email finn.ai@hughdidit.com \
+  --gws-route hughdidit-agent-gws
+```
+
+The route above intentionally omits `impersonatedUser` so multiple agents can
+share the same service-account route while retaining distinct delegated
+subjects. If `impersonatedUser` is present on a route, it must match the active
+agent's `googleWorkspace.email`.
+
+Staging route pattern:
 
 - bind `agent:ops` and `subagent:ops` separately
 - prefer `credentials_file`
 - keep `allowUnboundAgents: false`
 - enable only the write services actually needed
+- set `workspaceIdentityDomains`, for example `["hughdidit.com"]`
 
 Delegate reference posture:
 
@@ -104,8 +154,8 @@ openclaw gws doctor
 openclaw gws auth-posture
 openclaw gws auth-health
 openclaw gws routes
-openclaw gws auth-health --subject agent:main
-openclaw gws auth-health --subject subagent:ops
+openclaw gws auth-health --subject agent:daisy
+openclaw gws auth-health --subject subagent:daisy
 ```
 
 Optional deeper doctor path:
@@ -117,18 +167,25 @@ openclaw gws doctor --auth-health
 `openclaw gws auth-status` remains a deprecated alias to `auth-health` for one
 release cycle.
 
-`gws_status` and the CLI wrappers now include current-session route diagnostics,
-including the resolved `bindingSubject`, active route name, and resolved
-credentials-file path for `credentials_file` routes when available.
+`gws_status` and the CLI wrappers include current-session route diagnostics,
+including the resolved `bindingSubject`, active route name, delegated Workspace
+email, transport (`google_api` for agent identities), enabled services, write
+gates, and resolved credentials-file path for `credentials_file` routes when
+available.
 
 Read smoke checks:
 
 - `gws_status`
-- `gws_drive_read`
-- `gws_gmail_read`
 - `gws_calendar_read`
+- `gws_gmail_read`
+- `gws_drive_read`
 - `gws_docs_read`
 - `gws_sheets_read`
+
+For Calendar, read the user's `primary` calendar after auth-health passes. A
+404 for `primary` means the delegated subject is still not a valid readable
+Workspace user for that service and should be treated as a configuration
+failure.
 
 ## 6. Verify writes intentionally
 

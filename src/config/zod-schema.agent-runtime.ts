@@ -255,6 +255,13 @@ const DelegateSchema = z
   .strict()
   .optional();
 
+const GoogleWorkspaceIdentitySchema = z
+  .object({
+    email: z.string().email().optional(),
+  })
+  .strict()
+  .optional();
+
 export const SandboxPruneSchema = z
   .object({
     idleHours: z.number().int().nonnegative().optional(),
@@ -824,6 +831,7 @@ export const AgentEntrySchema = z
     humanDelay: HumanDelaySchema.optional(),
     heartbeat: HeartbeatSchema,
     delegate: DelegateSchema,
+    googleWorkspace: GoogleWorkspaceIdentitySchema,
     identity: IdentitySchema,
     groupChat: GroupChatSchema,
     subagents: z

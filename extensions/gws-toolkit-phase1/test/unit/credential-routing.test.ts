@@ -31,6 +31,7 @@ const config: GwsToolkitConfig = {
     "agent:ops": "drive-writer",
     "subagent:ops": "gmail-reader",
   },
+  workspaceIdentityDomains: [],
   defaultScopesProfile: "minimal",
   requireHumanApprovalFor: [],
   warnings: [],

@@ -160,7 +160,7 @@ describe("integration: auth health and posture", () => {
     });
 
     const posture = await executeAuthPosture({
-      ctx,
+      ctx: { ...ctx, googleWorkspaceEmail: "delegate@example.com" },
       audit,
       configResolution,
     });
@@ -176,9 +176,15 @@ describe("integration: auth health and posture", () => {
     });
 
     const health = await executeAuthHealth({
-      ctx,
+      ctx: { ...ctx, googleWorkspaceEmail: "delegate@example.com" },
       audit,
       configResolution,
+      directAuthHealthExecutor: async () => ({
+        service: "drive",
+        tokenValid: true,
+        tokenError: null,
+        payload: { ok: true },
+      }),
     });
     expect(health.ok).toBe(true);
     if (!health.ok) {
@@ -187,6 +193,7 @@ describe("integration: auth health and posture", () => {
     expect(health.data.authHealth).toMatchObject({
       credentialSourceType: "service_account_json",
       tokenValid: true,
+      delegatedAuthValidated: true,
     });
     expect(health.data.impersonation).toMatchObject({
       impersonatedUser: "delegate@example.com",

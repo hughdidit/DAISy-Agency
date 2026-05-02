@@ -48,8 +48,10 @@ export type InvocationContext = {
   sessionId?: string;
   sessionKey?: string;
   messageChannel?: string;
+  workspaceDir?: string;
   bindingSubject?: string;
   routeName?: string;
+  googleWorkspaceEmail?: string;
 };
 
 export type CredentialRouteConfig = {
@@ -81,6 +83,7 @@ export type GwsToolkitConfig = {
   defaultCredentialRoute: string | null;
   credentialRoutes: Record<string, CredentialRouteConfig>;
   agentCredentialBindings: Record<string, string>;
+  workspaceIdentityDomains: string[];
   defaultScopesProfile: "minimal" | "service-set" | "custom";
   customScopes?: string[];
   requireHumanApprovalFor: string[];
@@ -113,6 +116,7 @@ export type AuthResolution = {
   route: ResolvedRoute;
   bindingSubject: string;
   impersonatedUser?: string;
+  transport: "gws_cli" | "google_api";
 };
 
 export type PolicyDecision = {

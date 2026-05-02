@@ -17,6 +17,7 @@ const config: GwsToolkitConfig = {
   defaultCredentialRoute: null,
   credentialRoutes: {},
   agentCredentialBindings: {},
+  workspaceIdentityDomains: [],
   defaultScopesProfile: "minimal",
   requireHumanApprovalFor: [],
   warnings: [],
@@ -27,6 +28,7 @@ const auth: AuthResolution = {
   env: {},
   args: [],
   bindingSubject: "agent:main",
+  transport: "gws_cli",
   route: {
     name: "default",
     mode: "token" as const,

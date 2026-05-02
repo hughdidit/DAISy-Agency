@@ -1,7 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { Type } from "@sinclair/typebox";
+import { resolveAgentConfig } from "../../src/agents/agent-scope.js";
 import type { AnyAgentTool } from "../../src/agents/tools/common.js";
+import type { OpenClawConfig } from "../../src/config/config.js";
 import type { OpenClawPluginApi, OpenClawPluginToolContext } from "../../src/plugins/types.js";
 import { createAuditLogger } from "./src/audit.js";
 import { executeCalendarRead } from "./src/commands/calendar-read.js";
@@ -67,17 +69,33 @@ function defaultConfig(): GwsToolkitConfig {
     defaultCredentialRoute: null,
     credentialRoutes: {},
     agentCredentialBindings: {},
+    workspaceIdentityDomains: [],
     defaultScopesProfile: "minimal",
     requireHumanApprovalFor: [],
     warnings: [],
   };
 }
 
-function createContext(overrides: Partial<InvocationContext> = {}): InvocationContext {
+function resolveGoogleWorkspaceEmail(
+  config: OpenClawConfig | undefined,
+  agentId: string | undefined,
+) {
+  if (!config || !agentId) {
+    return undefined;
+  }
+  return resolveAgentConfig(config, agentId)?.googleWorkspace?.email?.trim().toLowerCase();
+}
+
+function createContext(
+  overrides: Partial<InvocationContext> = {},
+  config?: OpenClawConfig,
+): InvocationContext {
+  const agentId = overrides.agentId ?? "cli";
   return {
-    agentId: "cli",
+    agentId,
     sessionId: "cli",
     sessionKey: "agent:cli:main",
+    googleWorkspaceEmail: resolveGoogleWorkspaceEmail(config, agentId),
     ...overrides,
   };
 }
@@ -88,6 +106,8 @@ function createToolContext(ctx: OpenClawPluginToolContext): InvocationContext {
     sessionId: ctx.sessionId,
     sessionKey: ctx.sessionKey,
     messageChannel: ctx.messageChannel,
+    workspaceDir: ctx.workspaceDir,
+    googleWorkspaceEmail: resolveGoogleWorkspaceEmail(ctx.config, ctx.agentId),
   };
 }
 
@@ -104,20 +124,29 @@ function normalizeDiagnosticAgentId(value: string | undefined): string {
   return trimmed || "main";
 }
 
-function createCliDiagnosticContext(configResolution: ConfigResolution): InvocationContext {
+function createCliDiagnosticContext(
+  configResolution: ConfigResolution,
+  openClawConfig?: OpenClawConfig,
+): InvocationContext {
   const makeAgentContext = (agentId: string): InvocationContext =>
-    createContext({
-      agentId,
-      sessionId: "cli-diagnostics",
-      sessionKey: `agent:${agentId}:main`,
-    });
+    createContext(
+      {
+        agentId,
+        sessionId: "cli-diagnostics",
+        sessionKey: `agent:${agentId}:main`,
+      },
+      openClawConfig,
+    );
 
   const makeSubagentContext = (agentId: string): InvocationContext =>
-    createContext({
-      agentId,
-      sessionId: "cli-diagnostics",
-      sessionKey: `subagent:${agentId}`,
-    });
+    createContext(
+      {
+        agentId,
+        sessionId: "cli-diagnostics",
+        sessionKey: `subagent:${agentId}`,
+      },
+      openClawConfig,
+    );
 
   if (!configResolution.ok) {
     return makeAgentContext("main");
@@ -146,12 +175,13 @@ function createCliDiagnosticContext(configResolution: ConfigResolution): Invocat
 function createCliDiagnosticContextForSubject(
   configResolution: ConfigResolution,
   subjectRaw: string | undefined,
+  openClawConfig?: OpenClawConfig,
 ): CliDiagnosticContextResult {
   const subject = subjectRaw?.trim();
   if (!subject) {
     return {
       ok: true,
-      ctx: createCliDiagnosticContext(configResolution),
+      ctx: createCliDiagnosticContext(configResolution, openClawConfig),
     };
   }
 
@@ -167,22 +197,28 @@ function createCliDiagnosticContextForSubject(
   if (kind === "agent") {
     return {
       ok: true,
-      ctx: createContext({
-        agentId,
-        sessionId: "cli-diagnostics",
-        sessionKey: `agent:${agentId}:main`,
-        bindingSubject: `agent:${agentId}`,
-      }),
+      ctx: createContext(
+        {
+          agentId,
+          sessionId: "cli-diagnostics",
+          sessionKey: `agent:${agentId}:main`,
+          bindingSubject: `agent:${agentId}`,
+        },
+        openClawConfig,
+      ),
     };
   }
   return {
     ok: true,
-    ctx: createContext({
-      agentId,
-      sessionId: "cli-diagnostics",
-      sessionKey: `subagent:${agentId}`,
-      bindingSubject: `subagent:${agentId}`,
-    }),
+    ctx: createContext(
+      {
+        agentId,
+        sessionId: "cli-diagnostics",
+        sessionKey: `subagent:${agentId}`,
+        bindingSubject: `subagent:${agentId}`,
+      },
+      openClawConfig,
+    ),
   };
 }
 
@@ -526,7 +562,7 @@ function createTools(params: {
 const plugin = {
   id: "gws-toolkit-phase1",
   name: "GWS Toolkit",
-  description: "Security-hardened Google Workspace integration via gws CLI.",
+  description: "Security-hardened Google Workspace integration via delegated Google API transport.",
   register(api: OpenClawPluginApi) {
     const logger = createRedactingLogger(api.logger);
     const resolvedConfig = resolveConfig(api.pluginConfig);
@@ -620,6 +656,7 @@ const plugin = {
             const diagnosticsCtxResult = createCliDiagnosticContextForSubject(
               configResolution,
               opts?.subject,
+              api.config,
             );
             if (!diagnosticsCtxResult.ok) {
               emitInvalidSubjectError("doctor", diagnosticsCtxResult.subject);
@@ -671,6 +708,7 @@ const plugin = {
             const diagnosticsCtxResult = createCliDiagnosticContextForSubject(
               configResolution,
               opts?.subject,
+              api.config,
             );
             if (!diagnosticsCtxResult.ok) {
               emitInvalidSubjectError("auth-posture", diagnosticsCtxResult.subject);
@@ -699,6 +737,7 @@ const plugin = {
             const diagnosticsCtxResult = createCliDiagnosticContextForSubject(
               configResolution,
               opts?.subject,
+              api.config,
             );
             if (!diagnosticsCtxResult.ok) {
               emitInvalidSubjectError("auth-health", diagnosticsCtxResult.subject);
@@ -727,6 +766,7 @@ const plugin = {
             const diagnosticsCtxResult = createCliDiagnosticContextForSubject(
               configResolution,
               opts?.subject,
+              api.config,
             );
             if (!diagnosticsCtxResult.ok) {
               emitInvalidSubjectError("auth-status", diagnosticsCtxResult.subject);
@@ -756,6 +796,7 @@ const plugin = {
             const diagnosticsCtxResult = createCliDiagnosticContextForSubject(
               configResolution,
               opts?.subject,
+              api.config,
             );
             if (!diagnosticsCtxResult.ok) {
               emitInvalidSubjectError("routes", diagnosticsCtxResult.subject);
@@ -784,6 +825,7 @@ const plugin = {
             const diagnosticsCtxResult = createCliDiagnosticContextForSubject(
               configResolution,
               opts?.subject,
+              api.config,
             );
             if (!diagnosticsCtxResult.ok) {
               emitInvalidSubjectError("write-readiness", diagnosticsCtxResult.subject);

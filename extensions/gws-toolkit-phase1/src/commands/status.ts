@@ -9,6 +9,7 @@ import {
 } from "../auth.js";
 import { discoverBinary } from "../binary.js";
 import { summarizeCredentialRoutes } from "../credential-routing.js";
+import { executeDirectAuthHealth } from "../direct-google.js";
 import { PluginError, toStructuredError } from "../errors.js";
 import { executeCommand } from "../executor.js";
 import { normalizeExecution } from "../normalize.js";
@@ -249,21 +250,23 @@ export async function executeStatus(params: {
       };
     }
 
-    const discovery = params.skipBinaryDiscovery
-      ? null
-      : await discoverBinary({
-          configuredPath: activeConfig.binaryPath,
-          runVersion: async (binaryPath) =>
-            executeCommand({
-              config: activeConfig,
-              binaryPath,
-              argv: ["--version"],
-              env: runtimeEnv,
-            }),
-        });
-
     const authStatus = getAuthSourceStatus(activeConfig);
     const activeRoute = getActiveRouteAuthStatus(activeConfig, params.ctx);
+    const usesDirectTransport = activeRoute.details.transport === "google_api";
+    const discovery =
+      params.skipBinaryDiscovery || usesDirectTransport
+        ? null
+        : await discoverBinary({
+            configuredPath: activeConfig.binaryPath,
+            runVersion: async (binaryPath) =>
+              executeCommand({
+                config: activeConfig,
+                binaryPath,
+                argv: ["--version"],
+                env: runtimeEnv,
+              }),
+          });
+
     const latencyMs = Date.now() - startedAt;
     const includeVersion = statusParams.includeVersion !== false;
     const includeAuthStatus = statusParams.includeAuthStatus !== false;
@@ -279,6 +282,7 @@ export async function executeStatus(params: {
                 ...(includeVersion ? { version: discovery.versionText } : {}),
               }
             : { found: false, skipped: true }),
+          ...(usesDirectTransport ? { reason: "google_api_transport" } : {}),
         },
         ...(includeAuthStatus ? { auth: authStatus } : {}),
         ...(includeAuthStatus ? { currentRoute: activeRoute } : {}),
@@ -290,6 +294,7 @@ export async function executeStatus(params: {
           allowWriteOperations: activeConfig.allowWriteOperations,
           allowUnboundAgents: activeConfig.allowUnboundAgents,
           allowedCredentialModes: activeConfig.allowedCredentialModes,
+          workspaceIdentityDomains: activeConfig.workspaceIdentityDomains,
           defaultCredentialRoute: activeConfig.defaultCredentialRoute,
           warnings: activeConfig.warnings,
         },
@@ -386,6 +391,7 @@ export async function executeAuthHealth(params: {
   configResolution: ConfigResolution;
   resolveRuntimeEnv?: () => Promise<Record<string, string> | undefined>;
   deprecatedAliasUsed?: boolean;
+  directAuthHealthExecutor?: typeof executeDirectAuthHealth;
 }): Promise<StructuredEnvelope> {
   const startedAt = Date.now();
   if (!params.configResolution.ok) {
@@ -439,6 +445,81 @@ export async function executeAuthHealth(params: {
     }
 
     const auth = resolveAuth(activeConfig, params.ctx);
+    if (auth.transport === "google_api") {
+      const directAuthHealthExecutor = params.directAuthHealthExecutor ?? executeDirectAuthHealth;
+      const directHealth = await directAuthHealthExecutor({
+        config: activeConfig,
+        auth,
+      });
+      const credentialSourceType = classifyCredentialSourceType(
+        auth.env.GOOGLE_WORKSPACE_CLI_CREDENTIALS_FILE,
+      );
+      const serviceAccountPolicyEnforced = isServiceAccountPolicyEnforced();
+      const latencyMs = Date.now() - startedAt;
+      params.audit.emit({
+        ctx: {
+          ...params.ctx,
+          bindingSubject: auth.bindingSubject,
+          routeName: auth.route.name,
+        },
+        toolName: "gws_status",
+        action: "auth-health",
+        targetService: "status",
+        readOnly: true,
+        decision: "allow",
+        credentialMode: auth.mode,
+        routeName: auth.route.name,
+        bindingSubject: auth.bindingSubject,
+        latencyMs,
+        resultCode: "OK",
+      });
+      return {
+        ok: true,
+        data: {
+          route: {
+            name: auth.route.name,
+            bindingSubject: auth.bindingSubject,
+            mode: auth.mode,
+            transport: auth.transport,
+          },
+          impersonation: {
+            configured: true,
+            source: "agent_google_workspace",
+            impersonatedUser: auth.impersonatedUser,
+          },
+          authHealth: {
+            credentialSourceType,
+            tokenValid: directHealth.tokenValid === true,
+            tokenError: directHealth.tokenError ?? null,
+            plainCredentialsExists: true,
+            serviceAccountPolicyEnforced,
+            serviceAccountPolicyCompliant: credentialSourceType === "service_account_json",
+            delegatedAuthValidated: directHealth.tokenValid === true,
+            delegatedSubject: auth.impersonatedUser,
+            transport: auth.transport,
+            smokeService: directHealth.service,
+            raw: directHealth.payload ?? directHealth,
+          },
+          ...(params.deprecatedAliasUsed
+            ? {
+                deprecation: {
+                  command: "auth-status",
+                  message:
+                    "auth-status is deprecated and currently aliases auth-health. Migrate to openclaw gws auth-health.",
+                },
+              }
+            : {}),
+        },
+        meta: {
+          tool: "gws_status",
+          action: "auth-health",
+          service: "status",
+          resultCode: "OK",
+          latencyMs,
+        },
+      };
+    }
+
     const discovery = await discoverBinary({
       configuredPath: activeConfig.binaryPath,
       runVersion: async (binaryPath) =>

@@ -644,6 +644,7 @@ async function agentCommandInternal(
       ? skillSnapshotWorkspaceDir
         ? buildWorkspaceSkillSnapshot(skillSnapshotWorkspaceDir, {
             config: cfg,
+            agentId: sessionAgentId,
             eligibility: remoteEligibility,
             snapshotVersion: skillsSnapshotVersion,
             skillFilter,
@@ -651,6 +652,7 @@ async function agentCommandInternal(
           })
         : buildWorkspaceSkillSnapshot(workspaceDir, {
             config: cfg,
+            agentId: sessionAgentId,
             eligibility: remoteEligibility,
             snapshotVersion: skillsSnapshotVersion,
             skillFilter,
