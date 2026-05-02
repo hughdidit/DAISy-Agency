@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildDirectGoogleClientRequestOptions,
   buildDirectGoogleRequest,
+  createDelegatedGoogleClient,
   resolveDirectGoogleScopes,
 } from "../../src/direct-google.js";
 import type { GwsToolkitConfig } from "../../src/types.js";
@@ -88,6 +89,31 @@ describe("direct Google API transport", () => {
       url: "https://www.googleapis.com/calendar/v3/users/me/calendarList/primary",
       timeout: 1000,
     });
+  });
+
+  it("uses native fetch for delegated JWT transport", async () => {
+    const credentialsPath = path.join(
+      await fs.mkdtemp(path.join(os.tmpdir(), "gws-direct-credentials-")),
+      "credentials.json",
+    );
+    await fs.writeFile(
+      credentialsPath,
+      JSON.stringify({
+        type: "service_account",
+        client_email: "service-account@example.iam.gserviceaccount.com",
+        private_key: "-----BEGIN PRIVATE KEY-----\nMII=\n-----END PRIVATE KEY-----\n",
+      }),
+      "utf8",
+    );
+
+    const client = createDelegatedGoogleClient({
+      credentialsFile: credentialsPath,
+      subject: "daisy.ai@hughdidit.com",
+      scopes: ["https://www.googleapis.com/auth/calendar.readonly"],
+    });
+
+    expect(globalThis.fetch).toBeDefined();
+    expect(client.transporter.defaults.fetchImplementation).toBe(globalThis.fetch);
   });
 
   it("sanitizes Gmail headers for direct send requests", () => {
