@@ -35,7 +35,7 @@ export type DirectGoogleResult = {
   };
 };
 
-type DirectGoogleClientRequestOptions = {
+export type DirectGoogleClientRequestOptions = {
   method: DirectGoogleRequest["method"];
   url: string;
   params?: Record<string, unknown>;
