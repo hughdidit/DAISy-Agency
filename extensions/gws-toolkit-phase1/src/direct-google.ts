@@ -47,6 +47,10 @@ export type DirectGoogleClientRequestOptions = {
 
 const clientCache = new Map<string, JWT>();
 
+function getNativeFetchImplementation(): typeof globalThis.fetch | undefined {
+  return typeof globalThis.fetch === "function" ? globalThis.fetch : undefined;
+}
+
 function encodeSegment(value: string): string {
   return encodeURIComponent(value);
 }
@@ -217,6 +221,9 @@ export function createDelegatedGoogleClient(params: {
     keyId: credentials.private_key_id,
     scopes,
     subject: params.subject,
+    transporterOptions: {
+      fetchImplementation: getNativeFetchImplementation(),
+    },
   });
   clientCache.set(cacheKey, client);
   return client;
