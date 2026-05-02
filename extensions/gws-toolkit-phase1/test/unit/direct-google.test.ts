@@ -2,7 +2,11 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { buildDirectGoogleRequest, resolveDirectGoogleScopes } from "../../src/direct-google.js";
+import {
+  buildDirectGoogleClientRequestOptions,
+  buildDirectGoogleRequest,
+  resolveDirectGoogleScopes,
+} from "../../src/direct-google.js";
 import type { GwsToolkitConfig } from "../../src/types.js";
 
 const config: GwsToolkitConfig = {
@@ -69,6 +73,21 @@ describe("direct Google API transport", () => {
     expect(resolveDirectGoogleScopes({ config, service: "calendar", write: true })).toEqual([
       "https://www.googleapis.com/auth/calendar",
     ]);
+  });
+
+  it("omits undefined Google client request options", () => {
+    expect(
+      buildDirectGoogleClientRequestOptions({
+        method: "GET",
+        url: "https://www.googleapis.com/calendar/v3/users/me/calendarList/primary",
+        params: undefined,
+        timeoutMs: 1000,
+      }),
+    ).toEqual({
+      method: "GET",
+      url: "https://www.googleapis.com/calendar/v3/users/me/calendarList/primary",
+      timeout: 1000,
+    });
   });
 
   it("sanitizes Gmail headers for direct send requests", () => {

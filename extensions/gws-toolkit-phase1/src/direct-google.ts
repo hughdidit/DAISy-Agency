@@ -35,6 +35,16 @@ export type DirectGoogleResult = {
   };
 };
 
+type DirectGoogleClientRequestOptions = {
+  method: DirectGoogleRequest["method"];
+  url: string;
+  params?: Record<string, unknown>;
+  data?: unknown;
+  headers?: Record<string, string>;
+  responseType?: DirectGoogleRequest["responseType"];
+  timeout: number;
+};
+
 const clientCache = new Map<string, JWT>();
 
 function encodeSegment(value: string): string {
@@ -43,6 +53,32 @@ function encodeSegment(value: string): string {
 
 function compactParams(input: Record<string, unknown>): Record<string, unknown> {
   return Object.fromEntries(Object.entries(input).filter(([, value]) => value !== undefined));
+}
+
+function compactRequestOptions<T extends Record<string, unknown>>(input: T): Partial<T> {
+  return Object.fromEntries(
+    Object.entries(input).filter(([, value]) => value !== undefined),
+  ) as Partial<T>;
+}
+
+export function buildDirectGoogleClientRequestOptions(params: {
+  method: DirectGoogleRequest["method"];
+  url: string;
+  params?: Record<string, unknown>;
+  data?: unknown;
+  headers?: Record<string, string>;
+  responseType?: DirectGoogleRequest["responseType"];
+  timeoutMs: number;
+}): DirectGoogleClientRequestOptions {
+  return compactRequestOptions({
+    method: params.method,
+    url: params.url,
+    params: params.params,
+    data: params.data,
+    headers: params.headers,
+    responseType: params.responseType,
+    timeout: params.timeoutMs,
+  }) as DirectGoogleClientRequestOptions;
 }
 
 function isPathInside(parent: string, child: string): boolean {
@@ -506,15 +542,17 @@ export async function executeDirectGoogleApi(params: {
     ctx: params.ctx,
   });
   try {
-    const response = await client.request({
-      method: request.method,
-      url: request.url,
-      params: request.params,
-      data: request.data,
-      headers: request.headers,
-      responseType: request.responseType,
-      timeout: params.config.timeoutMs,
-    });
+    const response = await client.request(
+      buildDirectGoogleClientRequestOptions({
+        method: request.method,
+        url: request.url,
+        params: request.params,
+        data: request.data,
+        headers: request.headers,
+        responseType: request.responseType,
+        timeoutMs: params.config.timeoutMs,
+      }),
+    );
     const payload =
       request.responseType === "arraybuffer"
         ? {
@@ -592,12 +630,14 @@ export async function executeDirectAuthHealth(params: {
                 acceptNotFoundAsValid: true,
               };
   try {
-    const response = await client.request({
-      method: request.method,
-      url: request.url,
-      params: "params" in request ? request.params : undefined,
-      timeout: params.config.timeoutMs,
-    });
+    const response = await client.request(
+      buildDirectGoogleClientRequestOptions({
+        method: request.method,
+        url: request.url,
+        params: "params" in request ? request.params : undefined,
+        timeoutMs: params.config.timeoutMs,
+      }),
+    );
     return {
       service,
       tokenValid: true,
