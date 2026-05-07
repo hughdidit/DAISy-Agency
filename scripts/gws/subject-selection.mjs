@@ -9,7 +9,7 @@ export function selectGwsBindingSubjects(agentCredentialBindings) {
     agentCredentialBindings && typeof agentCredentialBindings === "object"
       ? agentCredentialBindings
       : {};
-  const subjects = Object.keys(bindings).filter(isValidGwsBindingSubject);
+  const subjects = Object.keys(bindings).filter(isValidGwsBindingSubject).toSorted();
   const agentSubjects = subjects.filter((subject) => subject.startsWith("agent:"));
   const subagentSubjects = subjects.filter((subject) => subject.startsWith("subagent:"));
   const baselineSubject = agentSubjects[0] ?? subagentSubjects[0] ?? null;

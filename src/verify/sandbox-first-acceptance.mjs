@@ -4,6 +4,7 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { isValidGwsBindingSubject } from "../../scripts/gws/subject-selection.mjs";
 
 export const SANDBOX_FIRST_ACCEPTANCE_SCENARIOS = Object.freeze([
   {
@@ -712,7 +713,7 @@ async function runGwsIntegrationScenario(ctx) {
     typeof delegatePayload.baselineSubject === "string"
       ? delegatePayload.baselineSubject.trim()
       : "";
-  if (!/^(agent|subagent):[A-Za-z0-9._-]+$/.test(baselineSubject)) {
+  if (!isValidGwsBindingSubject(baselineSubject)) {
     throw new ScenarioError(
       "secret-or-route-gap",
       "No configured GWS baseline binding subject was available for auth-health verification",
@@ -722,12 +723,12 @@ async function runGwsIntegrationScenario(ctx) {
   const delegateSubjects = Array.isArray(delegatePayload.delegateSubjects)
     ? delegatePayload.delegateSubjects
         .map((value) => (typeof value === "string" ? value.trim() : ""))
-        .filter((value) => /^(agent|subagent):[A-Za-z0-9._-]+$/.test(value))
+        .filter(isValidGwsBindingSubject)
     : [];
   if (delegateSubjects.length === 0) {
     throw new ScenarioError(
       "delegated-capability-gap",
-      "No delegated GWS binding subject candidates were available for auth-health verification",
+      "No additional non-baseline GWS binding subject candidates were available for delegated auth-health verification",
     );
   }
 

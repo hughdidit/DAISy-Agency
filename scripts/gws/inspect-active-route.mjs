@@ -17,7 +17,7 @@ const bindingSubject = requestedSubject || baselineSubject;
 if (!isValidGwsBindingSubject(bindingSubject)) {
   console.error(
     requestedSubject
-      ? "invalid binding subject"
+      ? `invalid binding subject "${requestedSubject}"; expected agent:<id> or subagent:<id>`
       : "missing configured GWS binding subject; pass --subject or configure an agent/subagent binding",
   );
   process.exit(1);
