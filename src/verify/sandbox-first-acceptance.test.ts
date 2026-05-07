@@ -6,6 +6,7 @@ import { selectGwsBindingSubjects } from "../../scripts/gws/subject-selection.mj
 import {
   analyzeReadonlyDiagnostics,
   buildScenarioSummaryEntry,
+  isValidAgentCronRunSessionKey,
   runSandboxFirstAcceptance,
   SANDBOX_FIRST_ACCEPTANCE_SCENARIOS,
   selectIntegrationPath,
@@ -143,6 +144,17 @@ describe("sandbox-first acceptance helpers", () => {
         manualRemainder: "None for ACP policy block baseline.",
       }),
     );
+  });
+
+  it("validates configured-agent cron run session keys against canonical agent id shape", () => {
+    expect(isValidAgentCronRunSessionKey("agent:main:cron:job-1:run:run-1")).toBe(true);
+    expect(isValidAgentCronRunSessionKey("agent:daisy_1:cron:job-1:run:run-1")).toBe(true);
+    expect(isValidAgentCronRunSessionKey("agent:daisy-1:cron:job-1:run:run-1")).toBe(true);
+
+    expect(isValidAgentCronRunSessionKey("agent:Daisy:cron:job-1:run:run-1")).toBe(false);
+    expect(isValidAgentCronRunSessionKey("agent:daisy.ops:cron:job-1:run:run-1")).toBe(false);
+    expect(isValidAgentCronRunSessionKey("subagent:daisy:cron:job-1:run:run-1")).toBe(false);
+    expect(isValidAgentCronRunSessionKey("agent:daisy:cron:job-1")).toBe(false);
   });
 
   it("selects a configured GWS agent subject as the baseline", () => {
@@ -394,7 +406,7 @@ describe("runSandboxFirstAcceptance", () => {
                   action: "finished",
                   status: "ok",
                   deliveryStatus: "not-requested",
-                  sessionKey: "agent:main:cron:job-2:run:run-2",
+                  sessionKey: "agent:daisy:cron:job-2:run:run-2",
                   provider: "anthropic",
                   model: "claude-sonnet-4-5",
                 },

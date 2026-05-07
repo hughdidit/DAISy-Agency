@@ -96,6 +96,7 @@ export const SANDBOX_FIRST_ACCEPTANCE_SCENARIOS = Object.freeze([
 
 const ANSI_ESCAPE_PREFIX = String.fromCharCode(0x1b);
 const ANSI_ESCAPE_PATTERN = new RegExp(`${ANSI_ESCAPE_PREFIX}\\[[0-9;?]*[ -/]*[@-~]`, "g");
+const AGENT_CRON_RUN_SESSION_KEY_PATTERN = /^agent:[a-z0-9][a-z0-9_-]{0,63}:cron:[^:]+:run:[^:]+$/;
 const DEFAULT_CRON_PROMPT =
   "Report the current sandbox mode, runtime profile, and whether openclaw-readonly is supported. Do not mutate anything.";
 
@@ -148,6 +149,10 @@ export function extractLastJsonValue(value) {
   }
 
   return null;
+}
+
+export function isValidAgentCronRunSessionKey(value) {
+  return typeof value === "string" && AGENT_CRON_RUN_SESSION_KEY_PATTERN.test(value.trim());
 }
 
 function shellQuote(value) {
@@ -1230,10 +1235,10 @@ export async function runCronIsolationAndSubagentModelScenario(ctx) {
       );
     }
     const runSessionKey = typeof last?.sessionKey === "string" ? last.sessionKey.trim() : "";
-    if (!/^agent:main:cron:[^:]+:run:[^:]+$/.test(runSessionKey)) {
+    if (!isValidAgentCronRunSessionKey(runSessionKey)) {
       throw new ScenarioError(
         "scheduler-gap",
-        `SBX-404 isolated cron run did not expose a per-run session key, got ${runSessionKey || "<empty>"}`,
+        `SBX-404 isolated cron run did not expose an agent-scoped per-run session key, got ${runSessionKey || "<empty>"}`,
       );
     }
     await ctx.writeArtifactJson("cron-isolation-metadata.json", {
