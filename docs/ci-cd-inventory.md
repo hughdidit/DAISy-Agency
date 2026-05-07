@@ -2,13 +2,13 @@
 
 ## At a glance
 
-| Workflow file                           | Workflow name   | Triggers                                                        | Key jobs (job name strings)                                                                                               | Classification  | Notes / risks                                                                                                                                                                                             |
-| --------------------------------------- | --------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `.github/workflows/ci.yml`              | CI              | `pull_request` (daisy/main, daisy/dev) + `workflow_dispatch`    | `check`, `checks`, `skills-python`, `ios`, `android`, `CI / Linux Required`, `CI / iOS Required`, `CI / Android Required` | Active          | PR-only CI with docs/scope front door, iOS and Android as supported mobile lanes, and stable required-check names that do not depend on matrix labels.                                                    |
-| `.github/workflows/codeql.yml`          | CodeQL Advanced | `push` + `pull_request` (daisy/main, daisy/dev), `schedule`     | `Analyze (<language>)`                                                                                                    | Needs refactor  | Broad language matrix; macOS runners for Swift; scheduled load; actions not pinned to SHAs.                                                                                                               |
-| `.github/workflows/docker-release.yml`  | Docker Release  | `push` (daisy/main, daisy/dev, tags `v*`) + `workflow_dispatch` | `validate-ref`, `build-amd64`, `build-arm64`, `build-sandbox`, `build-sandbox-browser`, `create-manifest`                 | Needs hardening | Heavy build jobs now require dedicated self-hosted GCP runner pools; `create-manifest` stays GitHub-hosted; manual dispatch is available; extension-owned skill markdown is treated as runtime-affecting. |
-| `.github/workflows/auto-response.yml`   | Auto response   | `issues` + `pull_request_target` (labeled)                      | `auto-response`                                                                                                           | Useful          | Requires `GH_APP_PRIVATE_KEY`; closes issues/PRs based on labels; action versions not SHA-pinned.                                                                                                         |
-| `.github/workflows/workflow-sanity.yml` | Workflow Sanity | `push` + `pull_request` (daisy/main, daisy/dev)                 | `no-tabs`                                                                                                                 | Useful          | Shares `ci-` concurrency group with other workflows (risk of cross-cancel).                                                                                                                               |
+| Workflow file                           | Workflow name   | Triggers                                                        | Key jobs (job name strings)                                                                                               | Classification  | Notes / risks                                                                                                                                                     |
+| --------------------------------------- | --------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.github/workflows/ci.yml`              | CI              | `pull_request` (daisy/main, daisy/dev) + `workflow_dispatch`    | `check`, `checks`, `skills-python`, `ios`, `android`, `CI / Linux Required`, `CI / iOS Required`, `CI / Android Required` | Active          | PR-only CI with docs/scope front door, iOS and Android as supported mobile lanes, and stable required-check names that do not depend on matrix labels.            |
+| `.github/workflows/codeql.yml`          | CodeQL Advanced | `push` + `pull_request` (daisy/main, daisy/dev), `schedule`     | `Analyze (<language>)`                                                                                                    | Needs refactor  | Broad language matrix; macOS runners for Swift; scheduled load; actions not pinned to SHAs.                                                                       |
+| `.github/workflows/docker-release.yml`  | Docker Release  | `push` (daisy/main, daisy/dev, tags `v*`) + `workflow_dispatch` | `validate-ref`, `build-amd64`, `build-arm64`, `build-sandbox`, `build-sandbox-browser`, `create-manifest`                 | Needs hardening | Image builds run on GitHub-hosted runners; `build-arm64` uses QEMU; manual dispatch is available; extension-owned skill markdown is treated as runtime-affecting. |
+| `.github/workflows/auto-response.yml`   | Auto response   | `issues` + `pull_request_target` (labeled)                      | `auto-response`                                                                                                           | Useful          | Requires `GH_APP_PRIVATE_KEY`; closes issues/PRs based on labels; action versions not SHA-pinned.                                                                 |
+| `.github/workflows/workflow-sanity.yml` | Workflow Sanity | `push` + `pull_request` (daisy/main, daisy/dev)                 | `no-tabs`                                                                                                                 | Useful          | Shares `ci-` concurrency group with other workflows (risk of cross-cancel).                                                                                       |
 
 ## Per-workflow deep dive
 
@@ -87,8 +87,9 @@
 **What it does**
 
 - Builds and publishes multi-arch container images to GHCR, then creates a manifest.
-- Heavy image builds run on dedicated self-hosted GCP runners split by architecture.
-- Manifest publication and `release-metadata` upload stay GitHub-hosted in phase one.
+- Image builds run on GitHub-hosted `ubuntu-latest` runners.
+- `build-arm64` uses QEMU for `linux/arm64` builds.
+- Manifest publication and `release-metadata` upload run on GitHub-hosted runners.
 
 **When it runs**
 
@@ -100,27 +101,26 @@
 
 - Job-level permissions: `packages: write`, `contents: read`.
 - Uses `GITHUB_TOKEN` for registry auth.
-- `validate-ref` runs on GitHub-hosted runners to reject unsupported refs before self-hosted build jobs are allocated.
-- Build jobs require pre-provisioned self-hosted runner labels.
+- `validate-ref` rejects unsupported refs before any image build job starts.
 
 **Jobs inventory**
 
 - `validate-ref` (ubuntu-latest): fail fast if the ref is not `daisy/main`, `daisy/dev`, or a `v*` tag.
-- `build-amd64` (self-hosted x64): build/push amd64 app image via Buildx.
-- `build-arm64` (self-hosted arm64): build/push arm64 app image via native Buildx, no QEMU.
-- `build-sandbox` (self-hosted x64): build/push amd64 sandbox image.
-- `build-sandbox-browser` (self-hosted x64): build/push amd64 sandbox browser image.
+- `build-amd64` (ubuntu-latest): build/push amd64 app image via Buildx.
+- `build-arm64` (ubuntu-latest): build/push arm64 app image via Buildx and QEMU.
+- `build-sandbox` (ubuntu-latest): build/push amd64 sandbox image.
+- `build-sandbox-browser` (ubuntu-latest): build/push amd64 sandbox browser image.
 - `create-manifest` (ubuntu-latest): create multi-arch manifest.
 
 **Risks / issues found**
 
-- **Self-hosted prerequisite**: merge is unsafe until the `docker-release-amd64` and `docker-release-arm64` runner pools exist with the expected labels.
-- **Self-hosted runner trust**: these pools can publish release images to GHCR and must stay isolated from deploy secrets and the production VM.
+- **Runner capacity risk**: all image builds now depend on GitHub-hosted runner availability and Actions minutes.
+- **QEMU runtime risk**: arm64 builds are slower and more emulation-sensitive than native arm64 builds.
 - **Trigger surface**: markdown-only edits outside the runtime-owned skill trees still skip release, which is intentional to avoid heavy image builds for ordinary docs churn.
 
 **Recommendation**
 
-- **Needs targeted hardening.** Current branch triggers now cover controlled rebuilds and runtime-owned skill markdown. A later pass can revisit whether `create-manifest` should also move and further tighten self-hosted operations.
+- **Needs targeted hardening.** Current branch triggers now cover controlled rebuilds and runtime-owned skill markdown. A later pass can revisit release build capacity, QEMU wall-clock impact, and provenance/SBOM settings.
 
 ### Auto response (`.github/workflows/auto-response.yml`)
 

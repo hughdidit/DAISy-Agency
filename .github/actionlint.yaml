@@ -1,12 +1,6 @@
 # actionlint configuration
 # https://github.com/rhysd/actionlint/blob/main/docs/config.md
 
-self-hosted-runner:
-  labels:
-    - docker-release
-    - docker-release-amd64
-    - docker-release-arm64
-
 # Ignore patterns for known issues
 paths:
   .github/workflows/**/*.yml:
