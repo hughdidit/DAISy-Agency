@@ -169,7 +169,7 @@ describe("sandbox-first acceptance helpers", () => {
       agentSubjects: [],
       subagentSubjects: ["subagent:daisy"],
       baselineSubject: "subagent:daisy",
-      delegateSubjects: ["subagent:daisy"],
+      delegateSubjects: [],
     });
   });
 
