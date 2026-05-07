@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { selectGwsBindingSubjects } from "../../scripts/gws/subject-selection.mjs";
 import {
   analyzeReadonlyDiagnostics,
   buildScenarioSummaryEntry,
@@ -9,7 +10,6 @@ import {
   SANDBOX_FIRST_ACCEPTANCE_SCENARIOS,
   selectIntegrationPath,
 } from "./sandbox-first-acceptance.mjs";
-import { selectGwsBindingSubjects } from "../../scripts/gws/subject-selection.mjs";
 
 async function withTempDir(run: (dir: string) => Promise<void>) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "sbx-402-verify-"));
@@ -338,9 +338,7 @@ describe("runSandboxFirstAcceptance", () => {
             2,
           );
         }
-        if (
-          command === "cd /app && node scripts/gws/run-auth-health.mjs --subject 'agent:daisy'"
-        ) {
+        if (command === "cd /app && node scripts/gws/run-auth-health.mjs --subject 'agent:daisy'") {
           return JSON.stringify(
             {
               ok: true,

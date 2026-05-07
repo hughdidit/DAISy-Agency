@@ -13,10 +13,9 @@ export function selectGwsBindingSubjects(agentCredentialBindings) {
   const agentSubjects = subjects.filter((subject) => subject.startsWith("agent:"));
   const subagentSubjects = subjects.filter((subject) => subject.startsWith("subagent:"));
   const baselineSubject = agentSubjects[0] ?? subagentSubjects[0] ?? null;
-  const delegateSubjects = [
-    ...subagentSubjects,
-    ...agentSubjects,
-  ].filter((subject) => subject !== baselineSubject);
+  const delegateSubjects = [...subagentSubjects, ...agentSubjects].filter(
+    (subject) => subject !== baselineSubject,
+  );
 
   return {
     agentSubjects,

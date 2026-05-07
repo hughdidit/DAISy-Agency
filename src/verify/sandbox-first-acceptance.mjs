@@ -709,7 +709,9 @@ async function runGwsIntegrationScenario(ctx) {
   );
 
   const baselineSubject =
-    typeof delegatePayload.baselineSubject === "string" ? delegatePayload.baselineSubject.trim() : "";
+    typeof delegatePayload.baselineSubject === "string"
+      ? delegatePayload.baselineSubject.trim()
+      : "";
   if (!/^(agent|subagent):[A-Za-z0-9._-]+$/.test(baselineSubject)) {
     throw new ScenarioError(
       "secret-or-route-gap",
