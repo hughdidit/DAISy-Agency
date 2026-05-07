@@ -700,7 +700,38 @@ function validateGwsAuthHealthPayload(subject, payload) {
 }
 
 async function runGwsIntegrationScenario(ctx) {
-  const activeRouteRaw = ctx.dockerExecBash("cd /app && node scripts/gws/inspect-active-route.mjs");
+  const delegateRaw = ctx.dockerExecBash("cd /app && node scripts/gws/select-delegate-subject.mjs");
+  await ctx.writeArtifactText("gws-delegate-subjects.json", delegateRaw);
+  const delegatePayload = parseJsonOrThrow(
+    delegateRaw,
+    "delegated-capability-gap",
+    "select-delegate-subject did not return a parseable JSON payload",
+  );
+
+  const baselineSubject =
+    typeof delegatePayload.baselineSubject === "string" ? delegatePayload.baselineSubject.trim() : "";
+  if (!/^(agent|subagent):[A-Za-z0-9._-]+$/.test(baselineSubject)) {
+    throw new ScenarioError(
+      "secret-or-route-gap",
+      "No configured GWS baseline binding subject was available for auth-health verification",
+    );
+  }
+
+  const delegateSubjects = Array.isArray(delegatePayload.delegateSubjects)
+    ? delegatePayload.delegateSubjects
+        .map((value) => (typeof value === "string" ? value.trim() : ""))
+        .filter((value) => /^(agent|subagent):[A-Za-z0-9._-]+$/.test(value))
+    : [];
+  if (delegateSubjects.length === 0) {
+    throw new ScenarioError(
+      "delegated-capability-gap",
+      "No delegated GWS binding subject candidates were available for auth-health verification",
+    );
+  }
+
+  const activeRouteRaw = ctx.dockerExecBash(
+    `cd /app && node scripts/gws/inspect-active-route.mjs --subject ${shellQuote(baselineSubject)}`,
+  );
   await ctx.writeArtifactText("gws-active-route.json", activeRouteRaw);
   const activeRoute = parseJsonOrThrow(
     activeRouteRaw,
@@ -797,54 +828,34 @@ async function runGwsIntegrationScenario(ctx) {
     }
   }
 
-  const delegateRaw = ctx.dockerExecBash("cd /app && node scripts/gws/select-delegate-subject.mjs");
-  await ctx.writeArtifactText("gws-delegate-subjects.json", delegateRaw);
-  const delegatePayload = parseJsonOrThrow(
-    delegateRaw,
-    "delegated-capability-gap",
-    "select-delegate-subject did not return a parseable JSON payload",
+  const baselineRaw = ctx.dockerExecBash(
+    `cd /app && node scripts/gws/run-auth-health.mjs --subject ${shellQuote(baselineSubject)}`,
   );
-
-  const delegateSubjects = Array.isArray(delegatePayload.delegateSubjects)
-    ? delegatePayload.delegateSubjects
-        .map((value) => (typeof value === "string" ? value.trim() : ""))
-        .filter((value) => /^(agent|subagent):[A-Za-z0-9._-]+$/.test(value))
-    : [];
-  if (delegateSubjects.length === 0) {
-    throw new ScenarioError(
-      "delegated-capability-gap",
-      "No delegated GWS binding subject candidates were available for auth-health verification",
-    );
-  }
-
-  const mainRaw = ctx.dockerExecBash(
-    "cd /app && node scripts/gws/run-auth-health.mjs --subject agent:main",
-  );
-  await ctx.writeArtifactText("gws-auth-health-agent-main.json", mainRaw);
-  const mainPayload = parseJsonOrThrow(
-    mainRaw,
+  await ctx.writeArtifactText("gws-auth-health-baseline.json", baselineRaw);
+  const baselinePayload = parseJsonOrThrow(
+    baselineRaw,
     "secret-or-route-gap",
-    "run-auth-health for agent:main did not return a parseable JSON payload",
+    `run-auth-health for ${baselineSubject} did not return a parseable JSON payload`,
   );
-  if (!validateGwsAuthHealthPayload("agent:main", mainPayload)) {
+  if (!validateGwsAuthHealthPayload(baselineSubject, baselinePayload)) {
     throw new ScenarioError(
       "secret-or-route-gap",
-      "Auth-health baseline checks failed for agent:main",
+      `Auth-health baseline checks failed for ${baselineSubject}`,
     );
   }
-  if (mainPayload?.data?.authHealth?.credentialSourceType !== "service_account_json") {
+  if (baselinePayload?.data?.authHealth?.credentialSourceType !== "service_account_json") {
     throw new ScenarioError(
       "secret-or-route-gap",
-      "Auth-health credential source drifted from service_account_json for agent:main",
+      `Auth-health credential source drifted from service_account_json for ${baselineSubject}`,
     );
   }
   if (
-    mainPayload?.data?.authHealth?.serviceAccountPolicyEnforced !== true ||
-    mainPayload?.data?.authHealth?.serviceAccountPolicyCompliant !== true
+    baselinePayload?.data?.authHealth?.serviceAccountPolicyEnforced !== true ||
+    baselinePayload?.data?.authHealth?.serviceAccountPolicyCompliant !== true
   ) {
     throw new ScenarioError(
       "secret-or-route-gap",
-      "Auth-health service-account policy gate failed for agent:main",
+      `Auth-health service-account policy gate failed for ${baselineSubject}`,
     );
   }
 

@@ -9,6 +9,7 @@ import {
   SANDBOX_FIRST_ACCEPTANCE_SCENARIOS,
   selectIntegrationPath,
 } from "./sandbox-first-acceptance.mjs";
+import { selectGwsBindingSubjects } from "../../scripts/gws/subject-selection.mjs";
 
 async function withTempDir(run: (dir: string) => Promise<void>) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "sbx-402-verify-"));
@@ -143,6 +144,48 @@ describe("sandbox-first acceptance helpers", () => {
       }),
     );
   });
+
+  it("selects a configured GWS agent subject as the baseline", () => {
+    expect(
+      selectGwsBindingSubjects({
+        "subagent:daisy": "workspace-service-account",
+        "agent:daisy": "workspace-service-account",
+        "agent:main!": "invalid",
+      }),
+    ).toEqual({
+      agentSubjects: ["agent:daisy"],
+      subagentSubjects: ["subagent:daisy"],
+      baselineSubject: "agent:daisy",
+      delegateSubjects: ["subagent:daisy"],
+    });
+  });
+
+  it("falls back to a configured GWS subagent subject when no agent binding exists", () => {
+    expect(
+      selectGwsBindingSubjects({
+        "subagent:daisy": "workspace-service-account",
+      }),
+    ).toEqual({
+      agentSubjects: [],
+      subagentSubjects: ["subagent:daisy"],
+      baselineSubject: "subagent:daisy",
+      delegateSubjects: ["subagent:daisy"],
+    });
+  });
+
+  it("reports no configured GWS subject when no valid bindings exist", () => {
+    expect(
+      selectGwsBindingSubjects({
+        main: "workspace-service-account",
+        "agent:main!": "workspace-service-account",
+      }),
+    ).toEqual({
+      agentSubjects: [],
+      subagentSubjects: [],
+      baselineSubject: null,
+      delegateSubjects: [],
+    });
+  });
 });
 
 describe("runSandboxFirstAcceptance", () => {
@@ -255,9 +298,12 @@ describe("runSandboxFirstAcceptance", () => {
             2,
           );
         }
-        if (command === "cd /app && node scripts/gws/inspect-active-route.mjs") {
+        if (
+          command === "cd /app && node scripts/gws/inspect-active-route.mjs --subject 'agent:daisy'"
+        ) {
           return JSON.stringify(
             {
+              bindingSubject: "agent:daisy",
               mode: "credentials_file",
               credentialsFile: "/home/node/.openclaw/google-workspace/credentials.json",
               impersonationConfigured: false,
@@ -283,19 +329,24 @@ describe("runSandboxFirstAcceptance", () => {
         if (command === "cd /app && node scripts/gws/select-delegate-subject.mjs") {
           return JSON.stringify(
             {
-              delegateSubjects: ["subagent:ops"],
+              agentSubjects: ["agent:daisy"],
+              subagentSubjects: ["subagent:daisy"],
+              baselineSubject: "agent:daisy",
+              delegateSubjects: ["subagent:daisy"],
             },
             null,
             2,
           );
         }
-        if (command === "cd /app && node scripts/gws/run-auth-health.mjs --subject agent:main") {
+        if (
+          command === "cd /app && node scripts/gws/run-auth-health.mjs --subject 'agent:daisy'"
+        ) {
           return JSON.stringify(
             {
               ok: true,
               data: {
                 route: {
-                  bindingSubject: "agent:main",
+                  bindingSubject: "agent:daisy",
                 },
                 authHealth: {
                   tokenValid: true,
@@ -310,14 +361,14 @@ describe("runSandboxFirstAcceptance", () => {
           );
         }
         if (
-          command === "cd /app && node scripts/gws/run-auth-health.mjs --subject 'subagent:ops'"
+          command === "cd /app && node scripts/gws/run-auth-health.mjs --subject 'subagent:daisy'"
         ) {
           return JSON.stringify(
             {
               ok: true,
               data: {
                 route: {
-                  bindingSubject: "subagent:ops",
+                  bindingSubject: "subagent:daisy",
                 },
                 authHealth: {
                   tokenValid: true,
