@@ -112,9 +112,14 @@ jobs:
             echo "No delegated GWS binding subjects found in ${container}" >&2
             exit 1
           }
+          baseline_subject="$(jq -r '.baselineSubject // empty' <<<"${delegate_subjects_json}")"
+          [[ "${baseline_subject}" =~ ^(agent|subagent):[A-Za-z0-9._-]+$ ]] || {
+            echo "No configured GWS baseline binding subject found in ${container}" >&2
+            exit 1
+          }
           mapfile -t delegate_subject_candidates < <(jq -r '.delegateSubjects[]?' <<<"${delegate_subjects_json}")
           [[ "${#delegate_subject_candidates[@]}" -gt 0 ]] || {
-            echo "No delegated GWS binding subject candidates found in ${container}" >&2
+            echo "No additional non-baseline delegated GWS binding subject candidates found in ${container}" >&2
             exit 1
           }
 
@@ -143,18 +148,18 @@ jobs:
               || return 1
           }
 
-          main_payload="$(run_auth_health_payload "agent:main")" || {
-            echo "auth-health command failed for agent:main" >&2
+          baseline_payload="$(run_auth_health_payload "${baseline_subject}")" || {
+            echo "auth-health command failed for ${baseline_subject}" >&2
             exit 1
           }
-          validate_auth_health_payload "agent:main" "${main_payload}" || {
-            echo "auth-health baseline checks failed for agent:main" >&2
+          validate_auth_health_payload "${baseline_subject}" "${baseline_payload}" || {
+            echo "auth-health baseline checks failed for ${baseline_subject}" >&2
             exit 1
           }
-          jq -e '.data.authHealth.credentialSourceType == "service_account_json"' >/dev/null <<<"${main_payload}" \
-            || { echo "auth-health credential source drifted for agent:main" >&2; exit 1; }
-          jq -e '.data.authHealth.serviceAccountPolicyEnforced == true and .data.authHealth.serviceAccountPolicyCompliant == true' >/dev/null <<<"${main_payload}" \
-            || { echo "auth-health service-account policy check failed for agent:main" >&2; exit 1; }
+          jq -e '.data.authHealth.credentialSourceType == "service_account_json"' >/dev/null <<<"${baseline_payload}" \
+            || { echo "auth-health credential source drifted for ${baseline_subject}" >&2; exit 1; }
+          jq -e '.data.authHealth.serviceAccountPolicyEnforced == true and .data.authHealth.serviceAccountPolicyCompliant == true' >/dev/null <<<"${baseline_payload}" \
+            || { echo "auth-health service-account policy check failed for ${baseline_subject}" >&2; exit 1; }
 
           delegate_subject=""
           for candidate_subject in "${delegate_subject_candidates[@]}"; do
@@ -190,4 +195,4 @@ jobs:
             exit 1
           }
 
-          echo "GWS auth-health smoke passed for agent:main and ${delegate_subject}"
+          echo "GWS auth-health smoke passed for ${baseline_subject} and ${delegate_subject}"

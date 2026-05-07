@@ -1,11 +1,31 @@
 import { loadActiveGwsPluginConfig } from "./active-config.mjs";
+import { isValidGwsBindingSubject, selectGwsBindingSubjects } from "./subject-selection.mjs";
 
 const { configPath, config: cfg } = loadActiveGwsPluginConfig();
-const bindingSubject = "agent:main";
+const bindings =
+  cfg?.agentCredentialBindings && typeof cfg.agentCredentialBindings === "object"
+    ? cfg.agentCredentialBindings
+    : {};
+const subjectIndex = process.argv.indexOf("--subject");
+const requestedSubject =
+  subjectIndex >= 0 && typeof process.argv[subjectIndex + 1] === "string"
+    ? process.argv[subjectIndex + 1].trim()
+    : "";
+const { baselineSubject } = selectGwsBindingSubjects(bindings);
+const bindingSubject = requestedSubject || baselineSubject;
+
+if (!isValidGwsBindingSubject(bindingSubject)) {
+  console.error(
+    requestedSubject
+      ? `invalid binding subject "${requestedSubject}"; expected agent:<id> or subagent:<id>`
+      : "missing configured GWS binding subject; pass --subject or configure an agent/subagent binding",
+  );
+  process.exit(1);
+}
+
 const boundRoute =
-  typeof cfg?.agentCredentialBindings?.[bindingSubject] === "string" &&
-  cfg.agentCredentialBindings[bindingSubject].length > 0
-    ? cfg.agentCredentialBindings[bindingSubject]
+  typeof bindings[bindingSubject] === "string" && bindings[bindingSubject].length > 0
+    ? bindings[bindingSubject]
     : null;
 const route =
   boundRoute ??
