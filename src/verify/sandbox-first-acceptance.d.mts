@@ -94,6 +94,8 @@ export function analyzeReadonlyDiagnostics(
   params: SandboxFirstAcceptanceReadonlyDiagnosticsInput,
 ): string[];
 
+export function isValidAgentCronRunSessionKey(value: unknown): boolean;
+
 export function runSandboxFirstAcceptance(
   params?: SandboxFirstAcceptanceRunParams,
 ): Promise<SandboxFirstAcceptanceRunResult>;
