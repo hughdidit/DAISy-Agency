@@ -6,6 +6,7 @@ import { setActivePluginRegistry } from "../../plugins/runtime.js";
 import type { RuntimeEnv } from "../../runtime.js";
 
 const {
+  clientHandleDeployRequestMock,
   clientFetchUserMock,
   clientGetPluginMock,
   clientConstructorOptionsMock,
@@ -24,6 +25,7 @@ const {
 } = vi.hoisted(() => {
   const createdBindingManagers: Array<{ stop: ReturnType<typeof vi.fn> }> = [];
   return {
+    clientHandleDeployRequestMock: vi.fn(async () => undefined),
     clientConstructorOptionsMock: vi.fn(),
     clientFetchUserMock: vi.fn(async (_target: string) => ({ id: "bot-1" })),
     clientGetPluginMock: vi.fn<(_name: string) => unknown>(() => undefined),
@@ -81,7 +83,7 @@ vi.mock("@buape/carbon", () => {
       clientConstructorOptionsMock(options);
     }
     async handleDeployRequest() {
-      return undefined;
+      return await clientHandleDeployRequestMock();
     }
     async fetchUser(target: string) {
       return await clientFetchUserMock(target);
@@ -271,6 +273,7 @@ describe("monitorDiscordProvider", () => {
   beforeEach(() => {
     setActivePluginRegistry(createEmptyPluginRegistry(), "provider-test");
     clientConstructorOptionsMock.mockClear();
+    clientHandleDeployRequestMock.mockClear().mockResolvedValue(undefined);
     clientFetchUserMock.mockClear().mockResolvedValue({ id: "bot-1" });
     clientGetPluginMock.mockClear().mockReturnValue(undefined);
     createDiscordNativeCommandMock.mockClear().mockReturnValue({ name: "mock-command" });
@@ -387,6 +390,30 @@ describe("monitorDiscordProvider", () => {
 
     const eventQueue = getConstructedEventQueue();
     expect(eventQueue?.listenerTimeout).toBe(300_000);
+  });
+
+  it("keeps native command deploy errors bounded and nonfatal", async () => {
+    const { monitorDiscordProvider } = await import("./provider.js");
+    const runtime = baseRuntime();
+    const html = `<!DOCTYPE html>${"gateway timeout ".repeat(200)}`;
+    clientHandleDeployRequestMock.mockRejectedValueOnce(
+      Object.assign(new Error(html), {
+        status: 504,
+        rawBody: { message: html },
+      }),
+    );
+
+    await monitorDiscordProvider({
+      config: baseConfig(),
+      runtime,
+    });
+
+    expect(monitorLifecycleMock).toHaveBeenCalledTimes(1);
+    expect(runtime.error).toHaveBeenCalledTimes(1);
+    const message = String((runtime.error as ReturnType<typeof vi.fn>).mock.calls[0]?.[0]);
+    expect(message).toContain("discord: failed to deploy native commands:");
+    expect(message).toContain("status=504");
+    expect(message.length).toBeLessThan(1_300);
   });
 
   it("registers cron-guard approval handlers when the plugin enables Discord approvals", async () => {

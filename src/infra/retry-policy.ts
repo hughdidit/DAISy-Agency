@@ -20,7 +20,28 @@ export const TELEGRAM_RETRY_DEFAULTS = {
 };
 
 const TELEGRAM_RETRY_RE = /429|timeout|connect|reset|closed|unavailable|temporarily/i;
+const DISCORD_RETRY_RE = /timeout|connect|reset|closed|unavailable|temporarily/i;
 const log = createSubsystemLogger("retry-policy");
+
+export function readHttpStatus(err: unknown): number | undefined {
+  if (!err || typeof err !== "object") {
+    return undefined;
+  }
+  const status = (err as { status?: unknown }).status;
+  return typeof status === "number" && Number.isFinite(status) ? status : undefined;
+}
+
+export function isTransientDiscordHttpStatus(status: number): boolean {
+  return status === 408 || status === 429 || status >= 500;
+}
+
+export function isTransientDiscordError(err: unknown): boolean {
+  const status = readHttpStatus(err);
+  if (status !== undefined) {
+    return isTransientDiscordHttpStatus(status);
+  }
+  return DISCORD_RETRY_RE.test(formatErrorMessage(err));
+}
 
 function getTelegramRetryAfterMs(err: unknown): number | undefined {
   if (!err || typeof err !== "object") {
@@ -48,6 +69,7 @@ export function createDiscordRetryRunner(params: {
   retry?: RetryConfig;
   configRetry?: RetryConfig;
   verbose?: boolean;
+  shouldRetry?: (err: unknown) => boolean;
 }): RetryRunner {
   const retryConfig = resolveRetryConfig(DISCORD_RETRY_DEFAULTS, {
     ...params.configRetry,
@@ -57,14 +79,21 @@ export function createDiscordRetryRunner(params: {
     retryAsync(fn, {
       ...retryConfig,
       label,
-      shouldRetry: (err) => err instanceof RateLimitError,
+      shouldRetry: (err) => err instanceof RateLimitError || params.shouldRetry?.(err) === true,
       retryAfterMs: (err) => (err instanceof RateLimitError ? err.retryAfter * 1000 : undefined),
       onRetry: params.verbose
         ? (info) => {
             const labelText = info.label ?? "request";
             const maxRetries = Math.max(1, info.maxAttempts - 1);
+            const status = readHttpStatus(info.err);
+            const reason =
+              info.err instanceof RateLimitError
+                ? "rate limited"
+                : status !== undefined
+                  ? `transient HTTP ${status}`
+                  : "transient error";
             log.warn(
-              `discord ${labelText} rate limited, retry ${info.attempt}/${maxRetries} in ${info.delayMs}ms`,
+              `discord ${labelText} ${reason}, retry ${info.attempt}/${maxRetries} in ${info.delayMs}ms`,
             );
           }
         : undefined,

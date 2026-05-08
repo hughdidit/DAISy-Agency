@@ -13,7 +13,11 @@ import {
   setGatewaySigusr1RestartPolicy,
   setPreRestartDeferralCheck,
 } from "./restart.js";
-import { createTelegramRetryRunner } from "./retry-policy.js";
+import {
+  createDiscordRetryRunner,
+  createTelegramRetryRunner,
+  isTransientDiscordError,
+} from "./retry-policy.js";
 import { listTailnetAddresses } from "./tailnet.js";
 
 describe("infra runtime", () => {
@@ -79,6 +83,53 @@ describe("infra runtime", () => {
 
       await expect(promise).resolves.toBe("ok");
       expect(fn).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe("createDiscordRetryRunner", () => {
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it("retries transient Discord HTTP errors before succeeding", async () => {
+      vi.useFakeTimers();
+      const runner = createDiscordRetryRunner({
+        retry: { attempts: 2, minDelayMs: 0, maxDelayMs: 0, jitter: 0 },
+        shouldRetry: isTransientDiscordError,
+      });
+      const error = Object.assign(new Error("Gateway time-out"), { status: 504 });
+      const fn = vi.fn().mockRejectedValueOnce(error).mockResolvedValue("ok");
+
+      const promise = runner(fn, "command deploy");
+      await vi.runAllTimersAsync();
+
+      await expect(promise).resolves.toBe("ok");
+      expect(fn).toHaveBeenCalledTimes(2);
+    });
+
+    it("does not retry transient HTTP errors by default", async () => {
+      vi.useFakeTimers();
+      const runner = createDiscordRetryRunner({
+        retry: { attempts: 2, minDelayMs: 0, maxDelayMs: 0, jitter: 0 },
+      });
+      const error = Object.assign(new Error("Gateway time-out"), { status: 504 });
+      const fn = vi.fn().mockRejectedValue(error);
+
+      await expect(runner(fn, "send message")).rejects.toThrow("Gateway time-out");
+      expect(fn).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not retry Discord credential errors", async () => {
+      vi.useFakeTimers();
+      const runner = createDiscordRetryRunner({
+        retry: { attempts: 3, minDelayMs: 0, maxDelayMs: 0, jitter: 0 },
+        shouldRetry: isTransientDiscordError,
+      });
+      const error = Object.assign(new Error("Unauthorized"), { status: 401 });
+      const fn = vi.fn().mockRejectedValue(error);
+
+      await expect(runner(fn, "command deploy")).rejects.toThrow("Unauthorized");
+      expect(fn).toHaveBeenCalledTimes(1);
     });
   });
 

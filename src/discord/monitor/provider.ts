@@ -43,7 +43,7 @@ import {
 } from "../../config/runtime-group-policy.js";
 import { danger, logVerbose, shouldLogVerbose, warn } from "../../globals.js";
 import { formatErrorMessage } from "../../infra/errors.js";
-import { createDiscordRetryRunner } from "../../infra/retry-policy.js";
+import { createDiscordRetryRunner, isTransientDiscordError } from "../../infra/retry-policy.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { getActivePluginRegistry } from "../../plugins/runtime.js";
 import type {
@@ -365,15 +365,26 @@ async function deployDiscordCommands(params: {
   if (!params.enabled) {
     return;
   }
-  const runWithRetry = createDiscordRetryRunner({ verbose: shouldLogVerbose() });
+  const runWithRetry = createDiscordRetryRunner({
+    verbose: shouldLogVerbose(),
+    shouldRetry: isTransientDiscordError,
+  });
   try {
     await runWithRetry(() => params.client.handleDeployRequest(), "command deploy");
   } catch (err) {
     const details = formatDiscordDeployErrorDetails(err);
     params.runtime.error?.(
-      danger(`discord: failed to deploy native commands: ${formatErrorMessage(err)}${details}`),
+      danger(
+        `discord: failed to deploy native commands: ${formatDiscordDeployErrorSummary(err)}${details}`,
+      ),
     );
   }
+}
+
+function formatDiscordDeployErrorSummary(err: unknown): string {
+  const message = formatErrorMessage(err).replace(/\s+/g, " ").trim();
+  const maxLen = 240;
+  return message.length > maxLen ? `${message.slice(0, maxLen)}...` : message;
 }
 
 function formatDiscordDeployErrorDetails(err: unknown): string {
