@@ -158,6 +158,18 @@ describe("applyPluginAutoEnable", () => {
     expect(result.changes.join("\n")).toContain("IRC configured, enabled automatically.");
   });
 
+  it("does not auto-enable discord from a named-account token env alone", () => {
+    const result = applyPluginAutoEnable({
+      config: {},
+      env: {
+        FINN_DISCORD_BOT_TOKEN: "token-finn",
+      },
+    });
+
+    expect(result.config.channels?.discord?.enabled).toBeUndefined();
+    expect(result.changes).toEqual([]);
+  });
+
   it("auto-enables provider auth plugins when profiles exist", () => {
     const result = applyPluginAutoEnable({
       config: {
