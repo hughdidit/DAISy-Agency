@@ -52,13 +52,38 @@ jobs:
           fi
           "$PYTHON_BIN" -m pip install numpy
 
-      - name: Pre-generate SSH key for gcloud
+      - name: Register OS Login SSH key
         run: |
-          # Generate the SSH key that gcloud compute ssh would auto-create,
-          # but suppress output to prevent key material leaking into CI logs.
+          # Generate and import the SSH key before verify.sh makes any
+          # gcloud compute ssh calls. This keeps WIF-backed verification
+          # self-contained on fresh GitHub-hosted runners.
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
           if [[ ! -f ~/.ssh/google_compute_engine ]]; then
             ssh-keygen -t rsa -b 3072 -f ~/.ssh/google_compute_engine -N "" -q
           fi
+          gcloud compute os-login ssh-keys add \
+            --key-file ~/.ssh/google_compute_engine.pub \
+            --ttl 30m \
+            --quiet >/dev/null
+
+      - name: Preflight GCE SSH over IAP
+        env:
+          GCE_INSTANCE_NAME: ${{ secrets.GCE_INSTANCE_NAME || vars.GCE_INSTANCE_NAME }}
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID || vars.GCP_PROJECT_ID }}
+          GCP_ZONE: ${{ secrets.GCP_ZONE || vars.GCP_ZONE }}
+        run: |
+          : "${GCE_INSTANCE_NAME:?GCE_INSTANCE_NAME is required}"
+          : "${GCP_PROJECT_ID:?GCP_PROJECT_ID is required}"
+          : "${GCP_ZONE:?GCP_ZONE is required}"
+
+          gcloud compute ssh "${GCE_INSTANCE_NAME}" \
+            --project "${GCP_PROJECT_ID}" \
+            --zone "${GCP_ZONE}" \
+            --tunnel-through-iap \
+            --quiet \
+            --command "true"
+          echo "GCE SSH/IAP preflight passed for ${GCE_INSTANCE_NAME}"
 
       - name: Run verification
         run: |
