@@ -212,6 +212,22 @@ jobs:
           fi
           "$PYTHON_BIN" -m pip install numpy
 
+      - name: Register OS Login SSH key
+        if: ${{ !inputs.dry_run }}
+        run: |
+          # Generate and import the SSH key before deploy.sh pipes data into
+          # gcloud compute ssh. This makes OS Login key registration explicit
+          # for WIF service-account deploys and keeps key material out of logs.
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          if [[ ! -f ~/.ssh/google_compute_engine ]]; then
+            ssh-keygen -t rsa -b 3072 -f ~/.ssh/google_compute_engine -N "" -q
+          fi
+          gcloud compute os-login ssh-keys add \
+            --key-file ~/.ssh/google_compute_engine.pub \
+            --ttl 30m \
+            --quiet >/dev/null
+
       - name: Resolve deploy image ref
         id: resolve
         env:
