@@ -168,6 +168,40 @@ openclaw pairing approve discord <CODE>
 Token resolution is account-aware. Config token values win over env fallback. `DISCORD_BOT_TOKEN` is only used for the default account.
 </Note>
 
+## Multiple Discord bots
+
+Run each Discord bot as a named account with its own token and allowlist. The default account may use `DISCORD_BOT_TOKEN`, but named accounts should use explicit token config, typically with account-specific environment references:
+
+```json5
+{
+  bindings: [
+    { agentId: "daisy", match: { channel: "discord", accountId: "default" } },
+    { agentId: "finn", match: { channel: "discord", accountId: "finn" } },
+  ],
+  channels: {
+    discord: {
+      accounts: {
+        default: {
+          token: "${DISCORD_BOT_TOKEN}",
+        },
+        finn: {
+          token: "${FINN_DISCORD_BOT_TOKEN}",
+          guilds: {
+            "123456789012345678": {
+              channels: {
+                "234567890123456789": { allow: true, requireMention: false },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+}
+```
+
+If a named account's token references an environment variable, that variable must be present when the gateway loads config. Missing token references fail config loading instead of falling back to the default account token.
+
 ## Recommended: Set up a guild workspace
 
 Once DMs are working, you can set up your Discord server as a full workspace where each channel gets its own agent session with its own context. This is recommended for private servers where it's just you and your bot.

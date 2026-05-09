@@ -6,6 +6,7 @@ describe("sanitizeEnvVars", () => {
     const result = sanitizeEnvVars({
       NODE_ENV: "test",
       OPENAI_API_KEY: "sk-live-xxx",
+      FINN_DISCORD_BOT_TOKEN: "discord-token",
       FOO: "bar",
       GITHUB_TOKEN: "gh-token",
     });
@@ -14,7 +15,9 @@ describe("sanitizeEnvVars", () => {
       NODE_ENV: "test",
       FOO: "bar",
     });
-    expect(result.blocked).toEqual(expect.arrayContaining(["OPENAI_API_KEY", "GITHUB_TOKEN"]));
+    expect(result.blocked).toEqual(
+      expect.arrayContaining(["OPENAI_API_KEY", "FINN_DISCORD_BOT_TOKEN", "GITHUB_TOKEN"]),
+    );
   });
 
   it("blocks credentials even when suffix pattern matches", () => {
