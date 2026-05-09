@@ -1,5 +1,6 @@
 import type { BaseProbeResult } from "../channels/plugins/types.js";
 import { resolveFetch } from "../infra/fetch.js";
+import { isTransientDiscordHttpStatus } from "../infra/retry-policy.js";
 import { fetchWithTimeout } from "../utils/fetch-timeout.js";
 import { normalizeDiscordToken } from "./token.js";
 
@@ -220,13 +221,17 @@ export async function fetchDiscordApplicationId(
       if (json?.id) {
         return json.id;
       }
+      return parseApplicationIdFromToken(normalized);
     }
-    // Non-ok HTTP response (401, 403, etc.) — fail fast so credential
-    // errors surface immediately rather than being masked by the fallback.
+    if (isTransientDiscordHttpStatus(res.status)) {
+      return parseApplicationIdFromToken(normalized);
+    }
+    // Credential/config errors (401, 403, etc.) still fail fast rather than
+    // being masked by the fallback.
     return undefined;
   } catch {
     // Transport / timeout error — fall back to extracting the application
     // ID directly from the token to keep the bot starting.
-    return parseApplicationIdFromToken(token);
+    return parseApplicationIdFromToken(normalized);
   }
 }
