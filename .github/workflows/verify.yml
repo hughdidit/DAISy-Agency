@@ -82,7 +82,11 @@ jobs:
             --zone "${GCP_ZONE}" \
             --tunnel-through-iap \
             --quiet \
-            --command "true"
+            --command "true" \
+            -- \
+            -o ConnectTimeout=30 \
+            -o StrictHostKeyChecking=accept-new \
+            -o BatchMode=yes
           echo "GCE SSH/IAP preflight passed for ${GCE_INSTANCE_NAME}"
 
       - name: Run verification
