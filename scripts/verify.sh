@@ -33,7 +33,11 @@ gce_ssh() {
     --zone "${GCP_ZONE}" \
     --tunnel-through-iap \
     --quiet \
-    --command "$1"
+    --command "$1" \
+    -- \
+    -o ConnectTimeout=30 \
+    -o StrictHostKeyChecking=accept-new \
+    -o BatchMode=yes
 }
 
 # Helper: run a command on the GCE instance via IAP SSH and return only the last
