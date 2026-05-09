@@ -64,6 +64,9 @@ on:
       DISCORD_BOT_TOKEN:
         description: Discord bot token
         required: true
+      FINN_DISCORD_BOT_TOKEN:
+        description: Finn Discord bot token (optional named Discord account)
+        required: false
       ANTHROPIC_API_KEY:
         description: Anthropic API key for Claude model access
         required: true
@@ -166,6 +169,7 @@ jobs:
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
           OPENCLAW_GATEWAY_TOKEN: ${{ secrets.OPENCLAW_GATEWAY_TOKEN }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          FINN_DISCORD_BOT_TOKEN: ${{ secrets.FINN_DISCORD_BOT_TOKEN }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
@@ -335,6 +339,7 @@ jobs:
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
           OPENCLAW_GATEWAY_TOKEN: ${{ secrets.OPENCLAW_GATEWAY_TOKEN }}
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          FINN_DISCORD_BOT_TOKEN: ${{ secrets.FINN_DISCORD_BOT_TOKEN }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}

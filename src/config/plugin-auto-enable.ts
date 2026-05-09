@@ -90,7 +90,7 @@ const STRUCTURED_CHANNEL_CONFIG_SPECS: Record<string, StructuredChannelConfigSpe
     accountStringKeys: ["botToken", "tokenFile"],
   },
   discord: {
-    envAny: ["DISCORD_BOT_TOKEN"],
+    envAny: ["DISCORD_BOT_TOKEN", "FINN_DISCORD_BOT_TOKEN"],
     stringKeys: ["token"],
     accountStringKeys: ["token"],
   },

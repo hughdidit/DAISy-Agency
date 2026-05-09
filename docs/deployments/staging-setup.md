@@ -164,7 +164,8 @@ For a brand-new staging VM, the real deploy requires the config file to exist at
    - `GHCR_USERNAME`
    - `GHCR_TOKEN`
    - `OPENCLAW_GATEWAY_TOKEN` - Generate with `openssl rand -hex 32`
-   - `DISCORD_BOT_TOKEN` - Required by the current deploy workflow and deploy script for real deploys
+   - `DISCORD_BOT_TOKEN` - Required by the current deploy workflow and deploy script for real deploys; use the DAISy staging bot for the default Discord account
+   - `FINN_DISCORD_BOT_TOKEN` - Optional until the staging config references `channels.discord.accounts.finn.token`; required when Finn runs as its own Discord app
    - `ANTHROPIC_API_KEY` - Required by the current deploy workflow and deploy script for real deploys
    - `OPENAI_API_KEY` - Optional, for OpenAI-backed models, tools, and embeddings
    - `MONGODB_URI` - Optional, for memory-mongodb
@@ -289,7 +290,8 @@ sudo chown "$(whoami):$(whoami)" /opt/DAISy
 #### Staging Secrets Checklist
 
 - [ ] `OPENCLAW_GATEWAY_TOKEN` - Generate new random token
-- [ ] `DISCORD_BOT_TOKEN` - Required by the current deploy workflow/script; use staging bot, not production
+- [ ] `DISCORD_BOT_TOKEN` - Required by the current deploy workflow/script; use the DAISy staging bot for the default Discord account, not production
+- [ ] `FINN_DISCORD_BOT_TOKEN` - Required when `channels.discord.accounts.finn.token` references `${FINN_DISCORD_BOT_TOKEN}`; use Finn's real Discord bot token, not the DAISy staging token
 - [ ] `ANTHROPIC_API_KEY` - Required by the current deploy workflow/script for real deploys
 - [ ] `OPENAI_API_KEY` - Optional; set when staging should use OpenAI-backed features
 - [ ] `MONGODB_URI` - Optional; set when memory-mongodb is enabled
@@ -371,6 +373,40 @@ sudo docker-compose -f docker-compose.yml -f docker-compose.host.yml restart
 ```
 
 See [Gateway Configuration](/gateway/configuration#daisy-deployment-config-management) for the full config format reference and Discord allowlist structure.
+
+#### Finn Discord named account
+
+When staging connects Finn to Discord, keep Finn as a named Discord account with a separate token. Do not reuse `${DISCORD_BOT_TOKEN}` for Finn; that value is the DAISy staging bot.
+
+```json5
+{
+  bindings: [
+    { agentId: "daisy", match: { channel: "discord", accountId: "default" } },
+    { agentId: "finn", match: { channel: "discord", accountId: "finn" } },
+  ],
+  channels: {
+    discord: {
+      accounts: {
+        default: {
+          token: "${DISCORD_BOT_TOKEN}",
+        },
+        finn: {
+          token: "${FINN_DISCORD_BOT_TOKEN}",
+          guilds: {
+            FINN_GUILD_ID: {
+              channels: {
+                FINN_CHANNEL_ID: { allow: true, requireMention: false },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+}
+```
+
+After editing the locked VM config and deploying with `FINN_DISCORD_BOT_TOKEN` present, restart the gateway and verify logs show a separate Discord startup for account `finn`. Run `/reset` or `/new` in the relevant Discord channel after the deploy so channel session snapshots refresh. Do not run Finn's `BOOTSTRAP.md` as part of this connection step.
 
 ### 6. Start Services (Manual only)
 

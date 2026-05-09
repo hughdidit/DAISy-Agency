@@ -247,7 +247,7 @@ Each Discord bot account maps to a unique `accountId`. Bind each account to an a
       groupPolicy: "allowlist",
       accounts: {
         default: {
-          token: "DISCORD_BOT_TOKEN_MAIN",
+          token: "${DISCORD_BOT_TOKEN}",
           guilds: {
             "123456789012345678": {
               channels: {
@@ -257,7 +257,7 @@ Each Discord bot account maps to a unique `accountId`. Bind each account to an a
           },
         },
         coding: {
-          token: "DISCORD_BOT_TOKEN_CODING",
+          token: "${CODING_DISCORD_BOT_TOKEN}",
           guilds: {
             "123456789012345678": {
               channels: {
@@ -275,7 +275,7 @@ Each Discord bot account maps to a unique `accountId`. Bind each account to an a
 Notes:
 
 - Invite each bot to the guild and enable Message Content Intent.
-- Tokens live in `channels.discord.accounts.<id>.token` (default account can use `DISCORD_BOT_TOKEN`).
+- Tokens live in `channels.discord.accounts.<id>.token` (default account can use `DISCORD_BOT_TOKEN`; named accounts should use their own env references).
 
 ### Telegram bots per agent
 

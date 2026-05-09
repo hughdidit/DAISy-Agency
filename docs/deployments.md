@@ -101,12 +101,13 @@ These secrets are passed to docker compose on the target VM.
 **Required:**
 
 - `OPENCLAW_GATEWAY_TOKEN` - Authentication token for the gateway API. Generate with `openssl rand -hex 32`. Secures communication between clients and the gateway.
-- `DISCORD_BOT_TOKEN` - Discord bot token required by the current deployment workflow and deploy script for the bot runtime.
+- `DISCORD_BOT_TOKEN` - Discord bot token required by the current deployment workflow and deploy script for the default Discord account.
 - `ANTHROPIC_API_KEY` - Anthropic API key required by the current deployment workflow and deploy script for real deploys.
 
 **Optional (integrations):**
 
 - `OPENAI_API_KEY` - OpenAI-backed models, tools, and embeddings
+- `FINN_DISCORD_BOT_TOKEN` - Finn Discord bot token for `channels.discord.accounts.finn.token` when staging runs Finn as a separate Discord app
 - `MONGODB_URI` - memory-mongodb connection URI
 - `GEMINI_API_KEY` - Gemini embeddings / Google provider access
 - `BRAVE_API_KEY` - Brave web search access

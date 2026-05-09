@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../config/config.js";
+import { resolveConfigEnvVars } from "../config/env-substitution.js";
 import { resolveDiscordToken } from "./token.js";
 
 describe("resolveDiscordToken", () => {
@@ -27,6 +28,22 @@ describe("resolveDiscordToken", () => {
     expect(res.source).toBe("env");
   });
 
+  it("does not use default env token for named accounts", () => {
+    vi.stubEnv("DISCORD_BOT_TOKEN", "env-token");
+    const cfg = {
+      channels: {
+        discord: {
+          accounts: {
+            finn: {},
+          },
+        },
+      },
+    } as OpenClawConfig;
+    const res = resolveDiscordToken(cfg, { accountId: "finn" });
+    expect(res.token).toBe("");
+    expect(res.source).toBe("none");
+  });
+
   it("prefers account token for non-default accounts", () => {
     vi.stubEnv("DISCORD_BOT_TOKEN", "env-token");
     const cfg = {
@@ -42,6 +59,47 @@ describe("resolveDiscordToken", () => {
     const res = resolveDiscordToken(cfg, { accountId: "work" });
     expect(res.token).toBe("acct-token");
     expect(res.source).toBe("config");
+  });
+
+  it("resolves named account tokens from account-specific env references", () => {
+    vi.stubEnv("DISCORD_BOT_TOKEN", "env-token");
+    vi.stubEnv("FINN_DISCORD_BOT_TOKEN", "finn-env-token");
+    const cfg = resolveConfigEnvVars({
+      channels: {
+        discord: {
+          accounts: {
+            default: { token: "${DISCORD_BOT_TOKEN}" },
+            finn: { token: "${FINN_DISCORD_BOT_TOKEN}" },
+          },
+        },
+      },
+    }) as OpenClawConfig;
+
+    const defaultRes = resolveDiscordToken(cfg, { accountId: "default" });
+    const finnRes = resolveDiscordToken(cfg, { accountId: "finn" });
+
+    expect(defaultRes.token).toBe("env-token");
+    expect(defaultRes.source).toBe("config");
+    expect(finnRes.token).toBe("finn-env-token");
+    expect(finnRes.source).toBe("config");
+  });
+
+  it("fails config resolution when a named account env reference is missing", () => {
+    vi.stubEnv("DISCORD_BOT_TOKEN", "env-token");
+    vi.stubEnv("FINN_DISCORD_BOT_TOKEN", "");
+
+    expect(() =>
+      resolveConfigEnvVars({
+        channels: {
+          discord: {
+            accounts: {
+              default: { token: "${DISCORD_BOT_TOKEN}" },
+              finn: { token: "${FINN_DISCORD_BOT_TOKEN}" },
+            },
+          },
+        },
+      }),
+    ).toThrow(/FINN_DISCORD_BOT_TOKEN/);
   });
 
   it("falls back to top-level token for non-default accounts without account token", () => {
