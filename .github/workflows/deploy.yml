@@ -228,6 +228,25 @@ jobs:
             --ttl 30m \
             --quiet >/dev/null
 
+      - name: Preflight GCE SSH over IAP
+        if: ${{ !inputs.dry_run }}
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID || vars.GCP_PROJECT_ID }}
+          GCP_ZONE: ${{ secrets.GCP_ZONE || vars.GCP_ZONE }}
+          GCE_INSTANCE_NAME: ${{ secrets.GCE_INSTANCE_NAME || vars.GCE_INSTANCE_NAME }}
+        run: |
+          : "${GCP_PROJECT_ID:?GCP_PROJECT_ID is required}"
+          : "${GCP_ZONE:?GCP_ZONE is required}"
+          : "${GCE_INSTANCE_NAME:?GCE_INSTANCE_NAME is required}"
+
+          gcloud compute ssh "${GCE_INSTANCE_NAME}" \
+            --project "${GCP_PROJECT_ID}" \
+            --zone "${GCP_ZONE}" \
+            --tunnel-through-iap \
+            --quiet \
+            --command "true"
+          echo "GCE SSH/IAP preflight passed for ${GCE_INSTANCE_NAME}"
+
       - name: Resolve deploy image ref
         id: resolve
         env:
