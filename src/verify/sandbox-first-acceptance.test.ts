@@ -25,6 +25,37 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+function buildCronSessionCleanupResponse(
+  command: string,
+  overrides?: Partial<{ ok: boolean; removed: boolean; archived: string[] }>,
+): string | null {
+  const sessionKey = command.match(/SESSION_KEY='([^']+)'/)?.[1]?.trim();
+  if (!sessionKey || !command.includes("node --input-type=module -e")) {
+    return null;
+  }
+  const sessionId = sessionKey.split(":run:").at(-1);
+  if (!sessionId) {
+    return null;
+  }
+  const removed = overrides?.removed ?? true;
+  return JSON.stringify(
+    {
+      ok: overrides?.ok ?? true,
+      key: sessionKey,
+      removed,
+      archived:
+        overrides?.archived ??
+        (removed
+          ? [
+              `/home/node/.openclaw/agents/main/sessions/${sessionId}.jsonl.deleted.20260425T200000Z`,
+            ]
+          : []),
+    },
+    null,
+    2,
+  );
+}
+
 describe("sandbox-first acceptance helpers", () => {
   it("prefers the GWS integration path when gws-toolkit-phase1 is loaded", () => {
     const selection = selectIntegrationPath({
@@ -416,6 +447,10 @@ describe("runSandboxFirstAcceptance", () => {
             2,
           );
         }
+        const cronSessionCleanup = buildCronSessionCleanupResponse(command);
+        if (cronSessionCleanup) {
+          return cronSessionCleanup;
+        }
         if (command === "cd /app && node dist/index.js cron rm 'job-2' --json") {
           return JSON.stringify({ ok: true, removed: false }, null, 2);
         }
@@ -641,6 +676,10 @@ describe("runSandboxFirstAcceptance", () => {
             2,
           );
         }
+        const cronSessionCleanup = buildCronSessionCleanupResponse(command);
+        if (cronSessionCleanup) {
+          return cronSessionCleanup;
+        }
         if (command === "cd /app && node dist/index.js cron rm 'job-1' --json") {
           return JSON.stringify({ ok: true, removed: false }, null, 2);
         }
@@ -724,8 +763,254 @@ describe("runSandboxFirstAcceptance", () => {
         "sbx-401-08-isolated-cron",
         "cron-cleanup.json",
       );
+      const sessionCleanupPath = path.join(
+        artifactRoot,
+        "sandbox-first-acceptance",
+        "sbx-401-08-isolated-cron",
+        "cron-session-cleanup.json",
+      );
       expect(await fs.readFile(cleanupPath, "utf8")).toContain('"removed": false');
+      expect(await fs.readFile(sessionCleanupPath, "utf8")).toContain('"removed": true');
       expect(commands.some((command) => command.includes("cron rm 'job-1' --json"))).toBe(true);
+      expect(
+        commands.some((command) =>
+          command.includes("SESSION_KEY='agent:main:cron:job-1:run:run-1'"),
+        ),
+      ).toBe(true);
+    });
+  });
+
+  it("fails when cron session cleanup leaves the per-run session behind", async () => {
+    await withTempDir(async (artifactRoot) => {
+      const commands: string[] = [];
+      const dockerExecBash = vi.fn((command: string) => {
+        commands.push(command);
+        if (command.startsWith("cd /app && node dist/index.js sandbox explain --session ")) {
+          const sessionKey = command.match(/--session '([^']+)'/)?.[1] ?? "agent:main:main";
+          return JSON.stringify(
+            {
+              agentId: "main",
+              sessionKey,
+              sandbox: {
+                mode: "all",
+                profile: "ops-readonly",
+                sessionIsSandboxed: true,
+              },
+              elevated: {
+                channel: sessionKey.includes(":discord:") ? "discord" : "internal",
+              },
+            },
+            null,
+            2,
+          );
+        }
+        if (command === "cd /app && node dist/index.js status --json") {
+          return JSON.stringify(
+            {
+              capabilities: {
+                counts: {
+                  byClass: {
+                    "sandbox-local": 1,
+                    "gateway-brokered": 1,
+                    "configured-but-blocked": 0,
+                    "unsupported-in-current-runtime": 0,
+                  },
+                },
+              },
+              memoryPlugin: {
+                enabled: true,
+                slot: "memory-mongodb",
+              },
+            },
+            null,
+            2,
+          );
+        }
+        if (command === "cd /app && node dist/index.js sandbox explain --json") {
+          return JSON.stringify(
+            {
+              sandbox: {
+                mode: "all",
+                profile: "ops-readonly",
+                docker: {
+                  image: "ghcr.io/hughdidit/daisy-agency-sandbox:dev-22121f1",
+                },
+              },
+              capabilities: {
+                counts: {
+                  byClass: {
+                    "sandbox-local": 1,
+                    "gateway-brokered": 1,
+                    "configured-but-blocked": 0,
+                    "unsupported-in-current-runtime": 0,
+                  },
+                },
+              },
+            },
+            null,
+            2,
+          );
+        }
+        if (command === "cd /app && node dist/index.js doctor --non-interactive") {
+          return "doctor ok\n";
+        }
+        if (command === "cd /app && node dist/index.js skills check --json") {
+          return JSON.stringify(
+            {
+              summary: {
+                total: 1,
+                eligible: 1,
+                disabled: 0,
+                blocked: 0,
+                missingRequirements: 0,
+              },
+            },
+            null,
+            2,
+          );
+        }
+        if (command === "cd /app && node dist/index.js skills info openclaw-readonly --json") {
+          return JSON.stringify(
+            {
+              name: "openclaw-readonly",
+              eligible: true,
+              description:
+                "Sandbox-safe OpenClaw diagnostics through a tightly scoped read-only launcher.",
+            },
+            null,
+            2,
+          );
+        }
+        if (command === "cd /app && node dist/index.js plugins list --json") {
+          return JSON.stringify(
+            {
+              plugins: [{ id: "memory-mongodb", status: "loaded" }],
+            },
+            null,
+            2,
+          );
+        }
+        if (command === "cd /app && node dist/index.js memory status --deep --agent main --json") {
+          return JSON.stringify(
+            [
+              {
+                agentId: "main",
+                status: {
+                  provider: "mongodb-mcp",
+                },
+                embeddingProbe: {
+                  ok: true,
+                },
+              },
+            ],
+            null,
+            2,
+          );
+        }
+        if (command.includes("node dist/index.js cron add")) {
+          return JSON.stringify({ id: "job-1" }, null, 2);
+        }
+        if (command === "cd /app && node dist/index.js cron run 'job-1'") {
+          return JSON.stringify({ ok: true, ran: true }, null, 2);
+        }
+        if (command === "cd /app && node dist/index.js cron runs --id 'job-1' --limit 20") {
+          return JSON.stringify(
+            {
+              entries: [
+                {
+                  action: "finished",
+                  status: "ok",
+                  deliveryStatus: "not-requested",
+                  sessionKey: "agent:main:cron:job-1:run:run-1",
+                  provider: "anthropic",
+                  model: "claude-sonnet-4-5",
+                },
+              ],
+            },
+            null,
+            2,
+          );
+        }
+        const cronSessionCleanup = buildCronSessionCleanupResponse(
+          command,
+          command.includes("SESSION_KEY='agent:main:cron:job-1:run:run-1'")
+            ? { removed: false, archived: [] }
+            : undefined,
+        );
+        if (cronSessionCleanup) {
+          return cronSessionCleanup;
+        }
+        if (command === "cd /app && node dist/index.js cron rm 'job-1' --json") {
+          return JSON.stringify({ ok: true, removed: false }, null, 2);
+        }
+        if (command.includes("spawnAcpDirect")) {
+          return JSON.stringify(
+            {
+              status: "forbidden",
+              error:
+                'Sandbox blocked break-glass host-only operation during ACP session spawn (runtime="acp"): runtime="acp" uses break-glass host authority and cannot be spawned from a sandboxed session.',
+            },
+            null,
+            2,
+          );
+        }
+        throw new Error(`Unhandled docker command: ${command}`);
+      });
+
+      const result = await runSandboxFirstAcceptance({
+        artifactRoot,
+        env: {
+          VERIFY_ENV: "staging",
+          GCE_INSTANCE_NAME: "daisy-staging-1",
+          GCP_PROJECT_ID: "proj",
+          GCP_ZONE: "us-west1-b",
+          VERIFY_GCE_CONTAINER: "openclaw-gateway",
+        },
+        commandContext: {
+          container: "openclaw-gateway",
+          runSsh: vi.fn((command: string) => {
+            if (command.includes("openclaw-readonly status")) {
+              return "Gateway probe:\nSandbox gateway reachability failure during sandbox gateway probe: A host-loopback gateway probe is unsupported from readonly sandbox context.\n";
+            }
+            if (command.includes("openclaw-readonly sandbox explain")) {
+              return "Effective sandbox:\nmode: all\n";
+            }
+            if (command.includes("openclaw-readonly skills check")) {
+              return "Skills Status Check\n";
+            }
+            return "";
+          }),
+          dockerExecBash,
+          dockerExecSh: vi.fn(() => ""),
+        },
+        log: vi.fn(),
+        now: () => new Date("2026-04-25T20:00:00.000Z"),
+      });
+
+      expect(result.hasRequiredFailure).toBe(true);
+      expect(
+        result.results.find(
+          (entry: { scenarioId: string }) => entry.scenarioId === "sbx-401-08-isolated-cron",
+        ),
+      ).toEqual(
+        expect.objectContaining({
+          status: "failed",
+          failureClass: "scheduler-gap",
+        }),
+      );
+
+      const sessionCleanupPath = path.join(
+        artifactRoot,
+        "sandbox-first-acceptance",
+        "sbx-401-08-isolated-cron",
+        "cron-session-cleanup.json",
+      );
+      expect(await fs.readFile(sessionCleanupPath, "utf8")).toContain('"removed": false');
+      expect(
+        commands.some((command) =>
+          command.includes("SESSION_KEY='agent:main:cron:job-1:run:run-1'"),
+        ),
+      ).toBe(true);
     });
   });
 });
