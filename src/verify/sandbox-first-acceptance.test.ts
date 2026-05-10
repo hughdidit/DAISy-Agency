@@ -39,7 +39,9 @@ function buildCronSessionCleanupResponse(command: string): string | null {
       ok: true,
       key: sessionKey,
       removed: true,
-      archived: [`/home/node/.openclaw/agents/main/sessions/${sessionId}.jsonl.deleted.20260425T200000Z`],
+      archived: [
+        `/home/node/.openclaw/agents/main/sessions/${sessionId}.jsonl.deleted.20260425T200000Z`,
+      ],
     },
     null,
     2,
@@ -763,7 +765,9 @@ describe("runSandboxFirstAcceptance", () => {
       expect(await fs.readFile(sessionCleanupPath, "utf8")).toContain('"removed": true');
       expect(commands.some((command) => command.includes("cron rm 'job-1' --json"))).toBe(true);
       expect(
-        commands.some((command) => command.includes("SESSION_KEY='agent:main:cron:job-1:run:run-1'")),
+        commands.some((command) =>
+          command.includes("SESSION_KEY='agent:main:cron:job-1:run:run-1'"),
+        ),
       ).toBe(true);
     });
   });
