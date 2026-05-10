@@ -45,54 +45,11 @@ jobs:
           fi
           "$PYTHON_BIN" -m pip install numpy
 
-      - name: Register OS Login SSH key
+      - name: Pre-generate SSH key for gcloud
         run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
           if [[ ! -f ~/.ssh/google_compute_engine ]]; then
             ssh-keygen -t rsa -b 3072 -f ~/.ssh/google_compute_engine -N "" -q
           fi
-          gcloud compute os-login ssh-keys add \
-            --key-file ~/.ssh/google_compute_engine.pub \
-            --ttl 30m \
-            --quiet >/dev/null
-
-      - name: Preflight GCE SSH over IAP
-        env:
-          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID || vars.GCP_PROJECT_ID }}
-          GCP_ZONE: ${{ secrets.GCP_ZONE || vars.GCP_ZONE }}
-          GCE_INSTANCE_NAME: ${{ secrets.GCE_INSTANCE_NAME || vars.GCE_INSTANCE_NAME }}
-        run: |
-          set -euo pipefail
-
-          : "${GCP_PROJECT_ID:?GCP_PROJECT_ID is required}"
-          : "${GCP_ZONE:?GCP_ZONE is required}"
-          : "${GCE_INSTANCE_NAME:?GCE_INSTANCE_NAME is required}"
-
-          for attempt in 1 2 3 4 5; do
-            if gcloud compute ssh "${GCE_INSTANCE_NAME}" \
-              --project "${GCP_PROJECT_ID}" \
-              --zone "${GCP_ZONE}" \
-              --tunnel-through-iap \
-              --quiet \
-              --command "true" \
-              -- \
-              -o ConnectTimeout=30 \
-              -o StrictHostKeyChecking=accept-new \
-              -o BatchMode=yes; then
-              break
-            fi
-
-            if [[ "${attempt}" == "5" ]]; then
-              echo "ERROR: GCE SSH/IAP preflight failed after ${attempt} attempts." >&2
-              exit 1
-            fi
-
-            sleep_for=$((attempt * 5))
-            echo "GCE SSH/IAP preflight failed on attempt ${attempt}; retrying in ${sleep_for}s..."
-            sleep "${sleep_for}"
-          done
-          echo "GCE SSH/IAP preflight passed for ${GCE_INSTANCE_NAME}"
 
       - name: Run route-bound GWS auth-health smoke
         env:
@@ -116,11 +73,7 @@ jobs:
               --zone "${GCP_ZONE}" \
               --tunnel-through-iap \
               --quiet \
-              --command "$1" \
-              -- \
-              -o ConnectTimeout=30 \
-              -o StrictHostKeyChecking=accept-new \
-              -o BatchMode=yes
+              --command "$1"
           }
 
           gce_ssh_lastline() {
