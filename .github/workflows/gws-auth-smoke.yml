@@ -7,7 +7,7 @@ on:
         description: "Target environment"
         required: true
         type: choice
-        options: [ staging, production ]
+        options: [staging, production]
         default: staging
   schedule:
     - cron: "27 7 * * *"
@@ -17,23 +17,20 @@ permissions:
   id-token: write
 
 concurrency:
-  group: gws-auth-smoke-${{ github.event_name == 'workflow_dispatch' &&
-    inputs.environment || 'staging' }}
+  group: gws-auth-smoke-${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'staging' }}
   cancel-in-progress: true
 
 jobs:
   smoke:
     runs-on: ubuntu-latest
-    environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment
-      || 'staging' }}
+    environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'staging' }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Authenticate to Google Cloud (WIF)
         uses: google-github-actions/auth@6fc4af4b145ae7821d527454aa9bd537d1f2dc5f # v2.1.7
         with:
-          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER ||
-            vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER || vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT || vars.GCP_SERVICE_ACCOUNT }}
 
       - name: Install Google Cloud SDK
