@@ -25,6 +25,27 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+function buildCronSessionCleanupResponse(command: string): string | null {
+  const sessionKey = command.match(/SESSION_KEY='([^']+)'/)?.[1]?.trim();
+  if (!sessionKey || !command.includes("node --input-type=module -e")) {
+    return null;
+  }
+  const sessionId = sessionKey.split(":run:").at(-1);
+  if (!sessionId) {
+    return null;
+  }
+  return JSON.stringify(
+    {
+      ok: true,
+      key: sessionKey,
+      removed: true,
+      archived: [`/home/node/.openclaw/agents/main/sessions/${sessionId}.jsonl.deleted.20260425T200000Z`],
+    },
+    null,
+    2,
+  );
+}
+
 describe("sandbox-first acceptance helpers", () => {
   it("prefers the GWS integration path when gws-toolkit-phase1 is loaded", () => {
     const selection = selectIntegrationPath({
@@ -416,6 +437,10 @@ describe("runSandboxFirstAcceptance", () => {
             2,
           );
         }
+        const cronSessionCleanup = buildCronSessionCleanupResponse(command);
+        if (cronSessionCleanup) {
+          return cronSessionCleanup;
+        }
         if (command === "cd /app && node dist/index.js cron rm 'job-2' --json") {
           return JSON.stringify({ ok: true, removed: false }, null, 2);
         }
@@ -641,6 +666,10 @@ describe("runSandboxFirstAcceptance", () => {
             2,
           );
         }
+        const cronSessionCleanup = buildCronSessionCleanupResponse(command);
+        if (cronSessionCleanup) {
+          return cronSessionCleanup;
+        }
         if (command === "cd /app && node dist/index.js cron rm 'job-1' --json") {
           return JSON.stringify({ ok: true, removed: false }, null, 2);
         }
@@ -724,8 +753,18 @@ describe("runSandboxFirstAcceptance", () => {
         "sbx-401-08-isolated-cron",
         "cron-cleanup.json",
       );
+      const sessionCleanupPath = path.join(
+        artifactRoot,
+        "sandbox-first-acceptance",
+        "sbx-401-08-isolated-cron",
+        "cron-session-cleanup.json",
+      );
       expect(await fs.readFile(cleanupPath, "utf8")).toContain('"removed": false');
+      expect(await fs.readFile(sessionCleanupPath, "utf8")).toContain('"removed": true');
       expect(commands.some((command) => command.includes("cron rm 'job-1' --json"))).toBe(true);
+      expect(
+        commands.some((command) => command.includes("SESSION_KEY='agent:main:cron:job-1:run:run-1'")),
+      ).toBe(true);
     });
   });
 });

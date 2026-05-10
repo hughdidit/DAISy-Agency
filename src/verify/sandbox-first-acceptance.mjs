@@ -99,6 +99,7 @@ const ANSI_ESCAPE_PATTERN = new RegExp(`${ANSI_ESCAPE_PREFIX}\\[[0-9;?]*[ -/]*[@
 const AGENT_CRON_RUN_SESSION_KEY_PATTERN = /^agent:[a-z0-9][a-z0-9_-]{0,63}:cron:[^:]+:run:[^:]+$/;
 const DEFAULT_CRON_PROMPT =
   "Report the current sandbox mode, runtime profile, and whether openclaw-readonly is supported. Do not mutate anything.";
+const DEFAULT_CRON_THINKING = "off";
 
 export class ExecError extends Error {
   constructor(message, details = {}) {
@@ -1010,16 +1011,79 @@ async function pollForCronEntry(ctx, jobId) {
   );
 }
 
+function extractAgentIdFromCronRunSessionKey(sessionKey) {
+  const trimmed = typeof sessionKey === "string" ? sessionKey.trim() : "";
+  const match = /^agent:([^:]+):cron:[^:]+:run:[^:]+$/.exec(trimmed);
+  return typeof match?.[1] === "string" && match[1] ? match[1] : "";
+}
+
+function buildCronRunSessionCleanupCommand(sessionKey) {
+  const agentId = extractAgentIdFromCronRunSessionKey(sessionKey);
+  if (!agentId) {
+    throw new ScenarioError(
+      "scheduler-gap",
+      `cron verification cleanup received an invalid run session key: ${sessionKey || "<empty>"}`,
+    );
+  }
+  const cleanupScript = [
+    'import { loadConfig } from "./dist/config/config.js";',
+    'import { resolveStorePath, updateSessionStore } from "./dist/config/sessions.js";',
+    'import { archiveSessionTranscripts } from "./dist/gateway/session-utils.fs.js";',
+    'const sessionKey = process.env.SESSION_KEY?.trim() ?? "";',
+    'const agentId = process.env.SESSION_AGENT_ID?.trim() ?? "";',
+    'if (!sessionKey || !agentId) throw new Error("missing cron session cleanup inputs");',
+    'const cfg = loadConfig();',
+    'const storePath = resolveStorePath(cfg.session?.store, { agentId });',
+    'let removed = false;',
+    'let entry;',
+    'await updateSessionStore(storePath, (store) => {',
+    '  entry = store[sessionKey];',
+    '  if (!entry) return undefined;',
+    '  delete store[sessionKey];',
+    '  removed = true;',
+    '  return undefined;',
+    '});',
+    'const archived = removed && entry?.sessionId',
+    '  ? archiveSessionTranscripts({',
+    '      sessionId: entry.sessionId,',
+    '      storePath,',
+    '      sessionFile: entry.sessionFile,',
+    '      agentId,',
+    '      reason: "deleted",',
+    '      restrictToStoreDir: true,',
+    '    })',
+    '  : [];',
+    'process.stdout.write(JSON.stringify({ ok: true, key: sessionKey, removed, archived }, null, 2));',
+  ].join(" ");
+  return [
+    "cd /app &&",
+    `SESSION_KEY=${shellQuote(sessionKey)}`,
+    `SESSION_AGENT_ID=${shellQuote(agentId)}`,
+    "node --input-type=module -e",
+    shellQuote(cleanupScript),
+  ].join(" ");
+}
+
+async function cleanupCronRunSession(ctx, sessionKey) {
+  if (!sessionKey) {
+    return;
+  }
+  const cleanupRaw = ctx.dockerExecBash(buildCronRunSessionCleanupCommand(sessionKey));
+  await ctx.writeArtifactText("cron-session-cleanup.json", cleanupRaw);
+}
+
 export async function runIsolatedCronScenario(ctx) {
   const runAt = new Date(ctx.now().getTime() + 20 * 60 * 1000).toISOString();
   const jobName = `SBX-402 sandbox-first acceptance ${ctx.now().toISOString()}`;
   let jobId = "";
+  let runSessionKey = "";
+  let scenarioError = null;
 
   try {
     const addRaw = ctx.dockerExecBash(
       `cd /app && node dist/index.js cron add --name ${shellQuote(jobName)} --at ${shellQuote(
         runAt,
-      )} --session isolated --message ${shellQuote(DEFAULT_CRON_PROMPT)} --no-deliver --delete-after-run`,
+      )} --session isolated --message ${shellQuote(DEFAULT_CRON_PROMPT)} --thinking ${shellQuote(DEFAULT_CRON_THINKING)} --no-deliver --delete-after-run`,
     );
     await ctx.writeArtifactText("cron-add.json", addRaw);
     const addPayload = parseJsonOrThrow(
@@ -1066,7 +1130,28 @@ export async function runIsolatedCronScenario(ctx) {
         )})`,
       );
     }
+    runSessionKey = typeof last?.sessionKey === "string" ? last.sessionKey.trim() : "";
+    if (!isValidAgentCronRunSessionKey(runSessionKey)) {
+      throw new ScenarioError(
+        "scheduler-gap",
+        `isolated cron acceptance job did not expose an agent-scoped per-run session key, got ${runSessionKey || "<empty>"}`,
+      );
+    }
+  } catch (error) {
+    scenarioError = error;
   } finally {
+    let cleanupError = null;
+    if (runSessionKey) {
+      try {
+        await cleanupCronRunSession(ctx, runSessionKey);
+      } catch (error) {
+        cleanupError = error;
+        await ctx.writeArtifactText(
+          "cron-session-cleanup-error.txt",
+          `${error?.message ?? "session cleanup failed"}\n${error?.stdout ?? ""}\n${error?.stderr ?? ""}`.trim(),
+        );
+      }
+    }
     if (jobId) {
       try {
         const cleanupRaw = ctx.dockerExecBash(
@@ -1080,6 +1165,12 @@ export async function runIsolatedCronScenario(ctx) {
         );
       }
     }
+    if (!scenarioError && cleanupError) {
+      throw cleanupError;
+    }
+  }
+  if (scenarioError) {
+    throw scenarioError;
   }
 }
 
@@ -1170,6 +1261,8 @@ export async function runCronIsolationAndSubagentModelScenario(ctx) {
   const jobName = `SBX-404 cron isolation ${now.toISOString()}`;
   const modelOverride = ctx.env.SBX404_CRON_MODEL?.trim() || "";
   let jobId = "";
+  let runSessionKey = "";
+  let scenarioError = null;
 
   try {
     const addRaw = ctx.dockerExecBash(
@@ -1179,6 +1272,7 @@ export async function runCronIsolationAndSubagentModelScenario(ctx) {
         `--at ${shellQuote(runAt)}`,
         "--session isolated",
         `--message ${shellQuote(DEFAULT_CRON_PROMPT)}`,
+        `--thinking ${shellQuote(DEFAULT_CRON_THINKING)}`,
         modelOverride ? `--model ${shellQuote(modelOverride)}` : "",
         "--no-deliver",
         "--delete-after-run",
@@ -1234,7 +1328,7 @@ export async function runCronIsolationAndSubagentModelScenario(ctx) {
         )})`,
       );
     }
-    const runSessionKey = typeof last?.sessionKey === "string" ? last.sessionKey.trim() : "";
+    runSessionKey = typeof last?.sessionKey === "string" ? last.sessionKey.trim() : "";
     if (!isValidAgentCronRunSessionKey(runSessionKey)) {
       throw new ScenarioError(
         "scheduler-gap",
@@ -1249,7 +1343,21 @@ export async function runCronIsolationAndSubagentModelScenario(ctx) {
       provider: typeof last?.provider === "string" ? last.provider : null,
       expectedOutcome: "pass",
     });
+  } catch (error) {
+    scenarioError = error;
   } finally {
+    let cleanupError = null;
+    if (runSessionKey) {
+      try {
+        await cleanupCronRunSession(ctx, runSessionKey);
+      } catch (error) {
+        cleanupError = error;
+        await ctx.writeArtifactText(
+          "cron-session-cleanup-error.txt",
+          `${error?.message ?? "session cleanup failed"}\n${error?.stdout ?? ""}\n${error?.stderr ?? ""}`.trim(),
+        );
+      }
+    }
     if (jobId) {
       try {
         const cleanupRaw = ctx.dockerExecBash(
@@ -1263,6 +1371,12 @@ export async function runCronIsolationAndSubagentModelScenario(ctx) {
         );
       }
     }
+    if (!scenarioError && cleanupError) {
+      throw cleanupError;
+    }
+  }
+  if (scenarioError) {
+    throw scenarioError;
   }
 }
 
