@@ -1139,38 +1139,37 @@ export async function runIsolatedCronScenario(ctx) {
     }
   } catch (error) {
     scenarioError = error;
-  } finally {
-    let cleanupError = null;
-    if (runSessionKey) {
-      try {
-        await cleanupCronRunSession(ctx, runSessionKey);
-      } catch (error) {
-        cleanupError = error;
-        await ctx.writeArtifactText(
-          "cron-session-cleanup-error.txt",
-          `${error?.message ?? "session cleanup failed"}\n${error?.stdout ?? ""}\n${error?.stderr ?? ""}`.trim(),
-        );
-      }
+  }
+  let cleanupError = null;
+  if (runSessionKey) {
+    try {
+      await cleanupCronRunSession(ctx, runSessionKey);
+    } catch (error) {
+      cleanupError = error;
+      await ctx.writeArtifactText(
+        "cron-session-cleanup-error.txt",
+        `${error?.message ?? "session cleanup failed"}\n${error?.stdout ?? ""}\n${error?.stderr ?? ""}`.trim(),
+      );
     }
-    if (jobId) {
-      try {
-        const cleanupRaw = ctx.dockerExecBash(
-          `cd /app && node dist/index.js cron rm ${shellQuote(jobId)} --json`,
-        );
-        await ctx.writeArtifactText("cron-cleanup.json", cleanupRaw);
-      } catch (error) {
-        await ctx.writeArtifactText(
-          "cron-cleanup-error.txt",
-          `${error?.message ?? "cleanup failed"}\n${error?.stdout ?? ""}\n${error?.stderr ?? ""}`.trim(),
-        );
-      }
-    }
-    if (!scenarioError && cleanupError) {
-      throw cleanupError;
+  }
+  if (jobId) {
+    try {
+      const cleanupRaw = ctx.dockerExecBash(
+        `cd /app && node dist/index.js cron rm ${shellQuote(jobId)} --json`,
+      );
+      await ctx.writeArtifactText("cron-cleanup.json", cleanupRaw);
+    } catch (error) {
+      await ctx.writeArtifactText(
+        "cron-cleanup-error.txt",
+        `${error?.message ?? "cleanup failed"}\n${error?.stdout ?? ""}\n${error?.stderr ?? ""}`.trim(),
+      );
     }
   }
   if (scenarioError) {
     throw scenarioError;
+  }
+  if (cleanupError) {
+    throw cleanupError;
   }
 }
 
@@ -1345,38 +1344,37 @@ export async function runCronIsolationAndSubagentModelScenario(ctx) {
     });
   } catch (error) {
     scenarioError = error;
-  } finally {
-    let cleanupError = null;
-    if (runSessionKey) {
-      try {
-        await cleanupCronRunSession(ctx, runSessionKey);
-      } catch (error) {
-        cleanupError = error;
-        await ctx.writeArtifactText(
-          "cron-session-cleanup-error.txt",
-          `${error?.message ?? "session cleanup failed"}\n${error?.stdout ?? ""}\n${error?.stderr ?? ""}`.trim(),
-        );
-      }
+  }
+  let cleanupError = null;
+  if (runSessionKey) {
+    try {
+      await cleanupCronRunSession(ctx, runSessionKey);
+    } catch (error) {
+      cleanupError = error;
+      await ctx.writeArtifactText(
+        "cron-session-cleanup-error.txt",
+        `${error?.message ?? "session cleanup failed"}\n${error?.stdout ?? ""}\n${error?.stderr ?? ""}`.trim(),
+      );
     }
-    if (jobId) {
-      try {
-        const cleanupRaw = ctx.dockerExecBash(
-          `cd /app && node dist/index.js cron rm ${shellQuote(jobId)} --json`,
-        );
-        await ctx.writeArtifactText("cron-cleanup.json", cleanupRaw);
-      } catch (error) {
-        await ctx.writeArtifactText(
-          "cron-cleanup-error.txt",
-          `${error?.message ?? "cleanup failed"}\n${error?.stdout ?? ""}\n${error?.stderr ?? ""}`.trim(),
-        );
-      }
-    }
-    if (!scenarioError && cleanupError) {
-      throw cleanupError;
+  }
+  if (jobId) {
+    try {
+      const cleanupRaw = ctx.dockerExecBash(
+        `cd /app && node dist/index.js cron rm ${shellQuote(jobId)} --json`,
+      );
+      await ctx.writeArtifactText("cron-cleanup.json", cleanupRaw);
+    } catch (error) {
+      await ctx.writeArtifactText(
+        "cron-cleanup-error.txt",
+        `${error?.message ?? "cleanup failed"}\n${error?.stdout ?? ""}\n${error?.stderr ?? ""}`.trim(),
+      );
     }
   }
   if (scenarioError) {
     throw scenarioError;
+  }
+  if (cleanupError) {
+    throw cleanupError;
   }
 }
 
