@@ -1054,7 +1054,7 @@ function buildCronRunSessionCleanupCommand(sessionKey) {
     "    })",
     "  : [];",
     "process.stdout.write(JSON.stringify({ ok: true, key: sessionKey, removed, archived }, null, 2));",
-  ].join(" ");
+  ].join("\n");
   return [
     "cd /app &&",
     `SESSION_KEY=${shellQuote(sessionKey)}`,
@@ -1070,6 +1070,17 @@ async function cleanupCronRunSession(ctx, sessionKey) {
   }
   const cleanupRaw = ctx.dockerExecBash(buildCronRunSessionCleanupCommand(sessionKey));
   await ctx.writeArtifactText("cron-session-cleanup.json", cleanupRaw);
+  const cleanupPayload = parseJsonOrThrow(
+    cleanupRaw,
+    "scheduler-gap",
+    "cron verification session cleanup did not return a parseable JSON payload",
+  );
+  if (cleanupPayload?.ok !== true || cleanupPayload?.removed !== true) {
+    throw new ScenarioError(
+      "scheduler-gap",
+      `cron verification session cleanup did not remove per-run session ${sessionKey}`,
+    );
+  }
 }
 
 export async function runIsolatedCronScenario(ctx) {
@@ -1130,13 +1141,14 @@ export async function runIsolatedCronScenario(ctx) {
         )})`,
       );
     }
-    runSessionKey = typeof last?.sessionKey === "string" ? last.sessionKey.trim() : "";
-    if (!isValidAgentCronRunSessionKey(runSessionKey)) {
+    const lastRunSessionKey = typeof last?.sessionKey === "string" ? last.sessionKey.trim() : "";
+    if (!isValidAgentCronRunSessionKey(lastRunSessionKey)) {
       throw new ScenarioError(
         "scheduler-gap",
-        `isolated cron acceptance job did not expose an agent-scoped per-run session key, got ${runSessionKey || "<empty>"}`,
+        `isolated cron acceptance job did not expose an agent-scoped per-run session key, got ${lastRunSessionKey || "<empty>"}`,
       );
     }
+    runSessionKey = lastRunSessionKey;
   } catch (error) {
     scenarioError = error;
   }
@@ -1327,13 +1339,14 @@ export async function runCronIsolationAndSubagentModelScenario(ctx) {
         )})`,
       );
     }
-    runSessionKey = typeof last?.sessionKey === "string" ? last.sessionKey.trim() : "";
-    if (!isValidAgentCronRunSessionKey(runSessionKey)) {
+    const lastRunSessionKey = typeof last?.sessionKey === "string" ? last.sessionKey.trim() : "";
+    if (!isValidAgentCronRunSessionKey(lastRunSessionKey)) {
       throw new ScenarioError(
         "scheduler-gap",
-        `SBX-404 isolated cron run did not expose an agent-scoped per-run session key, got ${runSessionKey || "<empty>"}`,
+        `SBX-404 isolated cron run did not expose an agent-scoped per-run session key, got ${lastRunSessionKey || "<empty>"}`,
       );
     }
+    runSessionKey = lastRunSessionKey;
     await ctx.writeArtifactJson("cron-isolation-metadata.json", {
       operationalContext: "cron-isolated-session",
       jobId,
