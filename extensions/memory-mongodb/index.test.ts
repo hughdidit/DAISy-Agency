@@ -1070,6 +1070,86 @@ describe("memory-mongodb plugin", () => {
     }
   });
 
+  test("CLI search prepares stdio runtime dirs and clamps invalid limits", async () => {
+    const { default: memoryPlugin } = await import("./index.js");
+    const registerCli = vi.fn();
+    const logger = {
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+    };
+    const stateDir = fs.mkdtempSync(path.join(os.tmpdir(), "memory-mongodb-search-cli-"));
+    const originalStateDir = process.env.OPENCLAW_STATE_DIR;
+    const originalHome = process.env.OPENCLAW_HOME;
+    const originalLog = console.log;
+    const cliProgram = new Command();
+
+    process.env.OPENCLAW_STATE_DIR = stateDir;
+    process.env.OPENCLAW_HOME = stateDir;
+    console.log = vi.fn();
+
+    try {
+      memoryPlugin.register({
+        pluginConfig: {
+          mcp: {
+            transport: "stdio",
+            stdio: {
+              env: {
+                MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
+              },
+            },
+          },
+          gemini: { apiKey: "test-key" },
+          retrieval: { vectorLimit: 25, numCandidatesMultiplier: 2 },
+        },
+        logger,
+        registerTool: vi.fn(),
+        registerCli,
+        registerService: vi.fn(),
+        on: vi.fn(),
+      } as unknown as import("openclaw/plugin-sdk").OpenClawPluginApi);
+
+      const cliRegistrar = registerCli.mock.calls[0]?.[0] as ({
+        program,
+      }: {
+        program: Command;
+      }) => void;
+
+      cliRegistrar({ program: cliProgram });
+      await cliProgram.parseAsync(["node", "test", "ltm", "search", "query", "--limit", "NaN"], {
+        from: "node",
+      });
+
+      const homeDir = path.join(stateDir, "plugins", "memory-mongodb", "mcp-stdio", "home");
+      const tempDir = path.join(stateDir, "plugins", "memory-mongodb", "mcp-stdio", "tmp");
+      const firstPipeline = mcpClientMocks.aggregate.mock.calls[0]?.[2] as Array<{
+        $vectorSearch?: { limit?: unknown; numCandidates?: unknown };
+      }>;
+      const vectorSearch = firstPipeline[0]?.$vectorSearch;
+
+      expect(mcpClientMocks.setRuntimeEnvOverrides).toHaveBeenCalledWith({
+        HOME: homeDir,
+        TMPDIR: tempDir,
+      });
+      expect(vectorSearch?.limit).toBe(10);
+      expect(vectorSearch?.numCandidates).toBe(10);
+      expect(mcpClientMocks.close).toHaveBeenCalledTimes(1);
+    } finally {
+      console.log = originalLog;
+      if (originalStateDir === undefined) {
+        delete process.env.OPENCLAW_STATE_DIR;
+      } else {
+        process.env.OPENCLAW_STATE_DIR = originalStateDir;
+      }
+      if (originalHome === undefined) {
+        delete process.env.OPENCLAW_HOME;
+      } else {
+        process.env.OPENCLAW_HOME = originalHome;
+      }
+      fs.rmSync(stateDir, { recursive: true, force: true });
+    }
+  });
+
   test("CLI backfill-ops dry-run scans without update-many mutations", async () => {
     const { default: memoryPlugin } = await import("./index.js");
     const registerCli = vi.fn();
@@ -1144,6 +1224,7 @@ describe("memory-mongodb plugin", () => {
         }),
       );
       expect(mcpClientMocks.updateMany).not.toHaveBeenCalled();
+      expect(mcpClientMocks.close).toHaveBeenCalledTimes(1);
     } finally {
       console.log = originalLog;
       if (originalStateDir === undefined) {
