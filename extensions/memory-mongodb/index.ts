@@ -1190,7 +1190,11 @@ const memoryPlugin = {
           .option("--limit <n>", "Max results", "5")
           .action(async (query, opts) => {
             await runCliAction(async () => {
-              const results = await db.searchByQuery(query, Number.parseInt(opts.limit, 10), 0.3);
+              await ensureMcpRuntimeDirs();
+              const rawLimit = typeof opts.limit === "string" ? opts.limit.trim() : "";
+              const parsedLimit = rawLimit ? Number.parseInt(rawLimit, 10) : 5;
+              const limit = clampPositiveInt(parsedLimit, 5, cfg.retrieval.vectorLimit);
+              const results = await db.searchByQuery(query, limit, 0.3);
               const output = results.map((result) => ({
                 id: result.entry.id,
                 text: result.entry.text,
