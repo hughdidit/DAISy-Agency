@@ -385,8 +385,32 @@ Phased extraction behavior:
 ```bash
 openclaw ltm list
 openclaw ltm search "dark mode" --limit 5
+openclaw ltm backfill-ops --dry-run
+openclaw ltm backfill-ops --apply --scope agent:daisy --batch-size 50
 openclaw ltm stats
 ```
+
+`ltm backfill-ops` is a backfill-only migration for legacy records in
+`daisy_memory.memories` that do not have `metadata.ops`. A dry run is required
+unless `--apply` is supplied explicitly. The command uses the configured MCP
+launcher, database, collection, tenant, and workspace; it does not require
+direct MongoDB or filesystem access from the caller.
+
+Backfill behavior:
+
+- scans only records where `metadata.ops` is missing
+- preserves existing `metadata.source`, top-level routing fields, vectors, text,
+  timestamps, and user metadata
+- assigns ambiguous legacy records to private DAISy memory with
+  `scopeSubject: "agent:daisy"` unless `--scope` is supplied
+- derives `tenantId` and `workspaceId` from existing routing fields or configured
+  routing defaults
+- denormalizes missing top-level routing fields so `vector_index_v2` filters can
+  match backfilled records
+- writes a single append-only `memory_events` summary on `--apply`
+
+JSON output includes `dryRun`, `scopeSubject`, `tenantId`, `workspaceId`,
+`scanned`, `eligible`, `updated`, `skipped`, `failed`, `sampleIds`, and `errors`.
 
 ## Migration Notes
 
@@ -398,6 +422,9 @@ From prior Voyage-backed config:
 - Keep MCP configuration shape unchanged.
 - Additive routing fields are written to new records while legacy
   `metadata.ops` fields remain readable during backfill.
+- For legacy records that predate `metadata.ops`, run
+  `openclaw ltm backfill-ops --dry-run` first, inspect the JSON summary, then run
+  `openclaw ltm backfill-ops --apply` after `vector_index_v2` exists.
 
 ## Custom Launcher Override
 

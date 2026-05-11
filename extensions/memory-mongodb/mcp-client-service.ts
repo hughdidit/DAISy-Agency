@@ -21,6 +21,8 @@ const isObject = (value: unknown): value is JsonObject =>
 const AGGREGATE_DOCUMENT_KEYS = ["documents", "results", "items", "result"] as const;
 const INSERTED_COUNT_TEXT_PATTERNS = [/Inserted\s+`?(\d+)`?\s+document\(s\)/i];
 const DELETED_COUNT_TEXT_PATTERNS = [/Deleted\s+`?(\d+)`?\s+document\(s\)/i];
+const MATCHED_COUNT_TEXT_PATTERNS = [/Matched\s+`?(\d+)`?\s+document\(s\)/i];
+const MODIFIED_COUNT_TEXT_PATTERNS = [/Modified\s+`?(\d+)`?\s+document\(s\)/i];
 const UNTRUSTED_DATA_BLOCK_REGEX =
   /<untrusted-user-data-[^>]+>([\s\S]*?)<\/untrusted-user-data-[^>]+>/gi;
 const MARKDOWN_CODE_FENCE_REGEX = /```(?:json|javascript|js|ejson|mongodb)?\s*([\s\S]*?)```/gi;
@@ -130,6 +132,31 @@ export class McpClientService {
       this.firstNumber(response, ["deletedCount", "deleted_count", "count"]) ??
       this.firstPatternNumberFromResponse(response, DELETED_COUNT_TEXT_PATTERNS);
     return Boolean(deletedCount && deletedCount > 0);
+  }
+
+  async updateMany(
+    database: string,
+    collection: string,
+    filter: JsonObject,
+    update: JsonObject,
+  ): Promise<{ matchedCount: number; modifiedCount: number }> {
+    const response = await this.callMongoTool("update-many", {
+      database,
+      collection,
+      filter,
+      update,
+    });
+
+    const matchedCount =
+      this.firstNumber(response, ["matchedCount", "matched_count", "count"]) ??
+      this.firstPatternNumberFromResponse(response, MATCHED_COUNT_TEXT_PATTERNS) ??
+      0;
+    const modifiedCount =
+      this.firstNumber(response, ["modifiedCount", "modified_count"]) ??
+      this.firstPatternNumberFromResponse(response, MODIFIED_COUNT_TEXT_PATTERNS) ??
+      0;
+
+    return { matchedCount, modifiedCount };
   }
 
   async countDocuments(database: string, collection: string): Promise<number> {

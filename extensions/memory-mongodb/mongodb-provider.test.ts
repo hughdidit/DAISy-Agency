@@ -955,6 +955,264 @@ describe("mongodb provider via MCP", () => {
     expect(results.map((entry) => entry.text)).toEqual(["safe 1", "safe 2"]);
   });
 
+  test("backfillOps dry-run reports eligible missing-ops records without mutating", async () => {
+    const aggregate = vi.fn().mockResolvedValue([
+      {
+        _id: "legacy-1",
+        text: "The user prefers concise closeouts.",
+        category: "preference",
+        type: "semantic",
+        metadata: {
+          source: "manual_legacy",
+        },
+      },
+    ]);
+    const updateMany = vi.fn();
+    const insertMany = vi.fn();
+    const provider = new MongoMemoryDB(
+      {
+        insertMany,
+        aggregate,
+        updateMany,
+        deleteOne: vi.fn(),
+        countDocuments: vi.fn(),
+        close: vi.fn(),
+      } as any,
+      { embed: vi.fn() } as any,
+      "memdb",
+      "memories",
+      "memory_events",
+      "vector_idx",
+      baseRouting,
+      baseRetrieval,
+    );
+
+    const result = await provider.backfillOps({
+      dryRun: true,
+      scopeSubject: "agent:daisy",
+      batchSize: 50,
+    });
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        dryRun: true,
+        scopeSubject: "agent:daisy",
+        tenantId: "default",
+        workspaceId: "default",
+        scanned: 1,
+        eligible: 1,
+        updated: 0,
+        skipped: 0,
+        failed: 0,
+        sampleIds: ["legacy-1"],
+        errors: [],
+      }),
+    );
+    expect(aggregate).toHaveBeenCalledWith(
+      "memdb",
+      "memories",
+      expect.arrayContaining([
+        {
+          $match: {
+            "metadata.ops": { $exists: false },
+          },
+        },
+      ]),
+    );
+    expect(updateMany).not.toHaveBeenCalled();
+    expect(insertMany).not.toHaveBeenCalled();
+  });
+
+  test("backfillOps applies ops and top-level routing fields to ambiguous legacy records", async () => {
+    const aggregate = vi.fn().mockResolvedValue([
+      {
+        _id: "legacy-ambiguous",
+        text: "DAISy uses concise closeouts.",
+        category: "fact",
+        type: "semantic",
+        metadata: {
+          attachmentSummary: "one PDF summary",
+        },
+      },
+    ]);
+    const updateMany = vi.fn().mockResolvedValue({ matchedCount: 1, modifiedCount: 1 });
+    const insertMany = vi.fn().mockResolvedValue(1);
+    const provider = new MongoMemoryDB(
+      {
+        insertMany,
+        aggregate,
+        updateMany,
+        deleteOne: vi.fn(),
+        countDocuments: vi.fn(),
+        close: vi.fn(),
+      } as any,
+      { embed: vi.fn() } as any,
+      "memdb",
+      "memories",
+      "memory_events",
+      "vector_idx",
+      baseRouting,
+      baseRetrieval,
+    );
+
+    const result = await provider.backfillOps({
+      dryRun: false,
+      scopeSubject: "agent:daisy",
+    });
+
+    expect(result.updated).toBe(1);
+    expect(updateMany).toHaveBeenCalledWith(
+      "memdb",
+      "memories",
+      {
+        _id: "legacy-ambiguous",
+        "metadata.ops": { $exists: false },
+      },
+      {
+        $set: expect.objectContaining({
+          tenantId: "default",
+          workspaceId: "default",
+          scopeSubject: "agent:daisy",
+          subjectType: "agent",
+          visibility: "private",
+          kind: "fact",
+          status: "recorded",
+          sensitivity: "normal",
+          modalities: ["text"],
+          "metadata.source": "legacy_backfill",
+          "metadata.ops": expect.objectContaining({
+            tenantId: "default",
+            workspaceId: "default",
+            scopeSubject: "agent:daisy",
+            subjectType: "agent",
+            visibility: "private",
+            kind: "fact",
+            status: "recorded",
+            sensitivity: "normal",
+            modalities: ["text"],
+            confidence: 1,
+            contentHash: expect.any(String),
+          }),
+        }),
+      },
+    );
+    expect(insertMany).toHaveBeenCalledWith("memdb", "memory_events", [
+      expect.objectContaining({
+        tenantId: "default",
+        workspaceId: "default",
+        scopeSubject: "agent:daisy",
+        subjectType: "agent",
+        actor: "memory-mongodb-cli",
+        operation: "backfill_ops",
+        status: "applied",
+        memoryIds: ["legacy-ambiguous"],
+        details: expect.objectContaining({
+          scanned: 1,
+          eligible: 1,
+          updated: 1,
+        }),
+      }),
+    ]);
+  });
+
+  test("backfillOps preserves existing top-level subagent routing and metadata source", async () => {
+    const aggregate = vi.fn().mockResolvedValue([
+      {
+        _id: "legacy-finn",
+        text: "Finn prefers compact issue summaries.",
+        category: "preference",
+        type: "semantic",
+        tenantId: "tenant-finn",
+        workspaceId: "workspace-finn",
+        scopeSubject: "agent:finn",
+        subjectType: "agent",
+        visibility: "project",
+        kind: "preference",
+        status: "observed",
+        sensitivity: "normal",
+        modalities: ["text"],
+        metadata: {
+          source: "legacy_manual",
+          author: "user",
+        },
+      },
+    ]);
+    const updateMany = vi.fn().mockResolvedValue({ matchedCount: 1, modifiedCount: 1 });
+    const provider = new MongoMemoryDB(
+      {
+        insertMany: vi.fn().mockResolvedValue(1),
+        aggregate,
+        updateMany,
+        deleteOne: vi.fn(),
+        countDocuments: vi.fn(),
+        close: vi.fn(),
+      } as any,
+      { embed: vi.fn() } as any,
+      "memdb",
+      "memories",
+      "memory_events",
+      "vector_idx",
+      baseRouting,
+      baseRetrieval,
+    );
+
+    await provider.backfillOps({
+      dryRun: false,
+      scopeSubject: "agent:daisy",
+    });
+
+    const update = updateMany.mock.calls[0]?.[3] as { $set: Record<string, unknown> };
+    expect(update.$set["metadata.source"]).toBeUndefined();
+    expect(update.$set.scopeSubject).toBeUndefined();
+    expect(update.$set.tenantId).toBeUndefined();
+    expect(update.$set.workspaceId).toBeUndefined();
+    expect(update.$set["metadata.ops"]).toEqual(
+      expect.objectContaining({
+        tenantId: "tenant-finn",
+        workspaceId: "workspace-finn",
+        scopeSubject: "agent:finn",
+        subjectType: "agent",
+        visibility: "project",
+        kind: "preference",
+        status: "observed",
+        sensitivity: "normal",
+      }),
+    );
+  });
+
+  test("backfillOps keeps existing ops records out of the scan", async () => {
+    const aggregate = vi.fn().mockResolvedValue([]);
+    const provider = new MongoMemoryDB(
+      {
+        insertMany: vi.fn(),
+        aggregate,
+        updateMany: vi.fn(),
+        deleteOne: vi.fn(),
+        countDocuments: vi.fn(),
+        close: vi.fn(),
+      } as any,
+      { embed: vi.fn() } as any,
+      "memdb",
+      "memories",
+      "memory_events",
+      "vector_idx",
+      baseRouting,
+      baseRetrieval,
+    );
+
+    await provider.backfillOps({
+      dryRun: true,
+      scopeSubject: "agent:daisy",
+    });
+
+    const pipeline = aggregate.mock.calls[0]?.[2] as Array<Record<string, unknown>>;
+    expect(pipeline[0]).toEqual({
+      $match: {
+        "metadata.ops": { $exists: false },
+      },
+    });
+  });
+
   test("getById returns null when no matching record exists", async () => {
     const provider = new MongoMemoryDB(
       {
