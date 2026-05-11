@@ -11,7 +11,7 @@ import { Type } from "@sinclair/typebox";
 import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
 import { stringEnum } from "openclaw/plugin-sdk";
 import { resolveStateDir } from "../../src/config/paths.js";
-import type { OpenClawPluginToolContext } from "../../src/plugins/types.js";
+import type { OpenClawPluginToolContext, PluginHookAgentContext } from "../../src/plugins/types.js";
 import { isSubagentSessionKey } from "../../src/routing/session-key.js";
 import {
   MEMORY_CATEGORIES,
@@ -106,21 +106,33 @@ function resolveScopeSubject(ctx: OpenClawPluginToolContext): string | null {
   return resolveScopeSubjectFromContext(ctx);
 }
 
-function resolveScopeSubjectFromHookEvent(event: unknown): string | null {
-  if (!event || typeof event !== "object") {
+function resolveScopeSubjectFromHook(
+  event: unknown,
+  ctx: PluginHookAgentContext | undefined,
+): string | null {
+  const eventRecord = event && typeof event === "object" ? (event as Record<string, unknown>) : {};
+  const contextAgentId = typeof ctx?.agentId === "string" ? ctx.agentId.trim().toLowerCase() : "";
+  const eventAgentId =
+    typeof eventRecord.agentId === "string" ? eventRecord.agentId.trim().toLowerCase() : "";
+  const agentId = contextAgentId || eventAgentId;
+  if (!agentId) {
     return null;
   }
-  const record = event as Record<string, unknown>;
-  const agentId = typeof record.agentId === "string" ? record.agentId : undefined;
-  const sessionKey = typeof record.sessionKey === "string" ? record.sessionKey : undefined;
-  if (!agentId || agentId.trim().length === 0) {
-    return null;
-  }
+
+  const contextSessionKey =
+    typeof ctx?.sessionKey === "string" && ctx.sessionKey.trim().length > 0
+      ? ctx.sessionKey
+      : undefined;
+  const eventSessionKey =
+    typeof eventRecord.sessionKey === "string" && eventRecord.sessionKey.trim().length > 0
+      ? eventRecord.sessionKey
+      : undefined;
+  const sessionKey = contextSessionKey ?? eventSessionKey;
   if (sessionKey && isSubagentSessionKey(sessionKey)) {
     const subagentId = resolveSubagentIdFromSessionKey(sessionKey);
-    return `subagent:${subagentId ?? agentId.trim().toLowerCase()}`;
+    return `subagent:${subagentId ?? agentId}`;
   }
-  return `agent:${agentId.trim().toLowerCase()}`;
+  return `agent:${agentId}`;
 }
 
 function resolveSubagentIdFromSessionKey(sessionKey: string): string | null {
@@ -1119,11 +1131,11 @@ const memoryPlugin = {
     );
 
     if (cfg.autoRecall) {
-      api.on("before_agent_start", async (event) => {
+      api.on("before_agent_start", async (event, ctx) => {
         if (!event.prompt || event.prompt.length < 5) {
           return;
         }
-        const scopeSubject = resolveScopeSubjectFromHookEvent(event);
+        const scopeSubject = resolveScopeSubjectFromHook(event, ctx);
         if (!scopeSubject) {
           api.logger.warn("memory-mongodb: auto-recall skipped due to missing scope");
           return;
@@ -1151,11 +1163,11 @@ const memoryPlugin = {
     }
 
     if (cfg.autoCapture) {
-      api.on("agent_end", async (event) => {
+      api.on("agent_end", async (event, ctx) => {
         if (!event.success || !event.messages || event.messages.length === 0) {
           return;
         }
-        const scopeSubject = resolveScopeSubjectFromHookEvent(event);
+        const scopeSubject = resolveScopeSubjectFromHook(event, ctx);
         if (!scopeSubject) {
           api.logger.warn("memory-mongodb: auto-capture skipped due to missing scope");
           return;

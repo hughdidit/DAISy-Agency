@@ -400,6 +400,277 @@ describe("memory-mongodb plugin", () => {
     expect(result.details?.error).toBe("missing_scope_subject");
   });
 
+  test("auto-recall resolves memory scope from hook context", async () => {
+    const { default: memoryPlugin } = await import("./index.js");
+    const hooks = new Map<string, any>();
+    const logger = { info: vi.fn(), warn: vi.fn(), error: vi.fn() };
+    const now = Date.now();
+
+    mcpClientMocks.aggregate.mockResolvedValue([
+      {
+        _id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        text: "Daisy prefers memory continuity checks before status reports.",
+        vector: [0.1, 0.2],
+        importance: 0.8,
+        category: "preference",
+        type: "semantic",
+        metadata: {
+          source: "memory_capture",
+          ops: { scopeSubject: "agent:daisy", kind: "preference" },
+        },
+        createdAt: now,
+        updatedAt: now,
+        score: 0.95,
+      },
+      {
+        _id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+        text: "Finn scoped memory must not be injected into Daisy runs.",
+        vector: [0.1, 0.2],
+        importance: 0.8,
+        category: "fact",
+        type: "semantic",
+        metadata: {
+          source: "memory_capture",
+          ops: { scopeSubject: "agent:finn", kind: "fact" },
+        },
+        createdAt: now,
+        updatedAt: now,
+        score: 0.99,
+      },
+    ]);
+
+    memoryPlugin.register({
+      pluginConfig: {
+        mcp: {
+          transport: "stdio",
+          stdio: {
+            env: {
+              MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
+            },
+          },
+        },
+        gemini: { apiKey: "test-key" },
+      },
+      logger,
+      registerTool: vi.fn(),
+      registerCli: vi.fn(),
+      registerService: vi.fn(),
+      on: (hookName: string, handler: unknown) => {
+        hooks.set(hookName, handler);
+      },
+    } as unknown as import("openclaw/plugin-sdk").OpenClawPluginApi);
+
+    const beforeAgentStart = hooks.get("before_agent_start") as (
+      event: { prompt: string },
+      ctx?: { agentId?: string; sessionKey?: string },
+    ) => Promise<{ prependContext?: string } | undefined>;
+
+    const result = await beforeAgentStart(
+      { prompt: "recall the memory continuity preference" },
+      { agentId: "daisy", sessionKey: "agent:daisy:main" },
+    );
+
+    expect(result?.prependContext).toContain("Daisy prefers memory continuity checks");
+    expect(result?.prependContext).not.toContain("Finn scoped memory");
+    expect(logger.warn).not.toHaveBeenCalledWith(
+      "memory-mongodb: auto-recall skipped due to missing scope",
+    );
+  });
+
+  test("auto-capture resolves memory scope from hook context", async () => {
+    const { default: memoryPlugin } = await import("./index.js");
+    const hooks = new Map<string, any>();
+    const logger = { info: vi.fn(), warn: vi.fn(), error: vi.fn() };
+
+    mcpClientMocks.insertMany.mockResolvedValue(1);
+    mcpClientMocks.aggregate.mockResolvedValue([]);
+
+    memoryPlugin.register({
+      pluginConfig: {
+        mcp: {
+          transport: "stdio",
+          stdio: {
+            env: {
+              MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
+            },
+          },
+        },
+        gemini: { apiKey: "test-key" },
+      },
+      logger,
+      registerTool: vi.fn(),
+      registerCli: vi.fn(),
+      registerService: vi.fn(),
+      on: (hookName: string, handler: unknown) => {
+        hooks.set(hookName, handler);
+      },
+    } as unknown as import("openclaw/plugin-sdk").OpenClawPluginApi);
+
+    const agentEnd = hooks.get("agent_end") as (
+      event: { success: boolean; messages: Array<Record<string, unknown>> },
+      ctx?: { agentId?: string; sessionKey?: string },
+    ) => Promise<void>;
+
+    await agentEnd(
+      {
+        success: true,
+        messages: [{ role: "user", content: "I prefer concise memory status updates." }],
+      },
+      { agentId: "finn", sessionKey: "agent:finn:main" },
+    );
+
+    expect(mcpClientMocks.insertMany).toHaveBeenCalledOnce();
+    const insertCall = mcpClientMocks.insertMany.mock.calls[0] as unknown[] | undefined;
+    const insertedDocuments = insertCall?.[2] as
+      | Array<{ metadata?: { ops?: { scopeSubject?: string } } }>
+      | undefined;
+    expect(insertedDocuments?.[0]?.metadata?.ops?.scopeSubject).toBe("agent:finn");
+    expect(logger.warn).not.toHaveBeenCalledWith(
+      "memory-mongodb: auto-capture skipped due to missing scope",
+    );
+  });
+
+  test("auto hooks fall back to legacy event-carried scope and still fail closed when absent", async () => {
+    const { default: memoryPlugin } = await import("./index.js");
+    const hooks = new Map<string, any>();
+    const logger = { info: vi.fn(), warn: vi.fn(), error: vi.fn() };
+    const now = Date.now();
+
+    mcpClientMocks.aggregate.mockResolvedValue([
+      {
+        _id: "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+        text: "Subagent scoped recall survives legacy event fallback.",
+        vector: [0.1, 0.2],
+        importance: 0.8,
+        category: "fact",
+        type: "semantic",
+        metadata: {
+          source: "memory_capture",
+          ops: { scopeSubject: "subagent:worker", kind: "fact" },
+        },
+        createdAt: now,
+        updatedAt: now,
+        score: 0.92,
+      },
+    ]);
+
+    memoryPlugin.register({
+      pluginConfig: {
+        mcp: {
+          transport: "stdio",
+          stdio: {
+            env: {
+              MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
+            },
+          },
+        },
+        gemini: { apiKey: "test-key" },
+      },
+      logger,
+      registerTool: vi.fn(),
+      registerCli: vi.fn(),
+      registerService: vi.fn(),
+      on: (hookName: string, handler: unknown) => {
+        hooks.set(hookName, handler);
+      },
+    } as unknown as import("openclaw/plugin-sdk").OpenClawPluginApi);
+
+    const beforeAgentStart = hooks.get("before_agent_start") as (
+      event: { prompt: string; agentId?: string; sessionKey?: string },
+      ctx?: { agentId?: string; sessionKey?: string },
+    ) => Promise<{ prependContext?: string } | undefined>;
+
+    const legacyResult = await beforeAgentStart({
+      prompt: "legacy scoped recall",
+      agentId: "daisy",
+      sessionKey: "agent:daisy:subagent:worker",
+    });
+    expect(legacyResult?.prependContext).toContain("Subagent scoped recall");
+
+    const partialContextResult = await beforeAgentStart(
+      {
+        prompt: "partial context scoped recall",
+        agentId: "daisy",
+        sessionKey: "agent:daisy:subagent:worker",
+      },
+      { agentId: "daisy" },
+    );
+    expect(partialContextResult?.prependContext).toContain("Subagent scoped recall");
+
+    const missingScopeResult = await beforeAgentStart({ prompt: "missing scoped recall" }, {});
+    expect(missingScopeResult).toBeUndefined();
+    expect(logger.warn).toHaveBeenCalledWith(
+      "memory-mongodb: auto-recall skipped due to missing scope",
+    );
+  });
+
+  test("auto-capture falls back to legacy event-carried scope and still fails closed when absent", async () => {
+    const { default: memoryPlugin } = await import("./index.js");
+    const hooks = new Map<string, any>();
+    const logger = { info: vi.fn(), warn: vi.fn(), error: vi.fn() };
+
+    mcpClientMocks.insertMany.mockResolvedValue(1);
+    mcpClientMocks.aggregate.mockResolvedValue([]);
+
+    memoryPlugin.register({
+      pluginConfig: {
+        mcp: {
+          transport: "stdio",
+          stdio: {
+            env: {
+              MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
+            },
+          },
+        },
+        gemini: { apiKey: "test-key" },
+      },
+      logger,
+      registerTool: vi.fn(),
+      registerCli: vi.fn(),
+      registerService: vi.fn(),
+      on: (hookName: string, handler: unknown) => {
+        hooks.set(hookName, handler);
+      },
+    } as unknown as import("openclaw/plugin-sdk").OpenClawPluginApi);
+
+    const agentEnd = hooks.get("agent_end") as (
+      event: {
+        success: boolean;
+        messages: Array<Record<string, unknown>>;
+        agentId?: string;
+        sessionKey?: string;
+      },
+      ctx?: { agentId?: string; sessionKey?: string },
+    ) => Promise<void>;
+
+    await agentEnd({
+      success: true,
+      agentId: "daisy",
+      sessionKey: "agent:daisy:subagent:worker",
+      messages: [{ role: "user", content: "I prefer concise subagent memory notes." }],
+    });
+
+    expect(mcpClientMocks.insertMany).toHaveBeenCalledOnce();
+    const insertCall = mcpClientMocks.insertMany.mock.calls[0] as unknown[] | undefined;
+    const insertedDocuments = insertCall?.[2] as
+      | Array<{ metadata?: { ops?: { scopeSubject?: string } } }>
+      | undefined;
+    expect(insertedDocuments?.[0]?.metadata?.ops?.scopeSubject).toBe("subagent:worker");
+
+    await agentEnd(
+      {
+        success: true,
+        messages: [{ role: "user", content: "I prefer concise memory status updates." }],
+      },
+      {},
+    );
+
+    expect(mcpClientMocks.insertMany).toHaveBeenCalledOnce();
+    expect(logger.warn).toHaveBeenCalledWith(
+      "memory-mongodb: auto-capture skipped due to missing scope",
+    );
+  });
+
   test("config schema parses valid absolute-path custom stdio launcher", async () => {
     const { default: memoryPlugin } = await import("./index.js");
 
