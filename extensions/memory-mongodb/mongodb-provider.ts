@@ -1083,9 +1083,7 @@ function clampInteger(
 }
 
 function createContentHash(text: string, attachmentSummary: unknown): string {
-  return createHash("sha256")
-    .update(stableStringify({ text, attachmentSummary }))
-    .digest("hex");
+  return createHash("sha256").update(stableStringify({ text, attachmentSummary })).digest("hex");
 }
 
 function extractAttachmentSummary(metadata: Record<string, unknown> | undefined): unknown {
