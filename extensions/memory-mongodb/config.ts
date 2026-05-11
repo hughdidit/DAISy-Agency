@@ -33,7 +33,15 @@ export type MemoryConfig = {
   database: {
     name: string;
     collection: string;
+    eventCollection: string;
     indexName: string;
+    indexNameV2: string;
+  };
+  routing: {
+    tenantId: string;
+    workspaceId: string;
+    defaultVisibility: "private" | "workspace" | "project";
+    legacyFallback: boolean;
   };
   retrieval: {
     minScore: number;
@@ -68,7 +76,13 @@ const DEFAULT_STDIO_ARGS_PLACEHOLDER = '["<bundled mongodb-mcp-server entrypoint
 const DEFAULT_EMBEDDING_MODEL = "gemini-embedding-2-preview";
 const DEFAULT_DATABASE_NAME = "daisy_memory";
 const DEFAULT_COLLECTION_NAME = "memories";
+const DEFAULT_EVENT_COLLECTION_NAME = "memory_events";
 const DEFAULT_VECTOR_SEARCH_INDEX_NAME = "vector_index";
+const DEFAULT_VECTOR_SEARCH_INDEX_NAME_V2 = "vector_index_v2";
+const DEFAULT_TENANT_ID = "default";
+const DEFAULT_WORKSPACE_ID = "default";
+const DEFAULT_VISIBILITY = "private" as const;
+const DEFAULT_LEGACY_ROUTING_FALLBACK = true;
 const DEFAULT_MIN_SCORE = 0.1;
 const DEFAULT_VECTOR_LIMIT = 8;
 const DEFAULT_NUM_CANDIDATES_MULTIPLIER = 10;
@@ -316,6 +330,26 @@ function parseBoolean(value: unknown, label: string, defaultValue: boolean): boo
   return value;
 }
 
+function parseNonEmptyString(value: unknown, label: string, defaultValue: string): string {
+  if (value === undefined) {
+    return defaultValue;
+  }
+  if (typeof value !== "string" || value.trim().length === 0) {
+    throw new Error(`${label} must be a non-empty string`);
+  }
+  return value.trim();
+}
+
+function parseVisibility(value: unknown): "private" | "workspace" | "project" {
+  if (value === undefined) {
+    return DEFAULT_VISIBILITY;
+  }
+  if (value !== "private" && value !== "workspace" && value !== "project") {
+    throw new Error("routing.defaultVisibility must be one of: private, workspace, project");
+  }
+  return value;
+}
+
 function parseSchemaMode(
   value: unknown,
   label: string,
@@ -482,6 +516,7 @@ export const memoryConfigSchema = {
         "mcp",
         "gemini",
         "database",
+        "routing",
         "retrieval",
         "captureTriggers",
         "autoCapture",
@@ -532,15 +567,40 @@ export const memoryConfigSchema = {
     vectorDimsForModel(embeddingModel);
 
     const database = cfg.database as Record<string, unknown> | undefined;
-    if (database && typeof database !== "object") {
+    if (
+      database !== undefined &&
+      (typeof database !== "object" || database === null || Array.isArray(database))
+    ) {
       throw new Error("database must be an object");
     }
     if (database) {
-      assertAllowedKeys(database, ["name", "collection", "indexName"], "database config");
+      assertAllowedKeys(
+        database,
+        ["name", "collection", "eventCollection", "indexName", "indexNameV2"],
+        "database config",
+      );
+    }
+
+    const routing = cfg.routing as Record<string, unknown> | undefined;
+    if (
+      routing !== undefined &&
+      (typeof routing !== "object" || routing === null || Array.isArray(routing))
+    ) {
+      throw new Error("routing must be an object");
+    }
+    if (routing) {
+      assertAllowedKeys(
+        routing,
+        ["tenantId", "workspaceId", "defaultVisibility", "legacyFallback"],
+        "routing config",
+      );
     }
 
     const retrieval = cfg.retrieval as Record<string, unknown> | undefined;
-    if (retrieval && typeof retrieval !== "object") {
+    if (
+      retrieval !== undefined &&
+      (typeof retrieval !== "object" || retrieval === null || Array.isArray(retrieval))
+    ) {
       throw new Error("retrieval must be an object");
     }
     if (retrieval) {
@@ -552,7 +612,10 @@ export const memoryConfigSchema = {
     }
 
     const rawOps = cfg.ops as Record<string, unknown> | undefined;
-    if (rawOps && typeof rawOps !== "object") {
+    if (
+      rawOps !== undefined &&
+      (typeof rawOps !== "object" || rawOps === null || Array.isArray(rawOps))
+    ) {
       throw new Error("ops must be an object");
     }
     if (rawOps) {
@@ -680,13 +743,41 @@ export const memoryConfigSchema = {
         embeddingModel,
       },
       database: {
-        name: typeof database?.name === "string" ? database.name : DEFAULT_DATABASE_NAME,
-        collection:
-          typeof database?.collection === "string" ? database.collection : DEFAULT_COLLECTION_NAME,
-        indexName:
-          typeof database?.indexName === "string"
-            ? database.indexName
-            : DEFAULT_VECTOR_SEARCH_INDEX_NAME,
+        name: parseNonEmptyString(database?.name, "database.name", DEFAULT_DATABASE_NAME),
+        collection: parseNonEmptyString(
+          database?.collection,
+          "database.collection",
+          DEFAULT_COLLECTION_NAME,
+        ),
+        eventCollection: parseNonEmptyString(
+          database?.eventCollection,
+          "database.eventCollection",
+          DEFAULT_EVENT_COLLECTION_NAME,
+        ),
+        indexName: parseNonEmptyString(
+          database?.indexName,
+          "database.indexName",
+          DEFAULT_VECTOR_SEARCH_INDEX_NAME,
+        ),
+        indexNameV2: parseNonEmptyString(
+          database?.indexNameV2,
+          "database.indexNameV2",
+          DEFAULT_VECTOR_SEARCH_INDEX_NAME_V2,
+        ),
+      },
+      routing: {
+        tenantId: parseNonEmptyString(routing?.tenantId, "routing.tenantId", DEFAULT_TENANT_ID),
+        workspaceId: parseNonEmptyString(
+          routing?.workspaceId,
+          "routing.workspaceId",
+          DEFAULT_WORKSPACE_ID,
+        ),
+        defaultVisibility: parseVisibility(routing?.defaultVisibility),
+        legacyFallback: parseBoolean(
+          routing?.legacyFallback,
+          "routing.legacyFallback",
+          DEFAULT_LEGACY_ROUTING_FALLBACK,
+        ),
       },
       retrieval: {
         minScore: parseScore(retrieval?.minScore, "retrieval.minScore", DEFAULT_MIN_SCORE),
@@ -795,10 +886,42 @@ export const memoryConfigSchema = {
       placeholder: DEFAULT_COLLECTION_NAME,
       advanced: true,
     },
+    "database.eventCollection": {
+      label: "Memory Event Collection",
+      placeholder: DEFAULT_EVENT_COLLECTION_NAME,
+      advanced: true,
+    },
     "database.indexName": {
       label: "Vector Index Name",
       placeholder: DEFAULT_VECTOR_SEARCH_INDEX_NAME,
       advanced: true,
+    },
+    "database.indexNameV2": {
+      label: "Scoped Vector Index Name",
+      placeholder: DEFAULT_VECTOR_SEARCH_INDEX_NAME_V2,
+      advanced: true,
+      help: "Atlas vector index with routing filter fields for scoped multi-agent recall",
+    },
+    "routing.tenantId": {
+      label: "Memory Tenant ID",
+      placeholder: DEFAULT_TENANT_ID,
+      advanced: true,
+    },
+    "routing.workspaceId": {
+      label: "Memory Workspace ID",
+      placeholder: DEFAULT_WORKSPACE_ID,
+      advanced: true,
+    },
+    "routing.defaultVisibility": {
+      label: "Default Memory Visibility",
+      placeholder: DEFAULT_VISIBILITY,
+      advanced: true,
+      help: "Default visibility for new durable memories; private preserves agent-local isolation",
+    },
+    "routing.legacyFallback": {
+      label: "Legacy Routing Fallback",
+      advanced: true,
+      help: "Search legacy vector index after scoped v2 search during additive backfill rollout",
     },
     "retrieval.minScore": {
       label: "Minimum Score",

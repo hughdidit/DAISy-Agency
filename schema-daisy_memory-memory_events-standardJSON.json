@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "_id",
+    "tenantId",
+    "workspaceId",
+    "scopeSubject",
+    "subjectType",
+    "actor",
+    "operation",
+    "status",
+    "createdAt"
+  ],
+  "properties": {
+    "_id": {
+      "type": "string"
+    },
+    "tenantId": {
+      "type": "string"
+    },
+    "workspaceId": {
+      "type": "string"
+    },
+    "scopeSubject": {
+      "type": "string"
+    },
+    "subjectType": {
+      "type": "string"
+    },
+    "actor": {
+      "type": "string"
+    },
+    "operation": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "memoryIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "summary": {
+      "type": "string"
+    },
+    "details": {
+      "type": "object"
+    },
+    "createdAt": {
+      "type": "integer"
+    }
+  }
+}

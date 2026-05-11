@@ -38,7 +38,7 @@ This document covers security considerations for `@openclaw/memory-mongodb`.
 - Operator-provided `mcp.stdio.env` values are validated against an approved allowlist before they are passed to the child process.
 - Runtime-mutating Node and tsx env such as `NODE_OPTIONS`, `NODE_PATH`, `TS_NODE_PROJECT`, and `TSX_TSCONFIG_PATH` are rejected.
 - Sensitive MongoDB credentials remain env-backed and are not passed via command-line arguments.
-- Operators should use MongoDB credentials or Atlas service accounts scoped to the minimum required database permissions for the configured memory collection.
+- Operators should use MongoDB credentials or Atlas service accounts scoped to the minimum required database permissions for the configured memory and event collections.
 
 ## Query and Data Safety
 
@@ -47,6 +47,10 @@ This document covers security considerations for `@openclaw/memory-mongodb`.
 - `memory_forget` enforces UUID validation before delete operations.
 - Vector embeddings are not returned in tool output payloads.
 - Malformed aggregate documents are skipped and not forwarded to context.
+- New memory records copy routing fields to top-level properties so Atlas can filter by tenant, workspace, scope, visibility, kind, status, sensitivity, and modality before candidate selection.
+- Legacy `metadata.ops` scope filtering remains as an additive-rollout fallback, not the primary isolation mechanism for new records.
+- `memory_hygiene apply` requires a cached same-scope plan ID, matching plan hash, and exact approved action IDs before deleting or promoting records.
+- Memory lifecycle mutations write best-effort append-only records to `memory_events` for operational auditability.
 
 ## Multimodal Payload Guardrails
 
@@ -80,6 +84,11 @@ This document covers security considerations for `@openclaw/memory-mongodb`.
 - emoji-heavy payloads
 
 Capture triggers are admin-configurable regex patterns and validated at parse time.
+
+Automatic capture only considers user-originated messages. Assistant output is not
+stored as durable memory by default, and auto-observed preferences are routed
+through `preference_miner` as repeated evidence rather than promoted from a
+single turn.
 
 ## Network Posture
 

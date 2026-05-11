@@ -7,6 +7,14 @@ const baseRetrieval = {
   numCandidatesMultiplier: 10,
 };
 
+const baseRouting = {
+  tenantId: "default",
+  workspaceId: "default",
+  defaultVisibility: "private" as const,
+  vectorIndexNameV2: "vector_idx_v2",
+  legacyFallback: true,
+};
+
 describe("mongodb provider via MCP", () => {
   test("store persists records via MCP insert-many", async () => {
     const insertMany = vi.fn().mockResolvedValue(1);
@@ -27,7 +35,9 @@ describe("mongodb provider via MCP", () => {
       embeddings as any,
       "memdb",
       "memories",
+      "memory_events",
       "vector_idx",
+      baseRouting,
       baseRetrieval,
     );
 
@@ -71,7 +81,9 @@ describe("mongodb provider via MCP", () => {
       embeddings as any,
       "memdb",
       "memories",
+      "memory_events",
       "vector_idx",
+      baseRouting,
       baseRetrieval,
     );
 
@@ -90,6 +102,57 @@ describe("mongodb provider via MCP", () => {
     });
 
     expect(record.text).toBe("[attachment:application/pdf]");
+  });
+
+  test("store denormalizes routing fields for scoped records", async () => {
+    const insertMany = vi.fn().mockResolvedValue(1);
+    const provider = new MongoMemoryDB(
+      {
+        insertMany,
+        aggregate: vi.fn(),
+        deleteOne: vi.fn(),
+        countDocuments: vi.fn(),
+        close: vi.fn(),
+      } as any,
+      { embed: vi.fn().mockResolvedValue([0.1, 0.2]) } as any,
+      "memdb",
+      "memories",
+      "memory_events",
+      "vector_idx",
+      baseRouting,
+      baseRetrieval,
+    );
+
+    await provider.store({
+      text: "prefers concise",
+      parts: [{ text: "prefers concise" }],
+      importance: 0.7,
+      category: "preference",
+      type: "associative",
+      metadata: {
+        source: "memory_capture",
+        ops: {
+          scopeSubject: "agent:main",
+          kind: "preference",
+          status: "promoted",
+          sensitivity: "normal",
+        },
+      },
+    });
+
+    expect(insertMany).toHaveBeenCalledWith("memdb", "memories", [
+      expect.objectContaining({
+        tenantId: "default",
+        workspaceId: "default",
+        scopeSubject: "agent:main",
+        subjectType: "agent",
+        visibility: "private",
+        kind: "preference",
+        status: "promoted",
+        sensitivity: "normal",
+        modalities: ["text"],
+      }),
+    ]);
   });
 
   test("store propagates insert confirmation failures", async () => {
@@ -112,7 +175,9 @@ describe("mongodb provider via MCP", () => {
       embeddings as any,
       "memdb",
       "memories",
+      "memory_events",
       "vector_idx",
+      baseRouting,
       baseRetrieval,
     );
 
@@ -155,7 +220,9 @@ describe("mongodb provider via MCP", () => {
       { embed: vi.fn() } as any,
       "memdb",
       "memories",
+      "memory_events",
       "vector_idx",
+      baseRouting,
       baseRetrieval,
     );
 
@@ -164,11 +231,17 @@ describe("mongodb provider via MCP", () => {
     expect(aggregate).toHaveBeenCalledWith("memdb", "memories", [
       {
         $vectorSearch: {
-          index: "vector_idx",
+          index: "vector_idx_v2",
           path: "vector",
           queryVector: [0.9, 0.1],
           numCandidates: 40,
           limit: 40,
+          filter: {
+            tenantId: "default",
+            workspaceId: "default",
+            visibility: "private",
+            sensitivity: "normal",
+          },
         },
       },
       {
@@ -180,6 +253,15 @@ describe("mongodb provider via MCP", () => {
           category: 1,
           subCategory: 1,
           type: 1,
+          tenantId: 1,
+          workspaceId: 1,
+          scopeSubject: 1,
+          subjectType: 1,
+          visibility: 1,
+          kind: 1,
+          status: 1,
+          sensitivity: 1,
+          modalities: 1,
           metadata: 1,
           tags: 1,
           createdAt: 1,
@@ -212,7 +294,9 @@ describe("mongodb provider via MCP", () => {
       embeddings as any,
       "memdb",
       "memories",
+      "memory_events",
       "vector_idx",
+      baseRouting,
       baseRetrieval,
     );
 
@@ -247,7 +331,9 @@ describe("mongodb provider via MCP", () => {
       { embed: vi.fn() } as any,
       "memdb",
       "memories",
+      "memory_events",
       "vector_idx",
+      baseRouting,
       baseRetrieval,
     );
 
@@ -281,7 +367,9 @@ describe("mongodb provider via MCP", () => {
       { embed: vi.fn() } as any,
       "memdb",
       "memories",
+      "memory_events",
       "vector_idx",
+      baseRouting,
       baseRetrieval,
     );
 
@@ -304,7 +392,9 @@ describe("mongodb provider via MCP", () => {
       { embed: vi.fn() } as any,
       "memdb",
       "memories",
+      "memory_events",
       "vector_idx",
+      baseRouting,
       baseRetrieval,
     );
 
@@ -329,7 +419,9 @@ describe("mongodb provider via MCP", () => {
       { embed: vi.fn() } as any,
       "memdb",
       "memories",
+      "memory_events",
       "vector_idx",
+      baseRouting,
       baseRetrieval,
     );
 
@@ -387,7 +479,9 @@ describe("mongodb provider via MCP", () => {
       { embed: vi.fn().mockResolvedValue([0.1, 0.2]) } as any,
       "memdb",
       "memories",
+      "memory_events",
       "vector_idx",
+      baseRouting,
       baseRetrieval,
     );
 
@@ -398,6 +492,150 @@ describe("mongodb provider via MCP", () => {
 
     expect(results).toHaveLength(1);
     expect(results[0]?.entry.id).toBe("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa");
+  });
+
+  test("searchByQuery pushes routing filters into Atlas vector search", async () => {
+    const now = Date.now();
+    const aggregate = vi.fn().mockResolvedValue([
+      {
+        _id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        text: "main preference",
+        vector: [0.1, 0.2],
+        tenantId: "default",
+        workspaceId: "default",
+        scopeSubject: "agent:main",
+        visibility: "private",
+        kind: "preference",
+        sensitivity: "normal",
+        modalities: ["text"],
+        category: "preference",
+        type: "associative",
+        metadata: {
+          source: "memory_capture",
+          ops: {
+            scopeSubject: "agent:main",
+            kind: "preference",
+          },
+        },
+        createdAt: now,
+        updatedAt: now,
+        score: 0.8,
+      },
+    ]);
+    const provider = new MongoMemoryDB(
+      {
+        insertMany: vi.fn(),
+        aggregate,
+        deleteOne: vi.fn(),
+        countDocuments: vi.fn(),
+        close: vi.fn(),
+      } as any,
+      { embed: vi.fn().mockResolvedValue([0.1, 0.2]) } as any,
+      "memdb",
+      "memories",
+      "memory_events",
+      "vector_idx",
+      baseRouting,
+      baseRetrieval,
+    );
+
+    const results = await provider.searchByQuery("preference", 1, 0.1, {
+      scopeSubject: "agent:main",
+      kinds: ["preference"],
+      modalities: ["text"],
+    });
+
+    expect(results).toHaveLength(1);
+    const pipeline = aggregate.mock.calls[0]?.[2] as Array<Record<string, any>>;
+    expect(pipeline[0]?.$vectorSearch).toEqual(
+      expect.objectContaining({
+        index: "vector_idx_v2",
+        filter: {
+          tenantId: "default",
+          workspaceId: "default",
+          visibility: "private",
+          scopeSubject: "agent:main",
+          sensitivity: "normal",
+          kind: "preference",
+          modalities: "text",
+        },
+      }),
+    );
+  });
+
+  test("searchByQuery fallback filters out more similar memories from another scope", async () => {
+    const now = Date.now();
+    const aggregate = vi
+      .fn()
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        {
+          _id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+          text: "other scope but closer",
+          vector: [0.1, 0.2],
+          scopeSubject: "agent:other",
+          visibility: "private",
+          kind: "fact",
+          category: "fact",
+          type: "semantic",
+          metadata: {
+            source: "memory_capture",
+            ops: {
+              scopeSubject: "agent:other",
+              kind: "fact",
+            },
+          },
+          createdAt: now,
+          updatedAt: now,
+          score: 0.99,
+        },
+        {
+          _id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+          text: "main scope but lower score",
+          vector: [0.1, 0.2],
+          scopeSubject: "agent:main",
+          visibility: "private",
+          kind: "fact",
+          category: "fact",
+          type: "semantic",
+          metadata: {
+            source: "memory_capture",
+            ops: {
+              scopeSubject: "agent:main",
+              kind: "fact",
+            },
+          },
+          createdAt: now,
+          updatedAt: now,
+          score: 0.7,
+        },
+      ]);
+    const provider = new MongoMemoryDB(
+      {
+        insertMany: vi.fn(),
+        aggregate,
+        deleteOne: vi.fn(),
+        countDocuments: vi.fn(),
+        close: vi.fn(),
+      } as any,
+      { embed: vi.fn().mockResolvedValue([0.1, 0.2]) } as any,
+      "memdb",
+      "memories",
+      "memory_events",
+      "vector_idx",
+      baseRouting,
+      baseRetrieval,
+    );
+
+    const results = await provider.searchByQuery("same meaning", 5, 0.1, {
+      scopeSubject: "agent:main",
+      kinds: ["fact"],
+    });
+
+    expect(results.map((result) => result.entry.id)).toEqual([
+      "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+    ]);
+    expect(aggregate).toHaveBeenCalledTimes(2);
   });
 
   test("searchByQuery excludes secret entries unless explicitly requested", async () => {
@@ -434,7 +672,9 @@ describe("mongodb provider via MCP", () => {
       { embed: vi.fn().mockResolvedValue([0.1, 0.2]) } as any,
       "memdb",
       "memories",
+      "memory_events",
       "vector_idx",
+      baseRouting,
       baseRetrieval,
     );
 
@@ -486,7 +726,9 @@ describe("mongodb provider via MCP", () => {
       { embed: vi.fn() } as any,
       "memdb",
       "memories",
+      "memory_events",
       "vector_idx",
+      baseRouting,
       baseRetrieval,
     );
 
@@ -498,9 +740,76 @@ describe("mongodb provider via MCP", () => {
       expect.arrayContaining([
         {
           $match: {
-            "metadata.ops.scopeSubject": "agent:main",
+            $or: [
+              {
+                tenantId: "default",
+                workspaceId: "default",
+                scopeSubject: "agent:main",
+              },
+              {
+                "metadata.ops.scopeSubject": "agent:main",
+                $and: [
+                  {
+                    $or: [{ tenantId: "default" }, { tenantId: { $exists: false } }],
+                  },
+                  {
+                    $or: [{ workspaceId: "default" }, { workspaceId: { $exists: false } }],
+                  },
+                  {
+                    $or: [
+                      { "metadata.ops.tenantId": "default" },
+                      { "metadata.ops.tenantId": { $exists: false } },
+                    ],
+                  },
+                  {
+                    $or: [
+                      { "metadata.ops.workspaceId": "default" },
+                      { "metadata.ops.workspaceId": { $exists: false } },
+                    ],
+                  },
+                ],
+              },
+            ],
           },
         },
+      ]),
+    );
+  });
+
+  test("listByScope includes tenant and workspace constraints for routed records", async () => {
+    const aggregate = vi.fn().mockResolvedValue([]);
+    const provider = new MongoMemoryDB(
+      {
+        insertMany: vi.fn(),
+        aggregate,
+        deleteOne: vi.fn(),
+        countDocuments: vi.fn(),
+        close: vi.fn(),
+      } as any,
+      { embed: vi.fn() } as any,
+      "memdb",
+      "memories",
+      "memory_events",
+      "vector_idx",
+      {
+        ...baseRouting,
+        tenantId: "tenant-a",
+        workspaceId: "workspace-a",
+      },
+      baseRetrieval,
+    );
+
+    await provider.listByScope("agent:main", 10);
+    const pipeline = aggregate.mock.calls[0]?.[2] as Array<Record<string, any>>;
+    expect(pipeline[0]?.$match.$or[0]).toEqual({
+      tenantId: "tenant-a",
+      workspaceId: "workspace-a",
+      scopeSubject: "agent:main",
+    });
+    expect(pipeline[0]?.$match.$or[1].$and).toEqual(
+      expect.arrayContaining([
+        { $or: [{ tenantId: "tenant-a" }, { tenantId: { $exists: false } }] },
+        { $or: [{ workspaceId: "workspace-a" }, { workspaceId: { $exists: false } }] },
       ]),
     );
   });
@@ -553,7 +862,9 @@ describe("mongodb provider via MCP", () => {
       { embed: vi.fn() } as any,
       "memdb",
       "memories",
+      "memory_events",
       "vector_idx",
+      baseRouting,
       baseRetrieval,
     );
 
@@ -633,7 +944,9 @@ describe("mongodb provider via MCP", () => {
       { embed: vi.fn() } as any,
       "memdb",
       "memories",
+      "memory_events",
       "vector_idx",
+      baseRouting,
       baseRetrieval,
     );
 
@@ -654,7 +967,9 @@ describe("mongodb provider via MCP", () => {
       { embed: vi.fn() } as any,
       "memdb",
       "memories",
+      "memory_events",
       "vector_idx",
+      baseRouting,
       baseRetrieval,
     );
 
