@@ -56,10 +56,42 @@
       "placeholder": "memories",
       "advanced": true
     },
+    "database.eventCollection": {
+      "label": "Memory Event Collection",
+      "placeholder": "memory_events",
+      "advanced": true
+    },
     "database.indexName": {
       "label": "Vector Search Index Name",
       "placeholder": "vector_index",
       "advanced": true
+    },
+    "database.indexNameV2": {
+      "label": "Scoped Vector Search Index Name",
+      "placeholder": "vector_index_v2",
+      "advanced": true,
+      "help": "Atlas vector index with routing filter fields for scoped multi-agent recall"
+    },
+    "routing.tenantId": {
+      "label": "Memory Tenant ID",
+      "placeholder": "default",
+      "advanced": true
+    },
+    "routing.workspaceId": {
+      "label": "Memory Workspace ID",
+      "placeholder": "default",
+      "advanced": true
+    },
+    "routing.defaultVisibility": {
+      "label": "Default Memory Visibility",
+      "placeholder": "private",
+      "advanced": true,
+      "help": "Default visibility for new durable memories; private preserves agent-local isolation"
+    },
+    "routing.legacyFallback": {
+      "label": "Legacy Routing Fallback",
+      "advanced": true,
+      "help": "Search legacy vector index after scoped v2 search during additive backfill rollout"
     },
     "retrieval.minScore": {
       "label": "Minimum Score",
@@ -190,7 +222,22 @@
         "properties": {
           "name": { "type": "string" },
           "collection": { "type": "string" },
-          "indexName": { "type": "string" }
+          "eventCollection": { "type": "string" },
+          "indexName": { "type": "string" },
+          "indexNameV2": { "type": "string" }
+        }
+      },
+      "routing": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tenantId": { "type": "string" },
+          "workspaceId": { "type": "string" },
+          "defaultVisibility": {
+            "type": "string",
+            "enum": ["private", "workspace", "project"]
+          },
+          "legacyFallback": { "type": "boolean" }
         }
       },
       "retrieval": {

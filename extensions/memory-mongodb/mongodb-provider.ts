@@ -20,6 +20,15 @@ export type MemoryEntry = {
   category: MemoryCategory;
   subCategory?: string;
   type: MemoryType;
+  tenantId?: string;
+  workspaceId?: string;
+  scopeSubject?: string;
+  subjectType?: string;
+  visibility?: MemoryVisibility;
+  kind?: string;
+  status?: string;
+  sensitivity?: MemorySensitivity;
+  modalities?: string[];
   metadata?: Record<string, unknown>;
   tags?: string[];
   createdAt: number;
@@ -42,12 +51,24 @@ export type MemorySearchResult = {
 
 export type MemoryQueryFilters = {
   scopeSubject?: string;
+  visibility?: MemoryVisibility;
   kinds?: string[];
   modalities?: string[];
   openCommitmentsOnly?: boolean;
   preferencesOnly?: boolean;
   includeSecrets?: boolean;
 };
+
+export type MemoryRoutingOptions = {
+  tenantId: string;
+  workspaceId: string;
+  defaultVisibility: MemoryVisibility;
+  vectorIndexNameV2: string;
+  legacyFallback: boolean;
+};
+
+export type MemoryVisibility = "private" | "workspace" | "project";
+export type MemorySensitivity = "normal" | "secret";
 
 export type RetrievalOptions = {
   minScore: number;
@@ -69,11 +90,45 @@ type MemoryDocument = {
   category: MemoryCategory;
   subCategory?: string;
   type: MemoryType;
+  tenantId?: string;
+  workspaceId?: string;
+  scopeSubject?: string;
+  subjectType?: string;
+  visibility?: MemoryVisibility;
+  kind?: string;
+  status?: string;
+  sensitivity?: MemorySensitivity;
+  modalities?: string[];
   metadata?: Record<string, unknown>;
   tags?: string[];
   createdAt: number;
   updatedAt: number;
   score?: number;
+};
+
+type MemoryEventDocument = {
+  _id: string;
+  tenantId: string;
+  workspaceId: string;
+  scopeSubject: string;
+  subjectType: string;
+  actor: string;
+  operation: string;
+  status: string;
+  memoryIds?: string[];
+  summary?: string;
+  details?: Record<string, unknown>;
+  createdAt: number;
+};
+
+export type MemoryEventInput = {
+  scopeSubject: string;
+  actor: string;
+  operation: string;
+  status: string;
+  memoryIds?: string[];
+  summary?: string;
+  details?: Record<string, unknown>;
 };
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -84,7 +139,9 @@ export class MongoMemoryDB {
     private readonly gemini: GeminiService,
     private readonly databaseName: string,
     private readonly collectionName: string,
+    private readonly eventCollectionName: string,
     private readonly vectorSearchIndexName: string,
+    private readonly routing: MemoryRoutingOptions,
     private readonly retrieval: RetrievalOptions,
     private readonly logger?: Logger,
   ) {}
@@ -115,6 +172,7 @@ export class MongoMemoryDB {
       createdAt: now,
       updatedAt: now,
     };
+    Object.assign(record, this.resolveRoutingFields(record));
 
     const document = this.entryToDocument(record);
     await this.mcp.insertMany(this.databaseName, this.collectionName, [document]);
@@ -143,16 +201,66 @@ export class MongoMemoryDB {
       boundedLimit,
       boundedLimit * Math.max(1, this.retrieval.numCandidatesMultiplier),
     );
+    const usePushdown = shouldUseRoutingPushdown(filters);
+    const results: MemorySearchResult[] = [];
+    const seen = new Set<string>();
+
+    if (usePushdown) {
+      try {
+        const pushdownResults = await this.aggregateVectorSearch(
+          this.routing.vectorIndexNameV2,
+          vector,
+          numCandidates,
+          minScore,
+          filters,
+          this.buildVectorFilter(filters),
+        );
+        appendUniqueResults(results, seen, pushdownResults);
+      } catch (error) {
+        this.logger?.warn?.(
+          `memory-mongodb: v2 vector search failed; falling back to legacy post-filtered search: ${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        );
+      }
+    }
+
+    if (!usePushdown || (this.routing.legacyFallback && results.length < boundedLimit)) {
+      const legacyResults = await this.aggregateVectorSearch(
+        this.vectorSearchIndexName,
+        vector,
+        numCandidates,
+        minScore,
+        filters,
+      );
+      appendUniqueResults(results, seen, legacyResults);
+    }
+
+    return results.slice(0, boundedLimit);
+  }
+
+  private async aggregateVectorSearch(
+    indexName: string,
+    vector: number[],
+    numCandidates: number,
+    minScore: number,
+    filters: MemoryQueryFilters | undefined,
+    vectorFilter?: Record<string, unknown>,
+  ): Promise<MemorySearchResult[]> {
+    const vectorSearch: Record<string, unknown> = {
+      index: indexName,
+      path: "vector",
+      queryVector: vector,
+      numCandidates,
+      limit: numCandidates,
+    };
+    if (vectorFilter && Object.keys(vectorFilter).length > 0) {
+      vectorSearch.filter = vectorFilter;
+    }
 
     const pipeline = [
       {
-        $vectorSearch: {
-          index: this.vectorSearchIndexName,
-          path: "vector",
-          queryVector: vector,
-          numCandidates,
-          limit: numCandidates,
-        },
+        $vectorSearch: vectorSearch,
       },
       {
         $project: {
@@ -163,6 +271,15 @@ export class MongoMemoryDB {
           category: 1,
           subCategory: 1,
           type: 1,
+          tenantId: 1,
+          workspaceId: 1,
+          scopeSubject: 1,
+          subjectType: 1,
+          visibility: 1,
+          kind: 1,
+          status: 1,
+          sensitivity: 1,
+          modalities: 1,
           metadata: 1,
           tags: 1,
           createdAt: 1,
@@ -198,7 +315,7 @@ export class MongoMemoryDB {
       });
     }
 
-    return results.slice(0, boundedLimit);
+    return results;
   }
 
   async delete(id: string): Promise<boolean> {
@@ -210,6 +327,27 @@ export class MongoMemoryDB {
 
   async count(): Promise<number> {
     return this.mcp.countDocuments(this.databaseName, this.collectionName);
+  }
+
+  async recordEvent(input: MemoryEventInput): Promise<MemoryEventDocument> {
+    const now = Date.now();
+    const subjectType = subjectTypeFromScope(input.scopeSubject);
+    const event: MemoryEventDocument = {
+      _id: randomUUID(),
+      tenantId: this.routing.tenantId,
+      workspaceId: this.routing.workspaceId,
+      scopeSubject: input.scopeSubject,
+      subjectType,
+      actor: input.actor,
+      operation: input.operation,
+      status: input.status,
+      memoryIds: input.memoryIds,
+      summary: input.summary,
+      details: input.details,
+      createdAt: now,
+    };
+    await this.mcp.insertMany(this.databaseName, this.eventCollectionName, [event]);
+    return event;
   }
 
   async getById(id: string): Promise<MemoryEntry | null> {
@@ -235,6 +373,15 @@ export class MongoMemoryDB {
           category: 1,
           subCategory: 1,
           type: 1,
+          tenantId: 1,
+          workspaceId: 1,
+          scopeSubject: 1,
+          subjectType: 1,
+          visibility: 1,
+          kind: 1,
+          status: 1,
+          sensitivity: 1,
+          modalities: 1,
           metadata: 1,
           tags: 1,
           createdAt: 1,
@@ -268,7 +415,7 @@ export class MongoMemoryDB {
     const documents = await this.mcp.aggregate(this.databaseName, this.collectionName, [
       {
         $match: {
-          "metadata.ops.scopeSubject": scopeSubject,
+          $or: [{ scopeSubject }, { "metadata.ops.scopeSubject": scopeSubject }],
         },
       },
       {
@@ -288,6 +435,15 @@ export class MongoMemoryDB {
           category: 1,
           subCategory: 1,
           type: 1,
+          tenantId: 1,
+          workspaceId: 1,
+          scopeSubject: 1,
+          subjectType: 1,
+          visibility: 1,
+          kind: 1,
+          status: 1,
+          sensitivity: 1,
+          modalities: 1,
           metadata: 1,
           tags: 1,
           createdAt: 1,
@@ -323,6 +479,15 @@ export class MongoMemoryDB {
       category: entry.category,
       subCategory: entry.subCategory,
       type: entry.type,
+      tenantId: entry.tenantId,
+      workspaceId: entry.workspaceId,
+      scopeSubject: entry.scopeSubject,
+      subjectType: entry.subjectType,
+      visibility: entry.visibility,
+      kind: entry.kind,
+      status: entry.status,
+      sensitivity: entry.sensitivity,
+      modalities: entry.modalities,
       metadata: entry.metadata,
       tags: entry.tags,
       createdAt: entry.createdAt,
@@ -353,6 +518,17 @@ export class MongoMemoryDB {
       category: isMemoryCategory(raw.category) ? raw.category : "other",
       subCategory: typeof raw.subCategory === "string" ? raw.subCategory : undefined,
       type: isMemoryType(raw.type) ? raw.type : "semantic",
+      tenantId: typeof raw.tenantId === "string" ? raw.tenantId : undefined,
+      workspaceId: typeof raw.workspaceId === "string" ? raw.workspaceId : undefined,
+      scopeSubject: typeof raw.scopeSubject === "string" ? raw.scopeSubject : undefined,
+      subjectType: typeof raw.subjectType === "string" ? raw.subjectType : undefined,
+      visibility: isMemoryVisibility(raw.visibility) ? raw.visibility : undefined,
+      kind: typeof raw.kind === "string" ? raw.kind : undefined,
+      status: typeof raw.status === "string" ? raw.status : undefined,
+      sensitivity: isMemorySensitivity(raw.sensitivity) ? raw.sensitivity : undefined,
+      modalities: Array.isArray(raw.modalities)
+        ? raw.modalities.filter((item): item is string => typeof item === "string")
+        : undefined,
       metadata: isObject(raw.metadata) ? raw.metadata : undefined,
       tags: Array.isArray(raw.tags)
         ? raw.tags.filter((tag): tag is string => typeof tag === "string")
@@ -362,6 +538,64 @@ export class MongoMemoryDB {
     };
 
     return { entry, score };
+  }
+
+  private resolveRoutingFields(
+    entry: MemoryEntry,
+  ): Pick<
+    MemoryEntry,
+    | "tenantId"
+    | "workspaceId"
+    | "scopeSubject"
+    | "subjectType"
+    | "visibility"
+    | "kind"
+    | "status"
+    | "sensitivity"
+    | "modalities"
+  > {
+    const ops = extractOpsMetadata(entry);
+    const scopeSubject = readString(ops?.scopeSubject) ?? entry.scopeSubject;
+    return {
+      tenantId: readString(ops?.tenantId) ?? entry.tenantId ?? this.routing.tenantId,
+      workspaceId: readString(ops?.workspaceId) ?? entry.workspaceId ?? this.routing.workspaceId,
+      scopeSubject,
+      subjectType:
+        readString(ops?.subjectType) ?? entry.subjectType ?? subjectTypeFromScope(scopeSubject),
+      visibility:
+        readVisibility(ops?.visibility) ?? entry.visibility ?? this.routing.defaultVisibility,
+      kind: readString(ops?.kind) ?? entry.kind,
+      status: readString(ops?.status) ?? entry.status,
+      sensitivity: readSensitivity(ops?.sensitivity) ?? entry.sensitivity ?? "normal",
+      modalities: extractEntryModalities(entry),
+    };
+  }
+
+  private buildVectorFilter(filters: MemoryQueryFilters | undefined): Record<string, unknown> {
+    const filter: Record<string, unknown> = {
+      tenantId: this.routing.tenantId,
+      workspaceId: this.routing.workspaceId,
+      visibility: filters?.visibility ?? this.routing.defaultVisibility,
+    };
+    if (filters?.scopeSubject) {
+      filter.scopeSubject = filters.scopeSubject;
+    }
+    if (filters?.includeSecrets !== true) {
+      filter.sensitivity = "normal";
+    }
+    if (filters?.preferencesOnly) {
+      filter.kind = "preference";
+    } else if (filters?.openCommitmentsOnly) {
+      filter.kind = "commitment";
+      filter.status = "open";
+    } else if (Array.isArray(filters?.kinds) && filters.kinds.length > 0) {
+      filter.kind = filters.kinds.length === 1 ? filters.kinds[0] : { $in: filters.kinds };
+    }
+    if (Array.isArray(filters?.modalities) && filters.modalities.length > 0) {
+      filter.modalities =
+        filters.modalities.length === 1 ? filters.modalities[0] : { $in: filters.modalities };
+    }
+    return filter;
   }
 }
 
@@ -386,33 +620,51 @@ function isMemoryType(value: unknown): value is MemoryType {
   );
 }
 
+function isMemoryVisibility(value: unknown): value is MemoryVisibility {
+  return value === "private" || value === "workspace" || value === "project";
+}
+
+function isMemorySensitivity(value: unknown): value is MemorySensitivity {
+  return value === "normal" || value === "secret";
+}
+
 function isObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
 function matchesFilters(entry: MemoryEntry, filters: MemoryQueryFilters | undefined): boolean {
   const ops = extractOpsMetadata(entry);
-  if (ops?.sensitivity === "secret" && filters?.includeSecrets !== true) {
+  const entryScope = entry.scopeSubject ?? readString(ops?.scopeSubject);
+  const entryVisibility = entry.visibility ?? readVisibility(ops?.visibility);
+  const entryKind = entry.kind ?? readString(ops?.kind);
+  const entryStatus = entry.status ?? readString(ops?.status);
+  const entrySensitivity = entry.sensitivity ?? readSensitivity(ops?.sensitivity);
+  if (entrySensitivity === "secret" && filters?.includeSecrets !== true) {
     return false;
   }
   if (!filters) {
     return true;
   }
   if (filters.scopeSubject) {
-    if (ops?.scopeSubject !== filters.scopeSubject) {
+    if (entryScope !== filters.scopeSubject) {
       return false;
     }
   }
-  if (filters.preferencesOnly && ops?.kind !== "preference") {
+  if (filters.visibility) {
+    if (entryVisibility !== filters.visibility) {
+      return false;
+    }
+  }
+  if (filters.preferencesOnly && entryKind !== "preference") {
     return false;
   }
   if (filters.openCommitmentsOnly) {
-    if (ops?.kind !== "commitment" || ops.status !== "open") {
+    if (entryKind !== "commitment" || entryStatus !== "open") {
       return false;
     }
   }
   if (Array.isArray(filters.kinds) && filters.kinds.length > 0) {
-    if (!ops?.kind || !filters.kinds.includes(ops.kind)) {
+    if (!entryKind || !filters.kinds.includes(entryKind)) {
       return false;
     }
   }
@@ -425,9 +677,7 @@ function matchesFilters(entry: MemoryEntry, filters: MemoryQueryFilters | undefi
   return true;
 }
 
-function extractOpsMetadata(
-  entry: MemoryEntry,
-): { scopeSubject?: string; kind?: string; status?: string; sensitivity?: string } | null {
+function extractOpsMetadata(entry: MemoryEntry): Record<string, unknown> | null {
   if (!isObject(entry.metadata)) {
     return null;
   }
@@ -435,15 +685,13 @@ function extractOpsMetadata(
   if (!isObject(rawOps)) {
     return null;
   }
-  return {
-    scopeSubject: typeof rawOps.scopeSubject === "string" ? rawOps.scopeSubject : undefined,
-    kind: typeof rawOps.kind === "string" ? rawOps.kind : undefined,
-    status: typeof rawOps.status === "string" ? rawOps.status : undefined,
-    sensitivity: typeof rawOps.sensitivity === "string" ? rawOps.sensitivity : undefined,
-  };
+  return rawOps;
 }
 
 function extractEntryModalities(entry: MemoryEntry): string[] {
+  if (Array.isArray(entry.modalities) && entry.modalities.length > 0) {
+    return Array.from(new Set(entry.modalities.filter((item) => typeof item === "string")));
+  }
   if (!isObject(entry.metadata)) {
     return ["text"];
   }
@@ -468,7 +716,79 @@ function extractEntryModalities(entry: MemoryEntry): string[] {
   return modalities.length > 0 ? modalities : ["text"];
 }
 
-export function buildVectorIndexDefinition(indexName: string, numDimensions: number): object {
+function readString(value: unknown): string | undefined {
+  return typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
+}
+
+function readVisibility(value: unknown): MemoryVisibility | undefined {
+  return isMemoryVisibility(value) ? value : undefined;
+}
+
+function readSensitivity(value: unknown): MemorySensitivity | undefined {
+  return isMemorySensitivity(value) ? value : undefined;
+}
+
+function subjectTypeFromScope(scopeSubject: string | undefined): string {
+  if (!scopeSubject) {
+    return "unknown";
+  }
+  const prefix = scopeSubject.split(":")[0]?.trim();
+  return prefix || "unknown";
+}
+
+function shouldUseRoutingPushdown(filters: MemoryQueryFilters | undefined): boolean {
+  if (!filters) {
+    return false;
+  }
+  return Boolean(
+    filters?.scopeSubject ||
+    filters?.visibility ||
+    filters?.preferencesOnly ||
+    filters?.openCommitmentsOnly ||
+    (Array.isArray(filters?.kinds) && filters.kinds.length > 0) ||
+    (Array.isArray(filters?.modalities) && filters.modalities.length > 0) ||
+    filters?.includeSecrets !== true,
+  );
+}
+
+function appendUniqueResults(
+  target: MemorySearchResult[],
+  seen: Set<string>,
+  candidates: MemorySearchResult[],
+): void {
+  for (const candidate of candidates) {
+    if (seen.has(candidate.entry.id)) {
+      continue;
+    }
+    seen.add(candidate.entry.id);
+    target.push(candidate);
+  }
+  target.sort((a, b) => b.score - a.score);
+}
+
+export function buildVectorIndexDefinition(
+  indexName: string,
+  numDimensions: number,
+  options: { routingFilters?: boolean } = {},
+): object {
+  const filterPaths = options.routingFilters
+    ? [
+        "tenantId",
+        "workspaceId",
+        "scopeSubject",
+        "subjectType",
+        "visibility",
+        "category",
+        "kind",
+        "type",
+        "sensitivity",
+        "status",
+        "modalities",
+        "importance",
+        "createdAt",
+        "updatedAt",
+      ]
+    : ["category", "importance", "createdAt"];
   return {
     name: indexName,
     type: "vectorSearch",
@@ -480,18 +800,10 @@ export function buildVectorIndexDefinition(indexName: string, numDimensions: num
           numDimensions,
           similarity: "cosine",
         },
-        {
+        ...filterPaths.map((filterPath) => ({
           type: "filter",
-          path: "category",
-        },
-        {
-          type: "filter",
-          path: "importance",
-        },
-        {
-          type: "filter",
-          path: "createdAt",
-        },
+          path: filterPath,
+        })),
       ],
     },
   };

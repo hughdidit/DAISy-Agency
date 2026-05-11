@@ -15,8 +15,9 @@ Use this skill when a reply depends on prior user history, preferences, commitme
 3. Use `memory_capture` only for durable non-actionable information, not every turn.
 4. Use `preference_miner` for repeated non-secret behavior; do not promote one-off observations.
 5. Run `memory_hygiene` in `plan` mode when there are duplicates, conflicts, or stale records. Prioritize `dedupe`, `conflict-review`, and `stale-prune`. Apply only after reviewing actions.
-6. Use `memory_audit` after memory config changes, recall-related deploys, or when recall reliability is uncertain. It runs probe capture and recall checks and can optionally clean up successful probes.
-7. Summarize tool output; do not dump raw memory records unless explicitly requested.
+6. Use `memory_hygiene` in `apply` mode only with the `planId`, `planHash`, and exact approved action IDs from a reviewed plan.
+7. Use `memory_audit` after memory config changes, recall-related deploys, or when recall reliability is uncertain. It runs probe capture and recall checks and can optionally clean up successful probes.
+8. Summarize tool output; do not dump raw memory records unless explicitly requested.
 
 ## Default Memory Policy
 
@@ -29,7 +30,7 @@ When memory is relevant, prefer these defaults:
 - Do not store raw transcripts, temporary troubleshooting chatter, speculative guesses, duplicated rewrites of existing memory, or secrets that are not intentionally classified for later agent use.
 - If the agent decides a durable memory is secret, it must explicitly set `sensitivity: "secret"` on the relevant tool call. Secret-like content is rejected by default.
 - Use `preference_miner` only when repeated evidence supports a stable non-secret preference.
-- Use `memory_hygiene` in `plan` mode when memory appears noisy, duplicated, conflicting, or stale. Apply only after reviewing the plan.
+- Use `memory_hygiene` in `plan` mode when memory appears noisy, duplicated, conflicting, or stale. Apply only after reviewing the plan and passing its matching approval fields.
 - Summarize tool output briefly; do not dump raw records unless explicitly requested.
 
 ## Capture Format Preference
@@ -64,6 +65,10 @@ When using `memory_hygiene`, prefer explicit cleanup strategies over vague clean
 - `promote` only for repeated non-secret observations that should become durable preferences
 
 For noisy memory, start with `dedupe`, `conflict-review`, and `stale-prune`. Use `promote` only when the plan shows stable repeated evidence.
+
+`apply` is intentionally strict. Pass only a reviewed plan's `planId`,
+`planHash`, and full approved action ID list. Do not ask the tool to generate and
+apply a plan in the same call.
 
 ## Audit Guidance
 
@@ -100,5 +105,7 @@ When multiple memory actions are possible, prefer:
 
 - Memory scope is agent-local by default (`agent:<id>` or `subagent:<id>`).
 - Do not assume cross-agent memory visibility.
+- Shared/project memory requires explicit visibility and routing policy. Never rely on fallback to another agent or the main agent.
+- Sandboxed and unsandboxed delegates should use the same plugin-backed memory tools; do not use direct MongoDB or filesystem access as a memory workaround.
 - Secret-like material must be rejected or redacted unless the agent intentionally marks it as secret before capture.
 - Secret memories remain scope-local and must be excluded from ordinary recall and hygiene flows unless the caller explicitly requests them.

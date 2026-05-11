@@ -37,6 +37,10 @@ function materializeTool(
   return toolOrFactory;
 }
 
+function memoryInsertCalls() {
+  return mcpClientMocks.insertMany.mock.calls.filter((call) => call[1] === "memories");
+}
+
 vi.mock("./mcp-client-service.js", () => ({
   McpClientService: vi.fn(function MockMcpClientService() {
     return mcpClientMocks;
@@ -519,8 +523,8 @@ describe("memory-mongodb plugin", () => {
       { agentId: "finn", sessionKey: "agent:finn:main" },
     );
 
-    expect(mcpClientMocks.insertMany).toHaveBeenCalledOnce();
-    const insertCall = mcpClientMocks.insertMany.mock.calls[0] as unknown[] | undefined;
+    expect(memoryInsertCalls()).toHaveLength(1);
+    const insertCall = memoryInsertCalls()[0] as unknown[] | undefined;
     const insertedDocuments = insertCall?.[2] as
       | Array<{ metadata?: { ops?: { scopeSubject?: string } } }>
       | undefined;
@@ -528,6 +532,56 @@ describe("memory-mongodb plugin", () => {
     expect(logger.warn).not.toHaveBeenCalledWith(
       "memory-mongodb: auto-capture skipped due to missing scope",
     );
+  });
+
+  test("auto-capture does not store assistant-originated speculation", async () => {
+    const { default: memoryPlugin } = await import("./index.js");
+    const hooks = new Map<string, any>();
+    const logger = { info: vi.fn(), warn: vi.fn(), error: vi.fn() };
+
+    mcpClientMocks.insertMany.mockResolvedValue(1);
+    mcpClientMocks.aggregate.mockResolvedValue([]);
+
+    memoryPlugin.register({
+      pluginConfig: {
+        mcp: {
+          transport: "stdio",
+          stdio: {
+            env: {
+              MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
+            },
+          },
+        },
+        gemini: { apiKey: "test-key" },
+      },
+      logger,
+      registerTool: vi.fn(),
+      registerCli: vi.fn(),
+      registerService: vi.fn(),
+      on: (hookName: string, handler: unknown) => {
+        hooks.set(hookName, handler);
+      },
+    } as unknown as import("openclaw/plugin-sdk").OpenClawPluginApi);
+
+    const agentEnd = hooks.get("agent_end") as (
+      event: { success: boolean; messages: Array<Record<string, unknown>> },
+      ctx?: { agentId?: string; sessionKey?: string },
+    ) => Promise<void>;
+
+    await agentEnd(
+      {
+        success: true,
+        messages: [
+          {
+            role: "assistant",
+            content: "I decided the user always needs this speculative memory.",
+          },
+        ],
+      },
+      { agentId: "finn", sessionKey: "agent:finn:main" },
+    );
+
+    expect(memoryInsertCalls()).toHaveLength(0);
   });
 
   test("auto hooks fall back to legacy event-carried scope and still fail closed when absent", async () => {
@@ -650,8 +704,8 @@ describe("memory-mongodb plugin", () => {
       messages: [{ role: "user", content: "I prefer concise subagent memory notes." }],
     });
 
-    expect(mcpClientMocks.insertMany).toHaveBeenCalledOnce();
-    const insertCall = mcpClientMocks.insertMany.mock.calls[0] as unknown[] | undefined;
+    expect(memoryInsertCalls()).toHaveLength(1);
+    const insertCall = memoryInsertCalls()[0] as unknown[] | undefined;
     const insertedDocuments = insertCall?.[2] as
       | Array<{ metadata?: { ops?: { scopeSubject?: string } } }>
       | undefined;
@@ -665,7 +719,7 @@ describe("memory-mongodb plugin", () => {
       {},
     );
 
-    expect(mcpClientMocks.insertMany).toHaveBeenCalledOnce();
+    expect(memoryInsertCalls()).toHaveLength(1);
     expect(logger.warn).toHaveBeenCalledWith(
       "memory-mongodb: auto-capture skipped due to missing scope",
     );
@@ -693,7 +747,15 @@ describe("memory-mongodb plugin", () => {
       database: {
         name: "my_memory",
         collection: "my_memories",
+        eventCollection: "my_events",
         indexName: "my_index",
+        indexNameV2: "my_index_v2",
+      },
+      routing: {
+        tenantId: "tenant-a",
+        workspaceId: "workspace-a",
+        defaultVisibility: "workspace",
+        legacyFallback: false,
       },
       retrieval: {
         minScore: 0.2,
@@ -712,7 +774,15 @@ describe("memory-mongodb plugin", () => {
     expect(config.gemini.apiKey).toBe("test-key");
     expect(config.database.name).toBe("my_memory");
     expect(config.database.collection).toBe("my_memories");
+    expect(config.database.eventCollection).toBe("my_events");
     expect(config.database.indexName).toBe("my_index");
+    expect(config.database.indexNameV2).toBe("my_index_v2");
+    expect(config.routing).toEqual({
+      tenantId: "tenant-a",
+      workspaceId: "workspace-a",
+      defaultVisibility: "workspace",
+      legacyFallback: false,
+    });
     expect(config.retrieval.minScore).toBe(0.2);
     expect(config.retrieval.vectorLimit).toBe(6);
     expect(config.ops.schemaMode).toBe("strict-validator");
@@ -741,7 +811,15 @@ describe("memory-mongodb plugin", () => {
     expect(config.gemini.embeddingModel).toBe("gemini-embedding-2-preview");
     expect(config.database.name).toBe("daisy_memory");
     expect(config.database.collection).toBe("memories");
+    expect(config.database.eventCollection).toBe("memory_events");
     expect(config.database.indexName).toBe("vector_index");
+    expect(config.database.indexNameV2).toBe("vector_index_v2");
+    expect(config.routing).toEqual({
+      tenantId: "default",
+      workspaceId: "default",
+      defaultVisibility: "private",
+      legacyFallback: true,
+    });
     expect(config.retrieval.minScore).toBe(0.1);
     expect(config.retrieval.vectorLimit).toBe(8);
     expect(config.autoCapture).toBe(true);

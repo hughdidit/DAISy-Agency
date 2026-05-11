@@ -38,8 +38,25 @@
             "scopeSubject": {
               "type": "string"
             },
+            "tenantId": {
+              "type": "string"
+            },
+            "workspaceId": {
+              "type": "string"
+            },
+            "subjectType": {
+              "type": "string"
+            },
+            "visibility": {
+              "type": "string",
+              "enum": ["private", "workspace", "project"]
+            },
             "status": {
               "type": "string"
+            },
+            "sensitivity": {
+              "type": "string",
+              "enum": ["normal", "secret"]
             },
             "confidence": {
               "anyOf": [
@@ -80,6 +97,12 @@
               "type": "integer"
             },
             "auditRunId": {
+              "type": "string"
+            },
+            "observedAt": {
+              "type": "integer"
+            },
+            "contentHash": {
               "type": "string"
             },
             "attachments": {
@@ -135,6 +158,38 @@
     },
     "type": {
       "type": "string"
+    },
+    "tenantId": {
+      "type": "string"
+    },
+    "workspaceId": {
+      "type": "string"
+    },
+    "scopeSubject": {
+      "type": "string"
+    },
+    "subjectType": {
+      "type": "string"
+    },
+    "visibility": {
+      "type": "string",
+      "enum": ["private", "workspace", "project"]
+    },
+    "kind": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "sensitivity": {
+      "type": "string",
+      "enum": ["normal", "secret"]
+    },
+    "modalities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
     "updatedAt": {
       "type": "integer"

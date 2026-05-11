@@ -21,6 +21,7 @@ function createService(overrides?: Partial<Record<string, any>>) {
     delete: vi.fn().mockResolvedValue(true),
     listByScope: vi.fn().mockResolvedValue([]),
     getById: vi.fn().mockResolvedValue(null),
+    recordEvent: vi.fn().mockResolvedValue({}),
     ...overrides,
   };
 
@@ -156,7 +157,48 @@ describe("memory ops service", () => {
     });
 
     expect(result.outcomes[0]?.status).toBe("duplicate");
+    expect(db.searchByQuery).toHaveBeenCalledWith("existing", 3, 0, {
+      scopeSubject: "agent:main",
+      includeSecrets: true,
+    });
     expect(db.store).not.toHaveBeenCalled();
+  });
+
+  test("capture dedupe ignores same text from another agent scope", async () => {
+    const outOfScope = {
+      entry: {
+        id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+        text: "same durable fact",
+        vector: [0.1],
+        importance: 0.8,
+        category: "fact",
+        type: "semantic",
+        metadata: {
+          source: "memory_capture",
+          ops: {
+            scopeSubject: "agent:other",
+            kind: "fact",
+            contentHash: "different-scope",
+          },
+        },
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      },
+      score: 0.99,
+      vectorScore: 0.99,
+    };
+    const { service, db } = createService({
+      searchByQuery: vi.fn().mockResolvedValue([outOfScope]),
+    });
+
+    const result = await service.capture({
+      scopeSubject: "agent:main",
+      source: "test",
+      entries: [{ text: "same durable fact", kind: "fact", importance: 0.8 }],
+    });
+
+    expect(result.outcomes[0]?.status).toBe("created");
+    expect(db.store).toHaveBeenCalled();
   });
 
   test("hygiene plan mode returns deterministic plan envelope", async () => {
@@ -171,7 +213,97 @@ describe("memory ops service", () => {
 
     expect(result.mode).toBe("plan");
     expect(result.plan.scopeSubject).toBe("agent:main");
+    expect(result.plan.planHash).toMatch(/^[a-f0-9]{64}$/);
     expect(Array.isArray(result.plan.actions)).toBe(true);
+  });
+
+  test("hygiene apply requires a matching approved plan", async () => {
+    const now = Date.now();
+    const { service, db } = createService({
+      listByScope: vi.fn().mockResolvedValue([
+        {
+          id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+          text: "stale audit probe",
+          vector: [0.1],
+          importance: 0.1,
+          category: "other",
+          type: "episodic",
+          metadata: {
+            source: "memory_audit",
+            ops: {
+              scopeSubject: "agent:main",
+              kind: "audit",
+              status: "probe",
+            },
+          },
+          createdAt: now - 1000 * 60 * 60 * 25,
+          updatedAt: now - 1000 * 60 * 60 * 25,
+        },
+      ]),
+    });
+
+    await expect(
+      service.memoryHygiene({
+        mode: "apply",
+        scopeSubject: "agent:main",
+      }),
+    ).rejects.toThrow("planId and planHash are required");
+    expect(db.delete).not.toHaveBeenCalled();
+
+    const planned = await service.memoryHygiene({
+      mode: "plan",
+      scopeSubject: "agent:main",
+      strategies: ["stale-prune"],
+    });
+
+    await expect(
+      service.memoryHygiene({
+        mode: "apply",
+        scopeSubject: "agent:main",
+        planId: planned.plan.planId,
+        planHash: "bad-hash",
+        approvedActionIds: planned.plan.actions.map((action) => action.id),
+      }),
+    ).rejects.toThrow("planHash does not match");
+    expect(db.delete).not.toHaveBeenCalled();
+
+    await expect(
+      service.memoryHygiene({
+        mode: "apply",
+        scopeSubject: "agent:other",
+        planId: planned.plan.planId,
+        planHash: planned.plan.planHash,
+        approvedActionIds: planned.plan.actions.map((action) => action.id),
+      }),
+    ).rejects.toThrow("planId is not valid for the current scope");
+    expect(db.delete).not.toHaveBeenCalled();
+
+    planned.plan.generatedAt = now - 1000 * 60 * 16;
+    await expect(
+      service.memoryHygiene({
+        mode: "apply",
+        scopeSubject: "agent:main",
+        planId: planned.plan.planId,
+        planHash: planned.plan.planHash,
+        approvedActionIds: planned.plan.actions.map((action) => action.id),
+      }),
+    ).rejects.toThrow("planId not found or expired");
+    expect(db.delete).not.toHaveBeenCalled();
+
+    const freshPlan = await service.memoryHygiene({
+      mode: "plan",
+      scopeSubject: "agent:main",
+      strategies: ["stale-prune"],
+    });
+
+    const applied = await service.memoryHygiene({
+      mode: "apply",
+      scopeSubject: "agent:main",
+      planId: freshPlan.plan.planId,
+      planHash: freshPlan.plan.planHash,
+      approvedActionIds: freshPlan.plan.actions.map((action) => action.id),
+    });
+    expect(applied.applied?.deletedIds).toEqual(["aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"]);
   });
 
   test("hygiene ignores secret entries", async () => {
@@ -470,5 +602,64 @@ describe("memory ops service", () => {
     expect(result.pass).toBe(false);
     expect(db.store).toHaveBeenCalled();
     expect(db.delete).not.toHaveBeenCalled();
+  });
+
+  test("memory audit deletes successful probe records", async () => {
+    const fixedId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+    const now = Date.now();
+    const { service, db } = createService({
+      store: vi.fn().mockImplementation(async (entry) => ({
+        id: fixedId,
+        text: entry.text ?? "",
+        vector: [0.1, 0.2],
+        importance: entry.importance,
+        category: entry.category,
+        type: entry.type,
+        metadata: entry.metadata,
+        createdAt: now,
+        updatedAt: now,
+      })),
+      searchByQuery: vi.fn().mockResolvedValue([
+        {
+          entry: {
+            id: fixedId,
+            text: "memory-audit-probe-test-run-12345678",
+            vector: [0.1, 0.2],
+            importance: 0.1,
+            category: "other",
+            type: "episodic",
+            metadata: {
+              source: "memory_audit",
+              ops: {
+                scopeSubject: "agent:main",
+                kind: "audit",
+                status: "probe",
+              },
+            },
+            createdAt: now,
+            updatedAt: now,
+          },
+          score: 1,
+          vectorScore: 1,
+        },
+      ]),
+    });
+
+    const result = await service.memoryAudit({
+      scopeSubject: "agent:main",
+      runId: "test-run",
+      cleanupOnSuccess: true,
+    });
+
+    expect(result.pass).toBe(true);
+    expect(result.cleanupResult).toBe("deleted");
+    expect(db.delete).toHaveBeenCalledWith(fixedId);
+    expect(db.recordEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        operation: "memory_audit",
+        status: "passed",
+        memoryIds: [fixedId],
+      }),
+    );
   });
 });

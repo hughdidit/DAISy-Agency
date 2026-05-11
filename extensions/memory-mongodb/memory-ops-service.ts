@@ -15,7 +15,7 @@ import type {
   MemorySensitivity,
   PreferenceMinerMode,
 } from "./memory-ops-types.js";
-import type { MemoryEntry, MongoMemoryDB } from "./mongodb-provider.js";
+import type { MemoryEntry, MemoryEventInput, MongoMemoryDB } from "./mongodb-provider.js";
 import {
   buildAttachmentManifests,
   multimodalPartsToFallbackText,
@@ -61,6 +61,8 @@ type HygieneInput = {
   strategies?: MemoryHygieneStrategy[];
   maxCandidates?: number;
   planId?: string;
+  planHash?: string;
+  approvedActionIds?: string[];
 };
 
 type RecallInput = {
@@ -101,6 +103,7 @@ const SECRET_PATTERNS = [
 const DEFAULT_DEDUPE_THRESHOLD = 0.95;
 const DEFAULT_RECALL_MIN_SCORE = 0.1;
 const ATTACHMENT_ONLY_FALLBACK_RE = /^\[attachment:[^\]]+\]$/i;
+const HYGIENE_PLAN_MAX_AGE_MS = 15 * 60 * 1000;
 
 export class MemoryOpsService {
   private readonly hygienePlans = new Map<string, MemoryHygienePlan>();
@@ -124,6 +127,18 @@ export class MemoryOpsService {
       });
       outcomes.push(result);
     }
+
+    await this.recordEvent({
+      scopeSubject: input.scopeSubject,
+      actor: input.source,
+      operation: "memory_capture",
+      status: summarizeOutcomeStatus(outcomes.map((outcome) => outcome.status)),
+      memoryIds: outcomes
+        .map((outcome) => outcome.id ?? outcome.existingId)
+        .filter((id): id is string => typeof id === "string"),
+      summary: `Processed ${outcomes.length} memory capture candidate(s).`,
+      details: { outcomes },
+    });
 
     return { outcomes };
   }
@@ -193,19 +208,49 @@ export class MemoryOpsService {
         input.maxCandidates,
       );
       this.hygienePlans.set(plan.planId, plan);
+      await this.recordEvent({
+        scopeSubject: input.scopeSubject,
+        actor: "memory_hygiene",
+        operation: "memory_hygiene_plan",
+        status: "planned",
+        memoryIds: Array.from(new Set(plan.actions.flatMap((action) => action.memoryIds))),
+        summary: `Generated memory hygiene plan with ${plan.actions.length} action(s).`,
+        details: {
+          planId: plan.planId,
+          planHash: plan.planHash,
+          actionIds: plan.actions.map((action) => action.id),
+        },
+      });
       return { mode: "plan", plan };
     }
 
-    const cachedPlan = input.planId ? this.hygienePlans.get(input.planId) : undefined;
-    if (input.planId && !cachedPlan) {
+    if (!input.planId || !input.planHash) {
+      throw new Error("planId and planHash are required for memory_hygiene apply");
+    }
+    const cachedPlan = this.hygienePlans.get(input.planId);
+    if (!cachedPlan) {
       throw new Error("planId not found or expired");
     }
-    if (cachedPlan && cachedPlan.scopeSubject !== input.scopeSubject) {
+    if (cachedPlan.scopeSubject !== input.scopeSubject) {
       throw new Error("planId is not valid for the current scope");
     }
-    const plan =
-      cachedPlan ??
-      (await this.buildHygienePlan(input.scopeSubject, input.strategies, input.maxCandidates));
+    if (Date.now() - cachedPlan.generatedAt > HYGIENE_PLAN_MAX_AGE_MS) {
+      this.hygienePlans.delete(input.planId);
+      throw new Error("planId not found or expired");
+    }
+    if (cachedPlan.planHash !== input.planHash) {
+      throw new Error("planHash does not match the cached hygiene plan");
+    }
+    const approvedActionIds = Array.isArray(input.approvedActionIds) ? input.approvedActionIds : [];
+    if (
+      !sameStringSet(
+        approvedActionIds,
+        cachedPlan.actions.map((action) => action.id),
+      )
+    ) {
+      throw new Error("approvedActionIds must exactly match the cached hygiene plan actions");
+    }
+    const plan = cachedPlan;
 
     const deletedIds: string[] = [];
     const promotedIds: string[] = [];
@@ -255,6 +300,22 @@ export class MemoryOpsService {
       this.hygienePlans.delete(input.planId);
     }
 
+    await this.recordEvent({
+      scopeSubject: input.scopeSubject,
+      actor: "memory_hygiene",
+      operation: "memory_hygiene_apply",
+      status: "applied",
+      memoryIds: [...deletedIds, ...promotedIds],
+      summary: `Applied memory hygiene plan ${plan.planId}.`,
+      details: {
+        planId: plan.planId,
+        planHash: plan.planHash,
+        deletedIds,
+        promotedIds,
+        reviewCount,
+      },
+    });
+
     return {
       mode: "apply",
       plan,
@@ -291,6 +352,18 @@ export class MemoryOpsService {
         ],
       });
 
+      await this.recordEvent({
+        scopeSubject: input.scopeSubject,
+        actor: "commitment_tracker",
+        operation: "commitment_capture",
+        status: summarizeOutcomeStatus(captured.outcomes.map((outcome) => outcome.status)),
+        memoryIds: captured.outcomes
+          .map((outcome) => outcome.id ?? outcome.existingId)
+          .filter((id): id is string => typeof id === "string"),
+        summary: "Captured commitment memory.",
+        details: { outcomes: captured.outcomes },
+      });
+
       return {
         mode: input.mode,
         outcomes: captured.outcomes,
@@ -317,6 +390,19 @@ export class MemoryOpsService {
         input.mode === "resolve" ? "resolved" : "cancelled",
         input.note,
       );
+
+      await this.recordEvent({
+        scopeSubject: input.scopeSubject,
+        actor: "commitment_tracker",
+        operation: `commitment_${input.mode}`,
+        status: "updated",
+        memoryIds: [
+          input.commitmentId,
+          typeof updated.replacementId === "string" ? updated.replacementId : undefined,
+        ].filter((id): id is string => typeof id === "string"),
+        summary: `Commitment ${input.mode} created a replacement memory.`,
+        details: updated,
+      });
 
       return {
         mode: input.mode,
@@ -428,6 +514,16 @@ export class MemoryOpsService {
         }
       }
 
+      await this.recordEvent({
+        scopeSubject: input.scopeSubject,
+        actor: "preference_miner",
+        operation: "preference_promotion",
+        status: created.length > 0 ? "promoted" : "skipped",
+        memoryIds: created,
+        summary: `Applied ${created.length} preference promotion(s).`,
+        details: { promotedIds: created, promotions: plans },
+      });
+
       return {
         mode: input.mode,
         promotedCount: created.length,
@@ -452,6 +548,8 @@ export class MemoryOpsService {
           kind: "audit",
           importance: 0.1,
           confidence: 1,
+          auditRunId: runId,
+          expiresAt: Date.now() + 1000 * 60 * 60 * 24,
         },
       ],
     });
@@ -487,7 +585,7 @@ export class MemoryOpsService {
       cleanupResult = deleted ? "deleted" : "failed";
     }
 
-    return {
+    const result = {
       pass,
       runId,
       token,
@@ -497,6 +595,16 @@ export class MemoryOpsService {
       latencyMs,
       cleanupResult,
     };
+    await this.recordEvent({
+      scopeSubject: input.scopeSubject,
+      actor: "memory_audit",
+      operation: "memory_audit",
+      status: pass ? "passed" : "failed",
+      memoryIds: [created.id],
+      summary: pass ? "Memory audit probe round-trip passed." : "Memory audit probe recall failed.",
+      details: result,
+    });
+    return result;
   }
 
   private async captureOne(input: {
@@ -595,6 +703,13 @@ export class MemoryOpsService {
 
     for (const candidate of existing) {
       const ops = readOpsMetadata(candidate.entry);
+      const candidateScope =
+        typeof candidate.entry.scopeSubject === "string"
+          ? candidate.entry.scopeSubject
+          : ops?.scopeSubject;
+      if (candidateScope !== input.scopeSubject) {
+        continue;
+      }
       const existingHash = typeof ops?.contentHash === "string" ? ops.contentHash : undefined;
       if (existingHash && existingHash === contentHash) {
         return {
@@ -630,6 +745,9 @@ export class MemoryOpsService {
       confidence,
       sourceMessageIds: input.candidate.sourceMessageIds,
       status,
+      observedAt: input.candidate.observedAt,
+      expiresAt: input.candidate.expiresAt,
+      auditRunId: input.candidate.auditRunId,
       owner: input.candidate.commitment?.owner,
       dueAt: input.candidate.commitment?.dueAt,
       followUpAt: input.candidate.commitment?.followUpAt,
@@ -783,6 +901,7 @@ export class MemoryOpsService {
       scopeSubject,
       generatedAt: Date.now(),
       actions,
+      planHash: buildPlanHash(actions),
     };
   }
 
@@ -939,6 +1058,18 @@ export class MemoryOpsService {
     }
 
     return promotions;
+  }
+
+  private async recordEvent(input: MemoryEventInput): Promise<void> {
+    try {
+      await this.db.recordEvent(input);
+    } catch (error) {
+      this.logger?.warn?.(
+        `memory-mongodb: failed to record memory event ${input.operation}: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
+    }
   }
 }
 
@@ -1152,4 +1283,40 @@ function isPriority(value: unknown): value is "low" | "medium" | "high" {
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function summarizeOutcomeStatus(statuses: string[]): string {
+  if (statuses.length === 0) {
+    return "empty";
+  }
+  if (statuses.every((status) => status === "created")) {
+    return "created";
+  }
+  if (statuses.some((status) => status === "created")) {
+    return "partial";
+  }
+  return statuses[0] ?? "unknown";
+}
+
+function buildPlanHash(actions: MemoryHygieneAction[]): string {
+  const stableActions = actions
+    .map((action) => ({
+      id: action.id,
+      strategy: action.strategy,
+      action: action.action,
+      memoryIds: [...action.memoryIds].sort(),
+      candidateText: action.candidateText ?? null,
+      candidateValue: action.candidateValue ?? null,
+    }))
+    .sort((a, b) => a.id.localeCompare(b.id));
+  return createHash("sha256").update(JSON.stringify(stableActions)).digest("hex");
+}
+
+function sameStringSet(left: string[], right: string[]): boolean {
+  const normalizedLeft = [...new Set(left)].sort();
+  const normalizedRight = [...new Set(right)].sort();
+  if (normalizedLeft.length !== normalizedRight.length) {
+    return false;
+  }
+  return normalizedLeft.every((value, index) => value === normalizedRight[index]);
 }

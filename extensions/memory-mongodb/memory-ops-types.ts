@@ -36,6 +36,10 @@ export type MemoryOpsCommitmentStatus = "open" | "resolved" | "cancelled";
 export type MemoryOpsMetadata = {
   kind: MemoryOpsKind;
   scopeSubject: string;
+  tenantId?: string;
+  workspaceId?: string;
+  subjectType?: string;
+  visibility?: "private" | "workspace" | "project";
   source: string;
   sensitivity?: MemorySensitivity;
   confidence?: number;
@@ -50,6 +54,7 @@ export type MemoryOpsMetadata = {
   supersedesId?: string;
   expiresAt?: number;
   auditRunId?: string;
+  observedAt?: number;
   attachmentSummary?: {
     modalities: MemoryOpsModality[];
     totalCount: number;
@@ -76,6 +81,8 @@ export type MemoryCaptureCandidate = {
   observedAt?: number;
   status?: string;
   supersedesId?: string;
+  expiresAt?: number;
+  auditRunId?: string;
   commitment?: {
     owner: string;
     dueAt?: number;
@@ -125,6 +132,7 @@ export type MemoryHygieneAction = {
 
 export type MemoryHygienePlan = {
   planId: string;
+  planHash: string;
   scopeSubject: string;
   generatedAt: number;
   actions: MemoryHygieneAction[];

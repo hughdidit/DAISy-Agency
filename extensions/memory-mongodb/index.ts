@@ -256,8 +256,11 @@ const memoryCaptureEntrySchema = Type.Object(
     subCategory: Type.Optional(Type.String()),
     tags: Type.Optional(Type.Array(Type.String())),
     sourceMessageIds: Type.Optional(Type.Array(Type.String())),
+    observedAt: Type.Optional(Type.Number()),
     status: Type.Optional(Type.String()),
     supersedesId: Type.Optional(Type.String()),
+    expiresAt: Type.Optional(Type.Number()),
+    auditRunId: Type.Optional(Type.String()),
     commitment: Type.Optional(
       Type.Object(
         {
@@ -303,7 +306,15 @@ const memoryPlugin = {
       geminiService,
       cfg.database.name,
       cfg.database.collection,
+      cfg.database.eventCollection,
       cfg.database.indexName,
+      {
+        tenantId: cfg.routing.tenantId,
+        workspaceId: cfg.routing.workspaceId,
+        defaultVisibility: cfg.routing.defaultVisibility,
+        vectorIndexNameV2: cfg.database.indexNameV2,
+        legacyFallback: cfg.routing.legacyFallback,
+      },
       cfg.retrieval,
       api.logger,
     );
@@ -378,8 +389,14 @@ const memoryPlugin = {
     );
 
     const indexDef = buildVectorIndexDefinition(cfg.database.indexName, vectorDim);
+    const routingIndexDef = buildVectorIndexDefinition(cfg.database.indexNameV2, vectorDim, {
+      routingFilters: true,
+    });
     api.logger.info(
       `memory-mongodb: ensure Atlas Vector Search index exists:\n${JSON.stringify(indexDef, null, 2)}`,
+    );
+    api.logger.info(
+      `memory-mongodb: ensure scoped Atlas Vector Search index exists:\n${JSON.stringify(routingIndexDef, null, 2)}`,
     );
 
     api.registerTool(
@@ -778,6 +795,20 @@ const memoryPlugin = {
                   details: { action: "not_found", id: memoryId, scopeSubject },
                 };
               }
+              await db
+                .recordEvent({
+                  scopeSubject,
+                  actor: "memory_forget",
+                  operation: "memory_forget",
+                  status: "deleted",
+                  memoryIds: [memoryId],
+                  summary: "Deleted memory by explicit ID.",
+                })
+                .catch((error) =>
+                  api.logger.warn(
+                    `memory-mongodb: failed to record memory_forget event: ${String(error)}`,
+                  ),
+                );
               return {
                 content: [{ type: "text", text: `Memory ${memoryId} forgotten.` }],
                 details: { action: "deleted", id: memoryId, scopeSubject },
@@ -796,6 +827,20 @@ const memoryPlugin = {
 
               if (results.length === 1 && results[0].score >= 0.95) {
                 await deleteMemory(results[0].entry.id);
+                await db
+                  .recordEvent({
+                    scopeSubject,
+                    actor: "memory_forget",
+                    operation: "memory_forget",
+                    status: "deleted",
+                    memoryIds: [results[0].entry.id],
+                    summary: "Deleted memory by high-confidence query match.",
+                  })
+                  .catch((error) =>
+                    api.logger.warn(
+                      `memory-mongodb: failed to record memory_forget event: ${String(error)}`,
+                    ),
+                  );
                 return {
                   content: [{ type: "text", text: `Forgotten: "${results[0].entry.text}"` }],
                   details: { action: "deleted", id: results[0].entry.id, scopeSubject },
@@ -908,18 +953,23 @@ const memoryPlugin = {
             ),
             maxCandidates: Type.Optional(Type.Number({ minimum: 1 })),
             planId: Type.Optional(Type.String()),
+            planHash: Type.Optional(Type.String()),
+            approvedActionIds: Type.Optional(Type.Array(Type.String())),
           }),
           async execute(_toolCallId, params) {
             if (!scopeSubject) {
               return scopeErrorResult();
             }
             await ensureMcpRuntimeDirs();
-            const { mode, strategies, maxCandidates, planId } = params as {
-              mode: "plan" | "apply";
-              strategies?: MemoryHygieneStrategy[];
-              maxCandidates?: number;
-              planId?: string;
-            };
+            const { mode, strategies, maxCandidates, planId, planHash, approvedActionIds } =
+              params as {
+                mode: "plan" | "apply";
+                strategies?: MemoryHygieneStrategy[];
+                maxCandidates?: number;
+                planId?: string;
+                planHash?: string;
+                approvedActionIds?: string[];
+              };
 
             const result = await opsService.memoryHygiene({
               mode,
@@ -927,6 +977,8 @@ const memoryPlugin = {
               strategies,
               maxCandidates,
               planId,
+              planHash,
+              approvedActionIds,
             });
 
             return {
@@ -1175,7 +1227,7 @@ const memoryPlugin = {
 
         try {
           await ensureMcpRuntimeDirs();
-          const texts: string[] = [];
+          const textItems: Array<{ text: string; sourceMessageId?: string }> = [];
 
           for (const message of event.messages) {
             if (!message || typeof message !== "object") {
@@ -1183,13 +1235,17 @@ const memoryPlugin = {
             }
             const messageRecord = message as Record<string, unknown>;
             const role = messageRecord.role;
-            if (role !== "user" && role !== "assistant") {
+            if (role !== "user") {
               continue;
             }
+            const sourceMessageId =
+              typeof messageRecord.id === "string" && messageRecord.id.trim().length > 0
+                ? messageRecord.id
+                : undefined;
 
             const content = messageRecord.content;
             if (typeof content === "string") {
-              texts.push(content);
+              textItems.push({ text: content, sourceMessageId });
               continue;
             }
 
@@ -1203,28 +1259,53 @@ const memoryPlugin = {
                   "text" in block &&
                   typeof (block as Record<string, unknown>).text === "string"
                 ) {
-                  texts.push((block as Record<string, unknown>).text as string);
+                  textItems.push({
+                    text: (block as Record<string, unknown>).text as string,
+                    sourceMessageId,
+                  });
                 }
               }
             }
           }
 
-          const toCapture = texts.filter((text) => shouldCapture(text, triggers));
+          const toCapture = textItems.filter((item) => shouldCapture(item.text, triggers));
           if (toCapture.length === 0) {
             return;
           }
-          const entries: MemoryCaptureCandidate[] = toCapture.slice(0, 3).map((text) => {
-            const category = detectCategory(text);
-            return {
-              text,
-              kind:
-                category === "preference" ? "preference" : category === "fact" ? "fact" : "note",
+          const preferenceItems: Array<{ text: string; sourceMessageId?: string }> = [];
+          const entries: MemoryCaptureCandidate[] = [];
+          for (const item of toCapture.slice(0, 3)) {
+            const category = detectCategory(item.text);
+            if (category === "preference") {
+              preferenceItems.push(item);
+              continue;
+            }
+            if (category !== "fact" && category !== "decision") {
+              continue;
+            }
+            entries.push({
+              text: item.text,
+              kind: category === "fact" ? "fact" : "decision",
               importance: 0.7,
               category,
-              subCategory: detectSubCategory(text),
+              subCategory: detectSubCategory(item.text),
               confidence: 0.8,
-            };
-          });
+              sourceMessageIds: item.sourceMessageId ? [item.sourceMessageId] : undefined,
+              observedAt: Date.now(),
+            });
+          }
+          for (const item of preferenceItems) {
+            await opsService.preferenceMiner({
+              mode: "observe",
+              scopeSubject,
+              key: "auto_observed_preference",
+              value: item.text,
+              confidence: 0.75,
+            });
+          }
+          if (entries.length === 0) {
+            return;
+          }
           const result = await opsService.capture({
             scopeSubject,
             entries,
