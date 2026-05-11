@@ -110,6 +110,7 @@ These secrets are passed to docker compose on the target VM.
 - `FINN_DISCORD_BOT_TOKEN` - Finn Discord bot token for `channels.discord.accounts.finn.token` when staging runs Finn as a separate Discord app
 - `KODY_DISCORD_BOT_TOKEN` - Kody Discord bot token for `channels.discord.accounts.kody.token` when staging runs Kody as a separate Discord app
 - `ART_DISCORD_BOT_TOKEN` - Art Discord bot token for `channels.discord.accounts.art.token` when staging runs Art as a separate Discord app
+- `SALLY_DISCORD_BOT_TOKEN` - Sally Discord bot token for `channels.discord.accounts.sally.token` when staging runs Sally as a separate Discord app
 - `MONGODB_URI` - memory-mongodb connection URI
 - `GEMINI_API_KEY` - Gemini embeddings / Google provider access
 - `BRAVE_API_KEY` - Brave web search access
