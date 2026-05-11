@@ -637,6 +637,7 @@ Group messages default to **require mention** (metadata mention or regex pattern
 
 - **Metadata mentions**: Native platform @-mentions. Ignored in WhatsApp self-chat mode.
 - **Text patterns**: Regex patterns in `agents.list[].groupChat.mentionPatterns`. Always checked.
+- Identity-derived agent-name mentions require a textual `@Name`; configure custom `mentionPatterns` for intentional plain trigger phrases.
 - Mention gating is enforced only when detection is possible (native mentions or at least one pattern).
 
 ```json5
@@ -645,7 +646,7 @@ Group messages default to **require mention** (metadata mention or regex pattern
     groupChat: { historyLimit: 50 },
   },
   agents: {
-    list: [{ id: "main", groupChat: { mentionPatterns: ["@openclaw", "openclaw"] } }],
+    list: [{ id: "main", groupChat: { mentionPatterns: ["@openclaw"] } }],
   },
 }
 ```
@@ -1265,7 +1266,7 @@ scripts/sandbox-browser-setup.sh   # optional browser image
 - `model`: string form overrides `primary` only; object form `{ primary, fallbacks }` overrides both (`[]` disables global fallbacks). Cron jobs that only override `primary` still inherit default fallbacks unless you set `fallbacks: []`.
 - `params`: per-agent stream params merged over the selected model entry in `agents.defaults.models`. Use this for agent-specific overrides like `cacheRetention`, `temperature`, or `maxTokens` without duplicating the whole model catalog.
 - `identity.avatar`: workspace-relative path, `http(s)` URL, or `data:` URI.
-- `identity` derives defaults: `ackReaction` from `emoji`, `mentionPatterns` from `name`/`emoji`.
+- `identity` derives defaults: `ackReaction` from `emoji`, mention patterns from `identity.name` as textual `@Name` and from `identity.emoji`.
 - `subagents.allowAgents`: allowlist of agent ids for `sessions_spawn` (`["*"]` = any; default: same agent only).
 - Sandbox inheritance guard: if the requester session is sandboxed, `sessions_spawn` rejects targets that would run unsandboxed.
 
@@ -2820,7 +2821,7 @@ Metadata written by CLI wizards (`onboard`, `configure`, `doctor`):
 Written by the macOS onboarding assistant. Derives defaults:
 
 - `messages.ackReaction` from `identity.emoji` (falls back to 👀)
-- `mentionPatterns` from `identity.name`/`identity.emoji`
+- `mentionPatterns` from `identity.name` as textual `@Name` and from `identity.emoji`
 - `avatar` accepts: workspace-relative path, `http(s)` URL, or `data:` URI
 
 ---

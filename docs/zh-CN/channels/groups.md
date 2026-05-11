@@ -235,7 +235,7 @@ requireMention? 是 -> 被提及? 否 -> 仅存储为上下文
       {
         id: "main",
         groupChat: {
-          mentionPatterns: ["@openclaw", "openclaw", "\\+15555550123"],
+          mentionPatterns: ["@openclaw", "\\+15555550123"],
           historyLimit: 50,
         },
       },
@@ -248,6 +248,7 @@ requireMention? 是 -> 被提及? 否 -> 仅存储为上下文
 
 - `mentionPatterns` 是不区分大小写的正则表达式。
 - 提供显式提及的平台仍然通过；模式是回退。
+- 由 `identity.name` 派生的智能体名称提及需要文本 `@Name`；普通触发短语需要显式配置 `mentionPatterns`。
 - 每个智能体覆盖：`agents.list[].groupChat.mentionPatterns`（当多个智能体共享一个群组时有用）。
 - 提及限制仅在提及检测可行时强制执行（原生提及或 `mentionPatterns` 已配置）。
 - Discord 默认值位于 `channels.discord.guilds."*"`（可按服务器/频道覆盖）。

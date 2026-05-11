@@ -306,6 +306,42 @@ describe("discord tool result dispatch", () => {
   );
 
   it(
+    "requires @ for identity-derived guild message mentions",
+    async () => {
+      const cfg = {
+        ...createMentionRequiredGuildConfig(),
+        agents: {
+          defaults: {
+            model: "anthropic/claude-opus-4-5",
+            workspace: "/tmp/openclaw",
+          },
+          list: [{ id: "main", identity: { name: "OpenClaw" } }],
+        },
+      } as LoadedConfig;
+
+      const handler = await createHandler(cfg);
+      const client = createGuildTextClient();
+
+      await handler(
+        createGuildMessageEvent({ messageId: "m-identity-plain", content: "openclaw: hello" }),
+        client,
+      );
+
+      expect(dispatchMock).toHaveBeenCalledTimes(0);
+      expect(sendMock).toHaveBeenCalledTimes(0);
+
+      await handler(
+        createGuildMessageEvent({ messageId: "m-identity-at", content: "@openclaw hello" }),
+        client,
+      );
+
+      expect(dispatchMock).toHaveBeenCalledTimes(1);
+      expect(sendMock).toHaveBeenCalledTimes(1);
+    },
+    MENTION_PATTERNS_TEST_TIMEOUT_MS,
+  );
+
+  it(
     "skips tool results for native slash commands",
     { timeout: MENTION_PATTERNS_TEST_TIMEOUT_MS },
     async () => {

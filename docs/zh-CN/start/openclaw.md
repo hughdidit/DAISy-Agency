@@ -166,7 +166,7 @@ OpenClaw 默认为良好的助手设置，但你通常需要调整：
   },
   routing: {
     groupChat: {
-      mentionPatterns: ["@openclaw", "openclaw"],
+      mentionPatterns: ["@openclaw"],
     },
   },
   session: {

@@ -411,6 +411,44 @@ describe("mention helpers", () => {
     expect(matchesMentionPatterns("workbot: hi", regexes)).toBe(true);
     expect(matchesMentionPatterns("global: hi", regexes)).toBe(false);
   });
+
+  it("requires @ for identity-derived agent name mentions", () => {
+    const regexes = buildMentionRegexes(
+      {
+        agents: {
+          list: [
+            {
+              id: "main",
+              identity: { name: "OpenClaw" },
+            },
+          ],
+        },
+      },
+      "main",
+    );
+
+    expect(matchesMentionPatterns("@openclaw hi", regexes)).toBe(true);
+    expect(matchesMentionPatterns("openclaw hi", regexes)).toBe(false);
+  });
+
+  it("requires @ for multiword identity-derived agent name mentions", () => {
+    const regexes = buildMentionRegexes(
+      {
+        agents: {
+          list: [
+            {
+              id: "family",
+              identity: { name: "Family Bot" },
+            },
+          ],
+        },
+      },
+      "family",
+    );
+
+    expect(matchesMentionPatterns("@Family Bot can you help?", regexes)).toBe(true);
+    expect(matchesMentionPatterns("Family Bot can you help?", regexes)).toBe(false);
+  });
 });
 
 describe("resolveGroupRequireMention", () => {

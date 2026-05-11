@@ -156,7 +156,7 @@ When validation fails:
           {
             id: "main",
             groupChat: {
-              mentionPatterns: ["@openclaw", "openclaw"],
+              mentionPatterns: ["@openclaw"],
             },
           },
         ],

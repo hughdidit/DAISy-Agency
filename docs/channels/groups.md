@@ -232,7 +232,7 @@ Replying to a bot message counts as an implicit mention (when the channel suppor
       {
         id: "main",
         groupChat: {
-          mentionPatterns: ["@openclaw", "openclaw", "\\+15555550123"],
+          mentionPatterns: ["@openclaw", "\\+15555550123"],
           historyLimit: 50,
         },
       },
@@ -245,6 +245,7 @@ Notes:
 
 - `mentionPatterns` are case-insensitive regexes.
 - Surfaces that provide explicit mentions still pass; patterns are a fallback.
+- Identity-derived agent-name mentions require a textual `@Name`; plain trigger phrases require explicit `mentionPatterns`.
 - Per-agent override: `agents.list[].groupChat.mentionPatterns` (useful when multiple agents share a group).
 - Mention gating is only enforced when mention detection is possible (native mentions or `mentionPatterns` are configured).
 - Discord defaults live in `channels.discord.guilds."*"` (overridable per guild/channel).

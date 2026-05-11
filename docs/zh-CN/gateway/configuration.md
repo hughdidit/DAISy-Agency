@@ -606,7 +606,7 @@ OpenClaw 在以下位置存储**每个智能体的**认证配置文件（OAuth +
     groupChat: { historyLimit: 50 },
   },
   agents: {
-    list: [{ id: "main", groupChat: { mentionPatterns: ["@openclaw", "openclaw"] } }],
+    list: [{ id: "main", groupChat: { mentionPatterns: ["@openclaw"] } }],
   },
 }
 ```
