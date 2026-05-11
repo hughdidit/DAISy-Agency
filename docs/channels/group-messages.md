@@ -50,7 +50,7 @@ Add a `groupChat` block to `~/.openclaw/openclaw.json` so display-name pings wor
 
 Notes:
 
-- The regexes are case-insensitive; they cover a display-name ping like `@openclaw` and the raw number with or without `+`/spaces. Identity-derived agent-name mentions require a textual `@Name`; configure a custom regex if you intentionally want a plain trigger phrase.
+- The regexes are case-insensitive; they cover a display-name ping like `@openclaw` and the raw number with optional `+`. Identity-derived agent-name mentions require a textual `@Name`; configure a custom regex if you intentionally want a plain trigger phrase.
 - WhatsApp still sends canonical mentions via `mentionedJids` when someone taps the contact, so the number fallback is rarely needed but is a useful safety net.
 
 ### Activation command (owner-only)
