@@ -169,6 +169,96 @@ describe("memory-mongodb plugin", () => {
     expect(recallAfterForget.details?.count).toBe(0);
   });
 
+  test("memory_forget accepts bracketed candidate tokens within the current scope", async () => {
+    const { default: memoryPlugin } = await import("./index.js");
+    const registeredTools = new Map<string, any>();
+    const storedDocument = {
+      _id: "f9ed12f4-1111-4111-8111-111111111111",
+      text: "memory forget candidate token probe",
+      vector: [0.1, 0.2],
+      importance: 0.7,
+      category: "fact",
+      type: "semantic",
+      tenantId: "default",
+      workspaceId: "default",
+      scopeSubject: "agent:main",
+      subjectType: "agent",
+      visibility: "private",
+      sensitivity: "normal",
+      metadata: {
+        ops: {
+          scopeSubject: "agent:main",
+          kind: "fact",
+          status: "recorded",
+        },
+      },
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+
+    mcpClientMocks.aggregate.mockImplementation(async (_database, _collection, pipeline) => {
+      const firstStage = pipeline[0] as Record<string, unknown>;
+      if ("$vectorSearch" in firstStage) {
+        return [
+          {
+            ...storedDocument,
+            score: 0.8,
+          },
+        ];
+      }
+      return [storedDocument];
+    });
+
+    memoryPlugin.register({
+      pluginConfig: {
+        mcp: {
+          transport: "stdio",
+          stdio: {
+            env: {
+              MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
+            },
+          },
+        },
+        gemini: { apiKey: "test-key" },
+      },
+      logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+      registerTool: (tool: unknown, opts?: { name?: string }) => {
+        const resolved = materializeTool(tool, opts) as { name: string };
+        registeredTools.set(resolved.name, resolved);
+      },
+      registerCli: vi.fn(),
+      registerService: vi.fn(),
+      on: vi.fn(),
+    } as unknown as import("openclaw/plugin-sdk").OpenClawPluginApi);
+
+    const memoryForget = registeredTools.get("memory_forget");
+    const candidates = await memoryForget.execute("tc_forget_candidates", {
+      query: "memory forget candidate token probe",
+    });
+    expect(candidates.details?.action).toBe("candidates");
+    expect(candidates.details?.candidates?.[0]).toMatchObject({
+      id: "f9ed12f4-1111-4111-8111-111111111111",
+      token: "f9ed12f4",
+    });
+    expect(candidates.content[0].text).toContain("[f9ed12f4]");
+    expect(candidates.content[0].text).toContain(
+      "memoryId: f9ed12f4-1111-4111-8111-111111111111",
+    );
+
+    const forgetResult = await memoryForget.execute("tc_forget_token", {
+      memoryId: "f9ed12f4",
+    });
+    expect(forgetResult.details).toMatchObject({
+      action: "deleted",
+      id: "f9ed12f4-1111-4111-8111-111111111111",
+      requestedId: "f9ed12f4",
+      resolvedFromToken: "f9ed12f4",
+    });
+    expect(mcpClientMocks.deleteOne).toHaveBeenCalledWith("daisy_memory", "memories", {
+      _id: "f9ed12f4-1111-4111-8111-111111111111",
+    });
+  });
+
   test("registers memory-ops primitives and supports scoped execution", async () => {
     const { default: memoryPlugin } = await import("./index.js");
     const registeredTools = new Map<string, any>();

@@ -428,6 +428,69 @@ describe("mongodb provider via MCP", () => {
     await expect(provider.delete("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa")).resolves.toBe(false);
   });
 
+  test("findByIdPrefix resolves candidate tokens inside the requested scope", async () => {
+    const now = Date.now();
+    const aggregate = vi.fn().mockResolvedValue([
+      {
+        _id: "f9ed12f4-1111-4111-8111-111111111111",
+        text: "prefix scoped memory",
+        vector: [0.1, 0.2],
+        importance: 0.7,
+        category: "fact",
+        type: "semantic",
+        tenantId: "default",
+        workspaceId: "default",
+        scopeSubject: "agent:main",
+        visibility: "private",
+        metadata: {
+          ops: {
+            scopeSubject: "agent:main",
+          },
+        },
+        createdAt: now,
+        updatedAt: now,
+      },
+    ]);
+    const mcp = {
+      insertMany: vi.fn(),
+      aggregate,
+      deleteOne: vi.fn(),
+      countDocuments: vi.fn(),
+      close: vi.fn(),
+    };
+
+    const provider = new MongoMemoryDB(
+      mcp as any,
+      { embed: vi.fn() } as any,
+      "memdb",
+      "memories",
+      "memory_events",
+      "vector_idx",
+      baseRouting,
+      baseRetrieval,
+    );
+
+    const matches = await provider.findByIdPrefix("f9ed12f4", "agent:main", 2);
+
+    expect(matches.map((entry) => entry.id)).toEqual([
+      "f9ed12f4-1111-4111-8111-111111111111",
+    ]);
+    const pipeline = aggregate.mock.calls[0]?.[2] as Array<Record<string, unknown>>;
+    expect(pipeline[0]).toMatchObject({
+      $match: {
+        $and: [
+          expect.any(Object),
+          {
+            _id: {
+              $regex: "^f9ed12f4",
+            },
+          },
+        ],
+      },
+    });
+    expect(JSON.stringify(pipeline[0])).toContain("agent:main");
+  });
+
   test("searchByQuery supports scope and kind filters", async () => {
     const now = Date.now();
     const mcp = {

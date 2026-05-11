@@ -154,6 +154,7 @@ export type MemoryOpsBackfillResult = {
 };
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID_PREFIX_REGEX = /^[0-9a-f][0-9a-f-]{7,35}$/i;
 
 export class MongoMemoryDB {
   constructor(
@@ -580,6 +581,77 @@ export class MongoMemoryDB {
 
     const parsed = this.documentToEntry(first);
     return parsed?.entry ?? null;
+  }
+
+  async findByIdPrefix(
+    prefix: string,
+    scopeSubject: string,
+    limit = 2,
+  ): Promise<MemoryEntry[]> {
+    const normalizedPrefix = prefix.trim().toLowerCase();
+    if (!UUID_PREFIX_REGEX.test(normalizedPrefix)) {
+      throw new Error(`Invalid memory ID prefix: ${prefix}`);
+    }
+    if (!scopeSubject.trim()) {
+      throw new Error("scopeSubject required");
+    }
+
+    const boundedLimit = Math.max(1, Math.min(limit, 10));
+    const documents = await this.mcp.aggregate(this.databaseName, this.collectionName, [
+      {
+        $match: {
+          $and: [
+            this.buildScopeMatch(scopeSubject),
+            {
+              _id: {
+                $regex: `^${escapeRegex(normalizedPrefix)}`,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $sort: {
+          updatedAt: -1,
+        },
+      },
+      {
+        $limit: boundedLimit,
+      },
+      {
+        $project: {
+          _id: 1,
+          text: 1,
+          vector: 1,
+          importance: 1,
+          category: 1,
+          subCategory: 1,
+          type: 1,
+          tenantId: 1,
+          workspaceId: 1,
+          scopeSubject: 1,
+          subjectType: 1,
+          visibility: 1,
+          kind: 1,
+          status: 1,
+          sensitivity: 1,
+          modalities: 1,
+          metadata: 1,
+          tags: 1,
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      },
+    ]);
+
+    const entries: MemoryEntry[] = [];
+    for (const document of documents) {
+      const parsed = this.documentToEntry(document);
+      if (parsed) {
+        entries.push(parsed.entry);
+      }
+    }
+    return entries;
   }
 
   async listByScope(
@@ -1034,6 +1106,10 @@ function extractEntryModalities(entry: MemoryEntry): string[] {
 
 function readString(value: unknown): string | undefined {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
+}
+
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function readVisibility(value: unknown): MemoryVisibility | undefined {

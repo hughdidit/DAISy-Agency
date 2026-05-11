@@ -34,6 +34,10 @@ import {
 import { buildVectorIndexDefinition, type MemoryEntry, MongoMemoryDB } from "./mongodb-provider.js";
 import { multimodalPartsToFallbackText, type MultimodalPart } from "./payload-chunker.js";
 
+const MEMORY_UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const MEMORY_ID_PREFIX_REGEX = /^[0-9a-f][0-9a-f-]{7,35}$/i;
+
 function compileTriggers(patterns: string[]): RegExp[] {
   return patterns.map((pattern) => new RegExp(pattern, "i"));
 }
@@ -118,6 +122,26 @@ function isSecretEntry(entry: MemoryEntry | null | undefined): boolean {
   return Boolean(
     ops && typeof ops === "object" && (ops as Record<string, unknown>).sensitivity === "secret",
   );
+}
+
+function getMemoryScopeSubject(entry: MemoryEntry | null | undefined): string | undefined {
+  if (!entry) {
+    return undefined;
+  }
+  if (typeof entry.scopeSubject === "string" && entry.scopeSubject.trim().length > 0) {
+    return entry.scopeSubject.trim();
+  }
+  if (!entry.metadata || typeof entry.metadata !== "object" || Array.isArray(entry.metadata)) {
+    return undefined;
+  }
+  const ops = (entry.metadata as Record<string, unknown>).ops;
+  if (!ops || typeof ops !== "object" || Array.isArray(ops)) {
+    return undefined;
+  }
+  const scopeSubject = (ops as Record<string, unknown>).scopeSubject;
+  return typeof scopeSubject === "string" && scopeSubject.trim().length > 0
+    ? scopeSubject.trim()
+    : undefined;
 }
 
 function resolveScopeSubject(ctx: OpenClawPluginToolContext): string | null {
@@ -773,19 +797,54 @@ const memoryPlugin = {
             const { query, memoryId } = params as { query?: string; memoryId?: string };
 
             if (memoryId) {
-              const entry = await db.getById(memoryId).catch(() => null);
-              const entryScope =
-                entry &&
-                entry.metadata &&
-                typeof entry.metadata === "object" &&
-                !Array.isArray(entry.metadata) &&
-                typeof (entry.metadata as Record<string, unknown>).ops === "object" &&
-                (entry.metadata as Record<string, unknown>).ops &&
-                typeof ((entry.metadata as Record<string, unknown>).ops as Record<string, unknown>)
-                  .scopeSubject === "string"
-                  ? (((entry.metadata as Record<string, unknown>).ops as Record<string, unknown>)
-                      .scopeSubject as string)
-                  : undefined;
+              const requestedMemoryId = memoryId.trim().toLowerCase();
+              let resolvedMemoryId = requestedMemoryId;
+              let entry: MemoryEntry | null = null;
+              let resolvedFromToken: string | undefined;
+
+              if (MEMORY_UUID_REGEX.test(requestedMemoryId)) {
+                entry = await db.getById(requestedMemoryId).catch(() => null);
+              } else if (MEMORY_ID_PREFIX_REGEX.test(requestedMemoryId)) {
+                const matches = await db
+                  .findByIdPrefix(requestedMemoryId, scopeSubject, 2)
+                  .catch(() => []);
+                if (matches.length > 1) {
+                  return {
+                    content: [
+                      {
+                        type: "text",
+                        text: `Memory token ${requestedMemoryId} is ambiguous in scope. Use the full memoryId.`,
+                      },
+                    ],
+                    details: {
+                      action: "ambiguous",
+                      id: requestedMemoryId,
+                      scopeSubject,
+                      candidates: matches.map((match) => ({
+                        id: match.id,
+                        token: match.id.slice(0, 8),
+                      })),
+                    },
+                  };
+                }
+                entry = matches[0] ?? null;
+                if (entry) {
+                  resolvedMemoryId = entry.id;
+                  resolvedFromToken = requestedMemoryId;
+                }
+              } else {
+                return {
+                  content: [
+                    {
+                      type: "text",
+                      text: `Memory ${requestedMemoryId} is not a valid memoryId or candidate token.`,
+                    },
+                  ],
+                  details: { action: "invalid_id", id: requestedMemoryId, scopeSubject },
+                };
+              }
+
+              const entryScope = getMemoryScopeSubject(entry);
 
               const allowLegacyUnscopedDelete = cfg.ops.schemaMode === "additive";
               const scopeMismatch = entryScope
@@ -793,10 +852,12 @@ const memoryPlugin = {
                 : !allowLegacyUnscopedDelete;
               if (!entry || scopeMismatch) {
                 return {
-                  content: [{ type: "text", text: `Memory ${memoryId} not found in scope.` }],
+                  content: [
+                    { type: "text", text: `Memory ${requestedMemoryId} not found in scope.` },
+                  ],
                   details: {
                     action: "not_found",
-                    id: memoryId,
+                    id: requestedMemoryId,
                     scopeSubject,
                     reason:
                       !entryScope && !allowLegacyUnscopedDelete
@@ -806,11 +867,16 @@ const memoryPlugin = {
                 };
               }
 
-              const deleted = await deleteMemory(memoryId);
+              const deleted = await deleteMemory(resolvedMemoryId);
               if (!deleted) {
                 return {
-                  content: [{ type: "text", text: `Memory ${memoryId} not found.` }],
-                  details: { action: "not_found", id: memoryId, scopeSubject },
+                  content: [{ type: "text", text: `Memory ${requestedMemoryId} not found.` }],
+                  details: {
+                    action: "not_found",
+                    id: resolvedMemoryId,
+                    requestedId: requestedMemoryId,
+                    scopeSubject,
+                  },
                 };
               }
               await db
@@ -819,8 +885,11 @@ const memoryPlugin = {
                   actor: "memory_forget",
                   operation: "memory_forget",
                   status: "deleted",
-                  memoryIds: [memoryId],
-                  summary: "Deleted memory by explicit ID.",
+                  memoryIds: [resolvedMemoryId],
+                  summary: resolvedFromToken
+                    ? "Deleted memory by candidate token."
+                    : "Deleted memory by explicit ID.",
+                  details: resolvedFromToken ? { requestedToken: resolvedFromToken } : undefined,
                 })
                 .catch((error) =>
                   api.logger.warn(
@@ -828,8 +897,14 @@ const memoryPlugin = {
                   ),
                 );
               return {
-                content: [{ type: "text", text: `Memory ${memoryId} forgotten.` }],
-                details: { action: "deleted", id: memoryId, scopeSubject },
+                content: [{ type: "text", text: `Memory ${resolvedMemoryId} forgotten.` }],
+                details: {
+                  action: "deleted",
+                  id: resolvedMemoryId,
+                  requestedId: requestedMemoryId,
+                  resolvedFromToken,
+                  scopeSubject,
+                },
               };
             }
 
@@ -867,13 +942,16 @@ const memoryPlugin = {
 
               const list = results
                 .map(
-                  (result) =>
-                    `- [${result.entry.id.slice(0, 8)}] ${result.entry.text.slice(0, 60)}...`,
+                  (result) => {
+                    const token = result.entry.id.slice(0, 8);
+                    return `- [${token}] ${result.entry.text.slice(0, 60)}... (memoryId: ${result.entry.id})`;
+                  },
                 )
                 .join("\n");
 
               const sanitizedCandidates = results.map((result) => ({
                 id: result.entry.id,
+                token: result.entry.id.slice(0, 8),
                 text: result.entry.text,
                 category: result.entry.category,
                 type: result.entry.type,
@@ -884,7 +962,7 @@ const memoryPlugin = {
                 content: [
                   {
                     type: "text",
-                    text: `Found ${results.length} candidates. Specify memoryId:\n${list}`,
+                    text: `Found ${results.length} candidates. Specify memoryId using the full ID or bracketed token:\n${list}`,
                   },
                 ],
                 details: { action: "candidates", candidates: sanitizedCandidates, scopeSubject },
