@@ -391,6 +391,23 @@ Inserted IDs: 67f95b35e806f530791211eb
     });
   });
 
+  test("update-many fails closed when counts are missing", async () => {
+    const { McpClientService } = await import("./mcp-client-service.js");
+
+    callTool.mockResolvedValue({
+      content: [{ type: "text", text: "Updated documents successfully." }],
+    });
+
+    const service = new McpClientService({
+      transport: "sse",
+      url: "https://example.com/sse",
+    });
+
+    await expect(
+      service.updateMany("db", "memories", { _id: "abc" }, { $set: { "metadata.ops": {} } }),
+    ).rejects.toThrow("update-many response did not confirm matched/modified counts");
+  });
+
   test("reports MCP unavailable with sanitized message", async () => {
     const { McpClientService } = await import("./mcp-client-service.js");
 

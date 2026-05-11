@@ -149,12 +149,13 @@ export class McpClientService {
 
     const matchedCount =
       this.firstNumber(response, ["matchedCount", "matched_count", "count"]) ??
-      this.firstPatternNumberFromResponse(response, MATCHED_COUNT_TEXT_PATTERNS) ??
-      0;
+      this.firstPatternNumberFromResponse(response, MATCHED_COUNT_TEXT_PATTERNS);
     const modifiedCount =
       this.firstNumber(response, ["modifiedCount", "modified_count"]) ??
-      this.firstPatternNumberFromResponse(response, MODIFIED_COUNT_TEXT_PATTERNS) ??
-      0;
+      this.firstPatternNumberFromResponse(response, MODIFIED_COUNT_TEXT_PATTERNS);
+    if (matchedCount === null || modifiedCount === null) {
+      throw new Error("MongoDB MCP update-many response did not confirm matched/modified counts");
+    }
 
     return { matchedCount, modifiedCount };
   }

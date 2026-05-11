@@ -2,6 +2,7 @@ import { createHash, randomUUID } from "node:crypto";
 import type { MemoryCategory } from "./config.js";
 import type { GeminiService } from "./gemini-service.js";
 import type { McpClientService } from "./mcp-client-service.js";
+import { MEMORY_OPS_KINDS } from "./memory-ops-types.js";
 import { multimodalPartsToFallbackText, type MultimodalPart } from "./payload-chunker.js";
 
 export type MemoryType =
@@ -393,7 +394,7 @@ export class MongoMemoryDB {
       errors: [],
     };
 
-    const processedIds: unknown[] = [];
+    const excludedIds: unknown[] = [];
     while (limit === undefined || result.scanned < limit) {
       const remaining =
         limit === undefined ? batchSize : Math.min(batchSize, limit - result.scanned);
@@ -404,11 +405,11 @@ export class MongoMemoryDB {
       const match: Record<string, unknown> = {
         "metadata.ops": { $exists: false },
       };
-      if (processedIds.length > 0) {
-        match._id = { $nin: processedIds };
+      if (excludedIds.length > 0) {
+        match._id = { $nin: excludedIds };
       }
 
-      const documents = await this.mcp.aggregate(this.databaseName, this.collectionName, [
+      const pipeline: Array<Record<string, unknown>> = [
         {
           $match: match,
         },
@@ -417,6 +418,13 @@ export class MongoMemoryDB {
             updatedAt: -1,
           },
         },
+      ];
+      if (options.dryRun && result.scanned > 0) {
+        pipeline.push({
+          $skip: result.scanned,
+        });
+      }
+      pipeline.push(
         {
           $limit: remaining,
         },
@@ -441,7 +449,9 @@ export class MongoMemoryDB {
             updatedAt: 1,
           },
         },
-      ]);
+      );
+
+      const documents = await this.mcp.aggregate(this.databaseName, this.collectionName, pipeline);
 
       if (documents.length === 0) {
         break;
@@ -452,14 +462,13 @@ export class MongoMemoryDB {
         const patch = this.buildBackfillOpsPatch(document, scopeSubject);
         if (!patch) {
           result.skipped += 1;
-          if (document._id !== undefined) {
-            processedIds.push(document._id);
+          if (!options.dryRun && document._id !== undefined) {
+            excludedIds.push(document._id);
           }
           continue;
         }
 
         result.eligible += 1;
-        processedIds.push(patch.id);
         pushSampleId(result.sampleIds, patch.sampleId);
 
         if (options.dryRun) {
@@ -480,18 +489,18 @@ export class MongoMemoryDB {
           );
           if (updateResult.modifiedCount > 0) {
             result.updated += updateResult.modifiedCount;
-          } else if (updateResult.matchedCount > 0) {
-            result.skipped += 1;
           } else {
             result.skipped += 1;
+            excludedIds.push(patch.id);
           }
         } catch (error) {
           result.failed += 1;
+          excludedIds.push(patch.id);
           pushError(result.errors, `record ${patch.sampleId}: ${formatUnknownError(error)}`);
         }
       }
 
-      if ((options.dryRun && limit === undefined) || documents.length < remaining) {
+      if (documents.length < remaining) {
         break;
       }
     }
@@ -762,7 +771,7 @@ export class MongoMemoryDB {
     const subjectType = readString(raw.subjectType) ?? subjectTypeFromScope(scopeSubject);
     const visibility = readVisibility(raw.visibility) ?? "private";
     const sensitivity = readSensitivity(raw.sensitivity) ?? "normal";
-    const kind = readString(raw.kind) ?? inferBackfillKind(raw.category);
+    const kind = readBackfillKind(raw.kind) ?? inferBackfillKind(raw.category);
     const status = readString(raw.status) ?? inferBackfillStatus(kind);
     const modalities = readStringArray(raw.modalities) ?? ["text"];
     const text = typeof raw.text === "string" ? raw.text : "";
@@ -1058,6 +1067,14 @@ function inferBackfillKind(category: unknown): string {
     return category;
   }
   return "note";
+}
+
+function readBackfillKind(value: unknown): string | undefined {
+  const kind = readString(value);
+  if (!kind) {
+    return undefined;
+  }
+  return MEMORY_OPS_KINDS.includes(kind as (typeof MEMORY_OPS_KINDS)[number]) ? kind : undefined;
 }
 
 function inferBackfillStatus(kind: string): string {

@@ -1087,14 +1087,16 @@ describe("memory-mongodb plugin", () => {
     process.env.OPENCLAW_STATE_DIR = stateDir;
     process.env.OPENCLAW_HOME = stateDir;
     console.log = vi.fn();
-    mcpClientMocks.aggregate.mockResolvedValue([
-      {
-        _id: "legacy-cli",
-        text: "The user prefers private DAISy memory by default.",
-        category: "fact",
-        type: "semantic",
-      },
-    ]);
+    mcpClientMocks.aggregate
+      .mockResolvedValueOnce([
+        {
+          _id: "legacy-cli",
+          text: "The user prefers private DAISy memory by default.",
+          category: "fact",
+          type: "semantic",
+        },
+      ])
+      .mockResolvedValueOnce([]);
 
     try {
       memoryPlugin.register({
