@@ -8,6 +8,7 @@ const mcpClientMocks = vi.hoisted(() => ({
   insertMany: vi.fn(),
   aggregate: vi.fn().mockResolvedValue([]),
   deleteOne: vi.fn().mockResolvedValue(true),
+  updateMany: vi.fn().mockResolvedValue({ matchedCount: 1, modifiedCount: 1 }),
   countDocuments: vi.fn().mockResolvedValue(0),
   close: vi.fn().mockResolvedValue(undefined),
   setRuntimeEnvOverrides: vi.fn(),
@@ -60,6 +61,7 @@ describe("memory-mongodb plugin", () => {
     vi.clearAllMocks();
     mcpClientMocks.aggregate.mockResolvedValue([]);
     mcpClientMocks.deleteOne.mockResolvedValue(true);
+    mcpClientMocks.updateMany.mockResolvedValue({ matchedCount: 1, modifiedCount: 1 });
     mcpClientMocks.countDocuments.mockResolvedValue(0);
     mcpClientMocks.close.mockResolvedValue(undefined);
   });
@@ -1052,6 +1054,96 @@ describe("memory-mongodb plugin", () => {
       expect(mcpClientMocks.countDocuments).toHaveBeenCalledWith("daisy_memory", "memories");
       expect(fs.existsSync(homeDir)).toBe(true);
       expect(fs.existsSync(tempDir)).toBe(true);
+    } finally {
+      console.log = originalLog;
+      if (originalStateDir === undefined) {
+        delete process.env.OPENCLAW_STATE_DIR;
+      } else {
+        process.env.OPENCLAW_STATE_DIR = originalStateDir;
+      }
+      if (originalHome === undefined) {
+        delete process.env.OPENCLAW_HOME;
+      } else {
+        process.env.OPENCLAW_HOME = originalHome;
+      }
+      fs.rmSync(stateDir, { recursive: true, force: true });
+    }
+  });
+
+  test("CLI backfill-ops dry-run scans without update-many mutations", async () => {
+    const { default: memoryPlugin } = await import("./index.js");
+    const registerCli = vi.fn();
+    const logger = {
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+    };
+    const stateDir = fs.mkdtempSync(path.join(os.tmpdir(), "memory-mongodb-backfill-cli-"));
+    const originalStateDir = process.env.OPENCLAW_STATE_DIR;
+    const originalHome = process.env.OPENCLAW_HOME;
+    const originalLog = console.log;
+    const cliProgram = new Command();
+
+    process.env.OPENCLAW_STATE_DIR = stateDir;
+    process.env.OPENCLAW_HOME = stateDir;
+    console.log = vi.fn();
+    mcpClientMocks.aggregate
+      .mockResolvedValueOnce([
+        {
+          _id: "legacy-cli",
+          text: "The user prefers private DAISy memory by default.",
+          category: "fact",
+          type: "semantic",
+        },
+      ])
+      .mockResolvedValueOnce([]);
+
+    try {
+      memoryPlugin.register({
+        pluginConfig: {
+          mcp: {
+            transport: "stdio",
+            stdio: {
+              env: {
+                MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
+              },
+            },
+          },
+          gemini: { apiKey: "test-key" },
+        },
+        logger,
+        registerTool: vi.fn(),
+        registerCli,
+        registerService: vi.fn(),
+        on: vi.fn(),
+      } as unknown as import("openclaw/plugin-sdk").OpenClawPluginApi);
+
+      const cliRegistrar = registerCli.mock.calls[0]?.[0] as ({
+        program,
+      }: {
+        program: Command;
+      }) => void;
+
+      cliRegistrar({ program: cliProgram });
+      await cliProgram.parseAsync(["node", "test", "ltm", "backfill-ops", "--dry-run"], {
+        from: "node",
+      });
+
+      const logMock = console.log as unknown as { mock: { calls: unknown[][] } };
+      const output = JSON.parse(String(logMock.mock.calls[0]?.[0]));
+      expect(output).toEqual(
+        expect.objectContaining({
+          dryRun: true,
+          scopeSubject: "agent:daisy",
+          tenantId: "default",
+          workspaceId: "default",
+          scanned: 1,
+          eligible: 1,
+          updated: 0,
+          sampleIds: ["legacy-cli"],
+        }),
+      );
+      expect(mcpClientMocks.updateMany).not.toHaveBeenCalled();
     } finally {
       console.log = originalLog;
       if (originalStateDir === undefined) {

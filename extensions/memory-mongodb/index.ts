@@ -1190,6 +1190,41 @@ const memoryPlugin = {
           });
 
         memory
+          .command("backfill-ops")
+          .description("Backfill metadata.ops and top-level routing fields on legacy memories")
+          .option("--dry-run", "Scan and report records without mutating memory data")
+          .option("--apply", "Apply the backfill and append a memory_events summary")
+          .option(
+            "--scope <scope>",
+            "Default scopeSubject for ambiguous legacy records",
+            "agent:daisy",
+          )
+          .option("--batch-size <n>", "Records to process per MCP batch", "50")
+          .option("--limit <n>", "Maximum records to scan")
+          .action(async (opts) => {
+            if (opts.dryRun === true && opts.apply === true) {
+              throw new Error("ltm backfill-ops accepts either --dry-run or --apply, not both");
+            }
+            if (opts.dryRun !== true && opts.apply !== true) {
+              throw new Error("ltm backfill-ops requires --dry-run unless --apply is supplied");
+            }
+
+            await ensureMcpRuntimeDirs();
+            const batchSize = clampPositiveInt(Number.parseInt(opts.batchSize, 10), 50, 200);
+            const limit =
+              typeof opts.limit === "string"
+                ? clampPositiveInt(Number.parseInt(opts.limit, 10), batchSize, 10_000)
+                : undefined;
+            const result = await db.backfillOps({
+              dryRun: opts.apply !== true,
+              scopeSubject: opts.scope,
+              batchSize,
+              limit,
+            });
+            console.log(JSON.stringify(result, null, 2));
+          });
+
+        memory
           .command("stats")
           .description("Show memory statistics")
           .action(async () => {

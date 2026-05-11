@@ -1,7 +1,8 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import type { MemoryCategory } from "./config.js";
 import type { GeminiService } from "./gemini-service.js";
 import type { McpClientService } from "./mcp-client-service.js";
+import { MEMORY_OPS_KINDS } from "./memory-ops-types.js";
 import { multimodalPartsToFallbackText, type MultimodalPart } from "./payload-chunker.js";
 
 export type MemoryType =
@@ -129,6 +130,27 @@ export type MemoryEventInput = {
   memoryIds?: string[];
   summary?: string;
   details?: Record<string, unknown>;
+};
+
+export type MemoryOpsBackfillOptions = {
+  dryRun: boolean;
+  scopeSubject: string;
+  batchSize?: number;
+  limit?: number;
+};
+
+export type MemoryOpsBackfillResult = {
+  dryRun: boolean;
+  scopeSubject: string;
+  tenantId: string;
+  workspaceId: string;
+  scanned: number;
+  eligible: number;
+  updated: number;
+  skipped: number;
+  failed: number;
+  sampleIds: string[];
+  errors: string[];
 };
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -353,6 +375,164 @@ export class MongoMemoryDB {
     return event;
   }
 
+  async backfillOps(options: MemoryOpsBackfillOptions): Promise<MemoryOpsBackfillResult> {
+    const scopeSubject = readString(options.scopeSubject) ?? "agent:daisy";
+    const batchSize = clampInteger(options.batchSize, 50, 1, 200);
+    const limit =
+      options.limit === undefined ? undefined : clampInteger(options.limit, 0, 0, 10_000);
+    const result: MemoryOpsBackfillResult = {
+      dryRun: options.dryRun,
+      scopeSubject,
+      tenantId: this.routing.tenantId,
+      workspaceId: this.routing.workspaceId,
+      scanned: 0,
+      eligible: 0,
+      updated: 0,
+      skipped: 0,
+      failed: 0,
+      sampleIds: [],
+      errors: [],
+    };
+
+    const excludedIds: unknown[] = [];
+    while (limit === undefined || result.scanned < limit) {
+      const remaining =
+        limit === undefined ? batchSize : Math.min(batchSize, limit - result.scanned);
+      if (remaining <= 0) {
+        break;
+      }
+
+      const match: Record<string, unknown> = {
+        "metadata.ops": { $exists: false },
+      };
+      if (excludedIds.length > 0) {
+        match._id = { $nin: excludedIds };
+      }
+
+      const pipeline: Array<Record<string, unknown>> = [
+        {
+          $match: match,
+        },
+        {
+          $sort: {
+            updatedAt: -1,
+          },
+        },
+      ];
+      if (options.dryRun && result.scanned > 0) {
+        pipeline.push({
+          $skip: result.scanned,
+        });
+      }
+      pipeline.push(
+        {
+          $limit: remaining,
+        },
+        {
+          $project: {
+            _id: 1,
+            text: 1,
+            category: 1,
+            type: 1,
+            tenantId: 1,
+            workspaceId: 1,
+            scopeSubject: 1,
+            subjectType: 1,
+            visibility: 1,
+            kind: 1,
+            status: 1,
+            sensitivity: 1,
+            modalities: 1,
+            metadata: 1,
+            tags: 1,
+            createdAt: 1,
+            updatedAt: 1,
+          },
+        },
+      );
+
+      const documents = await this.mcp.aggregate(this.databaseName, this.collectionName, pipeline);
+
+      if (documents.length === 0) {
+        break;
+      }
+
+      result.scanned += documents.length;
+      for (const document of documents) {
+        const patch = this.buildBackfillOpsPatch(document, scopeSubject);
+        if (!patch) {
+          result.skipped += 1;
+          if (!options.dryRun && document._id !== undefined) {
+            excludedIds.push(document._id);
+          }
+          continue;
+        }
+
+        result.eligible += 1;
+        pushSampleId(result.sampleIds, patch.sampleId);
+
+        if (options.dryRun) {
+          continue;
+        }
+
+        try {
+          const updateResult = await this.mcp.updateMany(
+            this.databaseName,
+            this.collectionName,
+            {
+              _id: patch.id,
+              "metadata.ops": { $exists: false },
+            },
+            {
+              $set: patch.set,
+            },
+          );
+          if (updateResult.modifiedCount > 0) {
+            result.updated += updateResult.modifiedCount;
+          } else {
+            result.skipped += 1;
+            excludedIds.push(patch.id);
+          }
+        } catch (error) {
+          result.failed += 1;
+          excludedIds.push(patch.id);
+          pushError(result.errors, `record ${patch.sampleId}: ${formatUnknownError(error)}`);
+        }
+      }
+
+      if (documents.length < remaining) {
+        break;
+      }
+    }
+
+    if (!options.dryRun) {
+      try {
+        await this.recordEvent({
+          scopeSubject,
+          actor: "memory-mongodb-cli",
+          operation: "backfill_ops",
+          status: result.failed > 0 ? "partial" : "applied",
+          memoryIds: result.sampleIds,
+          summary: `Backfilled metadata.ops for ${result.updated} legacy memory record(s).`,
+          details: {
+            scanned: result.scanned,
+            eligible: result.eligible,
+            updated: result.updated,
+            skipped: result.skipped,
+            failed: result.failed,
+            dryRun: result.dryRun,
+            tenantId: result.tenantId,
+            workspaceId: result.workspaceId,
+          },
+        });
+      } catch (error) {
+        pushError(result.errors, `memory_events: ${formatUnknownError(error)}`);
+      }
+    }
+
+    return result;
+  }
+
   async getById(id: string): Promise<MemoryEntry | null> {
     if (!UUID_REGEX.test(id)) {
       throw new Error(`Invalid memory ID format: ${id}`);
@@ -572,6 +752,87 @@ export class MongoMemoryDB {
     };
   }
 
+  private buildBackfillOpsPatch(
+    raw: Record<string, unknown>,
+    defaultScopeSubject: string,
+  ): { id: unknown; sampleId: string; set: Record<string, unknown> } | null {
+    if (raw._id === undefined || raw._id === null) {
+      return null;
+    }
+
+    const metadata = isObject(raw.metadata) ? raw.metadata : undefined;
+    if (isObject(metadata?.ops)) {
+      return null;
+    }
+
+    const scopeSubject = readString(raw.scopeSubject) ?? defaultScopeSubject;
+    const tenantId = readString(raw.tenantId) ?? this.routing.tenantId;
+    const workspaceId = readString(raw.workspaceId) ?? this.routing.workspaceId;
+    const subjectType = readString(raw.subjectType) ?? subjectTypeFromScope(scopeSubject);
+    const visibility = readVisibility(raw.visibility) ?? "private";
+    const sensitivity = readSensitivity(raw.sensitivity) ?? "normal";
+    const kind = readBackfillKind(raw.kind) ?? inferBackfillKind(raw.category);
+    const status = readString(raw.status) ?? inferBackfillStatus(kind);
+    const modalities = readStringArray(raw.modalities) ?? ["text"];
+    const text = typeof raw.text === "string" ? raw.text : "";
+    const contentHash = createContentHash(text, extractAttachmentSummary(metadata));
+
+    const ops = {
+      tenantId,
+      workspaceId,
+      scopeSubject,
+      subjectType,
+      visibility,
+      kind,
+      status,
+      sensitivity,
+      modalities,
+      confidence: 1,
+      contentHash,
+    };
+
+    const set: Record<string, unknown> = {
+      "metadata.ops": ops,
+    };
+
+    if (!metadata || readString(metadata.source) === undefined) {
+      set["metadata.source"] = "legacy_backfill";
+    }
+    if (readString(raw.tenantId) === undefined) {
+      set.tenantId = tenantId;
+    }
+    if (readString(raw.workspaceId) === undefined) {
+      set.workspaceId = workspaceId;
+    }
+    if (readString(raw.scopeSubject) === undefined) {
+      set.scopeSubject = scopeSubject;
+    }
+    if (readString(raw.subjectType) === undefined) {
+      set.subjectType = subjectType;
+    }
+    if (readVisibility(raw.visibility) === undefined) {
+      set.visibility = visibility;
+    }
+    if (readString(raw.kind) === undefined) {
+      set.kind = kind;
+    }
+    if (readString(raw.status) === undefined) {
+      set.status = status;
+    }
+    if (readSensitivity(raw.sensitivity) === undefined) {
+      set.sensitivity = sensitivity;
+    }
+    if (readStringArray(raw.modalities) === undefined) {
+      set.modalities = modalities;
+    }
+
+    return {
+      id: raw._id,
+      sampleId: String(raw._id),
+      set,
+    };
+  }
+
   private buildVectorFilter(filters: MemoryQueryFilters | undefined): Record<string, unknown> {
     const filter: Record<string, unknown> = {
       tenantId: this.routing.tenantId,
@@ -783,12 +1044,107 @@ function readSensitivity(value: unknown): MemorySensitivity | undefined {
   return isMemorySensitivity(value) ? value : undefined;
 }
 
+function readStringArray(value: unknown): string[] | undefined {
+  if (!Array.isArray(value)) {
+    return undefined;
+  }
+  const strings = value
+    .map((item) => readString(item))
+    .filter((item): item is string => typeof item === "string");
+  return strings.length > 0 ? Array.from(new Set(strings)) : undefined;
+}
+
 function subjectTypeFromScope(scopeSubject: string | undefined): string {
   if (!scopeSubject) {
     return "unknown";
   }
   const prefix = scopeSubject.split(":")[0]?.trim();
   return prefix || "unknown";
+}
+
+function inferBackfillKind(category: unknown): string {
+  if (category === "preference" || category === "fact" || category === "decision") {
+    return category;
+  }
+  return "note";
+}
+
+function readBackfillKind(value: unknown): string | undefined {
+  const kind = readString(value);
+  if (!kind) {
+    return undefined;
+  }
+  return MEMORY_OPS_KINDS.includes(kind as (typeof MEMORY_OPS_KINDS)[number]) ? kind : undefined;
+}
+
+function inferBackfillStatus(kind: string): string {
+  if (kind === "preference") {
+    return "observed";
+  }
+  if (kind === "commitment") {
+    return "open";
+  }
+  return "recorded";
+}
+
+function clampInteger(
+  value: number | undefined,
+  defaultValue: number,
+  min: number,
+  max: number,
+): number {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return defaultValue;
+  }
+  return Math.max(min, Math.min(max, Math.trunc(value)));
+}
+
+function createContentHash(text: string, attachmentSummary: unknown): string {
+  return createHash("sha256").update(stableStringify({ text, attachmentSummary })).digest("hex");
+}
+
+function extractAttachmentSummary(metadata: Record<string, unknown> | undefined): unknown {
+  if (!metadata) {
+    return undefined;
+  }
+  return (
+    metadata.attachmentSummary ??
+    metadata.attachment_summary ??
+    metadata.attachmentsSummary ??
+    metadata.attachments
+  );
+}
+
+function stableStringify(value: unknown): string {
+  if (value === null || typeof value !== "object") {
+    return JSON.stringify(value);
+  }
+  if (Array.isArray(value)) {
+    return `[${value.map((item) => stableStringify(item)).join(",")}]`;
+  }
+  const object = value as Record<string, unknown>;
+  const keys = Object.keys(object).sort();
+  return `{${keys
+    .map((key) => `${JSON.stringify(key)}:${stableStringify(object[key])}`)
+    .join(",")}}`;
+}
+
+function pushSampleId(sampleIds: string[], sampleId: string): void {
+  if (sampleIds.length >= 20 || sampleIds.includes(sampleId)) {
+    return;
+  }
+  sampleIds.push(sampleId);
+}
+
+function pushError(errors: string[], message: string): void {
+  if (errors.length >= 20) {
+    return;
+  }
+  errors.push(message);
+}
+
+function formatUnknownError(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }
 
 function appendUniqueResults(
