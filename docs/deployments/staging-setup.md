@@ -167,6 +167,7 @@ For a brand-new staging VM, the real deploy requires the config file to exist at
    - `DISCORD_BOT_TOKEN` - Required by the current deploy workflow and deploy script for real deploys; use the DAISy staging bot for the default Discord account
    - `FINN_DISCORD_BOT_TOKEN` - Optional until the staging config references `channels.discord.accounts.finn.token`; required when Finn runs as its own Discord app
    - `KODY_DISCORD_BOT_TOKEN` - Optional until the staging config references `channels.discord.accounts.kody.token`; required when Kody runs as its own Discord app
+   - `ART_DISCORD_BOT_TOKEN` - Optional until the staging config references `channels.discord.accounts.art.token`; required when Art runs as its own Discord app
    - `ANTHROPIC_API_KEY` - Required by the current deploy workflow and deploy script for real deploys
    - `OPENAI_API_KEY` - Optional, for OpenAI-backed models, tools, and embeddings
    - `MONGODB_URI` - Optional, for memory-mongodb
@@ -303,6 +304,7 @@ sudo chown "$(whoami):$(whoami)" /opt/DAISy
 - [ ] `DISCORD_BOT_TOKEN` - Required by the current deploy workflow/script; use the DAISy staging bot for the default Discord account, not production
 - [ ] `FINN_DISCORD_BOT_TOKEN` - Required when `channels.discord.accounts.finn.token` references `${FINN_DISCORD_BOT_TOKEN}`; use Finn's real Discord bot token, not the DAISy staging token
 - [ ] `KODY_DISCORD_BOT_TOKEN` - Required when `channels.discord.accounts.kody.token` references `${KODY_DISCORD_BOT_TOKEN}`; use Kody's real Discord bot token, not the DAISy staging token
+- [ ] `ART_DISCORD_BOT_TOKEN` - Required when `channels.discord.accounts.art.token` references `${ART_DISCORD_BOT_TOKEN}`; use Art's real Discord bot token, not the DAISy staging token
 - [ ] `ANTHROPIC_API_KEY` - Required by the current deploy workflow/script for real deploys
 - [ ] `OPENAI_API_KEY` - Optional; set when staging should use OpenAI-backed features
 - [ ] `MONGODB_URI` - Optional; set when memory-mongodb is enabled
@@ -395,6 +397,7 @@ When staging connects delegate agents to Discord, keep each delegate as a named 
     { agentId: "daisy", match: { channel: "discord", accountId: "default" } },
     { agentId: "finn", match: { channel: "discord", accountId: "finn" } },
     { agentId: "kody", match: { channel: "discord", accountId: "kody" } },
+    { agentId: "art", match: { channel: "discord", accountId: "art" } },
   ],
   channels: {
     discord: {
@@ -414,6 +417,10 @@ When staging connects delegate agents to Discord, keep each delegate as a named 
         },
         kody: {
           token: "${KODY_DISCORD_BOT_TOKEN}",
+          dmPolicy: "pairing",
+        },
+        art: {
+          token: "${ART_DISCORD_BOT_TOKEN}",
           dmPolicy: "pairing",
         },
       },
