@@ -11,7 +11,7 @@ function deriveMentionPatterns(identity?: { name?: string; emoji?: string }) {
   if (name) {
     const parts = name.split(/\s+/).filter(Boolean).map(escapeRegExp);
     const re = parts.length ? parts.join(String.raw`\s+`) : escapeRegExp(name);
-    patterns.push(String.raw`\b@?${re}\b`);
+    patterns.push(String.raw`(?<![A-Za-z0-9])@${re}\b`);
   }
   const emoji = identity?.emoji?.trim();
   if (emoji) {
