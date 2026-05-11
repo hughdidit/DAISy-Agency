@@ -389,7 +389,7 @@ See [Gateway Configuration](/gateway/configuration#daisy-deployment-config-manag
 
 #### Delegate Discord named accounts
 
-When staging connects delegate agents to Discord, keep each delegate as a named Discord account with a separate token. Do not reuse `${DISCORD_BOT_TOKEN}` for Finn or Kody; that value is the DAISy staging bot.
+When staging connects delegate agents to Discord, keep each delegate as a named Discord account with a separate token. Do not reuse `${DISCORD_BOT_TOKEN}` for Finn, Kody, or Art; that value is the DAISy staging bot.
 
 ```json5
 {
