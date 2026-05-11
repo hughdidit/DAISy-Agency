@@ -108,6 +108,7 @@ These secrets are passed to docker compose on the target VM.
 
 - `OPENAI_API_KEY` - OpenAI-backed models, tools, and embeddings
 - `FINN_DISCORD_BOT_TOKEN` - Finn Discord bot token for `channels.discord.accounts.finn.token` when staging runs Finn as a separate Discord app
+- `KODY_DISCORD_BOT_TOKEN` - Kody Discord bot token for `channels.discord.accounts.kody.token` when staging runs Kody as a separate Discord app
 - `MONGODB_URI` - memory-mongodb connection URI
 - `GEMINI_API_KEY` - Gemini embeddings / Google provider access
 - `BRAVE_API_KEY` - Brave web search access
