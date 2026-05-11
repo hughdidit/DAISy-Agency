@@ -128,7 +128,7 @@ export class MemoryOpsService {
       outcomes.push(result);
     }
 
-    await this.recordEvent({
+    void this.recordEvent({
       scopeSubject: input.scopeSubject,
       actor: input.source,
       operation: "memory_capture",
@@ -208,7 +208,7 @@ export class MemoryOpsService {
         input.maxCandidates,
       );
       this.hygienePlans.set(plan.planId, plan);
-      await this.recordEvent({
+      void this.recordEvent({
         scopeSubject: input.scopeSubject,
         actor: "memory_hygiene",
         operation: "memory_hygiene_plan",
@@ -300,7 +300,7 @@ export class MemoryOpsService {
       this.hygienePlans.delete(input.planId);
     }
 
-    await this.recordEvent({
+    void this.recordEvent({
       scopeSubject: input.scopeSubject,
       actor: "memory_hygiene",
       operation: "memory_hygiene_apply",
@@ -352,7 +352,7 @@ export class MemoryOpsService {
         ],
       });
 
-      await this.recordEvent({
+      void this.recordEvent({
         scopeSubject: input.scopeSubject,
         actor: "commitment_tracker",
         operation: "commitment_capture",
@@ -391,7 +391,7 @@ export class MemoryOpsService {
         input.note,
       );
 
-      await this.recordEvent({
+      void this.recordEvent({
         scopeSubject: input.scopeSubject,
         actor: "commitment_tracker",
         operation: `commitment_${input.mode}`,
@@ -514,7 +514,7 @@ export class MemoryOpsService {
         }
       }
 
-      await this.recordEvent({
+      void this.recordEvent({
         scopeSubject: input.scopeSubject,
         actor: "preference_miner",
         operation: "preference_promotion",
@@ -595,7 +595,7 @@ export class MemoryOpsService {
       latencyMs,
       cleanupResult,
     };
-    await this.recordEvent({
+    void this.recordEvent({
       scopeSubject: input.scopeSubject,
       actor: "memory_audit",
       operation: "memory_audit",

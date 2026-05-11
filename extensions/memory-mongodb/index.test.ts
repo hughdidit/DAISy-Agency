@@ -833,6 +833,44 @@ describe("memory-mongodb plugin", () => {
     }
   });
 
+  test("config schema rejects null objects and blank database names", async () => {
+    const { default: memoryPlugin } = await import("./index.js");
+    const baseConfig = {
+      mcp: {
+        transport: "stdio",
+        stdio: {
+          env: {
+            MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
+          },
+        },
+      },
+      gemini: { apiKey: "test-key" },
+    };
+
+    expect(() => {
+      memoryPlugin.configSchema.parse({
+        ...baseConfig,
+        database: null,
+      });
+    }).toThrow("database must be an object");
+
+    expect(() => {
+      memoryPlugin.configSchema.parse({
+        ...baseConfig,
+        routing: null,
+      });
+    }).toThrow("routing must be an object");
+
+    expect(() => {
+      memoryPlugin.configSchema.parse({
+        ...baseConfig,
+        database: {
+          collection: "  ",
+        },
+      });
+    }).toThrow("database.collection must be a non-empty string");
+  });
+
   test("config schema rejects ops.enabled=false", async () => {
     const { default: memoryPlugin } = await import("./index.js");
 

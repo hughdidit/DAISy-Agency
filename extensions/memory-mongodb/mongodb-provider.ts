@@ -201,31 +201,31 @@ export class MongoMemoryDB {
       boundedLimit,
       boundedLimit * Math.max(1, this.retrieval.numCandidatesMultiplier),
     );
-    const usePushdown = shouldUseRoutingPushdown(filters);
     const results: MemorySearchResult[] = [];
     const seen = new Set<string>();
 
-    if (usePushdown) {
-      try {
-        const pushdownResults = await this.aggregateVectorSearch(
-          this.routing.vectorIndexNameV2,
-          vector,
-          numCandidates,
-          minScore,
-          filters,
-          this.buildVectorFilter(filters),
-        );
-        appendUniqueResults(results, seen, pushdownResults);
-      } catch (error) {
-        this.logger?.warn?.(
-          `memory-mongodb: v2 vector search failed; falling back to legacy post-filtered search: ${
-            error instanceof Error ? error.message : String(error)
-          }`,
-        );
+    try {
+      const pushdownResults = await this.aggregateVectorSearch(
+        this.routing.vectorIndexNameV2,
+        vector,
+        numCandidates,
+        minScore,
+        filters,
+        this.buildVectorFilter(filters),
+      );
+      appendUniqueResults(results, seen, pushdownResults);
+    } catch (error) {
+      if (!this.routing.legacyFallback) {
+        throw error;
       }
+      this.logger?.warn?.(
+        `memory-mongodb: v2 vector search failed; falling back to legacy post-filtered search: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      );
     }
 
-    if (!usePushdown || (this.routing.legacyFallback && results.length < boundedLimit)) {
+    if (this.routing.legacyFallback && results.length < boundedLimit) {
       const legacyResults = await this.aggregateVectorSearch(
         this.vectorSearchIndexName,
         vector,
@@ -302,6 +302,9 @@ export class MongoMemoryDB {
       }
 
       if (parsed.score < minScore) {
+        continue;
+      }
+      if (!this.matchesRouting(parsed.entry, filters)) {
         continue;
       }
       if (!matchesFilters(parsed.entry, filters)) {
@@ -414,9 +417,7 @@ export class MongoMemoryDB {
 
     const documents = await this.mcp.aggregate(this.databaseName, this.collectionName, [
       {
-        $match: {
-          $or: [{ scopeSubject }, { "metadata.ops.scopeSubject": scopeSubject }],
-        },
+        $match: this.buildScopeMatch(scopeSubject),
       },
       {
         $sort: {
@@ -597,6 +598,60 @@ export class MongoMemoryDB {
     }
     return filter;
   }
+
+  private buildScopeMatch(scopeSubject: string): Record<string, unknown> {
+    const routedMatch = {
+      tenantId: this.routing.tenantId,
+      workspaceId: this.routing.workspaceId,
+      scopeSubject,
+    };
+    if (!this.routing.legacyFallback) {
+      return routedMatch;
+    }
+    return {
+      $or: [
+        routedMatch,
+        {
+          "metadata.ops.scopeSubject": scopeSubject,
+          $and: [
+            {
+              $or: [{ tenantId: this.routing.tenantId }, { tenantId: { $exists: false } }],
+            },
+            {
+              $or: [{ workspaceId: this.routing.workspaceId }, { workspaceId: { $exists: false } }],
+            },
+            {
+              $or: [
+                { "metadata.ops.tenantId": this.routing.tenantId },
+                { "metadata.ops.tenantId": { $exists: false } },
+              ],
+            },
+            {
+              $or: [
+                { "metadata.ops.workspaceId": this.routing.workspaceId },
+                { "metadata.ops.workspaceId": { $exists: false } },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+  }
+
+  private matchesRouting(entry: MemoryEntry, filters: MemoryQueryFilters | undefined): boolean {
+    const ops = extractOpsMetadata(entry);
+    const entryTenantId = entry.tenantId ?? readString(ops?.tenantId);
+    if (entryTenantId && entryTenantId !== this.routing.tenantId) {
+      return false;
+    }
+    const entryWorkspaceId = entry.workspaceId ?? readString(ops?.workspaceId);
+    if (entryWorkspaceId && entryWorkspaceId !== this.routing.workspaceId) {
+      return false;
+    }
+    const entryVisibility = entry.visibility ?? readVisibility(ops?.visibility);
+    const expectedVisibility = filters?.visibility ?? this.routing.defaultVisibility;
+    return !entryVisibility || entryVisibility === expectedVisibility;
+  }
 }
 
 function isMemoryCategory(value: unknown): value is MemoryCategory {
@@ -734,21 +789,6 @@ function subjectTypeFromScope(scopeSubject: string | undefined): string {
   }
   const prefix = scopeSubject.split(":")[0]?.trim();
   return prefix || "unknown";
-}
-
-function shouldUseRoutingPushdown(filters: MemoryQueryFilters | undefined): boolean {
-  if (!filters) {
-    return false;
-  }
-  return Boolean(
-    filters?.scopeSubject ||
-    filters?.visibility ||
-    filters?.preferencesOnly ||
-    filters?.openCommitmentsOnly ||
-    (Array.isArray(filters?.kinds) && filters.kinds.length > 0) ||
-    (Array.isArray(filters?.modalities) && filters.modalities.length > 0) ||
-    filters?.includeSecrets !== true,
-  );
 }
 
 function appendUniqueResults(

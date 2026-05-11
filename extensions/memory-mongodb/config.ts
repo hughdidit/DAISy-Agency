@@ -567,7 +567,10 @@ export const memoryConfigSchema = {
     vectorDimsForModel(embeddingModel);
 
     const database = cfg.database as Record<string, unknown> | undefined;
-    if (database && (typeof database !== "object" || Array.isArray(database))) {
+    if (
+      database !== undefined &&
+      (typeof database !== "object" || database === null || Array.isArray(database))
+    ) {
       throw new Error("database must be an object");
     }
     if (database) {
@@ -579,7 +582,10 @@ export const memoryConfigSchema = {
     }
 
     const routing = cfg.routing as Record<string, unknown> | undefined;
-    if (routing && (typeof routing !== "object" || Array.isArray(routing))) {
+    if (
+      routing !== undefined &&
+      (typeof routing !== "object" || routing === null || Array.isArray(routing))
+    ) {
       throw new Error("routing must be an object");
     }
     if (routing) {
@@ -591,7 +597,10 @@ export const memoryConfigSchema = {
     }
 
     const retrieval = cfg.retrieval as Record<string, unknown> | undefined;
-    if (retrieval && (typeof retrieval !== "object" || Array.isArray(retrieval))) {
+    if (
+      retrieval !== undefined &&
+      (typeof retrieval !== "object" || retrieval === null || Array.isArray(retrieval))
+    ) {
       throw new Error("retrieval must be an object");
     }
     if (retrieval) {
@@ -603,7 +612,10 @@ export const memoryConfigSchema = {
     }
 
     const rawOps = cfg.ops as Record<string, unknown> | undefined;
-    if (rawOps && (typeof rawOps !== "object" || Array.isArray(rawOps))) {
+    if (
+      rawOps !== undefined &&
+      (typeof rawOps !== "object" || rawOps === null || Array.isArray(rawOps))
+    ) {
       throw new Error("ops must be an object");
     }
     if (rawOps) {
@@ -731,21 +743,27 @@ export const memoryConfigSchema = {
         embeddingModel,
       },
       database: {
-        name: typeof database?.name === "string" ? database.name : DEFAULT_DATABASE_NAME,
-        collection:
-          typeof database?.collection === "string" ? database.collection : DEFAULT_COLLECTION_NAME,
-        eventCollection:
-          typeof database?.eventCollection === "string"
-            ? database.eventCollection
-            : DEFAULT_EVENT_COLLECTION_NAME,
-        indexName:
-          typeof database?.indexName === "string"
-            ? database.indexName
-            : DEFAULT_VECTOR_SEARCH_INDEX_NAME,
-        indexNameV2:
-          typeof database?.indexNameV2 === "string"
-            ? database.indexNameV2
-            : DEFAULT_VECTOR_SEARCH_INDEX_NAME_V2,
+        name: parseNonEmptyString(database?.name, "database.name", DEFAULT_DATABASE_NAME),
+        collection: parseNonEmptyString(
+          database?.collection,
+          "database.collection",
+          DEFAULT_COLLECTION_NAME,
+        ),
+        eventCollection: parseNonEmptyString(
+          database?.eventCollection,
+          "database.eventCollection",
+          DEFAULT_EVENT_COLLECTION_NAME,
+        ),
+        indexName: parseNonEmptyString(
+          database?.indexName,
+          "database.indexName",
+          DEFAULT_VECTOR_SEARCH_INDEX_NAME,
+        ),
+        indexNameV2: parseNonEmptyString(
+          database?.indexNameV2,
+          "database.indexNameV2",
+          DEFAULT_VECTOR_SEARCH_INDEX_NAME_V2,
+        ),
       },
       routing: {
         tenantId: parseNonEmptyString(routing?.tenantId, "routing.tenantId", DEFAULT_TENANT_ID),

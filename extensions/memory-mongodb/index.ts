@@ -92,6 +92,24 @@ function detectSubCategory(text: string): string | undefined {
   return undefined;
 }
 
+function deriveAutoPreferenceKey(text: string): string {
+  const normalized = text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s:_-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const withoutLeadIn = normalized.replace(
+    /^(i|we)\s+(prefer|like|love|hate|want|need)\s+(to\s+|that\s+)?/,
+    "",
+  );
+  const topic = withoutLeadIn
+    .split(" ")
+    .filter((word) => word.length > 2)
+    .slice(0, 6)
+    .join("_");
+  return topic ? `auto_preference:${topic}` : "auto_preference:general";
+}
+
 function isSecretEntry(entry: MemoryEntry | null | undefined): boolean {
   if (!entry || !entry.metadata || typeof entry.metadata !== "object") {
     return false;
@@ -1298,7 +1316,7 @@ const memoryPlugin = {
             await opsService.preferenceMiner({
               mode: "observe",
               scopeSubject,
-              key: "auto_observed_preference",
+              key: deriveAutoPreferenceKey(item.text),
               value: item.text,
               confidence: 0.75,
             });

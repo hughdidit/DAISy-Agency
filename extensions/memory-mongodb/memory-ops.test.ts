@@ -278,16 +278,21 @@ describe("memory ops service", () => {
     ).rejects.toThrow("planId is not valid for the current scope");
     expect(db.delete).not.toHaveBeenCalled();
 
-    planned.plan.generatedAt = now - 1000 * 60 * 16;
-    await expect(
-      service.memoryHygiene({
-        mode: "apply",
-        scopeSubject: "agent:main",
-        planId: planned.plan.planId,
-        planHash: planned.plan.planHash,
-        approvedActionIds: planned.plan.actions.map((action) => action.id),
-      }),
-    ).rejects.toThrow("planId not found or expired");
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(new Date(now + 1000 * 60 * 16));
+      await expect(
+        service.memoryHygiene({
+          mode: "apply",
+          scopeSubject: "agent:main",
+          planId: planned.plan.planId,
+          planHash: planned.plan.planHash,
+          approvedActionIds: planned.plan.actions.map((action) => action.id),
+        }),
+      ).rejects.toThrow("planId not found or expired");
+    } finally {
+      vi.useRealTimers();
+    }
     expect(db.delete).not.toHaveBeenCalled();
 
     const freshPlan = await service.memoryHygiene({

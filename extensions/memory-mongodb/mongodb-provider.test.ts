@@ -231,11 +231,17 @@ describe("mongodb provider via MCP", () => {
     expect(aggregate).toHaveBeenCalledWith("memdb", "memories", [
       {
         $vectorSearch: {
-          index: "vector_idx",
+          index: "vector_idx_v2",
           path: "vector",
           queryVector: [0.9, 0.1],
           numCandidates: 40,
           limit: 40,
+          filter: {
+            tenantId: "default",
+            workspaceId: "default",
+            visibility: "private",
+            sensitivity: "normal",
+          },
         },
       },
       {
@@ -734,9 +740,76 @@ describe("mongodb provider via MCP", () => {
       expect.arrayContaining([
         {
           $match: {
-            $or: [{ scopeSubject: "agent:main" }, { "metadata.ops.scopeSubject": "agent:main" }],
+            $or: [
+              {
+                tenantId: "default",
+                workspaceId: "default",
+                scopeSubject: "agent:main",
+              },
+              {
+                "metadata.ops.scopeSubject": "agent:main",
+                $and: [
+                  {
+                    $or: [{ tenantId: "default" }, { tenantId: { $exists: false } }],
+                  },
+                  {
+                    $or: [{ workspaceId: "default" }, { workspaceId: { $exists: false } }],
+                  },
+                  {
+                    $or: [
+                      { "metadata.ops.tenantId": "default" },
+                      { "metadata.ops.tenantId": { $exists: false } },
+                    ],
+                  },
+                  {
+                    $or: [
+                      { "metadata.ops.workspaceId": "default" },
+                      { "metadata.ops.workspaceId": { $exists: false } },
+                    ],
+                  },
+                ],
+              },
+            ],
           },
         },
+      ]),
+    );
+  });
+
+  test("listByScope includes tenant and workspace constraints for routed records", async () => {
+    const aggregate = vi.fn().mockResolvedValue([]);
+    const provider = new MongoMemoryDB(
+      {
+        insertMany: vi.fn(),
+        aggregate,
+        deleteOne: vi.fn(),
+        countDocuments: vi.fn(),
+        close: vi.fn(),
+      } as any,
+      { embed: vi.fn() } as any,
+      "memdb",
+      "memories",
+      "memory_events",
+      "vector_idx",
+      {
+        ...baseRouting,
+        tenantId: "tenant-a",
+        workspaceId: "workspace-a",
+      },
+      baseRetrieval,
+    );
+
+    await provider.listByScope("agent:main", 10);
+    const pipeline = aggregate.mock.calls[0]?.[2] as Array<Record<string, any>>;
+    expect(pipeline[0]?.$match.$or[0]).toEqual({
+      tenantId: "tenant-a",
+      workspaceId: "workspace-a",
+      scopeSubject: "agent:main",
+    });
+    expect(pipeline[0]?.$match.$or[1].$and).toEqual(
+      expect.arrayContaining([
+        { $or: [{ tenantId: "tenant-a" }, { tenantId: { $exists: false } }] },
+        { $or: [{ workspaceId: "workspace-a" }, { workspaceId: { $exists: false } }] },
       ]),
     );
   });
