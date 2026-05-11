@@ -234,6 +234,15 @@ const entries: SubCliEntry[] = [
     },
   },
   {
+    name: "ltm",
+    description: "MongoDB-backed long-term memory commands",
+    hasSubcommands: true,
+    register: async (program) => {
+      const { registerPluginCliCommands } = await import("../../plugins/cli.js");
+      registerPluginCliCommands(program, await loadConfig());
+    },
+  },
+  {
     name: "channels",
     description: "Manage connected chat channels (Telegram, Discord, etc.)",
     hasSubcommands: true,

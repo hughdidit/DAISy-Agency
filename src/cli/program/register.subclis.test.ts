@@ -18,8 +18,23 @@ const { nodesAction, registerNodesCli } = vi.hoisted(() => {
   return { nodesAction: action, registerNodesCli: register };
 });
 
+const { ltmAction, registerPluginCliCommands, loadConfig } = vi.hoisted(() => {
+  const action = vi.fn();
+  const register = vi.fn((program: Command) => {
+    const ltm = program.command("ltm");
+    ltm.command("backfill-ops").action(action);
+  });
+  return {
+    ltmAction: action,
+    registerPluginCliCommands: register,
+    loadConfig: vi.fn(() => ({})),
+  };
+});
+
 vi.mock("../acp-cli.js", () => ({ registerAcpCli }));
 vi.mock("../nodes-cli.js", () => ({ registerNodesCli }));
+vi.mock("../../plugins/cli.js", () => ({ registerPluginCliCommands }));
+vi.mock("../../config/config.js", () => ({ loadConfig }));
 
 const { registerSubCliByName, registerSubCliCommands } = await import("./register.subclis.js");
 
@@ -47,6 +62,9 @@ describe("registerSubCliCommands", () => {
     acpAction.mockClear();
     registerNodesCli.mockClear();
     nodesAction.mockClear();
+    registerPluginCliCommands.mockClear();
+    ltmAction.mockClear();
+    loadConfig.mockClear();
   });
 
   afterEach(() => {
@@ -101,5 +119,20 @@ describe("registerSubCliCommands", () => {
     await program.parseAsync(["acp"], { from: "user" });
     expect(registerAcpCli).toHaveBeenCalledTimes(1);
     expect(acpAction).toHaveBeenCalledTimes(1);
+  });
+
+  it("routes ltm through plugin CLI registration", async () => {
+    const program = createRegisteredProgram(
+      ["node", "openclaw", "ltm", "backfill-ops"],
+      "openclaw",
+    );
+
+    expect(program.commands.map((cmd) => cmd.name())).toEqual(["ltm"]);
+
+    await program.parseAsync(["ltm", "backfill-ops"], { from: "user" });
+
+    expect(loadConfig).toHaveBeenCalledTimes(1);
+    expect(registerPluginCliCommands).toHaveBeenCalledTimes(1);
+    expect(ltmAction).toHaveBeenCalledTimes(1);
   });
 });

@@ -987,6 +987,7 @@ describe("memory-mongodb plugin", () => {
         TMPDIR: tempDir,
       });
       expect(mcpClientMocks.countDocuments).toHaveBeenCalledWith("daisy_memory", "memories");
+      expect(mcpClientMocks.close).toHaveBeenCalledTimes(1);
       expect(fs.existsSync(homeDir)).toBe(true);
       expect(fs.existsSync(tempDir)).toBe(true);
     } finally {
@@ -1144,6 +1145,7 @@ describe("memory-mongodb plugin", () => {
         }),
       );
       expect(mcpClientMocks.updateMany).not.toHaveBeenCalled();
+      expect(mcpClientMocks.close).toHaveBeenCalledTimes(1);
     } finally {
       console.log = originalLog;
       if (originalStateDir === undefined) {

@@ -1161,14 +1161,26 @@ const memoryPlugin = {
     );
     api.registerCli(
       ({ program }) => {
+        const runCliAction = async (action: () => Promise<void>): Promise<void> => {
+          try {
+            await action();
+          } finally {
+            await db.close().catch((error) => {
+              api.logger.warn?.(`memory-mongodb: failed to close CLI MCP client: ${String(error)}`);
+            });
+          }
+        };
+
         const memory = program.command("ltm").description("MongoDB MCP memory plugin commands");
 
         memory
           .command("list")
           .description("List memories")
           .action(async () => {
-            const count = await countMemories();
-            console.log(`Total memories: ${count}`);
+            await runCliAction(async () => {
+              const count = await countMemories();
+              console.log(`Total memories: ${count}`);
+            });
           });
 
         memory
@@ -1177,16 +1189,18 @@ const memoryPlugin = {
           .argument("<query>", "Search query")
           .option("--limit <n>", "Max results", "5")
           .action(async (query, opts) => {
-            const results = await db.searchByQuery(query, Number.parseInt(opts.limit, 10), 0.3);
-            const output = results.map((result) => ({
-              id: result.entry.id,
-              text: result.entry.text,
-              category: result.entry.category,
-              type: result.entry.type,
-              importance: result.entry.importance,
-              score: result.score,
-            }));
-            console.log(JSON.stringify(output, null, 2));
+            await runCliAction(async () => {
+              const results = await db.searchByQuery(query, Number.parseInt(opts.limit, 10), 0.3);
+              const output = results.map((result) => ({
+                id: result.entry.id,
+                text: result.entry.text,
+                category: result.entry.category,
+                type: result.entry.type,
+                importance: result.entry.importance,
+                score: result.score,
+              }));
+              console.log(JSON.stringify(output, null, 2));
+            });
           });
 
         memory
@@ -1202,34 +1216,38 @@ const memoryPlugin = {
           .option("--batch-size <n>", "Records to process per MCP batch", "50")
           .option("--limit <n>", "Maximum records to scan")
           .action(async (opts) => {
-            if (opts.dryRun === true && opts.apply === true) {
-              throw new Error("ltm backfill-ops accepts either --dry-run or --apply, not both");
-            }
-            if (opts.dryRun !== true && opts.apply !== true) {
-              throw new Error("ltm backfill-ops requires --dry-run unless --apply is supplied");
-            }
+            await runCliAction(async () => {
+              if (opts.dryRun === true && opts.apply === true) {
+                throw new Error("ltm backfill-ops accepts either --dry-run or --apply, not both");
+              }
+              if (opts.dryRun !== true && opts.apply !== true) {
+                throw new Error("ltm backfill-ops requires --dry-run unless --apply is supplied");
+              }
 
-            await ensureMcpRuntimeDirs();
-            const batchSize = clampPositiveInt(Number.parseInt(opts.batchSize, 10), 50, 200);
-            const limit =
-              typeof opts.limit === "string"
-                ? clampPositiveInt(Number.parseInt(opts.limit, 10), batchSize, 10_000)
-                : undefined;
-            const result = await db.backfillOps({
-              dryRun: opts.apply !== true,
-              scopeSubject: opts.scope,
-              batchSize,
-              limit,
+              await ensureMcpRuntimeDirs();
+              const batchSize = clampPositiveInt(Number.parseInt(opts.batchSize, 10), 50, 200);
+              const limit =
+                typeof opts.limit === "string"
+                  ? clampPositiveInt(Number.parseInt(opts.limit, 10), batchSize, 10_000)
+                  : undefined;
+              const result = await db.backfillOps({
+                dryRun: opts.apply !== true,
+                scopeSubject: opts.scope,
+                batchSize,
+                limit,
+              });
+              console.log(JSON.stringify(result, null, 2));
             });
-            console.log(JSON.stringify(result, null, 2));
           });
 
         memory
           .command("stats")
           .description("Show memory statistics")
           .action(async () => {
-            const count = await countMemories();
-            console.log(`Total memories: ${count}`);
+            await runCliAction(async () => {
+              const count = await countMemories();
+              console.log(`Total memories: ${count}`);
+            });
           });
       },
       { commands: ["ltm"] },
