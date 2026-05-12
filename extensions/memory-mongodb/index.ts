@@ -111,7 +111,13 @@ function deriveAutoPreferenceKey(text: string): string {
 }
 
 function isSecretEntry(entry: MemoryEntry | null | undefined): boolean {
-  if (!entry || !entry.metadata || typeof entry.metadata !== "object") {
+  if (!entry) {
+    return false;
+  }
+  if (entry.sensitivity === "secret") {
+    return true;
+  }
+  if (!entry.metadata || typeof entry.metadata !== "object") {
     return false;
   }
   const ops = (entry.metadata as Record<string, unknown>).ops;
@@ -181,6 +187,44 @@ function clampPositiveInt(value: number | undefined, fallback: number, max: numb
     return fallback;
   }
   return Math.max(1, Math.min(normalized, max));
+}
+
+const FULL_MEMORY_ID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const MEMORY_ID_PREFIX_REGEX = /^[0-9a-f-]{8,35}$/i;
+
+function readEntryScopeSubject(entry: MemoryEntry | null): string | undefined {
+  if (!entry) {
+    return undefined;
+  }
+  if (typeof entry.scopeSubject === "string" && entry.scopeSubject.trim().length > 0) {
+    return entry.scopeSubject;
+  }
+  if (!entry.metadata || typeof entry.metadata !== "object" || Array.isArray(entry.metadata)) {
+    return undefined;
+  }
+  const ops = (entry.metadata as Record<string, unknown>).ops;
+  if (!ops || typeof ops !== "object" || Array.isArray(ops)) {
+    return undefined;
+  }
+  const scopeSubject = (ops as Record<string, unknown>).scopeSubject;
+  return typeof scopeSubject === "string" && scopeSubject.trim().length > 0
+    ? scopeSubject
+    : undefined;
+}
+
+function isEntryDeletableInScope(
+  entry: MemoryEntry | null,
+  scopeSubject: string,
+  allowLegacyUnscopedDelete: boolean,
+): boolean {
+  const entryScope = readEntryScopeSubject(entry);
+  return entryScope ? entryScope === scopeSubject : allowLegacyUnscopedDelete;
+}
+
+function formatForgetCandidate(entry: MemoryEntry): string {
+  const rawText = isSecretEntry(entry) ? "[secret redacted]" : entry.text;
+  const text = rawText.length > 60 ? `${rawText.slice(0, 60)}...` : rawText;
+  return `- memoryId: ${entry.id} (short: ${entry.id.slice(0, 8)}) ${text}`;
 }
 
 type McpRuntimeDirs = {
@@ -773,44 +817,82 @@ const memoryPlugin = {
             const { query, memoryId } = params as { query?: string; memoryId?: string };
 
             if (memoryId) {
-              const entry = await db.getById(memoryId).catch(() => null);
-              const entryScope =
-                entry &&
-                entry.metadata &&
-                typeof entry.metadata === "object" &&
-                !Array.isArray(entry.metadata) &&
-                typeof (entry.metadata as Record<string, unknown>).ops === "object" &&
-                (entry.metadata as Record<string, unknown>).ops &&
-                typeof ((entry.metadata as Record<string, unknown>).ops as Record<string, unknown>)
-                  .scopeSubject === "string"
-                  ? (((entry.metadata as Record<string, unknown>).ops as Record<string, unknown>)
-                      .scopeSubject as string)
-                  : undefined;
-
+              const requestedMemoryId = memoryId.trim();
               const allowLegacyUnscopedDelete = cfg.ops.schemaMode === "additive";
-              const scopeMismatch = entryScope
-                ? entryScope !== scopeSubject
-                : !allowLegacyUnscopedDelete;
-              if (!entry || scopeMismatch) {
+              let resolvedMemoryId = requestedMemoryId;
+              let entry: MemoryEntry | null = null;
+
+              if (FULL_MEMORY_ID_REGEX.test(requestedMemoryId)) {
+                entry = await db.getById(requestedMemoryId).catch(() => null);
+              } else if (MEMORY_ID_PREFIX_REGEX.test(requestedMemoryId)) {
+                const matches = await db.findByIdPrefix(requestedMemoryId, scopeSubject, 6);
+                if (matches.length === 0) {
+                  return {
+                    content: [
+                      {
+                        type: "text",
+                        text: `Memory ID prefix ${requestedMemoryId} not found in scope.`,
+                      },
+                    ],
+                    details: {
+                      action: "not_found",
+                      id: requestedMemoryId,
+                      scopeSubject,
+                    },
+                  };
+                }
+                if (matches.length > 1) {
+                  return {
+                    content: [
+                      {
+                        type: "text",
+                        text: `Memory ID prefix ${requestedMemoryId} matched ${matches.length} memories. Specify the full memoryId:\n${matches
+                          .map(formatForgetCandidate)
+                          .join("\n")}`,
+                      },
+                    ],
+                    details: {
+                      action: "ambiguous",
+                      id: requestedMemoryId,
+                      candidates: matches.map((match) => ({
+                        id: match.id,
+                        text: isSecretEntry(match) ? "[secret redacted]" : match.text,
+                        category: match.category,
+                        type: match.type,
+                      })),
+                      scopeSubject,
+                    },
+                  };
+                }
+                entry = matches[0] ?? null;
+                resolvedMemoryId = entry?.id ?? requestedMemoryId;
+              }
+
+              if (
+                !entry ||
+                !isEntryDeletableInScope(entry, scopeSubject, allowLegacyUnscopedDelete)
+              ) {
                 return {
-                  content: [{ type: "text", text: `Memory ${memoryId} not found in scope.` }],
+                  content: [
+                    { type: "text", text: `Memory ${requestedMemoryId} not found in scope.` },
+                  ],
                   details: {
                     action: "not_found",
-                    id: memoryId,
+                    id: requestedMemoryId,
                     scopeSubject,
                     reason:
-                      !entryScope && !allowLegacyUnscopedDelete
+                      entry && !readEntryScopeSubject(entry) && !allowLegacyUnscopedDelete
                         ? "legacy_unscoped_delete_disallowed"
                         : undefined,
                   },
                 };
               }
 
-              const deleted = await deleteMemory(memoryId);
+              const deleted = await deleteMemory(resolvedMemoryId);
               if (!deleted) {
                 return {
-                  content: [{ type: "text", text: `Memory ${memoryId} not found.` }],
-                  details: { action: "not_found", id: memoryId, scopeSubject },
+                  content: [{ type: "text", text: `Memory ${resolvedMemoryId} not found.` }],
+                  details: { action: "not_found", id: resolvedMemoryId, scopeSubject },
                 };
               }
               await db
@@ -819,7 +901,7 @@ const memoryPlugin = {
                   actor: "memory_forget",
                   operation: "memory_forget",
                   status: "deleted",
-                  memoryIds: [memoryId],
+                  memoryIds: [resolvedMemoryId],
                   summary: "Deleted memory by explicit ID.",
                 })
                 .catch((error) =>
@@ -828,8 +910,8 @@ const memoryPlugin = {
                   ),
                 );
               return {
-                content: [{ type: "text", text: `Memory ${memoryId} forgotten.` }],
-                details: { action: "deleted", id: memoryId, scopeSubject },
+                content: [{ type: "text", text: `Memory ${resolvedMemoryId} forgotten.` }],
+                details: { action: "deleted", id: resolvedMemoryId, scopeSubject },
               };
             }
 
@@ -865,12 +947,7 @@ const memoryPlugin = {
                 };
               }
 
-              const list = results
-                .map(
-                  (result) =>
-                    `- [${result.entry.id.slice(0, 8)}] ${result.entry.text.slice(0, 60)}...`,
-                )
-                .join("\n");
+              const list = results.map((result) => formatForgetCandidate(result.entry)).join("\n");
 
               const sanitizedCandidates = results.map((result) => ({
                 id: result.entry.id,
