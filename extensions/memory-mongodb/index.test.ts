@@ -299,13 +299,17 @@ describe("memory-mongodb plugin", () => {
       },
       {
         _id: "f9ed12f4-2222-4bbb-8bbb-bbbbbbbbbbbb",
-        text: "second ambiguous prefix probe",
+        text: "apiKey=ambiguous-secret",
         vector: [0.1, 0.2],
         importance: 0.7,
         category: "fact",
         type: "semantic",
+        sensitivity: "secret",
         scopeSubject: "agent:main",
-        metadata: { source: "memory_capture", ops: { scopeSubject: "agent:main" } },
+        metadata: {
+          source: "memory_capture",
+          ops: { scopeSubject: "agent:main", sensitivity: "secret" },
+        },
         createdAt: now,
         updatedAt: now,
       },
@@ -320,6 +324,9 @@ describe("memory-mongodb plugin", () => {
 
     expect(result.details?.action).toBe("ambiguous");
     expect(result.content[0]?.text).toContain("Specify the full memoryId");
+    expect(result.content[0]?.text).toContain("[secret redacted]");
+    expect(result.content[0]?.text).not.toContain("apiKey=ambiguous-secret");
+    expect(result.details?.candidates?.[1]?.text).toBe("[secret redacted]");
     expect(mcpClientMocks.deleteOne).not.toHaveBeenCalled();
   });
 

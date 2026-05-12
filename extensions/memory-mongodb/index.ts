@@ -111,7 +111,13 @@ function deriveAutoPreferenceKey(text: string): string {
 }
 
 function isSecretEntry(entry: MemoryEntry | null | undefined): boolean {
-  if (!entry || !entry.metadata || typeof entry.metadata !== "object") {
+  if (!entry) {
+    return false;
+  }
+  if (entry.sensitivity === "secret") {
+    return true;
+  }
+  if (!entry.metadata || typeof entry.metadata !== "object") {
     return false;
   }
   const ops = (entry.metadata as Record<string, unknown>).ops;
@@ -215,8 +221,9 @@ function isEntryDeletableInScope(
   return entryScope ? entryScope === scopeSubject : allowLegacyUnscopedDelete;
 }
 
-function formatForgetCandidate(entry: Pick<MemoryEntry, "id" | "text">): string {
-  const text = entry.text.length > 60 ? `${entry.text.slice(0, 60)}...` : entry.text;
+function formatForgetCandidate(entry: MemoryEntry): string {
+  const rawText = isSecretEntry(entry) ? "[secret redacted]" : entry.text;
+  const text = rawText.length > 60 ? `${rawText.slice(0, 60)}...` : rawText;
   return `- memoryId: ${entry.id} (short: ${entry.id.slice(0, 8)}) ${text}`;
 }
 
@@ -849,7 +856,7 @@ const memoryPlugin = {
                       id: requestedMemoryId,
                       candidates: matches.map((match) => ({
                         id: match.id,
-                        text: match.text,
+                        text: isSecretEntry(match) ? "[secret redacted]" : match.text,
                         category: match.category,
                         type: match.type,
                       })),
