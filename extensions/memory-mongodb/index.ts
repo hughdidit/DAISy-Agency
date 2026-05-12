@@ -28,6 +28,8 @@ import {
   MEMORY_OPS_SENSITIVITIES,
   type CommitmentTrackerMode,
   type MemoryCaptureCandidate,
+  type MemoryHygieneAction,
+  type MemoryHygienePlan,
   type MemoryHygieneStrategy,
   type PreferenceMinerMode,
 } from "./memory-ops-types.js";
@@ -225,6 +227,94 @@ function formatForgetCandidate(entry: MemoryEntry): string {
   const rawText = isSecretEntry(entry) ? "[secret redacted]" : entry.text;
   const text = rawText.length > 60 ? `${rawText.slice(0, 60)}...` : rawText;
   return `- memoryId: ${entry.id} (short: ${entry.id.slice(0, 8)}) ${text}`;
+}
+
+const HYGIENE_PREVIEW_MAX_CHARS = 140;
+const HYGIENE_PREVIEW_SUFFIX = "...";
+
+function truncateHygienePreview(text: string): string {
+  const chars = Array.from(text);
+  if (chars.length <= HYGIENE_PREVIEW_MAX_CHARS) {
+    return text;
+  }
+  return `${chars
+    .slice(0, HYGIENE_PREVIEW_MAX_CHARS - HYGIENE_PREVIEW_SUFFIX.length)
+    .join("")}${HYGIENE_PREVIEW_SUFFIX}`;
+}
+
+function formatHygienePreview(text: string | null | undefined): string | undefined {
+  if (text === null || text === undefined) {
+    return undefined;
+  }
+  const normalized = text.replace(/\s+/g, " ").trim();
+  if (!normalized) {
+    return undefined;
+  }
+  return truncateHygienePreview(normalized);
+}
+
+function formatHygieneAction(action: MemoryHygieneAction, index: number): string {
+  const lines = [
+    `${index + 1}. actionId: ${action.id}`,
+    `   strategy: ${action.strategy}`,
+    `   action: ${action.action}`,
+    `   memoryIds: ${action.memoryIds.join(", ") || "(none)"}`,
+    `   reason: ${action.reason}`,
+  ];
+  const candidateText = formatHygienePreview(action.candidateText);
+  if (candidateText) {
+    lines.push(`   candidateText: ${candidateText}`);
+  }
+  const candidateValue = formatHygienePreview(action.candidateValue);
+  if (candidateValue) {
+    lines.push(`   candidateValue: ${candidateValue}`);
+  }
+  return lines.join("\n");
+}
+
+function formatMemoryHygienePlan(plan: MemoryHygienePlan): string {
+  const header = `Generated hygiene plan with ${plan.actions.length} actions.`;
+  const planInfo = [`planId: ${plan.planId}`, `planHash: ${plan.planHash}`];
+  if (plan.actions.length === 0) {
+    return [header, ...planInfo, "No hygiene actions are pending for this scope."].join("\n");
+  }
+  const actions = [...plan.actions].sort((a, b) => a.id.localeCompare(b.id));
+  const planFields = [
+    ...planInfo,
+    "approvedActionIds:",
+    ...actions.map((action) => `- ${action.id}`),
+  ];
+  return [
+    header,
+    "Use these exact apply fields after reviewing the actions:",
+    ...planFields,
+    "Actions:",
+    ...actions.map(formatHygieneAction),
+  ].join("\n");
+}
+
+function formatMemoryHygieneApply(input: {
+  plan: MemoryHygienePlan;
+  applied?: {
+    deletedIds: string[];
+    promotedIds: string[];
+    reviewCount: number;
+  };
+}): string {
+  const applied = input.applied;
+  const lines = [
+    `Applied hygiene plan with ${input.plan.actions.length} actions.`,
+    `planId: ${input.plan.planId}`,
+    `planHash: ${input.plan.planHash}`,
+  ];
+  if (applied) {
+    lines.push(`deletedCount: ${applied.deletedIds.length}`);
+    lines.push(`deletedIds: ${applied.deletedIds.join(", ") || "(none)"}`);
+    lines.push(`promotedCount: ${applied.promotedIds.length}`);
+    lines.push(`promotedIds: ${applied.promotedIds.join(", ") || "(none)"}`);
+    lines.push(`reviewCount: ${applied.reviewCount}`);
+  }
+  return lines.join("\n");
 }
 
 type McpRuntimeDirs = {
@@ -1094,8 +1184,8 @@ const memoryPlugin = {
                   type: "text",
                   text:
                     mode === "plan"
-                      ? `Generated hygiene plan with ${result.plan.actions.length} actions.`
-                      : `Applied hygiene plan with ${result.plan.actions.length} actions.`,
+                      ? formatMemoryHygienePlan(result.plan)
+                      : formatMemoryHygieneApply(result),
                 },
               ],
               details: {
