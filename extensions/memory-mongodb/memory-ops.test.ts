@@ -868,6 +868,71 @@ describe("memory ops service", () => {
     expect(db.delete).toHaveBeenCalledWith(fullId);
   });
 
+  test("memory audit does not prefix-delete after a resolved exact cleanup miss", async () => {
+    const shortId = "f9ed12f4";
+    const fullId = "f9ed12f4-1111-4aaa-8aaa-aaaaaaaaaaaa";
+    const now = Date.now();
+    const { service, db } = createService({
+      store: vi.fn().mockImplementation(async (entry) => ({
+        id: shortId,
+        text: entry.text ?? "",
+        vector: [0.1, 0.2],
+        importance: entry.importance,
+        category: entry.category,
+        type: entry.type,
+        metadata: entry.metadata,
+        createdAt: now,
+        updatedAt: now,
+      })),
+      delete: vi.fn().mockResolvedValue(false),
+      findByIdPrefix: vi.fn().mockResolvedValue([
+        {
+          id: "f9ed12f4-2222-4bbb-8bbb-bbbbbbbbbbbb",
+          text: "different memory with same prefix",
+          vector: [0.1, 0.2],
+          importance: 0.1,
+          category: "other",
+          type: "episodic",
+          metadata: { source: "memory_audit", ops: { scopeSubject: "agent:main" } },
+          createdAt: now,
+          updatedAt: now,
+        },
+      ]),
+      searchByQuery: vi.fn().mockResolvedValue([
+        {
+          entry: {
+            id: fullId,
+            text: "memory-audit-probe-exact-miss-run-12345678",
+            vector: [0.1, 0.2],
+            importance: 0.1,
+            category: "other",
+            type: "episodic",
+            metadata: {
+              source: "memory_audit",
+              ops: { scopeSubject: "agent:main", kind: "audit" },
+            },
+            createdAt: now,
+            updatedAt: now,
+          },
+          score: 1,
+          vectorScore: 1,
+        },
+      ]),
+    });
+
+    const result = await service.memoryAudit({
+      scopeSubject: "agent:main",
+      runId: "exact-miss-run",
+      cleanupOnSuccess: true,
+    });
+
+    expect(result.pass).toBe(true);
+    expect(result.cleanupResult).toBe("failed");
+    expect(result.cleanupReason).toBe("not_found");
+    expect(db.delete).toHaveBeenCalledWith(fullId);
+    expect(db.findByIdPrefix).not.toHaveBeenCalled();
+  });
+
   test("memory audit fails closed on ambiguous short stored ID evidence", async () => {
     const shortId = "f9ed12f4";
     const now = Date.now();

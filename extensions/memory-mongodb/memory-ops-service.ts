@@ -690,6 +690,9 @@ export class MemoryOpsService {
   }): Promise<{ deleted: boolean; reason?: string }> {
     const deleteId = input.resolvedStoredId ?? input.storedId;
     const exact = await this.deleteMemoryById(deleteId);
+    if (input.resolvedStoredId) {
+      return exact;
+    }
     if (exact.deleted || !isMemoryIdPrefix(input.storedId) || isFullMemoryId(input.storedId)) {
       return exact;
     }
