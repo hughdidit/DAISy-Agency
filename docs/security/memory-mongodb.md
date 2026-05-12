@@ -46,6 +46,8 @@ This document covers security considerations for `@openclaw/memory-mongodb`.
 - The plugin does not use a direct MongoDB driver path for runtime reads or writes.
 - `memory_forget` resolves explicit UUIDs or unambiguous scoped UUID prefixes to
   an exact in-scope UUID before delete operations.
+- `memory_audit` probe cleanup deletes only an exact stored UUID or a unique
+  scoped UUID resolved from audit evidence before mutation.
 - Vector embeddings are not returned in tool output payloads.
 - Malformed aggregate documents are skipped and not forwarded to context.
 - New memory records copy routing fields to top-level properties so Atlas can filter by tenant, workspace, scope, visibility, kind, status, sensitivity, and modality before candidate selection.
