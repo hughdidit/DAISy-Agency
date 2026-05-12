@@ -642,20 +642,23 @@ const memoryPlugin = {
           label: "Memory Store",
           description:
             "Save important information in long-term memory. Supports plain text or multimodal parts.",
-          parameters: Type.Object({
-            text: Type.Optional(Type.String({ description: "Information to remember" })),
-            parts: Type.Optional(
-              Type.Array(multimodalPartSchema, {
-                description:
-                  "Optional multimodal parts for embedding (text and/or inline base64 media)",
-              }),
-            ),
-            importance: Type.Optional(
-              Type.Number({ description: "Importance 0-1 (default: 0.7)" }),
-            ),
-            category: Type.Optional(stringEnum(MEMORY_CATEGORIES)),
-            sensitivity: Type.Optional(stringEnum(MEMORY_OPS_SENSITIVITIES)),
-          }),
+          parameters: Type.Object(
+            {
+              text: Type.Optional(Type.String({ description: "Information to remember" })),
+              parts: Type.Optional(
+                Type.Array(multimodalPartSchema, {
+                  description:
+                    "Optional multimodal parts for embedding (text and/or inline base64 media)",
+                }),
+              ),
+              importance: Type.Optional(
+                Type.Number({ description: "Importance 0-1 (default: 0.7)" }),
+              ),
+              category: Type.Optional(stringEnum(MEMORY_CATEGORIES)),
+              sensitivity: Type.Optional(stringEnum(MEMORY_OPS_SENSITIVITIES)),
+            },
+            { additionalProperties: false },
+          ),
           async execute(_toolCallId, params) {
             if (!scopeSubject) {
               return scopeErrorResult();
@@ -805,10 +808,13 @@ const memoryPlugin = {
           name: "memory_forget",
           label: "Memory Forget",
           description: "Delete specific memories within the current agent scope.",
-          parameters: Type.Object({
-            query: Type.Optional(Type.String({ description: "Search to find memory" })),
-            memoryId: Type.Optional(Type.String({ description: "Specific memory ID" })),
-          }),
+          parameters: Type.Object(
+            {
+              query: Type.Optional(Type.String({ description: "Search to find memory" })),
+              memoryId: Type.Optional(Type.String({ description: "Specific memory ID" })),
+            },
+            { additionalProperties: false },
+          ),
           async execute(_toolCallId, params) {
             if (!scopeSubject) {
               return scopeErrorResult();
@@ -986,16 +992,19 @@ const memoryPlugin = {
           label: "Memory Capture",
           description:
             "Create durable, deduplicated memory records with typed metadata and multimodal manifests.",
-          parameters: Type.Object({
-            entries: Type.Array(memoryCaptureEntrySchema, { minItems: 1 }),
-            dedupeThreshold: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
-            rejectSecrets: Type.Optional(
-              Type.Boolean({
-                description:
-                  'Deprecated compatibility field. Secret handling is controlled by `entries[].sensitivity`; use `sensitivity: "secret"` for intentional secret storage.',
-              }),
-            ),
-          }),
+          parameters: Type.Object(
+            {
+              entries: Type.Array(memoryCaptureEntrySchema, { minItems: 1 }),
+              dedupeThreshold: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
+              rejectSecrets: Type.Optional(
+                Type.Boolean({
+                  description:
+                    'Deprecated compatibility field. Secret handling is controlled by `entries[].sensitivity`; use `sensitivity: "secret"` for intentional secret storage.',
+                }),
+              ),
+            },
+            { additionalProperties: false },
+          ),
           async execute(_toolCallId, params) {
             if (!scopeSubject) {
               return scopeErrorResult();
@@ -1039,18 +1048,21 @@ const memoryPlugin = {
           label: "Memory Hygiene",
           description:
             "Plan or apply safe memory hygiene actions (dedupe, stale prune, conflict review, preference promotion).",
-          parameters: Type.Object({
-            mode: stringEnum(["plan", "apply"] as const),
-            strategies: Type.Optional(
-              Type.Array(
-                stringEnum(["dedupe", "stale-prune", "promote", "conflict-review"] as const),
+          parameters: Type.Object(
+            {
+              mode: stringEnum(["plan", "apply"] as const),
+              strategies: Type.Optional(
+                Type.Array(
+                  stringEnum(["dedupe", "stale-prune", "promote", "conflict-review"] as const),
+                ),
               ),
-            ),
-            maxCandidates: Type.Optional(Type.Number({ minimum: 1 })),
-            planId: Type.Optional(Type.String()),
-            planHash: Type.Optional(Type.String()),
-            approvedActionIds: Type.Optional(Type.Array(Type.String())),
-          }),
+              maxCandidates: Type.Optional(Type.Number({ minimum: 1 })),
+              planId: Type.Optional(Type.String()),
+              planHash: Type.Optional(Type.String()),
+              approvedActionIds: Type.Optional(Type.Array(Type.String())),
+            },
+            { additionalProperties: false },
+          ),
           async execute(_toolCallId, params) {
             if (!scopeSubject) {
               return scopeErrorResult();
@@ -1105,16 +1117,19 @@ const memoryPlugin = {
           label: "Commitment Tracker",
           description:
             "Capture, list, resolve, or cancel commitments with durable status metadata. Secret commitments remain hidden from list/resolve/cancel flows and can only be removed with memory_forget.",
-          parameters: Type.Object({
-            mode: stringEnum(["capture", "list_open", "resolve", "cancel"] as const),
-            text: Type.Optional(Type.String()),
-            owner: Type.Optional(Type.String()),
-            dueAt: Type.Optional(Type.Number()),
-            followUpAt: Type.Optional(Type.Number()),
-            priority: Type.Optional(stringEnum(["low", "medium", "high"] as const)),
-            commitmentId: Type.Optional(Type.String()),
-            note: Type.Optional(Type.String()),
-          }),
+          parameters: Type.Object(
+            {
+              mode: stringEnum(["capture", "list_open", "resolve", "cancel"] as const),
+              text: Type.Optional(Type.String()),
+              owner: Type.Optional(Type.String()),
+              dueAt: Type.Optional(Type.Number()),
+              followUpAt: Type.Optional(Type.Number()),
+              priority: Type.Optional(stringEnum(["low", "medium", "high"] as const)),
+              commitmentId: Type.Optional(Type.String()),
+              note: Type.Optional(Type.String()),
+            },
+            { additionalProperties: false },
+          ),
           async execute(_toolCallId, params) {
             if (!scopeSubject) {
               return scopeErrorResult();
@@ -1159,12 +1174,15 @@ const memoryPlugin = {
           label: "Preference Miner",
           description:
             "Observe preference evidence and promote stable preferences when evidence is repeated and consistent.",
-          parameters: Type.Object({
-            mode: stringEnum(["observe", "plan_promotions", "apply_promotions", "list"] as const),
-            key: Type.Optional(Type.String()),
-            value: Type.Optional(Type.String()),
-            confidence: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
-          }),
+          parameters: Type.Object(
+            {
+              mode: stringEnum(["observe", "plan_promotions", "apply_promotions", "list"] as const),
+              key: Type.Optional(Type.String()),
+              value: Type.Optional(Type.String()),
+              confidence: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
+            },
+            { additionalProperties: false },
+          ),
           async execute(_toolCallId, params) {
             if (!scopeSubject) {
               return scopeErrorResult();
@@ -1205,10 +1223,13 @@ const memoryPlugin = {
           label: "Memory Audit",
           description:
             "Store and recall a throwaway probe token to validate memory reliability, then clean up.",
-          parameters: Type.Object({
-            runId: Type.Optional(Type.String()),
-            cleanupOnSuccess: Type.Optional(Type.Boolean()),
-          }),
+          parameters: Type.Object(
+            {
+              runId: Type.Optional(Type.String()),
+              cleanupOnSuccess: Type.Optional(Type.Boolean()),
+            },
+            { additionalProperties: false },
+          ),
           async execute(_toolCallId, params) {
             if (!scopeSubject) {
               return scopeErrorResult();

@@ -24,6 +24,7 @@ Use this skill when a reply depends on prior user history, preferences, commitme
 When memory is relevant, prefer these defaults:
 
 - Recall first with `memory_recallx`. If it is unavailable, fall back to `memory_recall`.
+- Pass only documented fields to memory tools; their schemas are strict and reject ad hoc keys.
 - Track actionable items with `commitment_tracker` instead of generic capture.
 - Capture only durable non-actionable facts, decisions, recurring context, and important project state with `memory_capture`.
 - Keep capture sparse. Do not store one-off chat noise.
