@@ -44,7 +44,8 @@ This document covers security considerations for `@openclaw/memory-mongodb`.
 
 - Database operations are executed through MongoDB MCP tools (`insert-many`, `aggregate`, `delete-many` with exact `_id` filters for single-memory deletes).
 - The plugin does not use a direct MongoDB driver path for runtime reads or writes.
-- `memory_forget` enforces UUID validation before delete operations.
+- `memory_forget` resolves explicit UUIDs or unambiguous scoped UUID prefixes to
+  an exact in-scope UUID before delete operations.
 - Vector embeddings are not returned in tool output payloads.
 - Malformed aggregate documents are skipped and not forwarded to context.
 - New memory records copy routing fields to top-level properties so Atlas can filter by tenant, workspace, scope, visibility, kind, status, sensitivity, and modality before candidate selection.

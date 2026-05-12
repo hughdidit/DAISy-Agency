@@ -428,6 +428,86 @@ describe("mongodb provider via MCP", () => {
     await expect(provider.delete("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa")).resolves.toBe(false);
   });
 
+  test("findByIdPrefix returns only scoped prefix matches", async () => {
+    const now = Date.now();
+    const aggregate = vi.fn().mockResolvedValue([
+      {
+        _id: "f9ed12f4-1111-4aaa-8aaa-aaaaaaaaaaaa",
+        text: "scoped prefix match",
+        vector: [0.1, 0.2],
+        importance: 0.7,
+        category: "fact",
+        type: "semantic",
+        scopeSubject: "agent:main",
+        metadata: {
+          source: "memory_capture",
+          ops: {
+            scopeSubject: "agent:main",
+          },
+        },
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        _id: "f9ed12f4-2222-4bbb-8bbb-bbbbbbbbbbbb",
+        text: "other scope prefix match",
+        vector: [0.1, 0.2],
+        importance: 0.7,
+        category: "fact",
+        type: "semantic",
+        scopeSubject: "agent:other",
+        metadata: {
+          source: "memory_capture",
+          ops: {
+            scopeSubject: "agent:other",
+          },
+        },
+        createdAt: now,
+        updatedAt: now,
+      },
+    ]);
+    const provider = new MongoMemoryDB(
+      {
+        insertMany: vi.fn(),
+        aggregate,
+        deleteOne: vi.fn(),
+        countDocuments: vi.fn(),
+        close: vi.fn(),
+      } as any,
+      { embed: vi.fn() } as any,
+      "memdb",
+      "memories",
+      "memory_events",
+      "vector_idx",
+      baseRouting,
+      baseRetrieval,
+    );
+
+    const results = await provider.findByIdPrefix("f9ed12f4", "agent:main", 6);
+
+    expect(results).toHaveLength(1);
+    expect(results[0]?.id).toBe("f9ed12f4-1111-4aaa-8aaa-aaaaaaaaaaaa");
+    expect(aggregate).toHaveBeenCalledWith(
+      "memdb",
+      "memories",
+      expect.arrayContaining([
+        {
+          $match: {
+            $and: [
+              {
+                _id: {
+                  $regex: "^f9ed12f4",
+                  $options: "i",
+                },
+              },
+              expect.any(Object),
+            ],
+          },
+        },
+      ]),
+    );
+  });
+
   test("searchByQuery supports scope and kind filters", async () => {
     const now = Date.now();
     const mcp = {

@@ -42,6 +42,30 @@ function memoryInsertCalls() {
   return mcpClientMocks.insertMany.mock.calls.filter((call) => call[1] === "memories");
 }
 
+function registerMemoryPluginForTest(memoryPlugin: any, registeredTools: Map<string, any>) {
+  memoryPlugin.register({
+    pluginConfig: {
+      mcp: {
+        transport: "stdio",
+        stdio: {
+          env: {
+            MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
+          },
+        },
+      },
+      gemini: { apiKey: "test-key" },
+    },
+    logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+    registerTool: (tool: unknown, opts?: { name?: string }) => {
+      const resolved = materializeTool(tool, opts) as { name: string };
+      registeredTools.set(resolved.name, resolved);
+    },
+    registerCli: vi.fn(),
+    registerService: vi.fn(),
+    on: vi.fn(),
+  } as unknown as import("openclaw/plugin-sdk").OpenClawPluginApi);
+}
+
 vi.mock("./mcp-client-service.js", () => ({
   McpClientService: vi.fn(function MockMcpClientService() {
     return mcpClientMocks;
@@ -112,27 +136,7 @@ describe("memory-mongodb plugin", () => {
       return true;
     });
 
-    memoryPlugin.register({
-      pluginConfig: {
-        mcp: {
-          transport: "stdio",
-          stdio: {
-            env: {
-              MDB_MCP_CONNECTION_STRING: "mongodb+srv://user:pass@cluster.example.com/test",
-            },
-          },
-        },
-        gemini: { apiKey: "test-key" },
-      },
-      logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
-      registerTool: (tool: unknown, opts?: { name?: string }) => {
-        const resolved = materializeTool(tool, opts) as { name: string };
-        registeredTools.set(resolved.name, resolved);
-      },
-      registerCli: vi.fn(),
-      registerService: vi.fn(),
-      on: vi.fn(),
-    } as unknown as import("openclaw/plugin-sdk").OpenClawPluginApi);
+    registerMemoryPluginForTest(memoryPlugin, registeredTools);
 
     const memoryStore = registeredTools.get("memory_store");
     const memoryRecall = registeredTools.get("memory_recall");
@@ -167,6 +171,209 @@ describe("memory-mongodb plugin", () => {
       limit: 5,
     });
     expect(recallAfterForget.details?.count).toBe(0);
+  });
+
+  test("memory_forget query candidates expose full deletable memory IDs", async () => {
+    const { default: memoryPlugin } = await import("./index.js");
+    const registeredTools = new Map<string, any>();
+    const now = Date.now();
+    const firstId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
+    const secondId = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
+
+    mcpClientMocks.insertMany.mockResolvedValue(1);
+    mcpClientMocks.aggregate.mockResolvedValue([
+      {
+        _id: firstId,
+        text: "memory forget candidate one",
+        vector: [0.1, 0.2],
+        importance: 0.7,
+        category: "fact",
+        type: "semantic",
+        scopeSubject: "agent:main",
+        metadata: {
+          source: "memory_capture",
+          ops: {
+            scopeSubject: "agent:main",
+            kind: "fact",
+          },
+        },
+        createdAt: now,
+        updatedAt: now,
+        score: 0.92,
+      },
+      {
+        _id: secondId,
+        text: "memory forget candidate two",
+        vector: [0.1, 0.2],
+        importance: 0.7,
+        category: "fact",
+        type: "semantic",
+        scopeSubject: "agent:main",
+        metadata: {
+          source: "memory_capture",
+          ops: {
+            scopeSubject: "agent:main",
+            kind: "fact",
+          },
+        },
+        createdAt: now,
+        updatedAt: now,
+        score: 0.9,
+      },
+    ]);
+
+    registerMemoryPluginForTest(memoryPlugin, registeredTools);
+
+    const memoryForget = registeredTools.get("memory_forget");
+    const result = await memoryForget.execute("tc_forget_candidates", {
+      query: "memory forget candidate",
+    });
+
+    expect(result.details?.action).toBe("candidates");
+    expect(result.content[0]?.text).toContain(`memoryId: ${firstId}`);
+    expect(result.content[0]?.text).toContain(`memoryId: ${secondId}`);
+    expect(result.content[0]?.text).toContain("short: aaaaaaaa");
+  });
+
+  test("memory_forget resolves a unique scoped ID prefix before deleting", async () => {
+    const { default: memoryPlugin } = await import("./index.js");
+    const registeredTools = new Map<string, any>();
+    const now = Date.now();
+    const memoryId = "f9ed12f4-1111-4aaa-8aaa-aaaaaaaaaaaa";
+
+    mcpClientMocks.insertMany.mockResolvedValue(1);
+    mcpClientMocks.aggregate.mockResolvedValue([
+      {
+        _id: memoryId,
+        text: "short prefix cleanup probe",
+        vector: [0.1, 0.2],
+        importance: 0.7,
+        category: "fact",
+        type: "semantic",
+        scopeSubject: "agent:main",
+        metadata: {
+          source: "memory_capture",
+          ops: {
+            scopeSubject: "agent:main",
+            kind: "fact",
+          },
+        },
+        createdAt: now,
+        updatedAt: now,
+      },
+    ]);
+    mcpClientMocks.deleteOne.mockResolvedValue(true);
+
+    registerMemoryPluginForTest(memoryPlugin, registeredTools);
+
+    const memoryForget = registeredTools.get("memory_forget");
+    const result = await memoryForget.execute("tc_forget_prefix", {
+      memoryId: "f9ed12f4",
+    });
+
+    expect(result.details?.action).toBe("deleted");
+    expect(result.details?.id).toBe(memoryId);
+    expect(mcpClientMocks.deleteOne).toHaveBeenCalledWith("daisy_memory", "memories", {
+      _id: memoryId,
+    });
+  });
+
+  test("memory_forget refuses ambiguous ID prefixes without deleting", async () => {
+    const { default: memoryPlugin } = await import("./index.js");
+    const registeredTools = new Map<string, any>();
+    const now = Date.now();
+
+    mcpClientMocks.insertMany.mockResolvedValue(1);
+    mcpClientMocks.aggregate.mockResolvedValue([
+      {
+        _id: "f9ed12f4-1111-4aaa-8aaa-aaaaaaaaaaaa",
+        text: "first ambiguous prefix probe",
+        vector: [0.1, 0.2],
+        importance: 0.7,
+        category: "fact",
+        type: "semantic",
+        scopeSubject: "agent:main",
+        metadata: { source: "memory_capture", ops: { scopeSubject: "agent:main" } },
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        _id: "f9ed12f4-2222-4bbb-8bbb-bbbbbbbbbbbb",
+        text: "second ambiguous prefix probe",
+        vector: [0.1, 0.2],
+        importance: 0.7,
+        category: "fact",
+        type: "semantic",
+        scopeSubject: "agent:main",
+        metadata: { source: "memory_capture", ops: { scopeSubject: "agent:main" } },
+        createdAt: now,
+        updatedAt: now,
+      },
+    ]);
+
+    registerMemoryPluginForTest(memoryPlugin, registeredTools);
+
+    const memoryForget = registeredTools.get("memory_forget");
+    const result = await memoryForget.execute("tc_forget_ambiguous_prefix", {
+      memoryId: "f9ed12f4",
+    });
+
+    expect(result.details?.action).toBe("ambiguous");
+    expect(result.content[0]?.text).toContain("Specify the full memoryId");
+    expect(mcpClientMocks.deleteOne).not.toHaveBeenCalled();
+  });
+
+  test("memory_forget refuses full IDs outside the current scope", async () => {
+    const { default: memoryPlugin } = await import("./index.js");
+    const registeredTools = new Map<string, any>();
+    const now = Date.now();
+    const memoryId = "cccccccc-cccc-4ccc-8ccc-cccccccccccc";
+
+    mcpClientMocks.insertMany.mockResolvedValue(1);
+    mcpClientMocks.aggregate.mockResolvedValue([
+      {
+        _id: memoryId,
+        text: "other scope memory",
+        vector: [0.1, 0.2],
+        importance: 0.7,
+        category: "fact",
+        type: "semantic",
+        scopeSubject: "agent:other",
+        metadata: { source: "memory_capture", ops: { scopeSubject: "agent:other" } },
+        createdAt: now,
+        updatedAt: now,
+      },
+    ]);
+
+    registerMemoryPluginForTest(memoryPlugin, registeredTools);
+
+    const memoryForget = registeredTools.get("memory_forget");
+    const result = await memoryForget.execute("tc_forget_out_of_scope", {
+      memoryId,
+    });
+
+    expect(result.details?.action).toBe("not_found");
+    expect(result.content[0]?.text).toContain("not found in scope");
+    expect(mcpClientMocks.deleteOne).not.toHaveBeenCalled();
+  });
+
+  test("memory_forget refuses missing ID prefixes without deleting", async () => {
+    const { default: memoryPlugin } = await import("./index.js");
+    const registeredTools = new Map<string, any>();
+
+    mcpClientMocks.insertMany.mockResolvedValue(1);
+    mcpClientMocks.aggregate.mockResolvedValue([]);
+
+    registerMemoryPluginForTest(memoryPlugin, registeredTools);
+
+    const memoryForget = registeredTools.get("memory_forget");
+    const result = await memoryForget.execute("tc_forget_missing_prefix", {
+      memoryId: "f9ed12f4",
+    });
+
+    expect(result.details?.action).toBe("not_found");
+    expect(result.content[0]?.text).toContain("not found in scope");
+    expect(mcpClientMocks.deleteOne).not.toHaveBeenCalled();
   });
 
   test("registers memory-ops primitives and supports scoped execution", async () => {

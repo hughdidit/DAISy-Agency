@@ -582,6 +582,78 @@ export class MongoMemoryDB {
     return parsed?.entry ?? null;
   }
 
+  async findByIdPrefix(prefix: string, scopeSubject: string, limit = 10): Promise<MemoryEntry[]> {
+    const normalizedPrefix = prefix.trim();
+    if (!/^[0-9a-f-]{8,35}$/i.test(normalizedPrefix)) {
+      throw new Error(`Invalid memory ID prefix format: ${prefix}`);
+    }
+    if (!scopeSubject.trim()) {
+      throw new Error("scopeSubject required");
+    }
+    const boundedLimit = Math.max(1, Math.min(limit, 25));
+
+    const documents = await this.mcp.aggregate(this.databaseName, this.collectionName, [
+      {
+        $match: {
+          $and: [
+            {
+              _id: {
+                $regex: `^${escapeRegex(normalizedPrefix)}`,
+                $options: "i",
+              },
+            },
+            this.buildScopeMatch(scopeSubject),
+          ],
+        },
+      },
+      {
+        $sort: {
+          updatedAt: -1,
+        },
+      },
+      {
+        $limit: boundedLimit,
+      },
+      {
+        $project: {
+          _id: 1,
+          text: 1,
+          vector: 1,
+          importance: 1,
+          category: 1,
+          subCategory: 1,
+          type: 1,
+          tenantId: 1,
+          workspaceId: 1,
+          scopeSubject: 1,
+          subjectType: 1,
+          visibility: 1,
+          kind: 1,
+          status: 1,
+          sensitivity: 1,
+          modalities: 1,
+          metadata: 1,
+          tags: 1,
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      },
+    ]);
+
+    const entries: MemoryEntry[] = [];
+    for (const document of documents) {
+      const parsed = this.documentToEntry(document);
+      if (!parsed?.entry) {
+        continue;
+      }
+      if (!matchesFilters(parsed.entry, { scopeSubject, includeSecrets: true })) {
+        continue;
+      }
+      entries.push(parsed.entry);
+    }
+    return entries;
+  }
+
   async listByScope(
     scopeSubject: string,
     limit = 50,
@@ -946,6 +1018,10 @@ function isMemorySensitivity(value: unknown): value is MemorySensitivity {
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function matchesFilters(entry: MemoryEntry, filters: MemoryQueryFilters | undefined): boolean {

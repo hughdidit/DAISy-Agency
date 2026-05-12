@@ -274,7 +274,9 @@ Each stored memory includes:
 - `memory_recallx({ query, limit?, kinds?, openCommitmentsOnly?, preferencesOnly?, modalities?, includeSecrets?, includeMetadata? })`
 - `memory_store({ text, importance, category, sensitivity? })`
 - `memory_store({ parts, text?, importance, category, sensitivity? })` for multimodal embedding
-- `memory_forget({ memoryId })` or `memory_forget({ query })`
+- `memory_forget({ memoryId })` or `memory_forget({ query })`; full UUID
+  `memoryId` values are preferred, and unambiguous 8+ character ID prefixes are
+  resolved only within the current scope before deletion
 - `memory_capture({ entries[], dedupeThreshold?, rejectSecrets? })` where `entries[]` may include `sensitivity: "secret"` for explicit secret storage; `rejectSecrets` is retained for compatibility and no longer bypasses secret classification
 - `memory_hygiene({ mode: "plan"|"apply", strategies?, maxCandidates?, planId?, planHash?, approvedActionIds? })` where `strategies[]` may include `dedupe`, `stale-prune`, `conflict-review`, and `promote`; `apply` requires a same-scope `planId`, matching `planHash`, and exact approved action IDs
 - `commitment_tracker({ mode: "capture"|"list_open"|"resolve"|"cancel", ... })`
