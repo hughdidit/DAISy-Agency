@@ -229,12 +229,28 @@ function formatForgetCandidate(entry: MemoryEntry): string {
   return `- memoryId: ${entry.id} (short: ${entry.id.slice(0, 8)}) ${text}`;
 }
 
-function formatHygienePreview(text: string | undefined): string | undefined {
-  const normalized = text?.replace(/\s+/g, " ").trim();
+const HYGIENE_PREVIEW_MAX_CHARS = 140;
+const HYGIENE_PREVIEW_SUFFIX = "...";
+
+function truncateHygienePreview(text: string): string {
+  const chars = Array.from(text);
+  if (chars.length <= HYGIENE_PREVIEW_MAX_CHARS) {
+    return text;
+  }
+  return `${chars
+    .slice(0, HYGIENE_PREVIEW_MAX_CHARS - HYGIENE_PREVIEW_SUFFIX.length)
+    .join("")}${HYGIENE_PREVIEW_SUFFIX}`;
+}
+
+function formatHygienePreview(text: string | null | undefined): string | undefined {
+  if (text === null || text === undefined) {
+    return undefined;
+  }
+  const normalized = text.replace(/\s+/g, " ").trim();
   if (!normalized) {
     return undefined;
   }
-  return normalized.length > 140 ? `${normalized.slice(0, 137)}...` : normalized;
+  return truncateHygienePreview(normalized);
 }
 
 function formatHygieneAction(action: MemoryHygieneAction, index: number): string {
@@ -258,21 +274,22 @@ function formatHygieneAction(action: MemoryHygieneAction, index: number): string
 
 function formatMemoryHygienePlan(plan: MemoryHygienePlan): string {
   const header = `Generated hygiene plan with ${plan.actions.length} actions.`;
-  const planFields = [
-    `planId: ${plan.planId}`,
-    `planHash: ${plan.planHash}`,
-    "approvedActionIds:",
-    ...plan.actions.map((action) => `- ${action.id}`),
-  ];
+  const planInfo = [`planId: ${plan.planId}`, `planHash: ${plan.planHash}`];
   if (plan.actions.length === 0) {
-    return [header, ...planFields, "No hygiene actions are pending for this scope."].join("\n");
+    return [header, ...planInfo, "No hygiene actions are pending for this scope."].join("\n");
   }
+  const actions = [...plan.actions].sort((a, b) => a.id.localeCompare(b.id));
+  const planFields = [
+    ...planInfo,
+    "approvedActionIds:",
+    ...actions.map((action) => `- ${action.id}`),
+  ];
   return [
     header,
     "Use these exact apply fields after reviewing the actions:",
     ...planFields,
     "Actions:",
-    ...plan.actions.map(formatHygieneAction),
+    ...actions.map(formatHygieneAction),
   ].join("\n");
 }
 
@@ -291,7 +308,9 @@ function formatMemoryHygieneApply(input: {
     `planHash: ${input.plan.planHash}`,
   ];
   if (applied) {
+    lines.push(`deletedCount: ${applied.deletedIds.length}`);
     lines.push(`deletedIds: ${applied.deletedIds.join(", ") || "(none)"}`);
+    lines.push(`promotedCount: ${applied.promotedIds.length}`);
     lines.push(`promotedIds: ${applied.promotedIds.join(", ") || "(none)"}`);
     lines.push(`reviewCount: ${applied.reviewCount}`);
   }
