@@ -117,7 +117,6 @@ const DEFAULT_RECALL_MIN_SCORE = 0.1;
 const DEFAULT_AUDIT_RECALL_RETRY_DELAYS_MS = [250, 750, 1_500, 3_000] as const;
 const ATTACHMENT_ONLY_FALLBACK_RE = /^\[attachment:[^\]]+\]$/i;
 const HYGIENE_PLAN_MAX_AGE_MS = 15 * 60 * 1000;
-const FULL_MEMORY_ID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const MEMORY_ID_PREFIX_REGEX = /^[0-9a-f-]{8,35}$/i;
 
 export class MemoryOpsService {
@@ -693,7 +692,7 @@ export class MemoryOpsService {
     if (input.resolvedStoredId) {
       return exact;
     }
-    if (exact.deleted || !isMemoryIdPrefix(input.storedId) || isFullMemoryId(input.storedId)) {
+    if (exact.deleted || !isMemoryIdPrefix(input.storedId)) {
       return exact;
     }
 
@@ -1404,10 +1403,6 @@ function isPriority(value: unknown): value is "low" | "medium" | "high" {
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
-
-function isFullMemoryId(value: string): boolean {
-  return FULL_MEMORY_ID_REGEX.test(value);
 }
 
 function isMemoryIdPrefix(value: string): boolean {
