@@ -80,6 +80,18 @@ type AuditInput = {
   cleanupOnSuccess?: boolean;
 };
 
+type AuditRecallResult = {
+  pass: boolean;
+  recall: {
+    count: number;
+    noResult: boolean;
+    memories: Array<Record<string, unknown>>;
+  };
+  attempts: number;
+  resolvedStoredId?: string;
+  reason?: string;
+};
+
 type PreferencePromotionPlan = {
   key: string;
   value: string;
@@ -102,8 +114,10 @@ const SECRET_PATTERNS = [
 
 const DEFAULT_DEDUPE_THRESHOLD = 0.95;
 const DEFAULT_RECALL_MIN_SCORE = 0.1;
+const DEFAULT_AUDIT_RECALL_RETRY_DELAYS_MS = [250, 750, 1_500, 3_000] as const;
 const ATTACHMENT_ONLY_FALLBACK_RE = /^\[attachment:[^\]]+\]$/i;
 const HYGIENE_PLAN_MAX_AGE_MS = 15 * 60 * 1000;
+const MEMORY_ID_PREFIX_REGEX = /^[0-9a-f-]{8,35}$/i;
 
 export class MemoryOpsService {
   private readonly hygienePlans = new Map<string, MemoryHygienePlan>();
@@ -112,6 +126,7 @@ export class MemoryOpsService {
     private readonly db: MongoMemoryDB,
     private readonly cfg: MemoryConfig["ops"],
     private readonly logger?: Logger,
+    private readonly auditRecallRetryDelaysMs: readonly number[] = DEFAULT_AUDIT_RECALL_RETRY_DELAYS_MS,
   ) {}
 
   async capture(input: CaptureInput): Promise<{ outcomes: MemoryCaptureOutcome[] }> {
@@ -565,24 +580,28 @@ export class MemoryOpsService {
     }
 
     const startedAt = Date.now();
-    const recall = await this.recall({
-      query: token,
+    const auditRecall = await this.recallAuditProbe({
+      token,
+      createdId: created.id,
       scopeSubject: input.scopeSubject,
-      limit: 3,
-      filters: {
-        kinds: ["audit"],
-        includeMetadata: true,
-      },
     });
+    const recall = auditRecall.recall;
     const latencyMs = Date.now() - startedAt;
 
-    const pass = recall.memories.some((memory) => memory.id === created.id);
+    const pass = auditRecall.pass;
     const cleanupRequested = input.cleanupOnSuccess ?? this.cfg.auditCleanup;
     let cleanupResult: "skipped" | "deleted" | "failed" = "skipped";
+    let cleanupReason: string | undefined;
+    const resolvedStoredId = auditRecall.resolvedStoredId;
 
     if (cleanupRequested && pass) {
-      const deleted = await this.db.delete(created.id).catch(() => false);
-      cleanupResult = deleted ? "deleted" : "failed";
+      const cleanup = await this.deleteAuditProbe({
+        storedId: created.id,
+        resolvedStoredId,
+        scopeSubject: input.scopeSubject,
+      });
+      cleanupResult = cleanup.deleted ? "deleted" : "failed";
+      cleanupReason = cleanup.reason;
     }
 
     const result = {
@@ -590,21 +609,117 @@ export class MemoryOpsService {
       runId,
       token,
       storedId: created.id,
+      resolvedStoredId: resolvedStoredId === created.id ? undefined : resolvedStoredId,
       recallHits: recall.count,
       recallEvidenceIds: recall.memories.map((memory) => memory.id),
+      recallAttempts: auditRecall.attempts,
       latencyMs,
       cleanupResult,
+      cleanupReason,
+      reason: auditRecall.reason,
     };
     void this.recordEvent({
       scopeSubject: input.scopeSubject,
       actor: "memory_audit",
       operation: "memory_audit",
       status: pass ? "passed" : "failed",
-      memoryIds: [created.id],
+      memoryIds: [resolvedStoredId ?? created.id],
       summary: pass ? "Memory audit probe round-trip passed." : "Memory audit probe recall failed.",
       details: result,
     });
     return result;
+  }
+
+  private async recallAuditProbe(input: {
+    token: string;
+    createdId: string;
+    scopeSubject: string;
+  }): Promise<AuditRecallResult> {
+    let recall: Awaited<ReturnType<MemoryOpsService["recall"]>> = {
+      count: 0,
+      noResult: true,
+      memories: [],
+    };
+    let reason: string | undefined;
+    const maxAttempts = 1 + this.auditRecallRetryDelaysMs.length;
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      if (attempt > 1) {
+        const delayMs = this.auditRecallRetryDelaysMs[attempt - 2] ?? 0;
+        if (delayMs > 0) {
+          await delay(delayMs);
+        }
+      }
+
+      recall = await this.recall({
+        query: input.token,
+        scopeSubject: input.scopeSubject,
+        limit: 5,
+        minScore: 0,
+        filters: {
+          kinds: ["audit"],
+          includeMetadata: true,
+        },
+      });
+
+      const resolution = resolveAuditStoredId(input.createdId, recall.memories);
+      if (resolution.status === "matched") {
+        return {
+          pass: true,
+          recall,
+          attempts: attempt,
+          resolvedStoredId: resolution.id,
+        };
+      }
+      reason = resolution.reason;
+    }
+
+    return {
+      pass: false,
+      recall,
+      attempts: maxAttempts,
+      reason,
+    };
+  }
+
+  private async deleteAuditProbe(input: {
+    storedId: string;
+    resolvedStoredId?: string;
+    scopeSubject: string;
+  }): Promise<{ deleted: boolean; reason?: string }> {
+    const deleteId = input.resolvedStoredId ?? input.storedId;
+    const exact = await this.deleteMemoryById(deleteId);
+    if (input.resolvedStoredId) {
+      return exact;
+    }
+    if (exact.deleted || !isMemoryIdPrefix(input.storedId)) {
+      return exact;
+    }
+
+    const matches = await this.db
+      .findByIdPrefix(input.storedId, input.scopeSubject, 2)
+      .catch((error) => ({
+        error: error instanceof Error ? error.message : String(error),
+      }));
+    if (!Array.isArray(matches)) {
+      return { deleted: false, reason: matches.error };
+    }
+    if (matches.length !== 1) {
+      return {
+        deleted: false,
+        reason: matches.length === 0 ? "prefix_not_found" : "ambiguous_prefix",
+      };
+    }
+    return this.deleteMemoryById(matches[0].id);
+  }
+
+  private async deleteMemoryById(id: string): Promise<{ deleted: boolean; reason?: string }> {
+    try {
+      const deleted = await this.db.delete(id);
+      return deleted ? { deleted } : { deleted, reason: "not_found" };
+    } catch (error) {
+      return { deleted: false, reason: error instanceof Error ? error.message : String(error) };
+    }
   }
 
   private async captureOne(input: {
@@ -696,44 +811,49 @@ export class MemoryOpsService {
       )
       .digest("hex");
 
-    const existing = await this.db.searchByQuery(fallbackText, 3, 0, {
-      scopeSubject: input.scopeSubject,
-      includeSecrets: true,
-    });
+    const skipDedupe = input.source === "memory_audit" || input.candidate.kind === "audit";
+    if (!skipDedupe) {
+      const existing = await this.db.searchByQuery(fallbackText, 3, 0, {
+        scopeSubject: input.scopeSubject,
+        includeSecrets: true,
+      });
 
-    for (const candidate of existing) {
-      const ops = readOpsMetadata(candidate.entry);
-      const candidateScope =
-        typeof candidate.entry.scopeSubject === "string"
-          ? candidate.entry.scopeSubject
-          : ops?.scopeSubject;
-      if (candidateScope !== input.scopeSubject) {
-        continue;
-      }
-      const existingHash = typeof ops?.contentHash === "string" ? ops.contentHash : undefined;
-      if (existingHash && existingHash === contentHash) {
-        return {
-          status: "duplicate",
-          existingId: candidate.entry.id,
-          reason: "matching content hash",
-        };
-      }
-      if (candidate.score >= input.dedupeThreshold) {
-        if (isAttachmentOnlyFallbackText(fallbackText)) {
-          const existingChecksum = attachmentFingerprint(
-            Array.isArray(ops?.attachments)
-              ? (ops.attachments.filter((item) => isObject(item)) as MemoryOpsAttachmentManifest[])
-              : [],
-          );
-          if (existingChecksum !== attachmentsChecksum) {
-            continue;
-          }
+      for (const candidate of existing) {
+        const ops = readOpsMetadata(candidate.entry);
+        const candidateScope =
+          typeof candidate.entry.scopeSubject === "string"
+            ? candidate.entry.scopeSubject
+            : ops?.scopeSubject;
+        if (candidateScope !== input.scopeSubject) {
+          continue;
         }
-        return {
-          status: "duplicate",
-          existingId: candidate.entry.id,
-          reason: `semantic similarity ${(candidate.score * 100).toFixed(0)}%`,
-        };
+        const existingHash = typeof ops?.contentHash === "string" ? ops.contentHash : undefined;
+        if (existingHash && existingHash === contentHash) {
+          return {
+            status: "duplicate",
+            existingId: candidate.entry.id,
+            reason: "matching content hash",
+          };
+        }
+        if (candidate.score >= input.dedupeThreshold) {
+          if (isAttachmentOnlyFallbackText(fallbackText)) {
+            const existingChecksum = attachmentFingerprint(
+              Array.isArray(ops?.attachments)
+                ? (ops.attachments.filter((item) =>
+                    isObject(item),
+                  ) as MemoryOpsAttachmentManifest[])
+                : [],
+            );
+            if (existingChecksum !== attachmentsChecksum) {
+              continue;
+            }
+          }
+          return {
+            status: "duplicate",
+            existingId: candidate.entry.id,
+            reason: `semantic similarity ${(candidate.score * 100).toFixed(0)}%`,
+          };
+        }
       }
     }
 
@@ -1283,6 +1403,41 @@ function isPriority(value: unknown): value is "low" | "medium" | "high" {
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function isMemoryIdPrefix(value: string): boolean {
+  return MEMORY_ID_PREFIX_REGEX.test(value);
+}
+
+function resolveAuditStoredId(
+  storedId: string,
+  memories: Array<Record<string, unknown>>,
+): { status: "matched"; id: string } | { status: "missing"; reason: string } {
+  const evidenceIds = memories
+    .map((memory) => (typeof memory.id === "string" ? memory.id : null))
+    .filter((id): id is string => typeof id === "string");
+
+  if (evidenceIds.includes(storedId)) {
+    return { status: "matched", id: storedId };
+  }
+
+  if (!isMemoryIdPrefix(storedId)) {
+    return { status: "missing", reason: "stored_id_not_recalled" };
+  }
+
+  const normalizedStoredId = storedId.toLowerCase();
+  const prefixMatches = evidenceIds.filter((id) => id.toLowerCase().startsWith(normalizedStoredId));
+  if (prefixMatches.length === 1) {
+    return { status: "matched", id: prefixMatches[0] };
+  }
+  if (prefixMatches.length > 1) {
+    return { status: "missing", reason: "ambiguous_stored_id_prefix" };
+  }
+  return { status: "missing", reason: "stored_id_not_recalled" };
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function summarizeOutcomeStatus(statuses: string[]): string {

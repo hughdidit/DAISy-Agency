@@ -281,7 +281,7 @@ Each stored memory includes:
 - `memory_hygiene({ mode: "plan"|"apply", strategies?, maxCandidates?, planId?, planHash?, approvedActionIds? })` where `strategies[]` may include `dedupe`, `stale-prune`, `conflict-review`, and `promote`; `apply` requires a same-scope `planId`, matching `planHash`, and exact approved action IDs
 - `commitment_tracker({ mode: "capture"|"list_open"|"resolve"|"cancel", ... })`
 - `preference_miner({ mode: "observe"|"plan_promotions"|"apply_promotions"|"list", ... })`
-- `memory_audit({ runId?, cleanupOnSuccess? })` to run probe capture/recall checks after memory config changes, recall-related deploys, or when recall reliability is uncertain; raw output may include `token`, `storedId`, `recallEvidenceIds`, and `reason` on early failure, but routine summaries should report `pass: true|false`, `runId`, and, where available, `recallHits`, `latencyMs`, `cleanupResult`, and `reason`
+- `memory_audit({ runId?, cleanupOnSuccess? })` to run probe capture/recall checks after memory config changes, recall-related deploys, or when recall reliability is uncertain; audit probes bypass semantic dedupe so stale probes cannot block a fresh audit, audit recall retries briefly for search-index consistency, and cleanup resolves any short stored ID to a unique exact scoped UUID before deleting. Raw output may include `token`, `storedId`, `resolvedStoredId`, `recallEvidenceIds`, `recallAttempts`, `cleanupReason`, and `reason` on failure, but routine summaries should report `pass: true|false`, `runId`, and, where available, `recallHits`, `latencyMs`, `cleanupResult`, and `reason`
 
 Migration note:
 

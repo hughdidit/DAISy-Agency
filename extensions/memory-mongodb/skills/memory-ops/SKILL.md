@@ -76,8 +76,8 @@ Use `memory_audit` when memory behavior itself is in question, not as a routine 
 
 - Run it after memory configuration changes, recall-related deploys, scope/routing fixes, or when expected memories are missing, inconsistent, or suspiciously slow to return.
 - Inspect whether the probe was stored, whether recall found the same memory in the same scope, whether recall latency looks abnormal, and whether probe cleanup succeeded or left stale audit records behind.
-- Raw audit output can include debug fields such as `token`, `storedId`, and `recallEvidenceIds`, plus `reason` on early capture failure. Treat those as diagnostic fields, not routine summary text.
-- A good summary is short and operational: report `pass: true|false`, `runId`, `recallHits`, `latencyMs`, `cleanupResult`, and the next action if follow-up is needed. If the audit fails, include `reason` when present; otherwise interpret the failure from whether `storedId` is missing from `recallEvidenceIds`. Do not repeat the raw probe token unless you are debugging the audit itself.
+- Raw audit output can include debug fields such as `token`, `storedId`, `resolvedStoredId`, `recallEvidenceIds`, `recallAttempts`, and `cleanupReason`, plus `reason` on failure. Treat those as diagnostic fields, not routine summary text.
+- A good summary is short and operational: report `pass: true|false`, `runId`, `recallHits`, `latencyMs`, `cleanupResult`, and the next action if follow-up is needed. If the audit fails, include `reason` when present; otherwise interpret the failure from whether `storedId` or `resolvedStoredId` is missing from `recallEvidenceIds`. Do not repeat the raw probe token unless you are debugging the audit itself.
 
 ## What Not To Store
 

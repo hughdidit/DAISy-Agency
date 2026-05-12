@@ -2,7 +2,10 @@ import { randomUUID } from "node:crypto";
 import { describe, expect, test, vi } from "vitest";
 import { MemoryOpsService, resolveScopeSubjectFromContext } from "./memory-ops-service.js";
 
-function createService(overrides?: Partial<Record<string, any>>) {
+function createService(
+  overrides?: Partial<Record<string, any>>,
+  auditRecallRetryDelaysMs: readonly number[] = [],
+) {
   const db = {
     searchByQuery: vi.fn().mockResolvedValue([]),
     store: vi.fn().mockImplementation(async (entry) => ({
@@ -19,26 +22,32 @@ function createService(overrides?: Partial<Record<string, any>>) {
       updatedAt: Date.now(),
     })),
     delete: vi.fn().mockResolvedValue(true),
+    findByIdPrefix: vi.fn().mockResolvedValue([]),
     listByScope: vi.fn().mockResolvedValue([]),
     getById: vi.fn().mockResolvedValue(null),
     recordEvent: vi.fn().mockResolvedValue({}),
     ...overrides,
   };
 
-  const service = new MemoryOpsService(db as any, {
-    enabled: true,
-    preferenceMinObservations: 2,
-    preferenceMinStabilityScore: 0.8,
-    captureMinConfidence: 0.7,
-    hygieneMaxCandidates: 25,
-    auditCleanup: true,
-    supportedDocumentMimeTypes: ["application/pdf", "text/markdown"],
-    maxInlineDocumentBytesByMime: {
-      "application/pdf": 2000000,
-      "text/markdown": 2000000,
+  const service = new MemoryOpsService(
+    db as any,
+    {
+      enabled: true,
+      preferenceMinObservations: 2,
+      preferenceMinStabilityScore: 0.8,
+      captureMinConfidence: 0.7,
+      hygieneMaxCandidates: 25,
+      auditCleanup: true,
+      supportedDocumentMimeTypes: ["application/pdf", "text/markdown"],
+      maxInlineDocumentBytesByMime: {
+        "application/pdf": 2000000,
+        "text/markdown": 2000000,
+      },
+      schemaMode: "additive",
     },
-    schemaMode: "additive",
-  });
+    undefined,
+    auditRecallRetryDelaysMs,
+  );
 
   return { db, service };
 }
@@ -666,5 +675,327 @@ describe("memory ops service", () => {
         memoryIds: [fixedId],
       }),
     );
+  });
+
+  test("memory audit retries recall before failing a stored probe", async () => {
+    const fixedId = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
+    const now = Date.now();
+    const { service, db } = createService(
+      {
+        store: vi.fn().mockImplementation(async (entry) => ({
+          id: fixedId,
+          text: entry.text ?? "",
+          vector: [0.1, 0.2],
+          importance: entry.importance,
+          category: entry.category,
+          type: entry.type,
+          metadata: entry.metadata,
+          createdAt: now,
+          updatedAt: now,
+        })),
+        searchByQuery: vi
+          .fn()
+          .mockResolvedValueOnce([])
+          .mockResolvedValueOnce([
+            {
+              entry: {
+                id: fixedId,
+                text: "memory-audit-probe-retry-run-12345678",
+                vector: [0.1, 0.2],
+                importance: 0.1,
+                category: "other",
+                type: "episodic",
+                metadata: {
+                  source: "memory_audit",
+                  ops: {
+                    scopeSubject: "agent:main",
+                    kind: "audit",
+                    status: "probe",
+                  },
+                },
+                createdAt: now,
+                updatedAt: now,
+              },
+              score: 1,
+              vectorScore: 1,
+            },
+          ]),
+      },
+      [0],
+    );
+
+    const result = await service.memoryAudit({
+      scopeSubject: "agent:main",
+      runId: "retry-run",
+      cleanupOnSuccess: true,
+    });
+
+    expect(result.pass).toBe(true);
+    expect(result.recallAttempts).toBe(2);
+    expect(result.cleanupResult).toBe("deleted");
+    expect(db.delete).toHaveBeenCalledWith(fixedId);
+  });
+
+  test("memory audit stores a fresh probe instead of deduping stale audit probes", async () => {
+    const fixedId = "dddddddd-dddd-4ddd-8ddd-dddddddddddd";
+    const staleId = "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee";
+    const now = Date.now();
+    const { service, db } = createService({
+      store: vi.fn().mockImplementation(async (entry) => ({
+        id: fixedId,
+        text: entry.text ?? "",
+        vector: [0.1, 0.2],
+        importance: entry.importance,
+        category: entry.category,
+        type: entry.type,
+        metadata: entry.metadata,
+        createdAt: now,
+        updatedAt: now,
+      })),
+      searchByQuery: vi.fn().mockResolvedValue([
+        {
+          entry: {
+            id: fixedId,
+            text: "memory-audit-probe-fresh-run-12345678",
+            vector: [0.1, 0.2],
+            importance: 0.1,
+            category: "other",
+            type: "episodic",
+            metadata: {
+              source: "memory_audit",
+              ops: {
+                scopeSubject: "agent:main",
+                kind: "audit",
+                status: "probe",
+              },
+            },
+            createdAt: now,
+            updatedAt: now,
+          },
+          score: 1,
+          vectorScore: 1,
+        },
+        {
+          entry: {
+            id: staleId,
+            text: "memory-audit-probe-old-run-87654321",
+            vector: [0.1, 0.2],
+            importance: 0.1,
+            category: "other",
+            type: "episodic",
+            metadata: {
+              source: "memory_audit",
+              ops: {
+                scopeSubject: "agent:main",
+                kind: "audit",
+                status: "probe",
+              },
+            },
+            createdAt: now - 1000,
+            updatedAt: now - 1000,
+          },
+          score: 0.99,
+          vectorScore: 0.99,
+        },
+      ]),
+    });
+
+    const result = await service.memoryAudit({
+      scopeSubject: "agent:main",
+      runId: "fresh-run",
+      cleanupOnSuccess: true,
+    });
+
+    expect(result.pass).toBe(true);
+    expect(result.storedId).toBe(fixedId);
+    expect(result.recallEvidenceIds).toContain(fixedId);
+    expect(db.store).toHaveBeenCalled();
+    expect(db.delete).toHaveBeenCalledWith(fixedId);
+  });
+
+  test("memory audit resolves short stored ID prefixes against unique recall evidence", async () => {
+    const shortId = "f9ed12f4";
+    const fullId = "f9ed12f4-1111-4aaa-8aaa-aaaaaaaaaaaa";
+    const now = Date.now();
+    const { service, db } = createService({
+      store: vi.fn().mockImplementation(async (entry) => ({
+        id: shortId,
+        text: entry.text ?? "",
+        vector: [0.1, 0.2],
+        importance: entry.importance,
+        category: entry.category,
+        type: entry.type,
+        metadata: entry.metadata,
+        createdAt: now,
+        updatedAt: now,
+      })),
+      searchByQuery: vi.fn().mockResolvedValue([
+        {
+          entry: {
+            id: fullId,
+            text: "memory-audit-probe-short-id-run-12345678",
+            vector: [0.1, 0.2],
+            importance: 0.1,
+            category: "other",
+            type: "episodic",
+            metadata: {
+              source: "memory_audit",
+              ops: {
+                scopeSubject: "agent:main",
+                kind: "audit",
+                status: "probe",
+              },
+            },
+            createdAt: now,
+            updatedAt: now,
+          },
+          score: 1,
+          vectorScore: 1,
+        },
+      ]),
+    });
+
+    const result = await service.memoryAudit({
+      scopeSubject: "agent:main",
+      runId: "short-id-run",
+      cleanupOnSuccess: true,
+    });
+
+    expect(result.pass).toBe(true);
+    expect(result.storedId).toBe(shortId);
+    expect(result.resolvedStoredId).toBe(fullId);
+    expect(result.cleanupResult).toBe("deleted");
+    expect(db.delete).toHaveBeenCalledWith(fullId);
+  });
+
+  test("memory audit does not prefix-delete after a resolved exact cleanup miss", async () => {
+    const shortId = "f9ed12f4";
+    const fullId = "f9ed12f4-1111-4aaa-8aaa-aaaaaaaaaaaa";
+    const now = Date.now();
+    const { service, db } = createService({
+      store: vi.fn().mockImplementation(async (entry) => ({
+        id: shortId,
+        text: entry.text ?? "",
+        vector: [0.1, 0.2],
+        importance: entry.importance,
+        category: entry.category,
+        type: entry.type,
+        metadata: entry.metadata,
+        createdAt: now,
+        updatedAt: now,
+      })),
+      delete: vi.fn().mockResolvedValue(false),
+      findByIdPrefix: vi.fn().mockResolvedValue([
+        {
+          id: "f9ed12f4-2222-4bbb-8bbb-bbbbbbbbbbbb",
+          text: "different memory with same prefix",
+          vector: [0.1, 0.2],
+          importance: 0.1,
+          category: "other",
+          type: "episodic",
+          metadata: { source: "memory_audit", ops: { scopeSubject: "agent:main" } },
+          createdAt: now,
+          updatedAt: now,
+        },
+      ]),
+      searchByQuery: vi.fn().mockResolvedValue([
+        {
+          entry: {
+            id: fullId,
+            text: "memory-audit-probe-exact-miss-run-12345678",
+            vector: [0.1, 0.2],
+            importance: 0.1,
+            category: "other",
+            type: "episodic",
+            metadata: {
+              source: "memory_audit",
+              ops: { scopeSubject: "agent:main", kind: "audit" },
+            },
+            createdAt: now,
+            updatedAt: now,
+          },
+          score: 1,
+          vectorScore: 1,
+        },
+      ]),
+    });
+
+    const result = await service.memoryAudit({
+      scopeSubject: "agent:main",
+      runId: "exact-miss-run",
+      cleanupOnSuccess: true,
+    });
+
+    expect(result.pass).toBe(true);
+    expect(result.cleanupResult).toBe("failed");
+    expect(result.cleanupReason).toBe("not_found");
+    expect(db.delete).toHaveBeenCalledWith(fullId);
+    expect(db.findByIdPrefix).not.toHaveBeenCalled();
+  });
+
+  test("memory audit fails closed on ambiguous short stored ID evidence", async () => {
+    const shortId = "f9ed12f4";
+    const now = Date.now();
+    const { service, db } = createService({
+      store: vi.fn().mockImplementation(async (entry) => ({
+        id: shortId,
+        text: entry.text ?? "",
+        vector: [0.1, 0.2],
+        importance: entry.importance,
+        category: entry.category,
+        type: entry.type,
+        metadata: entry.metadata,
+        createdAt: now,
+        updatedAt: now,
+      })),
+      searchByQuery: vi.fn().mockResolvedValue([
+        {
+          entry: {
+            id: "f9ed12f4-1111-4aaa-8aaa-aaaaaaaaaaaa",
+            text: "memory-audit-probe-ambiguous-id-run-12345678",
+            vector: [0.1, 0.2],
+            importance: 0.1,
+            category: "other",
+            type: "episodic",
+            metadata: {
+              source: "memory_audit",
+              ops: { scopeSubject: "agent:main", kind: "audit" },
+            },
+            createdAt: now,
+            updatedAt: now,
+          },
+          score: 1,
+          vectorScore: 1,
+        },
+        {
+          entry: {
+            id: "f9ed12f4-2222-4bbb-8bbb-bbbbbbbbbbbb",
+            text: "memory-audit-probe-ambiguous-id-run-87654321",
+            vector: [0.1, 0.2],
+            importance: 0.1,
+            category: "other",
+            type: "episodic",
+            metadata: {
+              source: "memory_audit",
+              ops: { scopeSubject: "agent:main", kind: "audit" },
+            },
+            createdAt: now,
+            updatedAt: now,
+          },
+          score: 1,
+          vectorScore: 1,
+        },
+      ]),
+    });
+
+    const result = await service.memoryAudit({
+      scopeSubject: "agent:main",
+      runId: "ambiguous-id-run",
+      cleanupOnSuccess: true,
+    });
+
+    expect(result.pass).toBe(false);
+    expect(result.reason).toBe("ambiguous_stored_id_prefix");
+    expect(db.delete).not.toHaveBeenCalled();
   });
 });
