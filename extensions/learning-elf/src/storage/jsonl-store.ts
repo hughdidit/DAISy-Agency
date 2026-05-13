@@ -1,7 +1,12 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { resolveLearningElfStateDir } from "../../config.js";
-import type { LearningCollection, LearningRecord, LearningStore } from "./store.js";
+import type {
+  LearningCollection,
+  LearningCollectionRecordMap,
+  LearningRecord,
+  LearningStore,
+} from "./store.js";
 
 const COLLECTION_FILES: Record<LearningCollection, string> = {
   elf_learning_events: "elf_learning_events.jsonl",
@@ -33,10 +38,10 @@ export class JsonlLearningStore implements LearningStore {
     return path.join(this.rootDir, COLLECTION_FILES[collection]);
   }
 
-  async saveRecord<T extends LearningRecord>(
-    collection: LearningCollection,
-    record: T,
-  ): Promise<T> {
+  async saveRecord<C extends LearningCollection>(
+    collection: C,
+    record: LearningCollectionRecordMap[C],
+  ): Promise<LearningCollectionRecordMap[C]> {
     return this.withCollectionWriteLock(collection, async () => {
       await fs.mkdir(this.rootDir, { recursive: true, mode: 0o700 });
       const index = await this.getCollectionIndex(collection);
@@ -44,7 +49,7 @@ export class JsonlLearningStore implements LearningStore {
       const found = idempotencyKey ? index.byIdempotencyKey.get(idempotencyKey) : undefined;
       const foundById = found ?? index.byId.get(record.id);
       if (foundById) {
-        return foundById as T;
+        return foundById as LearningCollectionRecordMap[C];
       }
       await fs.appendFile(this.resolveCollectionPath(collection), `${JSON.stringify(record)}\n`, {
         encoding: "utf8",
@@ -58,7 +63,9 @@ export class JsonlLearningStore implements LearningStore {
     });
   }
 
-  async listRecords<T extends LearningRecord>(collection: LearningCollection): Promise<T[]> {
+  async listRecords<C extends LearningCollection>(
+    collection: C,
+  ): Promise<Array<LearningCollectionRecordMap[C]>> {
     const filePath = this.resolveCollectionPath(collection);
     let text = "";
     try {
@@ -69,7 +76,7 @@ export class JsonlLearningStore implements LearningStore {
       }
       throw error;
     }
-    const parsed: T[] = [];
+    const parsed: Array<LearningCollectionRecordMap[C]> = [];
     for (const rawLine of text.split("\n")) {
       const line = rawLine.trim();
       if (!line) {
@@ -87,18 +94,18 @@ export class JsonlLearningStore implements LearningStore {
         !Array.isArray(value) &&
         typeof (value as { id?: unknown }).id === "string"
       ) {
-        parsed.push(value as T);
+        parsed.push(value as LearningCollectionRecordMap[C]);
       }
     }
     return parsed;
   }
 
-  async getRecordById<T extends LearningRecord>(
-    collection: LearningCollection,
+  async getRecordById<C extends LearningCollection>(
+    collection: C,
     id: string,
-  ): Promise<T | null> {
+  ): Promise<LearningCollectionRecordMap[C] | null> {
     const index = await this.getCollectionIndex(collection);
-    return (index.byId.get(id) as T | undefined) ?? null;
+    return (index.byId.get(id) as LearningCollectionRecordMap[C] | undefined) ?? null;
   }
 
   private async getCollectionIndex(collection: LearningCollection): Promise<CollectionIndex> {
@@ -106,7 +113,7 @@ export class JsonlLearningStore implements LearningStore {
     if (cached) {
       return cached;
     }
-    const records = await this.listRecords<RecordWithIdempotency>(collection);
+    const records = (await this.listRecords(collection)) as RecordWithIdempotency[];
     const index: CollectionIndex = {
       byId: new Map(records.map((record) => [record.id, record])),
       byIdempotencyKey: new Map(

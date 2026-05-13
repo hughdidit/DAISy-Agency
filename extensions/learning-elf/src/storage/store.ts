@@ -27,13 +27,28 @@ export type LearningRecord =
   | NegativeTestCandidate
   | MapeKTrace;
 
+export type LearningCollectionRecordMap = {
+  elf_learning_events: LearningEvent;
+  elf_candidate_genomes: CandidateGenome;
+  elf_evolution_runs: EvolutionRun;
+  elf_fitness_results: FitnessResult;
+  elf_promotion_candidates: PromotionCandidate;
+  elf_negative_test_candidates: NegativeTestCandidate;
+  elf_mapek_traces: MapeKTrace;
+};
+
 export type LearningStore = {
   backend: StoreBackend;
-  saveRecord<T extends LearningRecord>(collection: LearningCollection, record: T): Promise<T>;
-  listRecords<T extends LearningRecord>(collection: LearningCollection): Promise<T[]>;
-  getRecordById<T extends LearningRecord>(
-    collection: LearningCollection,
+  saveRecord<C extends LearningCollection>(
+    collection: C,
+    record: LearningCollectionRecordMap[C],
+  ): Promise<LearningCollectionRecordMap[C]>;
+  listRecords<C extends LearningCollection>(
+    collection: C,
+  ): Promise<Array<LearningCollectionRecordMap[C]>>;
+  getRecordById<C extends LearningCollection>(
+    collection: C,
     id: string,
-  ): Promise<T | null>;
+  ): Promise<LearningCollectionRecordMap[C] | null>;
   resolveCollectionPath?(collection: LearningCollection): string;
 };

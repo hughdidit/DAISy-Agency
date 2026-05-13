@@ -1,6 +1,10 @@
 import fs from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
+import {
+  DEFAULT_MEMORY_AUTONOMY_POLICY,
+  type MemoryAutonomyPolicy,
+} from "./memory-autonomy-types.js";
 import { defaultSupportedMimeTypes } from "./payload-chunker.js";
 
 type StdioEnv = {
@@ -64,6 +68,7 @@ export type MemoryOpsConfig = {
   supportedDocumentMimeTypes: string[];
   maxInlineDocumentBytesByMime: Record<string, number>;
   schemaMode: "migrate-in-place" | "strict-validator" | "additive";
+  autonomy?: MemoryAutonomyPolicy;
 };
 
 export const MEMORY_CATEGORIES = ["preference", "fact", "decision", "entity", "other"] as const;
@@ -411,6 +416,72 @@ function parseInlineDocumentBytesByMime(value: unknown): Record<string, number> 
   return result;
 }
 
+function parseAutonomyPolicy(value: unknown): MemoryAutonomyPolicy {
+  if (value === undefined) {
+    return { ...DEFAULT_MEMORY_AUTONOMY_POLICY };
+  }
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error("ops.autonomy must be an object");
+  }
+  const raw = value as Record<string, unknown>;
+  assertAllowedKeys(
+    raw,
+    [
+      "autoCapture",
+      "autoScore",
+      "autoDedupe",
+      "autoCompact",
+      "autoPrune",
+      "autoPromote",
+      "secretAutoCapture",
+      "crossScopePromotion",
+    ],
+    "ops.autonomy",
+  );
+  return {
+    autoCapture: parseBoolean(
+      raw.autoCapture,
+      "ops.autonomy.autoCapture",
+      DEFAULT_MEMORY_AUTONOMY_POLICY.autoCapture,
+    ),
+    autoScore: parseBoolean(
+      raw.autoScore,
+      "ops.autonomy.autoScore",
+      DEFAULT_MEMORY_AUTONOMY_POLICY.autoScore,
+    ),
+    autoDedupe: parseBoolean(
+      raw.autoDedupe,
+      "ops.autonomy.autoDedupe",
+      DEFAULT_MEMORY_AUTONOMY_POLICY.autoDedupe,
+    ),
+    autoCompact: parseBoolean(
+      raw.autoCompact,
+      "ops.autonomy.autoCompact",
+      DEFAULT_MEMORY_AUTONOMY_POLICY.autoCompact,
+    ),
+    autoPrune: parseBoolean(
+      raw.autoPrune,
+      "ops.autonomy.autoPrune",
+      DEFAULT_MEMORY_AUTONOMY_POLICY.autoPrune,
+    ),
+    autoPromote: parseBoolean(
+      raw.autoPromote,
+      "ops.autonomy.autoPromote",
+      DEFAULT_MEMORY_AUTONOMY_POLICY.autoPromote,
+    ),
+    secretAutoCapture: parseBoolean(
+      raw.secretAutoCapture,
+      "ops.autonomy.secretAutoCapture",
+      DEFAULT_MEMORY_AUTONOMY_POLICY.secretAutoCapture,
+    ),
+    crossScopePromotion: parseBoolean(
+      raw.crossScopePromotion,
+      "ops.autonomy.crossScopePromotion",
+      DEFAULT_MEMORY_AUTONOMY_POLICY.crossScopePromotion,
+    ),
+  };
+}
+
 export function vectorDimsForModel(model: string): number {
   const dims = GEMINI_EMBEDDING_DIMENSIONS[model];
   if (!dims) {
@@ -631,6 +702,7 @@ export const memoryConfigSchema = {
           "supportedDocumentMimeTypes",
           "maxInlineDocumentBytesByMime",
           "schemaMode",
+          "autonomy",
         ],
         "ops config",
       );
@@ -829,6 +901,7 @@ export const memoryConfigSchema = {
           rawOps?.maxInlineDocumentBytesByMime,
         ),
         schemaMode: parseSchemaMode(rawOps?.schemaMode, "ops.schemaMode"),
+        autonomy: parseAutonomyPolicy(rawOps?.autonomy),
       },
     };
   },
@@ -998,6 +1071,11 @@ export const memoryConfigSchema = {
       placeholder: DEFAULT_OPS_SCHEMA_MODE,
       advanced: true,
       help: "Schema rollout mode for memory-ops metadata contracts",
+    },
+    "ops.autonomy": {
+      label: "Memory Autonomy Policy",
+      advanced: true,
+      help: "Self-administered non-secret capture, scoring, dedupe, and compaction defaults",
     },
   },
 };

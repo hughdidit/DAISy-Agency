@@ -243,6 +243,15 @@ const entries: SubCliEntry[] = [
     },
   },
   {
+    name: "memory",
+    description: "Self-administering DAISy memory commands",
+    hasSubcommands: true,
+    register: async (program) => {
+      const { registerPluginCliCommands } = await import("../../plugins/cli.js");
+      registerPluginCliCommands(program, await loadConfig());
+    },
+  },
+  {
     name: "elf",
     description: "DAISy Evolutionary Learning Fabric commands",
     hasSubcommands: true,

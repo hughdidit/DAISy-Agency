@@ -14,7 +14,7 @@ export type PromotionState =
   | "canonized";
 
 export type SourceRef = {
-  type: "fixture" | "repo" | "trace" | "promotion";
+  type: "fixture" | "repo" | "trace" | "promotion" | "memory";
   ref: string;
 };
 

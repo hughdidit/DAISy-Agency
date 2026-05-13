@@ -15,7 +15,7 @@ import { createMapeKTrace } from "./trace.js";
 
 export function createLearningStore(config: LearningElfConfig): LearningStore {
   return config.storageBackend === "mcp"
-    ? new McpLearningStore()
+    ? new McpLearningStore({ databaseName: config.mcp?.databaseName })
     : new JsonlLearningStore({ stateDir: config.stateDir });
 }
 

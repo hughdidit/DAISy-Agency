@@ -4,16 +4,16 @@ import type { Command } from "commander";
 import type { LearningElfConfig } from "../config.js";
 import { createLearningStore, runFixtureEvolution } from "./mapek/loop.js";
 import { CandidateGenomeSchema, LearningEventSchema } from "./models/schemas.js";
-import type {
-  CandidateGenome,
-  LearningEvent,
-  FitnessResult,
-  MapeKTrace,
-  PromotionCandidate,
-} from "./models/types.js";
+import type { CandidateGenome, LearningEvent } from "./models/types.js";
 import { validateWithSchema } from "./models/validation.js";
 import { exportPromotionMarkdown } from "./promotion/markdown-export.js";
+import {
+  ElfProposalService,
+  FixtureGitHubProposalProvider,
+  GhCliGitHubProposalProvider,
+} from "./promotion/github-proposal.js";
 import { assertNoSecrets } from "./security/secret-scanner.js";
+import { createLlmEvolutionProvider } from "./generation/llm-provider.js";
 
 type Logger = {
   info?: (message: string) => void;
@@ -107,13 +107,32 @@ export function registerElfCli(params: {
     .requiredOption("--generations <n>", "Generation count")
     .requiredOption("--population <n>", "Population size")
     .requiredOption("--seed <n>", "Deterministic seed")
+    .option("--live-llm", "Use configured live LLM evolution provider")
+    .option("--source <source>", "Learning source for live LLM mode", "fixture")
     .action(
       async (options: {
         fixture: string;
         generations: string;
         population: string;
         seed: string;
+        liveLlm?: boolean;
+        source?: "memory" | "trace" | "fixture";
       }) => {
+        let liveCandidateIds: string[] = [];
+        if (options.liveLlm === true) {
+          const provider = createLlmEvolutionProvider(params.config);
+          const result = await provider.generateCandidates({
+            prompt: `Generate DAISy ELF candidates from ${options.source ?? "fixture"} evidence.`,
+            model: params.config.llmEvolution?.modelAllowlist[0] ?? "not-configured",
+            sourceRefs: [{ type: options.source ?? "fixture", ref: options.fixture }],
+            maxCandidates: params.config.llmEvolution?.maxCandidateCount ?? 1,
+          });
+          const store = createLearningStore(params.config);
+          for (const candidate of result.candidates) {
+            await store.saveRecord("elf_candidate_genomes", candidate);
+            liveCandidateIds.push(candidate.id);
+          }
+        }
         const summary = await runFixtureEvolution({
           config: params.config,
           fixturePath: options.fixture,
@@ -121,7 +140,7 @@ export function registerElfCli(params: {
           population: parsePositiveInt(options.population, "population"),
           seed: parsePositiveInt(options.seed, "seed"),
         });
-        printJson(summary);
+        printJson({ ...summary, liveCandidateIds });
       },
     );
 
@@ -132,7 +151,7 @@ export function registerElfCli(params: {
     .description("List stored candidate genomes")
     .action(async () => {
       const store = createLearningStore(params.config);
-      printJson(await store.listRecords<CandidateGenome>("elf_candidate_genomes"));
+      printJson(await store.listRecords("elf_candidate_genomes"));
     });
 
   const promotions = root.command("promotions").description("Promotion queue commands");
@@ -141,7 +160,7 @@ export function registerElfCli(params: {
     .description("List promotion candidates")
     .action(async () => {
       const store = createLearningStore(params.config);
-      printJson(await store.listRecords<PromotionCandidate>("elf_promotion_candidates"));
+      printJson(await store.listRecords("elf_promotion_candidates"));
     });
 
   promotions
@@ -151,22 +170,22 @@ export function registerElfCli(params: {
     .requiredOption("--out <path>", "Markdown output path")
     .action(async (options: { promotionId: string; out: string }) => {
       const store = createLearningStore(params.config);
-      const promotion = await store.getRecordById<PromotionCandidate>(
+      const promotion = await store.getRecordById(
         "elf_promotion_candidates",
         options.promotionId,
       );
       if (!promotion) {
         throw new Error(`Promotion not found: ${options.promotionId}`);
       }
-      const candidate = await store.getRecordById<CandidateGenome>(
+      const candidate = await store.getRecordById(
         "elf_candidate_genomes",
         promotion.candidateId,
       );
-      const fitness = await store.getRecordById<FitnessResult>(
+      const fitness = await store.getRecordById(
         "elf_fitness_results",
         promotion.fitnessResultId,
       );
-      const traces = await store.listRecords<MapeKTrace>("elf_mapek_traces");
+      const traces = await store.listRecords("elf_mapek_traces");
       const trace = traces.find((entry) => entry.runId === promotion.runId) ?? null;
       if (!candidate || !fitness) {
         throw new Error(`Promotion ${promotion.id} is missing candidate or fitness records`);
@@ -189,11 +208,81 @@ export function registerElfCli(params: {
     .requiredOption("--run-id <id>", "Evolution run ID")
     .action(async (options: { runId: string }) => {
       const store = createLearningStore(params.config);
-      const traces = await store.listRecords<MapeKTrace>("elf_mapek_traces");
+      const traces = await store.listRecords("elf_mapek_traces");
       const trace = traces.find((entry) => entry.runId === options.runId);
       if (!trace) {
         throw new Error(`Trace not found for run: ${options.runId}`);
       }
       printJson(trace);
     });
+
+  const proposals = root.command("proposals").description("Governed ELF proposal PR commands");
+  proposals
+    .command("create-pr")
+    .description("Create a draft GitHub PR for a queued promotion proposal")
+    .requiredOption("--promotion-id <id>", "Promotion candidate ID")
+    .option("--draft", "Create as draft", true)
+    .option("--out-dir <path>", "Proposal output directory")
+    .option("--fixture-provider", "Use fixture GitHub provider for offline verification")
+    .action(
+      async (options: {
+        promotionId: string;
+        draft?: boolean;
+        outDir?: string;
+        fixtureProvider?: boolean;
+      }) => {
+        const store = createLearningStore(params.config);
+        const provider =
+          options.fixtureProvider === true
+            ? new FixtureGitHubProposalProvider()
+            : new GhCliGitHubProposalProvider();
+        const service = new ElfProposalService(
+          params.config.githubProposals!,
+          store,
+          provider,
+        );
+        printJson(
+          await service.createPr({
+            promotionId: options.promotionId,
+            draft: options.draft,
+            outputDir: options.outDir,
+          }),
+        );
+      },
+    );
+
+  proposals
+    .command("update-pr")
+    .description("Update an existing ELF proposal PR with fresh evidence")
+    .requiredOption("--promotion-id <id>", "Promotion candidate ID")
+    .requiredOption("--pr <number>", "Pull request number")
+    .option("--out-dir <path>", "Proposal output directory")
+    .option("--fixture-provider", "Use fixture GitHub provider for offline verification")
+    .action(
+      async (options: {
+        promotionId: string;
+        pr: string;
+        outDir?: string;
+        fixtureProvider?: boolean;
+      }) => {
+        const prNumber = parsePositiveInt(options.pr, "pr");
+        const store = createLearningStore(params.config);
+        const provider =
+          options.fixtureProvider === true
+            ? new FixtureGitHubProposalProvider()
+            : new GhCliGitHubProposalProvider();
+        const service = new ElfProposalService(
+          params.config.githubProposals!,
+          store,
+          provider,
+        );
+        printJson(
+          await service.updatePr({
+            promotionId: options.promotionId,
+            prNumber,
+            outputDir: options.outDir,
+          }),
+        );
+      },
+    );
 }
