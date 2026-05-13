@@ -34,8 +34,12 @@ async function readCandidateDirectory(dir: string): Promise<unknown[]> {
   let entries: string[] = [];
   try {
     entries = await fs.readdir(dir);
-  } catch {
-    return [];
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+      return [];
+    }
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to read ELF candidate fixture directory ${dir}: ${message}`);
   }
   const values: unknown[] = [];
   for (const entry of entries.sort()) {
@@ -73,7 +77,7 @@ export class FixtureProvider implements CandidateProvider {
       }
       validationFailures.push({
         file: resolved,
-        errors: candidate.errors,
+        errors: [...event.errors, ...candidate.errors],
       });
     }
 

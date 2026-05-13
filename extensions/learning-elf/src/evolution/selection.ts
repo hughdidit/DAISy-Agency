@@ -5,6 +5,9 @@ export function selectPromotionEligible(params: {
   fitnessResults: FitnessResult[];
   limit: number;
 }): CandidateGenome[] {
+  if (!Number.isInteger(params.limit) || params.limit < 0) {
+    throw new RangeError("limit must be a non-negative integer");
+  }
   const resultByCandidate = new Map(
     params.fitnessResults.map((result) => [result.candidateId, result]),
   );

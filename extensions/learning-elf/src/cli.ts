@@ -47,8 +47,11 @@ async function readPayloads(filePath: string): Promise<unknown[]> {
 }
 
 function parsePositiveInt(value: string, label: string): number {
-  const parsed = Number.parseInt(value, 10);
-  if (!Number.isFinite(parsed) || parsed < 1) {
+  if (!/^\d+$/.test(value)) {
+    throw new Error(`${label} must be a positive integer`);
+  }
+  const parsed = Number(value);
+  if (!Number.isSafeInteger(parsed) || parsed < 1) {
     throw new Error(`${label} must be a positive integer`);
   }
   return parsed;

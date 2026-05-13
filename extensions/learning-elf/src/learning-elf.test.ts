@@ -7,6 +7,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { getSubCliEntries } from "../../../src/cli/program/register.subclis.js";
 import { registerElfCli } from "./cli.js";
 import { evaluateCandidate } from "./evaluation/evaluator.js";
+import { evolvePopulation } from "./evolution/engine.js";
 import { mutateGenome } from "./evolution/mutation.js";
 import { SeededRng } from "./evolution/rng.js";
 import { FixtureProvider } from "./generation/fixture-provider.js";
@@ -155,6 +156,27 @@ describe("DAISy ELF schemas and security", () => {
         rng: new SeededRng(7),
       }),
     ).toBeNull();
+  });
+
+  it("preserves seed zero as a deterministic RNG stream", () => {
+    const seededZero = new SeededRng(0).next();
+    const fallback = new SeededRng(Number.NaN).next();
+
+    expect(seededZero).not.toBe(fallback);
+    expect(seededZero).toBe(new SeededRng(0).next());
+  });
+
+  it("generates mutations in addition to fixture seed candidates", async () => {
+    const safe = await readFixture<CandidateGenome>(safeFixture);
+    const candidates = evolvePopulation({
+      seed: 9,
+      generations: 2,
+      population: 3,
+      initialCandidates: [safe],
+    });
+
+    expect(candidates.length).toBeGreaterThan(1);
+    expect(candidates.some((candidate) => candidate.id !== safe.id)).toBe(true);
   });
 
   it("uses security gates as hard disqualification even with useful strategy shape", async () => {
@@ -389,6 +411,35 @@ describe("DAISy ELF CLI", () => {
       console.log = originalLog;
     }
   });
+
+  it("rejects partially numeric CLI integer options", async () => {
+    const stateDir = await makeTempStateDir();
+    const program = new Command();
+    program.exitOverride();
+    registerElfCli({
+      program,
+      config: { enabled: true, storageBackend: "jsonl", stateDir },
+      logger: {},
+    });
+
+    await expect(
+      program.parseAsync(
+        [
+          "elf",
+          "evolve",
+          "--fixture",
+          eventFixture,
+          "--generations",
+          "2abc",
+          "--population",
+          "10",
+          "--seed",
+          "77",
+        ],
+        { from: "user" },
+      ),
+    ).rejects.toThrow(/generations must be a positive integer/);
+  });
 });
 
 describe("DAISy ELF JSONL storage", () => {
@@ -403,5 +454,25 @@ describe("DAISy ELF JSONL storage", () => {
     const records = await store.listRecords<CandidateGenome>("elf_candidate_genomes");
     expect(records).toHaveLength(1);
     expect(records[0]?.id).toBe(safe.id);
+  });
+
+  it("serializes concurrent idempotent writes and skips malformed JSONL lines", async () => {
+    const stateDir = await makeTempStateDir();
+    const store = new JsonlLearningStore({ stateDir });
+    const safe = await readFixture<CandidateGenome>(safeFixture);
+
+    await Promise.all([
+      store.saveRecord("elf_candidate_genomes", safe),
+      store.saveRecord("elf_candidate_genomes", { ...safe, id: "candidate_concurrent_duplicate" }),
+    ]);
+    await fs.appendFile(
+      store.resolveCollectionPath("elf_candidate_genomes"),
+      "not-json\n[]\n{\"missingId\":true}\n",
+      "utf8",
+    );
+
+    const records = await store.listRecords<CandidateGenome>("elf_candidate_genomes");
+    expect(records).toHaveLength(1);
+    expect(await store.getRecordById("elf_candidate_genomes", safe.id)).toEqual(safe);
   });
 });

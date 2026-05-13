@@ -2,7 +2,7 @@ export class SeededRng {
   private state: number;
 
   constructor(seed: number) {
-    this.state = seed >>> 0 || 0x6d2b79f5;
+    this.state = Number.isFinite(seed) ? Math.trunc(seed) >>> 0 : 0x6d2b79f5;
   }
 
   next(): number {

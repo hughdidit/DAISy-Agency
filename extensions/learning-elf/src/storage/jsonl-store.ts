@@ -23,6 +23,7 @@ export class JsonlLearningStore implements LearningStore {
   readonly backend = "jsonl" as const;
   private readonly rootDir: string;
   private readonly indexes = new Map<LearningCollection, CollectionIndex>();
+  private readonly writeChain = new Map<LearningCollection, Promise<void>>();
 
   constructor(params?: { stateDir?: string }) {
     this.rootDir = resolveLearningElfStateDir({ stateDir: params?.stateDir });
@@ -36,23 +37,25 @@ export class JsonlLearningStore implements LearningStore {
     collection: LearningCollection,
     record: T,
   ): Promise<T> {
-    await fs.mkdir(this.rootDir, { recursive: true, mode: 0o700 });
-    const index = await this.getCollectionIndex(collection);
-    const idempotencyKey = (record as RecordWithIdempotency).idempotencyKey;
-    const found = idempotencyKey ? index.byIdempotencyKey.get(idempotencyKey) : undefined;
-    const foundById = found ?? index.byId.get(record.id);
-    if (foundById) {
-      return foundById as T;
-    }
-    await fs.appendFile(this.resolveCollectionPath(collection), `${JSON.stringify(record)}\n`, {
-      encoding: "utf8",
-      mode: 0o600,
+    return this.withCollectionWriteLock(collection, async () => {
+      await fs.mkdir(this.rootDir, { recursive: true, mode: 0o700 });
+      const index = await this.getCollectionIndex(collection);
+      const idempotencyKey = (record as RecordWithIdempotency).idempotencyKey;
+      const found = idempotencyKey ? index.byIdempotencyKey.get(idempotencyKey) : undefined;
+      const foundById = found ?? index.byId.get(record.id);
+      if (foundById) {
+        return foundById as T;
+      }
+      await fs.appendFile(this.resolveCollectionPath(collection), `${JSON.stringify(record)}\n`, {
+        encoding: "utf8",
+        mode: 0o600,
+      });
+      index.byId.set(record.id, record);
+      if (idempotencyKey) {
+        index.byIdempotencyKey.set(idempotencyKey, record);
+      }
+      return record;
     });
-    index.byId.set(record.id, record);
-    if (idempotencyKey) {
-      index.byIdempotencyKey.set(idempotencyKey, record);
-    }
-    return record;
   }
 
   async listRecords<T extends LearningRecord>(collection: LearningCollection): Promise<T[]> {
@@ -66,19 +69,36 @@ export class JsonlLearningStore implements LearningStore {
       }
       throw error;
     }
-    return text
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean)
-      .map((line) => JSON.parse(line) as T);
+    const parsed: T[] = [];
+    for (const rawLine of text.split("\n")) {
+      const line = rawLine.trim();
+      if (!line) {
+        continue;
+      }
+      let value: unknown;
+      try {
+        value = JSON.parse(line);
+      } catch {
+        continue;
+      }
+      if (
+        value &&
+        typeof value === "object" &&
+        !Array.isArray(value) &&
+        typeof (value as { id?: unknown }).id === "string"
+      ) {
+        parsed.push(value as T);
+      }
+    }
+    return parsed;
   }
 
   async getRecordById<T extends LearningRecord>(
     collection: LearningCollection,
     id: string,
   ): Promise<T | null> {
-    const records = await this.listRecords<T>(collection);
-    return records.find((record) => record.id === id) ?? null;
+    const index = await this.getCollectionIndex(collection);
+    return (index.byId.get(id) as T | undefined) ?? null;
   }
 
   private async getCollectionIndex(collection: LearningCollection): Promise<CollectionIndex> {
@@ -99,5 +119,29 @@ export class JsonlLearningStore implements LearningStore {
     };
     this.indexes.set(collection, index);
     return index;
+  }
+
+  private async withCollectionWriteLock<T>(
+    collection: LearningCollection,
+    action: () => Promise<T>,
+  ): Promise<T> {
+    const previous = this.writeChain.get(collection) ?? Promise.resolve();
+    let release!: () => void;
+    const next = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    this.writeChain.set(
+      collection,
+      previous.then(
+        () => next,
+        () => next,
+      ),
+    );
+    await previous.catch(() => undefined);
+    try {
+      return await action();
+    } finally {
+      release();
+    }
   }
 }

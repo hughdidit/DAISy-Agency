@@ -18,8 +18,19 @@ const SECRET_PATTERNS: Array<{ label: string; regex: RegExp }> = [
   { label: "Bearer", regex: /Bearer\s+[A-Za-z0-9._~+/=-]+/i },
 ];
 
+function toScanText(value: unknown): string {
+  if (typeof value === "string") {
+    return value;
+  }
+  try {
+    return JSON.stringify(value) ?? String(value);
+  } catch {
+    return String(value);
+  }
+}
+
 export function scanForSecrets(value: unknown): SecretFinding[] {
-  const text = typeof value === "string" ? value : JSON.stringify(value);
+  const text = toScanText(value);
   return SECRET_PATTERNS.filter((pattern) => pattern.regex.test(text)).map((pattern) => ({
     pattern: pattern.label,
     message: `Secret-like content rejected: ${pattern.label}`,
