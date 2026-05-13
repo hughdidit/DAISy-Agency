@@ -11,6 +11,10 @@ import { evolvePopulation } from "./evolution/engine.js";
 import { mutateGenome } from "./evolution/mutation.js";
 import { SeededRng } from "./evolution/rng.js";
 import { FixtureProvider } from "./generation/fixture-provider.js";
+import {
+  ConfiguredLiveLlmEvolutionProvider,
+  FixtureLlmEvolutionProvider,
+} from "./generation/llm-provider.js";
 import { runFixtureEvolution } from "./mapek/loop.js";
 import { stableHash } from "./models/ids.js";
 import { CandidateGenomeSchema, MapeKTraceSchema } from "./models/schemas.js";
@@ -21,11 +25,13 @@ import type {
   PromotionCandidate,
 } from "./models/types.js";
 import { validateWithSchema } from "./models/validation.js";
+import { ElfProposalService, FixtureGitHubProposalProvider } from "./promotion/github-proposal.js";
 import { assertElfMaySetState, assertPromotionTransition } from "./promotion/lifecycle.js";
 import { createPromotionCandidate } from "./promotion/promotion-queue.js";
 import { assertMutationAllowed, detectForbiddenMutations } from "./security/forbidden-mutations.js";
 import { scanForSecrets } from "./security/secret-scanner.js";
 import { JsonlLearningStore } from "./storage/jsonl-store.js";
+import { LEARNING_COLLECTION_RECORD_MAP, McpLearningStore } from "./storage/mcp-store.js";
 
 const fixtureRoot = path.dirname(fileURLToPath(import.meta.url));
 const eventFixture = path.join(
@@ -244,7 +250,7 @@ describe("DAISy ELF fixture evolution", () => {
     expect(first.disqualifiedCount).toBeGreaterThan(0);
 
     const store = new JsonlLearningStore({ stateDir: firstState });
-    const traces = await store.listRecords<MapeKTrace>("elf_mapek_traces");
+    const traces = await store.listRecords("elf_mapek_traces");
     expect(traces).toHaveLength(1);
     expect(validateWithSchema<MapeKTrace>(MapeKTraceSchema, traces[0]).ok).toBe(true);
     expect(traces[0]?.execute.directCanonicalWrites).toBe(false);
@@ -262,9 +268,9 @@ describe("DAISy ELF fixture evolution", () => {
       seed: 42,
     });
     const store = new JsonlLearningStore({ stateDir });
-    const promotions = await store.listRecords<PromotionCandidate>("elf_promotion_candidates");
-    const candidates = await store.listRecords<CandidateGenome>("elf_candidate_genomes");
-    const fitness = await store.listRecords<FitnessResult>("elf_fitness_results");
+    const promotions = await store.listRecords("elf_promotion_candidates");
+    const candidates = await store.listRecords("elf_candidate_genomes");
+    const fitness = await store.listRecords("elf_fitness_results");
 
     expect(promotions.some((promotion) => promotion.state === "promotion_queued")).toBe(true);
     expect(candidates.some((candidate) => candidate.id === "candidate_unsafe_secret_storage")).toBe(
@@ -476,6 +482,41 @@ describe("DAISy ELF CLI", () => {
       ),
     ).rejects.toThrow(/generations must be a positive integer/);
   });
+
+  it("creates proposal PR artifacts through a governed fixture provider", async () => {
+    const stateDir = await makeTempStateDir();
+    const summary = await runFixtureEvolution({
+      config: { enabled: true, storageBackend: "jsonl", stateDir },
+      fixturePath: eventFixture,
+      generations: 1,
+      population: 8,
+      seed: 88,
+    });
+    const store = new JsonlLearningStore({ stateDir });
+    const service = new ElfProposalService(
+      {
+        enabled: true,
+        branchPrefix: "codex/elf-proposal/",
+        labels: ["learning", "capability-proposal"],
+        draftDefault: true,
+        allowedProposalPaths: [stateDir.replace(/\\/g, "/")],
+        forbiddenPathGlobs: [".github/workflows/"],
+      },
+      store,
+      new FixtureGitHubProposalProvider(),
+    );
+
+    const result = await service.createPr({
+      promotionId: summary.promotionIds[0] ?? "",
+      outputDir: stateDir,
+    });
+
+    expect(result.draft).toBe(true);
+    expect(result.prUrl).toContain("/pull/1");
+    expect(await fs.readFile(result.proposalPath, "utf8")).toContain(
+      "Direct canonical writes performed: false",
+    );
+  });
 });
 
 describe("DAISy ELF JSONL storage", () => {
@@ -487,7 +528,7 @@ describe("DAISy ELF JSONL storage", () => {
     await store.saveRecord("elf_candidate_genomes", safe);
     await store.saveRecord("elf_candidate_genomes", { ...safe, id: "candidate_duplicate_id" });
 
-    const records = await store.listRecords<CandidateGenome>("elf_candidate_genomes");
+    const records = await store.listRecords("elf_candidate_genomes");
     expect(records).toHaveLength(1);
     expect(records[0]?.id).toBe(safe.id);
   });
@@ -507,8 +548,89 @@ describe("DAISy ELF JSONL storage", () => {
       "utf8",
     );
 
-    const records = await store.listRecords<CandidateGenome>("elf_candidate_genomes");
+    const records = await store.listRecords("elf_candidate_genomes");
     expect(records).toHaveLength(1);
     expect(await store.getRecordById("elf_candidate_genomes", safe.id)).toEqual(safe);
+  });
+});
+
+describe("DAISy ELF Phase 2 providers", () => {
+  it("maps MCP learning collections to their record types", () => {
+    expect(LEARNING_COLLECTION_RECORD_MAP.elf_learning_events).toBe("LearningEvent");
+    expect(LEARNING_COLLECTION_RECORD_MAP.elf_mapek_traces).toBe("MapeKTrace");
+  });
+
+  it("uses MCP storage idempotency through an injected MCP record client", async () => {
+    const safe = await readFixture<CandidateGenome>(safeFixture);
+    const documents: Record<string, Array<Record<string, unknown>>> = {};
+    const client = {
+      async insertMany(
+        _database: string,
+        collection: string,
+        records: Array<Record<string, unknown>>,
+      ) {
+        documents[collection] = [...(documents[collection] ?? []), ...records];
+        return records.length;
+      },
+      async aggregate(_database: string, collection: string, pipeline: unknown[]) {
+        const records = documents[collection] ?? [];
+        const firstStage = Array.isArray(pipeline) ? pipeline[0] : undefined;
+        const match =
+          firstStage &&
+          typeof firstStage === "object" &&
+          !Array.isArray(firstStage) &&
+          "$match" in firstStage
+            ? (firstStage as { $match: Record<string, unknown> }).$match
+            : undefined;
+        if (!match) {
+          return records;
+        }
+        return records.filter((record) =>
+          Object.entries(match).every(([key, value]) => record[key] === value),
+        );
+      },
+      async updateMany() {
+        return { matchedCount: 0, modifiedCount: 0 };
+      },
+    };
+    const store = new McpLearningStore({ client, databaseName: "fixture_learning" });
+
+    await store.saveRecord("elf_candidate_genomes", safe);
+    await store.saveRecord("elf_candidate_genomes", { ...safe, id: "candidate_duplicate" });
+
+    expect(await store.listRecords("elf_candidate_genomes")).toHaveLength(1);
+  });
+
+  it("treats live LLM outputs as gated candidate artifacts", async () => {
+    const safe = await readFixture<CandidateGenome>(safeFixture);
+    const provider = new ConfiguredLiveLlmEvolutionProvider(
+      {
+        enabled: true,
+        provider: "live",
+        modelAllowlist: ["fixture-model"],
+        maxCandidateCount: 2,
+        timeoutMs: 1_000,
+        tokenBudget: 2_000,
+      },
+      new FixtureLlmEvolutionProvider([safe]),
+    );
+
+    const result = await provider.generateCandidates({
+      prompt: "Generate a safe review strategy",
+      model: "fixture-model",
+      sourceRefs: [{ type: "memory", ref: "memory:1" }],
+      maxCandidates: 1,
+    });
+
+    expect(result.provider).toBe("live");
+    expect(result.candidates[0]?.id).toBe(safe.id);
+    await expect(
+      provider.generateCandidates({
+        prompt: "Generate a safe review strategy",
+        model: "not-allowed",
+        sourceRefs: [],
+        maxCandidates: 1,
+      }),
+    ).rejects.toThrow(/not allowlisted/);
   });
 });

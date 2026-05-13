@@ -375,6 +375,36 @@ export class MongoMemoryDB {
     return event;
   }
 
+  async patchMemoryOpsMetadata(
+    id: string,
+    patch: Record<string, unknown>,
+  ): Promise<{ matchedCount: number; modifiedCount: number }> {
+    if (!UUID_REGEX.test(id)) {
+      throw new Error(`Invalid memory ID format: ${id}`);
+    }
+    const set: Record<string, unknown> = {
+      updatedAt: Date.now(),
+    };
+    for (const [key, value] of Object.entries(patch)) {
+      if (!/^[A-Za-z][A-Za-z0-9_]*$/.test(key)) {
+        throw new Error(`Invalid metadata.ops patch key: ${key}`);
+      }
+      set[`metadata.ops.${key}`] = value;
+    }
+    return this.mcp.updateMany(
+      this.databaseName,
+      this.collectionName,
+      {
+        _id: id,
+        tenantId: this.routing.tenantId,
+        workspaceId: this.routing.workspaceId,
+      },
+      {
+        $set: set,
+      },
+    );
+  }
+
   async backfillOps(options: MemoryOpsBackfillOptions): Promise<MemoryOpsBackfillResult> {
     const scopeSubject = readString(options.scopeSubject) ?? "agent:daisy";
     const batchSize = clampInteger(options.batchSize, 50, 1, 200);

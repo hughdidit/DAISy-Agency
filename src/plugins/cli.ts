@@ -8,7 +8,16 @@ import type { PluginLogger } from "./types.js";
 
 const log = createSubsystemLogger("plugins");
 
-export function registerPluginCliCommands(program: Command, cfg?: OpenClawConfig) {
+type RegisterPluginCliCommandsOptions = {
+  allowExistingCommandAugmentation?: boolean;
+  onlyCommands?: string[];
+};
+
+export function registerPluginCliCommands(
+  program: Command,
+  cfg?: OpenClawConfig,
+  options: RegisterPluginCliCommandsOptions = {},
+) {
   const config = cfg ?? loadConfig();
   const workspaceDir = resolveAgentWorkspaceDir(config, resolveDefaultAgentId(config));
   const logger: PluginLogger = {
@@ -24,11 +33,20 @@ export function registerPluginCliCommands(program: Command, cfg?: OpenClawConfig
   });
 
   const existingCommands = new Set(program.commands.map((cmd) => cmd.name()));
+  const onlyCommands = new Set((options.onlyCommands ?? []).map((command) => command.trim()));
 
   for (const entry of registry.cliRegistrars) {
+    if (onlyCommands.size > 0 && !entry.commands.some((command) => onlyCommands.has(command))) {
+      continue;
+    }
     if (entry.commands.length > 0) {
       const overlaps = entry.commands.filter((command) => existingCommands.has(command));
-      if (overlaps.length > 0) {
+      const canAugmentExisting =
+        options.allowExistingCommandAugmentation === true &&
+        overlaps.length > 0 &&
+        overlaps.every((command) => onlyCommands.has(command));
+      const allCommandsAlreadyRegistered = overlaps.length === entry.commands.length;
+      if (allCommandsAlreadyRegistered && !canAugmentExisting) {
         log.debug(
           `plugin CLI register skipped (${entry.pluginId}): command already registered (${overlaps.join(
             ", ",

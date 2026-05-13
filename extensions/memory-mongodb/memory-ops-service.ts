@@ -2,6 +2,7 @@ import { createHash, randomUUID } from "node:crypto";
 import type { OpenClawPluginToolContext } from "../../src/plugins/types.js";
 import { isSubagentSessionKey } from "../../src/routing/session-key.js";
 import type { MemoryCategory, MemoryConfig } from "./config.js";
+import { rankMemorySearchResults } from "./memory-autonomy-service.js";
 import type {
   CommitmentTrackerMode,
   MemoryCaptureCandidate,
@@ -15,6 +16,7 @@ import type {
   MemorySensitivity,
   PreferenceMinerMode,
 } from "./memory-ops-types.js";
+import { agentIdFromScopeSubject } from "./memory-utils.js";
 import type { MemoryEntry, MemoryEventInput, MongoMemoryDB } from "./mongodb-provider.js";
 import {
   buildAttachmentManifests,
@@ -175,8 +177,12 @@ export class MemoryOpsService {
       preferencesOnly: input.filters?.preferencesOnly,
       includeSecrets: input.filters?.includeSecrets,
     });
+    const rankedResults = rankMemorySearchResults(
+      results,
+      agentIdFromScopeSubject(input.scopeSubject),
+    );
 
-    const memories = results.slice(0, limit).map((result) => {
+    const memories = rankedResults.slice(0, limit).map((result) => {
       const ops = readOpsMetadata(result.entry);
       const attachments = Array.isArray(ops?.attachments)
         ? ops.attachments.filter((item) => isObject(item))
@@ -194,10 +200,27 @@ export class MemoryOpsService {
         scopeSubject: ops?.scopeSubject,
         score: result.score,
         vectorScore: result.vectorScore,
+        globalPrecedence: result.globalPrecedence,
+        agentPrecedence: result.agentPrecedence,
         modalities: summarizeModalities(attachments),
         attachments,
         metadata: input.filters?.includeMetadata ? result.entry.metadata : undefined,
       };
+    });
+
+    void this.recordEvent({
+      scopeSubject: input.scopeSubject,
+      actor: "memory_recall",
+      operation: "memory_recall_feedback",
+      status: memories.length > 0 ? "observed" : "missed",
+      memoryIds: memories
+        .map((memory) => (typeof memory.id === "string" ? memory.id : null))
+        .filter((id): id is string => typeof id === "string"),
+      summary: `Recall returned ${memories.length} memory record(s).`,
+      details: {
+        queryLength: input.query.length,
+        agentId: agentIdFromScopeSubject(input.scopeSubject),
+      },
     });
 
     return {

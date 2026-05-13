@@ -7,6 +7,7 @@ const SourceRefSchema = Type.Object(
       Type.Literal("repo"),
       Type.Literal("trace"),
       Type.Literal("promotion"),
+      Type.Literal("memory"),
     ]),
     ref: Type.String({ minLength: 1 }),
   },

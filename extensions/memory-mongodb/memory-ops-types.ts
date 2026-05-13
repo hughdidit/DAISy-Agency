@@ -64,6 +64,42 @@ export type MemoryOpsMetadata = {
     key: string;
     value: string;
   };
+  usefulness?: {
+    globalPrecedence: number;
+    finalScore: number;
+    components: Record<string, number>;
+    backfillVersion?: string;
+    backfilledAt?: number;
+    scoredAt?: number;
+  };
+  agentUsefulness?: Record<
+    string,
+    {
+      precedence: number;
+      components: Record<string, number>;
+      lastRecalledAt?: number;
+      recallCount: number;
+      positiveOutcomeCount: number;
+      correctionCount: number;
+    }
+  >;
+  dedupe?: {
+    duplicateOf?: string;
+    retainedMemoryId?: string;
+    reason?: string;
+    appliedAt?: number;
+  };
+  compaction?: {
+    status?: "source" | "summary" | "candidate";
+    compactedInto?: string;
+    sourceMemoryIds?: string[];
+    supersededBy?: string;
+    compactedAt?: number;
+    scoreHistory?: Array<{
+      memoryId: string;
+      finalPrecedence: number;
+    }>;
+  };
 };
 
 export type MemoryCaptureCandidate = {

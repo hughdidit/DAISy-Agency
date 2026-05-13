@@ -11,8 +11,10 @@ Persistent long-term memory for DAISy using MongoDB Atlas through the official M
 - `PayloadChunker`: validates multimodal parts, enforces supported MIME types, shards oversized payloads into Gemini-safe request chunks.
 - `GeminiService`: native `fetch`-based embedding client using `gemini-embedding-2-preview` with output dimensionality fixed to `1536` and manual L2 normalization.
 - `MongoMemoryDB`: memory store/search manager built on MCP + Gemini services.
+- `MemoryAutonomyService`: self-administered ordinary memory scoring, per-agent precedence, dedupe, compaction, and score backfill.
 - `memory_events` collection: append-only lifecycle history for capture, forget,
-  hygiene, promotion, commitment updates, and audit probes.
+  hygiene, promotion, commitment updates, audit probes, usefulness scoring,
+  dedupe, and compaction.
 
 MongoDB access for this plugin is MCP-only. The plugin does not use a direct MongoDB driver path for runtime reads or writes.
 
@@ -39,6 +41,48 @@ Recall path:
 4. During additive rollout, legacy `vector_index` is searched as a compatibility
    fallback when scoped v2 search returns fewer than the requested results.
 5. Top memories are returned to tools/hooks for context construction.
+6. Phase 2 recall ranking combines vector similarity with global usefulness
+   precedence and requesting-agent precedence from `metadata.ops`.
+
+## Memory Autonomy
+
+Phase 2 does not create a new memory record kind for usefulness. It adds optional
+metadata to existing memory records:
+
+- `metadata.ops.usefulness`
+- `metadata.ops.agentUsefulness`
+- `metadata.ops.dedupe`
+- `metadata.ops.compaction`
+
+Autonomy defaults allow ordinary non-secret memories to be captured, scored,
+deduped, compacted, and promoted in recall precedence without per-memory human
+approval. Secret-like content is not auto-captured as ordinary memory.
+
+All autonomous changes are mirrored into append-only `memory_events` operations:
+
+- `memory_usefulness_backfilled`
+- `memory_usefulness_scored`
+- `memory_agent_usefulness_scored`
+- `memory_recall_feedback`
+- `memory_precedence_promoted`
+- `memory_precedence_demoted`
+- `memory_dedupe_applied`
+- `memory_compaction_applied`
+
+Operator commands:
+
+```bash
+openclaw memory autonomy status
+openclaw memory autonomy backfill-scores --dry-run --scope agent:daisy --limit 100
+openclaw memory autonomy score --scope agent:daisy --agent daisy --dry-run
+openclaw memory autonomy explain --memory-id <memory-id> --agent daisy
+openclaw memory autonomy dedupe --scope agent:daisy --dry-run
+openclaw memory autonomy compact --scope agent:daisy --dry-run
+```
+
+Backfill is idempotent by `metadata.ops.usefulness.backfillVersion`. Hard
+deletion remains disabled by default; compaction demotes source records and
+preserves source IDs for auditability.
 
 ## Configuration
 
