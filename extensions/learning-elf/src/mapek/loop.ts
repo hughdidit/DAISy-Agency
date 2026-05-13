@@ -2,7 +2,7 @@ import type { LearningElfConfig } from "../../config.js";
 import { FixtureProvider } from "../generation/fixture-provider.js";
 import { isoFromSeed, stableId } from "../models/ids.js";
 import type { EvolutionRun, EvolutionSummary, NegativeTestCandidate } from "../models/types.js";
-import { scanForSecrets } from "../security/secret-scanner.js";
+import { assertNoSecrets, scanForSecrets } from "../security/secret-scanner.js";
 import { JsonlLearningStore } from "../storage/jsonl-store.js";
 import { McpLearningStore } from "../storage/mcp-store.js";
 import type { LearningStore } from "../storage/store.js";
@@ -29,6 +29,7 @@ export async function runFixtureEvolution(params: {
   const store = createLearningStore(params.config);
   const provider = new FixtureProvider();
   const fixture = await provider.loadFixture(params.fixturePath);
+  assertNoSecrets(fixture.learningEvents);
   const runId = stableId("elf_run", {
     fixturePath: params.fixturePath,
     generations: params.generations,

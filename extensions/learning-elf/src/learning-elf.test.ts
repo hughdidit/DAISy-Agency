@@ -232,6 +232,30 @@ describe("DAISy ELF fixture evolution", () => {
     expect(secretFitness?.disqualificationReasons).toContain("secret_exposure");
   });
 
+  it("rejects secret-bearing fixture learning events before persistence", async () => {
+    const stateDir = await makeTempStateDir();
+    const event = await readFixture<Record<string, unknown>>(eventFixture);
+    const secretEventPath = path.join(stateDir, "secret-event.json");
+    await fs.writeFile(
+      secretEventPath,
+      JSON.stringify({ ...event, summary: "review context included GITHUB_TOKEN" }),
+      "utf8",
+    );
+
+    await expect(
+      runFixtureEvolution({
+        config: { enabled: true, storageBackend: "jsonl", stateDir },
+        fixturePath: secretEventPath,
+        generations: 1,
+        population: 4,
+        seed: 52,
+      }),
+    ).rejects.toThrow(/Secret-like content rejected: GITHUB_TOKEN/);
+
+    const store = new JsonlLearningStore({ stateDir });
+    await expect(store.listRecords("elf_learning_events")).resolves.toHaveLength(0);
+  });
+
   it("loads malformed fixture candidates as validation failures rather than evaluating them", async () => {
     const provider = new FixtureProvider();
     const fixture = await provider.loadFixture(malformedFixture);
