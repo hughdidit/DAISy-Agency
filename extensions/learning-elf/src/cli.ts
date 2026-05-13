@@ -2,18 +2,18 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import type { Command } from "commander";
 import type { LearningElfConfig } from "../config.js";
+import { createLlmEvolutionProvider } from "./generation/llm-provider.js";
 import { createLearningStore, runFixtureEvolution } from "./mapek/loop.js";
 import { CandidateGenomeSchema, LearningEventSchema } from "./models/schemas.js";
 import type { CandidateGenome, LearningEvent } from "./models/types.js";
 import { validateWithSchema } from "./models/validation.js";
-import { exportPromotionMarkdown } from "./promotion/markdown-export.js";
 import {
   ElfProposalService,
   FixtureGitHubProposalProvider,
   GhCliGitHubProposalProvider,
 } from "./promotion/github-proposal.js";
+import { exportPromotionMarkdown } from "./promotion/markdown-export.js";
 import { assertNoSecrets } from "./security/secret-scanner.js";
-import { createLlmEvolutionProvider } from "./generation/llm-provider.js";
 
 type Logger = {
   info?: (message: string) => void;
@@ -170,21 +170,12 @@ export function registerElfCli(params: {
     .requiredOption("--out <path>", "Markdown output path")
     .action(async (options: { promotionId: string; out: string }) => {
       const store = createLearningStore(params.config);
-      const promotion = await store.getRecordById(
-        "elf_promotion_candidates",
-        options.promotionId,
-      );
+      const promotion = await store.getRecordById("elf_promotion_candidates", options.promotionId);
       if (!promotion) {
         throw new Error(`Promotion not found: ${options.promotionId}`);
       }
-      const candidate = await store.getRecordById(
-        "elf_candidate_genomes",
-        promotion.candidateId,
-      );
-      const fitness = await store.getRecordById(
-        "elf_fitness_results",
-        promotion.fitnessResultId,
-      );
+      const candidate = await store.getRecordById("elf_candidate_genomes", promotion.candidateId);
+      const fitness = await store.getRecordById("elf_fitness_results", promotion.fitnessResultId);
       const traces = await store.listRecords("elf_mapek_traces");
       const trace = traces.find((entry) => entry.runId === promotion.runId) ?? null;
       if (!candidate || !fitness) {

@@ -1,8 +1,16 @@
 import type { LearningCollection, LearningCollectionRecordMap, LearningStore } from "./store.js";
 
 export type McpLearningRecordClient = {
-  insertMany(database: string, collection: string, documents: Array<Record<string, unknown>>): Promise<number>;
-  aggregate(database: string, collection: string, pipeline: unknown[]): Promise<Array<Record<string, unknown>>>;
+  insertMany(
+    database: string,
+    collection: string,
+    documents: Array<Record<string, unknown>>,
+  ): Promise<number>;
+  aggregate(
+    database: string,
+    collection: string,
+    pipeline: unknown[],
+  ): Promise<Array<Record<string, unknown>>>;
   updateMany(
     database: string,
     collection: string,

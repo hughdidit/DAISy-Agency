@@ -124,9 +124,7 @@ function parseGithubProposals(value: unknown): LearningElfConfig["githubProposal
     allowedProposalPaths: readStringArray(raw.allowedProposalPaths) ?? [
       ...defaults.allowedProposalPaths,
     ],
-    forbiddenPathGlobs: readStringArray(raw.forbiddenPathGlobs) ?? [
-      ...defaults.forbiddenPathGlobs,
-    ],
+    forbiddenPathGlobs: readStringArray(raw.forbiddenPathGlobs) ?? [...defaults.forbiddenPathGlobs],
   };
 }
 

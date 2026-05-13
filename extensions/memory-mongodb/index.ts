@@ -20,8 +20,8 @@ import {
   vectorDimsForModel,
 } from "./config.js";
 import { GeminiService } from "./gemini-service.js";
-import { MemoryAutonomyService } from "./memory-autonomy-service.js";
 import { McpClientService } from "./mcp-client-service.js";
+import { MemoryAutonomyService } from "./memory-autonomy-service.js";
 import { MemoryOpsService, resolveScopeSubjectFromContext } from "./memory-ops-service.js";
 import {
   MEMORY_OPS_KINDS,

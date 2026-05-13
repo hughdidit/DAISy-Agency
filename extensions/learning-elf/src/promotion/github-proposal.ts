@@ -98,7 +98,11 @@ export class GhCliGitHubProposalProvider implements GitHubProposalProvider {
     proposalPath: string;
   }): Promise<{ prNumber: number; provider: "github" }> {
     await execFileAsync("git", ["add", request.proposalPath]);
-    await execFileAsync("git", ["commit", "-m", `docs(learning): update proposal ${request.prNumber}`]);
+    await execFileAsync("git", [
+      "commit",
+      "-m",
+      `docs(learning): update proposal ${request.prNumber}`,
+    ]);
     await execFileAsync("git", ["push"]);
     await execFileAsync("gh", ["pr", "edit", String(request.prNumber), "--body", request.body]);
     return { prNumber: request.prNumber, provider: "github" };

@@ -25,8 +25,8 @@ import type {
   PromotionCandidate,
 } from "./models/types.js";
 import { validateWithSchema } from "./models/validation.js";
-import { assertElfMaySetState, assertPromotionTransition } from "./promotion/lifecycle.js";
 import { ElfProposalService, FixtureGitHubProposalProvider } from "./promotion/github-proposal.js";
+import { assertElfMaySetState, assertPromotionTransition } from "./promotion/lifecycle.js";
 import { createPromotionCandidate } from "./promotion/promotion-queue.js";
 import { assertMutationAllowed, detectForbiddenMutations } from "./security/forbidden-mutations.js";
 import { scanForSecrets } from "./security/secret-scanner.js";
@@ -564,7 +564,11 @@ describe("DAISy ELF Phase 2 providers", () => {
     const safe = await readFixture<CandidateGenome>(safeFixture);
     const documents: Record<string, Array<Record<string, unknown>>> = {};
     const client = {
-      async insertMany(_database: string, collection: string, records: Array<Record<string, unknown>>) {
+      async insertMany(
+        _database: string,
+        collection: string,
+        records: Array<Record<string, unknown>>,
+      ) {
         documents[collection] = [...(documents[collection] ?? []), ...records];
         return records.length;
       },

@@ -110,7 +110,7 @@ export class HttpLlmEvolutionProvider implements LlmEvolutionProvider {
             {
               role: "system",
               content:
-                "Return JSON only: {\"candidates\":[CandidateGenome,...]}. " +
+                'Return JSON only: {"candidates":[CandidateGenome,...]}. ' +
                 "Do not include secrets, direct writes, approvals, deploys, or policy bypasses.",
             },
             {
@@ -194,7 +194,9 @@ function readCandidates(value: unknown): CandidateGenome[] {
   return candidates.map((candidate, index) => {
     const validation = validateWithSchema<CandidateGenome>(CandidateGenomeSchema, candidate);
     if (!validation.ok) {
-      throw new Error(`LLM candidate ${index} failed schema validation: ${validation.errors.join("; ")}`);
+      throw new Error(
+        `LLM candidate ${index} failed schema validation: ${validation.errors.join("; ")}`,
+      );
     }
     return validation.value;
   });

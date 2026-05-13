@@ -1,6 +1,5 @@
 import { createHash } from "node:crypto";
 import type { MemoryCategory } from "./config.js";
-import type { MemoryOpsMetadata } from "./memory-ops-types.js";
 import {
   DEFAULT_MEMORY_AUTONOMY_POLICY,
   MEMORY_AUTONOMY_BACKFILL_VERSION,
@@ -16,6 +15,7 @@ import {
   type MemoryUsefulnessScore,
   type RankedMemorySearchResult,
 } from "./memory-autonomy-types.js";
+import type { MemoryOpsMetadata } from "./memory-ops-types.js";
 import type {
   MemoryEntry,
   MemoryEventInput,
@@ -200,9 +200,7 @@ export class MemoryAutonomyService {
       await this.recordEvent({
         scopeSubject: options.scopeSubject,
         actor: "memory_autonomy",
-        operation: options.agentId
-          ? "memory_agent_usefulness_scored"
-          : "memory_usefulness_scored",
+        operation: options.agentId ? "memory_agent_usefulness_scored" : "memory_usefulness_scored",
         status: result.errors.length > 0 ? "partial" : "applied",
         memoryIds: result.sampleIds,
         summary: `Scored usefulness metadata for ${result.updated} memory record(s).`,
@@ -275,7 +273,9 @@ export class MemoryAutonomyService {
       }
       const retained = bucket
         .slice()
-        .sort((a, b) => currentPrecedence(b) - currentPrecedence(a) || b.updatedAt - a.updatedAt)[0];
+        .sort(
+          (a, b) => currentPrecedence(b) - currentPrecedence(a) || b.updatedAt - a.updatedAt,
+        )[0];
       if (!retained) {
         continue;
       }
@@ -359,9 +359,7 @@ export class MemoryAutonomyService {
     }
 
     const now = Date.now();
-    const summary = selected
-      .map((entry) => `- ${entry.text.slice(0, 240)}`)
-      .join("\n");
+    const summary = selected.map((entry) => `- ${entry.text.slice(0, 240)}`).join("\n");
     const sourceMemoryIds = selected.map((entry) => entry.id);
     const stored = await this.db.store({
       text: `Compacted memory summary for ${options.scopeSubject}:\n${summary}`,
@@ -480,7 +478,7 @@ export function scoreMemoryUsefulness(
   const observationCount = readNumber(ops?.observationCount) ?? 1;
   const confidence = readNumber(ops?.confidence) ?? confidenceFromEntry(entry);
   const freshness = clamp(1 - ageMs / (1000 * 60 * 60 * 24 * 180));
-  const stability = clamp((readNumber(ops?.stabilityScore) ?? Math.min(1, observationCount / 4)));
+  const stability = clamp(readNumber(ops?.stabilityScore) ?? Math.min(1, observationCount / 4));
   const retrievalUse = clamp(Math.min(1, observationCount / 6));
   const taskOutcome = outcomeScore(readString(ops?.status));
   const securityPenalty = isSecret(entry, ops) ? 1 : 0;
@@ -526,7 +524,9 @@ export function rankMemorySearchResults(
         agentId && autonomy.agentUsefulness?.[agentId]
           ? autonomy.agentUsefulness[agentId].precedence
           : conservativeDefaultPrecedence(result.entry);
-      const combinedScore = clamp(result.vectorScore * 0.72 + globalPrecedence * 0.18 + agentPrecedence * 0.1);
+      const combinedScore = clamp(
+        result.vectorScore * 0.72 + globalPrecedence * 0.18 + agentPrecedence * 0.1,
+      );
       return {
         ...result,
         score: combinedScore,
@@ -588,7 +588,10 @@ function readAutonomyMetadata(ops: Record<string, unknown> | null): MemoryOpsAut
 }
 
 function currentPrecedence(entry: MemoryEntry): number {
-  return readAutonomyMetadata(readOps(entry)).usefulness?.globalPrecedence ?? conservativeDefaultPrecedence(entry);
+  return (
+    readAutonomyMetadata(readOps(entry)).usefulness?.globalPrecedence ??
+    conservativeDefaultPrecedence(entry)
+  );
 }
 
 function conservativeDefaultPrecedence(entry: MemoryEntry): number {
@@ -609,7 +612,10 @@ function isLowValueOrStale(entry: MemoryEntry, ops: Record<string, unknown> | nu
   if (autonomy.compaction?.status === "source" || autonomy.dedupe?.duplicateOf) {
     return false;
   }
-  return currentPrecedence(entry) < LOW_PRECEDENCE_COMPACTION_THRESHOLD || Date.now() - entry.updatedAt > STALE_MS;
+  return (
+    currentPrecedence(entry) < LOW_PRECEDENCE_COMPACTION_THRESHOLD ||
+    Date.now() - entry.updatedAt > STALE_MS
+  );
 }
 
 function dedupeKey(entry: MemoryEntry): string {
