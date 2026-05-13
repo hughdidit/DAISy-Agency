@@ -394,7 +394,11 @@ export class MongoMemoryDB {
     return this.mcp.updateMany(
       this.databaseName,
       this.collectionName,
-      { _id: id },
+      {
+        _id: id,
+        tenantId: this.routing.tenantId,
+        workspaceId: this.routing.workspaceId,
+      },
       {
         $set: set,
       },

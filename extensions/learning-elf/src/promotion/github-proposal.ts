@@ -75,16 +75,10 @@ export class GhCliGitHubProposalProvider implements GitHubProposalProvider {
     await execFileAsync("git", ["add", request.proposalPath]);
     await execFileAsync("git", ["commit", "-m", `docs(learning): propose ${request.title}`]);
     await execFileAsync("git", ["push", "-u", "origin", request.branch]);
-    const args = [
-      "pr",
-      "create",
-      "--title",
-      request.title,
-      "--body",
-      request.body,
-      "--label",
-      request.labels.join(","),
-    ];
+    const args = ["pr", "create", "--title", request.title, "--body", request.body];
+    if (request.labels.length > 0) {
+      args.push("--label", request.labels.join(","));
+    }
     if (request.draft) {
       args.push("--draft");
     }
@@ -98,12 +92,21 @@ export class GhCliGitHubProposalProvider implements GitHubProposalProvider {
     proposalPath: string;
   }): Promise<{ prNumber: number; provider: "github" }> {
     await execFileAsync("git", ["add", request.proposalPath]);
-    await execFileAsync("git", [
-      "commit",
-      "-m",
-      `docs(learning): update proposal ${request.prNumber}`,
+    const { stdout: staged } = await execFileAsync("git", [
+      "diff",
+      "--cached",
+      "--name-only",
+      "--",
+      request.proposalPath,
     ]);
-    await execFileAsync("git", ["push"]);
+    if (staged.trim()) {
+      await execFileAsync("git", [
+        "commit",
+        "-m",
+        `docs(learning): update proposal ${request.prNumber}`,
+      ]);
+      await execFileAsync("git", ["push"]);
+    }
     await execFileAsync("gh", ["pr", "edit", String(request.prNumber), "--body", request.body]);
     return { prNumber: request.prNumber, provider: "github" };
   }
@@ -204,17 +207,43 @@ export class ElfProposalService {
   }
 
   private assertAllowedPath(filePath: string): void {
-    const normalized = filePath.replace(/\\/g, "/");
-    if (this.config.forbiddenPathGlobs.some((glob) => normalized.includes(glob))) {
+    const normalized = normalizePath(filePath);
+    if (this.config.forbiddenPathGlobs.some((glob) => matchesGlob(normalized, glob))) {
       throw new Error(`ELF proposal path is forbidden: ${filePath}`);
     }
-    const allowed = this.config.allowedProposalPaths.some((allowedPath) =>
-      normalized.includes(allowedPath.replace(/\\/g, "/")),
-    );
+    const allowed = this.config.allowedProposalPaths.some((allowedPath) => {
+      const allowedRoot = normalizePath(allowedPath);
+      const relative = path.relative(allowedRoot, normalized);
+      return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
+    });
     if (!allowed) {
       throw new Error(`ELF proposal path is not in an allowed proposal directory: ${filePath}`);
     }
   }
+}
+
+function normalizePath(filePath: string): string {
+  return path.resolve(filePath).replace(/\\/g, "/");
+}
+
+function matchesGlob(filePath: string, pattern: string): boolean {
+  const normalizedPattern = normalizePath(pattern);
+  let source = "";
+  for (let index = 0; index < normalizedPattern.length; index += 1) {
+    const char = normalizedPattern[index];
+    const next = normalizedPattern[index + 1];
+    if (char === "*" && next === "*") {
+      source += ".*";
+      index += 1;
+      continue;
+    }
+    if (char === "*") {
+      source += "[^/]*";
+      continue;
+    }
+    source += char.replace(/[.+^${}()|[\]\\]/g, "\\$&");
+  }
+  return new RegExp(`^${source}$`).test(filePath);
 }
 
 function buildProposalBody(

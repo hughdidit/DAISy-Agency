@@ -45,7 +45,8 @@ export function registerPluginCliCommands(
         options.allowExistingCommandAugmentation === true &&
         overlaps.length > 0 &&
         overlaps.every((command) => onlyCommands.has(command));
-      if (overlaps.length > 0 && !canAugmentExisting) {
+      const allCommandsAlreadyRegistered = overlaps.length === entry.commands.length;
+      if (allCommandsAlreadyRegistered && !canAugmentExisting) {
         log.debug(
           `plugin CLI register skipped (${entry.pluginId}): command already registered (${overlaps.join(
             ", ",

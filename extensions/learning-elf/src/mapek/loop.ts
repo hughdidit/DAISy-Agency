@@ -4,7 +4,6 @@ import { isoFromSeed, stableId } from "../models/ids.js";
 import type { EvolutionRun, EvolutionSummary, NegativeTestCandidate } from "../models/types.js";
 import { assertNoSecrets, scanForSecrets } from "../security/secret-scanner.js";
 import { JsonlLearningStore } from "../storage/jsonl-store.js";
-import { McpLearningStore } from "../storage/mcp-store.js";
 import type { LearningStore } from "../storage/store.js";
 import { analyzeLearningInputs } from "./analyze.js";
 import { executePromotionQueue } from "./execute.js";
@@ -14,9 +13,12 @@ import { planEvolution } from "./plan.js";
 import { createMapeKTrace } from "./trace.js";
 
 export function createLearningStore(config: LearningElfConfig): LearningStore {
-  return config.storageBackend === "mcp"
-    ? new McpLearningStore({ databaseName: config.mcp?.databaseName })
-    : new JsonlLearningStore({ stateDir: config.stateDir });
+  if (config.storageBackend === "mcp") {
+    throw new Error(
+      "MCP-backed ELF storage requires an injected MongoDB MCP record client; CLI fixture mode uses jsonl storage",
+    );
+  }
+  return new JsonlLearningStore({ stateDir: config.stateDir });
 }
 
 export async function runFixtureEvolution(params: {

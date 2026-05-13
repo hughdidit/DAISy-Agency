@@ -35,7 +35,7 @@ export function buildElfLearningReference(params: {
     kind: "fact",
     importance: 0.65,
     confidence: 0.9,
-    status: params.promotion?.state === "promotion_queued" ? "recorded" : "negative_signal",
+    status: "recorded",
     sourceMessageIds: [params.fitness.id, params.promotion?.id].filter(
       (id): id is string => typeof id === "string",
     ),

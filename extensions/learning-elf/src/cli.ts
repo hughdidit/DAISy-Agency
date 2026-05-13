@@ -57,6 +57,13 @@ function parsePositiveInt(value: string, label: string): number {
   return parsed;
 }
 
+function parseLearningSource(value: string): "memory" | "trace" | "fixture" {
+  if (value === "memory" || value === "trace" || value === "fixture") {
+    return value;
+  }
+  throw new Error(`Invalid ELF learning source: ${value}`);
+}
+
 function printJson(value: unknown): void {
   // eslint-disable-next-line no-console
   console.log(JSON.stringify(value, null, 2));
@@ -116,15 +123,16 @@ export function registerElfCli(params: {
         population: string;
         seed: string;
         liveLlm?: boolean;
-        source?: "memory" | "trace" | "fixture";
+        source?: string;
       }) => {
         let liveCandidateIds: string[] = [];
         if (options.liveLlm === true) {
+          const source = parseLearningSource(options.source ?? "fixture");
           const provider = createLlmEvolutionProvider(params.config);
           const result = await provider.generateCandidates({
-            prompt: `Generate DAISy ELF candidates from ${options.source ?? "fixture"} evidence.`,
+            prompt: `Generate DAISy ELF candidates from ${source} evidence.`,
             model: params.config.llmEvolution?.modelAllowlist[0] ?? "not-configured",
-            sourceRefs: [{ type: options.source ?? "fixture", ref: options.fixture }],
+            sourceRefs: [{ type: source, ref: options.fixture }],
             maxCandidates: params.config.llmEvolution?.maxCandidateCount ?? 1,
           });
           const store = createLearningStore(params.config);
@@ -212,7 +220,8 @@ export function registerElfCli(params: {
     .command("create-pr")
     .description("Create a draft GitHub PR for a queued promotion proposal")
     .requiredOption("--promotion-id <id>", "Promotion candidate ID")
-    .option("--draft", "Create as draft", true)
+    .option("--draft", "Create as draft")
+    .option("--no-draft", "Create as ready for review when configuration allows it")
     .option("--out-dir <path>", "Proposal output directory")
     .option("--fixture-provider", "Use fixture GitHub provider for offline verification")
     .action(

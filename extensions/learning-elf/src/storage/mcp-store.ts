@@ -31,6 +31,7 @@ export const LEARNING_COLLECTION_RECORD_MAP: Record<LearningCollection, string> 
 
 export class McpLearningStore implements LearningStore {
   readonly backend = "mcp" as const;
+  private readonly writeLocks = new Map<LearningCollection, Promise<void>>();
 
   constructor(
     private readonly params: {
@@ -40,6 +41,15 @@ export class McpLearningStore implements LearningStore {
   ) {}
 
   async saveRecord<C extends LearningCollection>(
+    collection: C,
+    record: LearningCollectionRecordMap[C],
+  ): Promise<LearningCollectionRecordMap[C]> {
+    return this.withCollectionWriteLock(collection, async () =>
+      this.saveRecordUnlocked(collection, record),
+    );
+  }
+
+  private async saveRecordUnlocked<C extends LearningCollection>(
     collection: C,
     record: LearningCollectionRecordMap[C],
   ): Promise<LearningCollectionRecordMap[C]> {
@@ -53,7 +63,7 @@ export class McpLearningStore implements LearningStore {
         ? (record as { idempotencyKey: string }).idempotencyKey
         : undefined;
     if (idempotencyKey) {
-      const found = await client.aggregate(this.databaseName(), collection, [
+      const found = await client.aggregate(this.databaseName(), this.recordType(collection), [
         { $match: { idempotencyKey } },
         { $limit: 1 },
       ]);
@@ -61,14 +71,16 @@ export class McpLearningStore implements LearningStore {
         return found[0] as LearningCollectionRecordMap[C];
       }
     }
-    await client.insertMany(this.databaseName(), collection, [record as Record<string, unknown>]);
+    await client.insertMany(this.databaseName(), this.recordType(collection), [
+      record as Record<string, unknown>,
+    ]);
     return record;
   }
 
   async listRecords<C extends LearningCollection>(
     collection: C,
   ): Promise<Array<LearningCollectionRecordMap[C]>> {
-    return this.requireClient().aggregate(this.databaseName(), collection, [
+    return this.requireClient().aggregate(this.databaseName(), this.recordType(collection), [
       { $sort: { createdAt: 1, id: 1 } },
     ]) as Promise<Array<LearningCollectionRecordMap[C]>>;
   }
@@ -77,11 +89,16 @@ export class McpLearningStore implements LearningStore {
     collection: C,
     id: string,
   ): Promise<LearningCollectionRecordMap[C] | null> {
-    const found = await this.requireClient().aggregate(this.databaseName(), collection, [
-      { $match: { id } },
-      { $limit: 1 },
-    ]);
+    const found = await this.requireClient().aggregate(
+      this.databaseName(),
+      this.recordType(collection),
+      [{ $match: { id } }, { $limit: 1 }],
+    );
     return (found[0] as LearningCollectionRecordMap[C] | undefined) ?? null;
+  }
+
+  private recordType(collection: LearningCollection): string {
+    return LEARNING_COLLECTION_RECORD_MAP[collection] ?? collection;
   }
 
   private databaseName(): string {
@@ -93,5 +110,27 @@ export class McpLearningStore implements LearningStore {
       throw new Error("MCP-backed ELF storage requires a configured MongoDB MCP record client");
     }
     return this.params.client;
+  }
+
+  private async withCollectionWriteLock<T>(
+    collection: LearningCollection,
+    operation: () => Promise<T>,
+  ): Promise<T> {
+    const previous = this.writeLocks.get(collection) ?? Promise.resolve();
+    let release!: () => void;
+    const current = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const chained = previous.then(() => current);
+    this.writeLocks.set(collection, chained);
+    await previous;
+    try {
+      return await operation();
+    } finally {
+      release();
+      if (this.writeLocks.get(collection) === chained) {
+        this.writeLocks.delete(collection);
+      }
+    }
   }
 }

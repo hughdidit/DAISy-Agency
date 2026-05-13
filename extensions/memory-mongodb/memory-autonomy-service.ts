@@ -345,7 +345,19 @@ export class MemoryAutonomyService {
       return result;
     }
 
-    const selected = entries.slice(0, Math.min(entries.length, 12));
+    const selected = entries
+      .sort((a, b) => {
+        const staleDelta = stalenessMs(b) - stalenessMs(a);
+        if (staleDelta !== 0) {
+          return staleDelta;
+        }
+        const precedenceDelta = currentPrecedence(a) - currentPrecedence(b);
+        if (precedenceDelta !== 0) {
+          return precedenceDelta;
+        }
+        return a.updatedAt - b.updatedAt;
+      })
+      .slice(0, Math.min(entries.length, 12));
     result.planned = selected.length;
     for (const entry of selected) {
       pushSample(result.sampleIds, entry.id);
@@ -425,13 +437,17 @@ export class MemoryAutonomyService {
     resumeAfter?: string;
   }): Promise<MemoryEntry[]> {
     const limit = clampInt(options.limit ?? DEFAULT_AUTONOMY_LIMIT, 1, MAX_AUTONOMY_LIMIT);
-    const entries = await this.db.listByScope(options.scopeSubject, limit, {
+    const queryLimit = options.resumeAfter ? MAX_AUTONOMY_LIMIT : limit;
+    const entries = await this.db.listByScope(options.scopeSubject, queryLimit, {
       includeSecrets: true,
     });
     if (!options.resumeAfter) {
       return entries;
     }
-    return entries.filter((entry) => entry.id > options.resumeAfter!);
+    return entries
+      .sort((a, b) => a.id.localeCompare(b.id))
+      .filter((entry) => entry.id > options.resumeAfter!)
+      .slice(0, limit);
   }
 
   private async patchOps(
@@ -475,7 +491,7 @@ export function scoreMemoryUsefulness(
   const now = options.now ?? Date.now();
   const ops = readOps(entry);
   const ageMs = Math.max(0, now - entry.updatedAt);
-  const observationCount = readNumber(ops?.observationCount) ?? 1;
+  const observationCount = readCount(ops?.observationCount) ?? 1;
   const confidence = readNumber(ops?.confidence) ?? confidenceFromEntry(entry);
   const freshness = clamp(1 - ageMs / (1000 * 60 * 60 * 24 * 180));
   const stability = clamp(readNumber(ops?.stabilityScore) ?? Math.min(1, observationCount / 4));
@@ -618,6 +634,10 @@ function isLowValueOrStale(entry: MemoryEntry, ops: Record<string, unknown> | nu
   );
 }
 
+function stalenessMs(entry: MemoryEntry): number {
+  return Math.max(0, Date.now() - entry.updatedAt);
+}
+
 function dedupeKey(entry: MemoryEntry): string {
   const ops = readOps(entry);
   const hash = readString(ops?.contentHash);
@@ -650,6 +670,10 @@ function readString(value: unknown): string | undefined {
 
 function readNumber(value: unknown): number | undefined {
   return typeof value === "number" && Number.isFinite(value) ? clamp(value) : undefined;
+}
+
+function readCount(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isFinite(value) ? Math.max(0, value) : undefined;
 }
 
 function clamp(value: number): number {

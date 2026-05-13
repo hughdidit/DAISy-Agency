@@ -576,6 +576,9 @@ export async function runMemoryStatus(opts: MemoryCommandOptions) {
 }
 
 export function registerMemoryCli(program: Command) {
+  if (program.commands.some((command) => command.name() === "memory")) {
+    return;
+  }
   const memory = program
     .command("memory")
     .description("Search, inspect, and reindex memory files")
