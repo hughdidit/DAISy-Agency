@@ -16,6 +16,7 @@ import {
   type RankedMemorySearchResult,
 } from "./memory-autonomy-types.js";
 import type { MemoryOpsMetadata } from "./memory-ops-types.js";
+import { agentIdFromScopeSubject } from "./memory-utils.js";
 import type {
   MemoryEntry,
   MemoryEventInput,
@@ -691,12 +692,4 @@ function pushSample(samples: string[], id: string): void {
   if (samples.length < 10 && !samples.includes(id)) {
     samples.push(id);
   }
-}
-
-function agentIdFromScopeSubject(scopeSubject: string): string | undefined {
-  const [kind, value] = scopeSubject.split(":", 2);
-  if ((kind === "agent" || kind === "subagent") && value) {
-    return value;
-  }
-  return undefined;
 }

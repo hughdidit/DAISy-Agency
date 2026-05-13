@@ -16,6 +16,7 @@ import type {
   MemorySensitivity,
   PreferenceMinerMode,
 } from "./memory-ops-types.js";
+import { agentIdFromScopeSubject } from "./memory-utils.js";
 import type { MemoryEntry, MemoryEventInput, MongoMemoryDB } from "./mongodb-provider.js";
 import {
   buildAttachmentManifests,
@@ -1425,14 +1426,6 @@ function isPriority(value: unknown): value is "low" | "medium" | "high" {
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
-
-function agentIdFromScopeSubject(scopeSubject: string): string | undefined {
-  const [kind, value] = scopeSubject.split(":", 2);
-  if ((kind === "agent" || kind === "subagent") && value) {
-    return value;
-  }
-  return undefined;
 }
 
 function isMemoryIdPrefix(value: string): boolean {
