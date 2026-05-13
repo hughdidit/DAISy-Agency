@@ -14,6 +14,11 @@ export function createPromotionCandidate(params: {
   seed: number;
   index: number;
 }): PromotionCandidate {
+  if (params.fitnessResult.candidateId !== params.candidate.id) {
+    throw new Error(
+      `Fitness result ${params.fitnessResult.id} does not belong to candidate ${params.candidate.id}`,
+    );
+  }
   let state: PromotionState = "draft";
   assertPromotionTransition(state, "candidate");
   state = "candidate";

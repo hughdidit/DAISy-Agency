@@ -12,6 +12,7 @@ import { mutateGenome } from "./evolution/mutation.js";
 import { SeededRng } from "./evolution/rng.js";
 import { FixtureProvider } from "./generation/fixture-provider.js";
 import { runFixtureEvolution } from "./mapek/loop.js";
+import { stableHash } from "./models/ids.js";
 import { CandidateGenomeSchema, MapeKTraceSchema } from "./models/schemas.js";
 import type {
   CandidateGenome,
@@ -21,6 +22,7 @@ import type {
 } from "./models/types.js";
 import { validateWithSchema } from "./models/validation.js";
 import { assertElfMaySetState, assertPromotionTransition } from "./promotion/lifecycle.js";
+import { createPromotionCandidate } from "./promotion/promotion-queue.js";
 import { assertMutationAllowed, detectForbiddenMutations } from "./security/forbidden-mutations.js";
 import { scanForSecrets } from "./security/secret-scanner.js";
 import { JsonlLearningStore } from "./storage/jsonl-store.js";
@@ -166,6 +168,11 @@ describe("DAISy ELF schemas and security", () => {
     expect(seededZero).toBe(new SeededRng(0).next());
   });
 
+  it("hashes undefined deterministically", () => {
+    expect(() => stableHash(undefined)).not.toThrow();
+    expect(stableHash(undefined)).toBe(stableHash(undefined));
+  });
+
   it("generates mutations in addition to fixture seed candidates", async () => {
     const safe = await readFixture<CandidateGenome>(safeFixture);
     const candidates = evolvePopulation({
@@ -195,6 +202,21 @@ describe("DAISy ELF schemas and security", () => {
     expect(() => assertPromotionTransition("promotion_queued", "canonized")).toThrow();
     expect(() => assertElfMaySetState("approved")).toThrow(/may not self-set/);
     expect(() => assertElfMaySetState("canonized")).toThrow(/may not self-set/);
+  });
+
+  it("rejects promotion records with mismatched candidate and fitness links", async () => {
+    const safe = await readFixture<CandidateGenome>(safeFixture);
+    const fitness = evaluateCandidate({ runId: "run_linkage", candidate: safe, seed: 5, index: 0 });
+
+    expect(() =>
+      createPromotionCandidate({
+        runId: "run_linkage",
+        candidate: { ...safe, id: "candidate_wrong" },
+        fitnessResult: fitness,
+        seed: 5,
+        index: 0,
+      }),
+    ).toThrow(/does not belong to candidate/);
   });
 });
 
@@ -284,6 +306,20 @@ describe("DAISy ELF fixture evolution", () => {
 
     expect(fixture.candidates).toHaveLength(0);
     expect(fixture.validationFailures.length).toBeGreaterThan(0);
+  });
+
+  it("fails fixture evolution clearly when no learning event is valid", async () => {
+    const stateDir = await makeTempStateDir();
+
+    await expect(
+      runFixtureEvolution({
+        config: { enabled: true, storageBackend: "jsonl", stateDir },
+        fixturePath: malformedFixture,
+        generations: 1,
+        population: 4,
+        seed: 64,
+      }),
+    ).rejects.toThrow(/Fixture must include at least one valid learning event/);
   });
 
   it("loads JSONL fixtures whose first line is an object", async () => {

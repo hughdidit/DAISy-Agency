@@ -17,9 +17,13 @@ export function planEvolution(params: {
   generations: number;
   population: number;
 }): PlanResult {
+  const firstEvent = params.fixture.learningEvents[0];
+  if (!firstEvent) {
+    throw new Error("Fixture must include at least one valid learning event");
+  }
   const prototype = createPrototypeGithubPrReviewStrategy({
     seed: params.seed,
-    event: params.fixture.learningEvents[0],
+    event: firstEvent,
   });
   const initialCandidates = [prototype, ...params.fixture.candidates];
   const candidates = evolvePopulation({
