@@ -14,10 +14,12 @@ import { defaultRuntime } from "../runtime.js";
 import { formatDocsLink } from "../terminal/links.js";
 import { colorize, isRich, theme } from "../terminal/theme.js";
 import { shortenHomeInString, shortenHomePath } from "../utils.js";
+import { buildParseArgv } from "./argv.js";
 import { formatErrorMessage, withManager } from "./cli-utils.js";
 import { resolveCommandSecretRefsViaGateway } from "./command-secret-gateway.js";
 import { getMemoryCommandSecretTargetIds } from "./command-secret-targets.js";
 import { formatHelpExamples } from "./help-format.js";
+import { removeCommand } from "./program/command-tree.js";
 import { withProgress, withProgressTotals } from "./progress.js";
 
 type MemoryCommandOptions = {
@@ -809,4 +811,26 @@ export function registerMemoryCli(program: Command) {
         });
       },
     );
+
+  const autonomyPlaceholder = memory
+    .command("autonomy")
+    .description("Self-administering DAISy memory commands")
+    .allowUnknownOption(true)
+    .allowExcessArguments(true)
+    .action(async () => {
+      removeCommand(memory, autonomyPlaceholder);
+      const { registerPluginCliCommands } = await import("../plugins/cli.js");
+      registerPluginCliCommands(program, loadConfig(), {
+        allowExistingCommandAugmentation: true,
+        onlyCommands: ["memory"],
+      });
+      const rawArgs = (program as Command & { rawArgs?: string[] }).rawArgs;
+      await program.parseAsync(
+        buildParseArgv({
+          programName: program.name(),
+          rawArgs,
+          fallbackArgv: process.argv,
+        }),
+      );
+    });
 }

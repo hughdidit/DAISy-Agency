@@ -1361,10 +1361,14 @@ const memoryPlugin = {
           }
         };
 
-        const memory = program.command("ltm").description("MongoDB MCP memory plugin commands");
-        const memoryRoot = program
-          .command("memory")
-          .description("Self-administering DAISy memory commands");
+        const findCommand = (name: string) =>
+          program.commands.find((command) => command.name() === name);
+        const memory =
+          findCommand("ltm") ??
+          program.command("ltm").description("MongoDB MCP memory plugin commands");
+        const memoryRoot =
+          findCommand("memory") ??
+          program.command("memory").description("Self-administering DAISy memory commands");
 
         memory
           .command("list")
@@ -1447,110 +1451,117 @@ const memoryPlugin = {
             });
           });
 
-        const autonomy = memoryRoot
-          .command("autonomy")
-          .description("Autonomous scoring, dedupe, and compaction controls");
+        const existingAutonomy = memoryRoot.commands.find(
+          (command) => command.name() === "autonomy",
+        );
+        const autonomy =
+          existingAutonomy ??
+          memoryRoot
+            .command("autonomy")
+            .description("Autonomous scoring, dedupe, and compaction controls");
 
-        autonomy
-          .command("status")
-          .description("Show memory autonomy policy and backfill version")
-          .action(async () => {
-            await runCliAction(async () => {
-              console.log(JSON.stringify(autonomyService.status(), null, 2));
-            });
-          });
-
-        autonomy
-          .command("backfill-scores")
-          .description("Initialize usefulness metadata on existing memory records")
-          .option("--dry-run", "Report planned changes without writing records")
-          .option("--scope <scope>", "Memory scope to scan", "agent:daisy")
-          .option("--limit <n>", "Maximum records to scan", "100")
-          .option("--resume-after <id>", "Resume after a memory ID")
-          .action(async (opts) => {
-            await runCliAction(async () => {
-              await ensureMcpRuntimeDirs();
-              const result = await autonomyService.backfillScores({
-                dryRun: opts.dryRun === true,
-                scopeSubject: opts.scope,
-                limit: clampPositiveInt(Number.parseInt(opts.limit, 10), 100, 500),
-                resumeAfter: typeof opts.resumeAfter === "string" ? opts.resumeAfter : undefined,
+        if (!existingAutonomy) {
+          autonomy
+            .command("status")
+            .description("Show memory autonomy policy and backfill version")
+            .action(async () => {
+              await runCliAction(async () => {
+                console.log(JSON.stringify(autonomyService.status(), null, 2));
               });
-              console.log(JSON.stringify(result, null, 2));
             });
-          });
 
-        autonomy
-          .command("score")
-          .description("Recompute usefulness scores for a scope")
-          .requiredOption("--scope <scope>", "Memory scope to score")
-          .option("--agent <agent-id>", "Agent-specific usefulness key")
-          .option("--dry-run", "Report planned changes without writing records")
-          .option("--limit <n>", "Maximum records to scan", "100")
-          .action(async (opts) => {
-            await runCliAction(async () => {
-              await ensureMcpRuntimeDirs();
-              const result = await autonomyService.score({
-                dryRun: opts.dryRun === true,
-                scopeSubject: opts.scope,
-                agentId: typeof opts.agent === "string" ? opts.agent : undefined,
-                limit: clampPositiveInt(Number.parseInt(opts.limit, 10), 100, 500),
+          autonomy
+            .command("backfill-scores")
+            .description("Initialize usefulness metadata on existing memory records")
+            .option("--dry-run", "Report planned changes without writing records")
+            .option("--scope <scope>", "Memory scope to scan", "agent:daisy")
+            .option("--limit <n>", "Maximum records to scan", "100")
+            .option("--resume-after <id>", "Resume after a memory ID")
+            .action(async (opts) => {
+              await runCliAction(async () => {
+                await ensureMcpRuntimeDirs();
+                const result = await autonomyService.backfillScores({
+                  dryRun: opts.dryRun === true,
+                  scopeSubject: opts.scope,
+                  limit: clampPositiveInt(Number.parseInt(opts.limit, 10), 100, 500),
+                  resumeAfter: typeof opts.resumeAfter === "string" ? opts.resumeAfter : undefined,
+                });
+                console.log(JSON.stringify(result, null, 2));
               });
-              console.log(JSON.stringify(result, null, 2));
             });
-          });
 
-        autonomy
-          .command("explain")
-          .description("Explain usefulness, dedupe, and compaction metadata for a memory")
-          .requiredOption("--memory-id <id>", "Memory ID")
-          .option("--agent <agent-id>", "Agent-specific usefulness key")
-          .action(async (opts) => {
-            await runCliAction(async () => {
-              await ensureMcpRuntimeDirs();
-              const result = await autonomyService.explain(
-                opts.memoryId,
-                typeof opts.agent === "string" ? opts.agent : undefined,
-              );
-              console.log(JSON.stringify(result, null, 2));
-            });
-          });
-
-        autonomy
-          .command("dedupe")
-          .description("Mark duplicate memories and demote duplicate recall precedence")
-          .requiredOption("--scope <scope>", "Memory scope to scan")
-          .option("--dry-run", "Report planned changes without writing records")
-          .option("--limit <n>", "Maximum records to scan", "100")
-          .action(async (opts) => {
-            await runCliAction(async () => {
-              await ensureMcpRuntimeDirs();
-              const result = await autonomyService.dedupe({
-                dryRun: opts.dryRun === true,
-                scopeSubject: opts.scope,
-                limit: clampPositiveInt(Number.parseInt(opts.limit, 10), 100, 500),
+          autonomy
+            .command("score")
+            .description("Recompute usefulness scores for a scope")
+            .requiredOption("--scope <scope>", "Memory scope to score")
+            .option("--agent <agent-id>", "Agent-specific usefulness key")
+            .option("--dry-run", "Report planned changes without writing records")
+            .option("--limit <n>", "Maximum records to scan", "100")
+            .action(async (opts) => {
+              await runCliAction(async () => {
+                await ensureMcpRuntimeDirs();
+                const result = await autonomyService.score({
+                  dryRun: opts.dryRun === true,
+                  scopeSubject: opts.scope,
+                  agentId: typeof opts.agent === "string" ? opts.agent : undefined,
+                  limit: clampPositiveInt(Number.parseInt(opts.limit, 10), 100, 500),
+                });
+                console.log(JSON.stringify(result, null, 2));
               });
-              console.log(JSON.stringify(result, null, 2));
             });
-          });
 
-        autonomy
-          .command("compact")
-          .description("Compact stale low-usefulness memories into a summary record")
-          .requiredOption("--scope <scope>", "Memory scope to scan")
-          .option("--dry-run", "Report planned changes without writing records")
-          .option("--limit <n>", "Maximum records to scan", "100")
-          .action(async (opts) => {
-            await runCliAction(async () => {
-              await ensureMcpRuntimeDirs();
-              const result = await autonomyService.compact({
-                dryRun: opts.dryRun === true,
-                scopeSubject: opts.scope,
-                limit: clampPositiveInt(Number.parseInt(opts.limit, 10), 100, 500),
+          autonomy
+            .command("explain")
+            .description("Explain usefulness, dedupe, and compaction metadata for a memory")
+            .requiredOption("--memory-id <id>", "Memory ID")
+            .option("--agent <agent-id>", "Agent-specific usefulness key")
+            .action(async (opts) => {
+              await runCliAction(async () => {
+                await ensureMcpRuntimeDirs();
+                const result = await autonomyService.explain(
+                  opts.memoryId,
+                  typeof opts.agent === "string" ? opts.agent : undefined,
+                );
+                console.log(JSON.stringify(result, null, 2));
               });
-              console.log(JSON.stringify(result, null, 2));
             });
-          });
+
+          autonomy
+            .command("dedupe")
+            .description("Mark duplicate memories and demote duplicate recall precedence")
+            .requiredOption("--scope <scope>", "Memory scope to scan")
+            .option("--dry-run", "Report planned changes without writing records")
+            .option("--limit <n>", "Maximum records to scan", "100")
+            .action(async (opts) => {
+              await runCliAction(async () => {
+                await ensureMcpRuntimeDirs();
+                const result = await autonomyService.dedupe({
+                  dryRun: opts.dryRun === true,
+                  scopeSubject: opts.scope,
+                  limit: clampPositiveInt(Number.parseInt(opts.limit, 10), 100, 500),
+                });
+                console.log(JSON.stringify(result, null, 2));
+              });
+            });
+
+          autonomy
+            .command("compact")
+            .description("Compact stale low-usefulness memories into a summary record")
+            .requiredOption("--scope <scope>", "Memory scope to scan")
+            .option("--dry-run", "Report planned changes without writing records")
+            .option("--limit <n>", "Maximum records to scan", "100")
+            .action(async (opts) => {
+              await runCliAction(async () => {
+                await ensureMcpRuntimeDirs();
+                const result = await autonomyService.compact({
+                  dryRun: opts.dryRun === true,
+                  scopeSubject: opts.scope,
+                  limit: clampPositiveInt(Number.parseInt(opts.limit, 10), 100, 500),
+                });
+                console.log(JSON.stringify(result, null, 2));
+              });
+            });
+        }
       },
       { commands: ["ltm", "memory"] },
     );
