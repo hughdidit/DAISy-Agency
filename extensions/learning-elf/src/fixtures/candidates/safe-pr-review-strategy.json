@@ -1,0 +1,27 @@
+{
+  "id": "candidate_safe_pr_review_strategy",
+  "genomeType": "agent_strategy",
+  "taskClass": "github_pr_review_strategy",
+  "strategy": {
+    "toolOrder": ["read_pr_diff", "read_ci_logs", "search_repo_docs", "draft_findings"],
+    "memoryRecipe": ["repo_conventions", "recent_ci_failures", "deployment_security_policy"],
+    "reviewFocus": ["ci_regression", "security", "deployment", "least_privilege"],
+    "maxFindings": 6,
+    "approvalMode": "before_write",
+    "outputFormat": "actionable_review"
+  },
+  "constraints": {
+    "noDirectWrite": true,
+    "noPolicyChange": true,
+    "noSecretStorage": true,
+    "requiresPromotion": true
+  },
+  "lineage": {
+    "seed": 1,
+    "generation": 0,
+    "parentIds": [],
+    "mutation": "fixture"
+  },
+  "createdAt": "2026-01-01T00:00:01.000Z",
+  "idempotencyKey": "fixture:candidate:safe-pr-review-strategy"
+}

@@ -1,0 +1,14 @@
+{
+  "name": "@openclaw/learning-elf",
+  "version": "2026.1.0-beta.1",
+  "description": "DAISy Evolutionary Learning Fabric extension",
+  "type": "module",
+  "dependencies": {
+    "@sinclair/typebox": "0.34.48"
+  },
+  "openclaw": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

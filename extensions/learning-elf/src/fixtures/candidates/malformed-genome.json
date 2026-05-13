@@ -1,0 +1,17 @@
+{
+  "id": "candidate_malformed_genome",
+  "genomeType": "agent_strategy",
+  "taskClass": "github_pr_review_strategy",
+  "strategy": {
+    "toolOrder": [],
+    "memoryRecipe": [],
+    "reviewFocus": [],
+    "approvalMode": "before_write",
+    "outputFormat": "actionable_review"
+  },
+  "constraints": {
+    "noDirectWrite": true
+  },
+  "createdAt": "2026-01-01T00:00:05.000Z",
+  "idempotencyKey": "fixture:candidate:malformed-genome"
+}
