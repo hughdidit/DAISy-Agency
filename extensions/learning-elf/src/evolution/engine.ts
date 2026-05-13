@@ -25,7 +25,10 @@ export function evolvePopulation(params: {
       if (!parent) {
         break;
       }
-      candidates.push(mutateGenome({ parent, seed: params.seed, generation, index, rng }));
+      const candidate = mutateGenome({ parent, seed: params.seed, generation, index, rng });
+      if (candidate) {
+        candidates.push(candidate);
+      }
       if (index >= params.population - 1) {
         break;
       }

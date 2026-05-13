@@ -7,6 +7,8 @@ import { afterEach, describe, expect, it } from "vitest";
 import { getSubCliEntries } from "../../../src/cli/program/register.subclis.js";
 import { registerElfCli } from "./cli.js";
 import { evaluateCandidate } from "./evaluation/evaluator.js";
+import { mutateGenome } from "./evolution/mutation.js";
+import { SeededRng } from "./evolution/rng.js";
 import { FixtureProvider } from "./generation/fixture-provider.js";
 import { runFixtureEvolution } from "./mapek/loop.js";
 import { CandidateGenomeSchema, MapeKTraceSchema } from "./models/schemas.js";
@@ -132,6 +134,29 @@ describe("DAISy ELF schemas and security", () => {
     expect(() => assertMutationAllowed(production)).toThrow(/Forbidden ELF mutation rejected/);
   });
 
+  it("rejects invalid generated mutations without crashing evolution", async () => {
+    const production = await readFixture<CandidateGenome>(unsafeProductionFixture);
+
+    expect(() =>
+      mutateGenome({
+        parent: production,
+        seed: 7,
+        generation: 1,
+        index: 0,
+        rng: new SeededRng(7),
+      }),
+    ).not.toThrow();
+    expect(
+      mutateGenome({
+        parent: production,
+        seed: 7,
+        generation: 1,
+        index: 0,
+        rng: new SeededRng(7),
+      }),
+    ).toBeNull();
+  });
+
   it("uses security gates as hard disqualification even with useful strategy shape", async () => {
     const candidate = await readFixture<CandidateGenome>(unsafeProductionFixture);
     const result = evaluateCandidate({ runId: "run_security", candidate, seed: 1, index: 0 });
@@ -214,6 +239,20 @@ describe("DAISy ELF fixture evolution", () => {
     expect(fixture.candidates).toHaveLength(0);
     expect(fixture.validationFailures.length).toBeGreaterThan(0);
   });
+
+  it("loads JSONL fixtures whose first line is an object", async () => {
+    const stateDir = await makeTempStateDir();
+    const event = await readFixture<unknown>(eventFixture);
+    const safe = await readFixture<unknown>(safeFixture);
+    const jsonlPath = path.join(stateDir, "fixture.jsonl");
+    await fs.writeFile(jsonlPath, `${JSON.stringify(event)}\n${JSON.stringify(safe)}\n`, "utf8");
+
+    const fixture = await new FixtureProvider().loadFixture(jsonlPath);
+
+    expect(fixture.learningEvents).toHaveLength(1);
+    expect(fixture.candidates).toHaveLength(1);
+    expect(fixture.validationFailures).toHaveLength(0);
+  });
 });
 
 describe("DAISy ELF CLI", () => {
@@ -293,5 +332,52 @@ describe("DAISy ELF CLI", () => {
     } finally {
       console.log = originalLog;
     }
+  });
+
+  it("ingests JSONL files whose first line is an object", async () => {
+    const stateDir = await makeTempStateDir();
+    const event = await readFixture<unknown>(eventFixture);
+    const safe = await readFixture<unknown>(safeFixture);
+    const jsonlPath = path.join(stateDir, "ingest.jsonl");
+    await fs.writeFile(jsonlPath, `${JSON.stringify(event)}\n${JSON.stringify(safe)}\n`, "utf8");
+    const program = new Command();
+    program.exitOverride();
+    registerElfCli({
+      program,
+      config: { enabled: true, storageBackend: "jsonl", stateDir },
+      logger: {},
+    });
+    const printed: string[] = [];
+    const originalLog = console.log;
+    console.log = (value?: unknown) => {
+      printed.push(String(value));
+    };
+
+    try {
+      await program.parseAsync(["elf", "ingest", "--file", jsonlPath], { from: "user" });
+      const result = JSON.parse(printed.at(-1) ?? "{}") as {
+        saved: string[];
+        rejected: unknown[];
+      };
+      expect(result.saved).toHaveLength(2);
+      expect(result.rejected).toHaveLength(0);
+    } finally {
+      console.log = originalLog;
+    }
+  });
+});
+
+describe("DAISy ELF JSONL storage", () => {
+  it("uses idempotency keys without duplicating appended records", async () => {
+    const stateDir = await makeTempStateDir();
+    const store = new JsonlLearningStore({ stateDir });
+    const safe = await readFixture<CandidateGenome>(safeFixture);
+
+    await store.saveRecord("elf_candidate_genomes", safe);
+    await store.saveRecord("elf_candidate_genomes", { ...safe, id: "candidate_duplicate_id" });
+
+    const records = await store.listRecords<CandidateGenome>("elf_candidate_genomes");
+    expect(records).toHaveLength(1);
+    expect(records[0]?.id).toBe(safe.id);
   });
 });

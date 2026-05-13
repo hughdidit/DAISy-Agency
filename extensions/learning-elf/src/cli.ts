@@ -27,14 +27,23 @@ async function readPayloads(filePath: string): Promise<unknown[]> {
   if (!trimmed) {
     return [];
   }
-  if (trimmed.startsWith("[") || trimmed.startsWith("{")) {
+  try {
     const parsed = JSON.parse(trimmed);
     return Array.isArray(parsed) ? parsed : [parsed];
+  } catch {
+    return trimmed
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line, index) => {
+        try {
+          return JSON.parse(line);
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          throw new Error(`Failed to parse JSONL at line ${index + 1}: ${message}`);
+        }
+      });
   }
-  return trimmed
-    .split("\n")
-    .filter(Boolean)
-    .map((line) => JSON.parse(line));
 }
 
 function parsePositiveInt(value: string, label: string): number {

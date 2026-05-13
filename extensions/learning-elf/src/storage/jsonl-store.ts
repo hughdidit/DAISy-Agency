@@ -14,10 +14,15 @@ const COLLECTION_FILES: Record<LearningCollection, string> = {
 };
 
 type RecordWithIdempotency = LearningRecord & { idempotencyKey?: string };
+type CollectionIndex = {
+  byId: Map<string, RecordWithIdempotency>;
+  byIdempotencyKey: Map<string, RecordWithIdempotency>;
+};
 
 export class JsonlLearningStore implements LearningStore {
   readonly backend = "jsonl" as const;
   private readonly rootDir: string;
+  private readonly indexes = new Map<LearningCollection, CollectionIndex>();
 
   constructor(params?: { stateDir?: string }) {
     this.rootDir = resolveLearningElfStateDir({ stateDir: params?.stateDir });
@@ -32,21 +37,21 @@ export class JsonlLearningStore implements LearningStore {
     record: T,
   ): Promise<T> {
     await fs.mkdir(this.rootDir, { recursive: true, mode: 0o700 });
-    const existing = await this.listRecords<RecordWithIdempotency>(collection);
+    const index = await this.getCollectionIndex(collection);
     const idempotencyKey = (record as RecordWithIdempotency).idempotencyKey;
-    const found = existing.find((entry) => {
-      if (idempotencyKey && entry.idempotencyKey === idempotencyKey) {
-        return true;
-      }
-      return entry.id === record.id;
-    });
-    if (found) {
-      return found as T;
+    const found = idempotencyKey ? index.byIdempotencyKey.get(idempotencyKey) : undefined;
+    const foundById = found ?? index.byId.get(record.id);
+    if (foundById) {
+      return foundById as T;
     }
     await fs.appendFile(this.resolveCollectionPath(collection), `${JSON.stringify(record)}\n`, {
       encoding: "utf8",
       mode: 0o600,
     });
+    index.byId.set(record.id, record);
+    if (idempotencyKey) {
+      index.byIdempotencyKey.set(idempotencyKey, record);
+    }
     return record;
   }
 
@@ -74,5 +79,25 @@ export class JsonlLearningStore implements LearningStore {
   ): Promise<T | null> {
     const records = await this.listRecords<T>(collection);
     return records.find((record) => record.id === id) ?? null;
+  }
+
+  private async getCollectionIndex(collection: LearningCollection): Promise<CollectionIndex> {
+    const cached = this.indexes.get(collection);
+    if (cached) {
+      return cached;
+    }
+    const records = await this.listRecords<RecordWithIdempotency>(collection);
+    const index: CollectionIndex = {
+      byId: new Map(records.map((record) => [record.id, record])),
+      byIdempotencyKey: new Map(
+        records
+          .filter((record): record is RecordWithIdempotency & { idempotencyKey: string } =>
+            Boolean(record.idempotencyKey),
+          )
+          .map((record) => [record.idempotencyKey, record]),
+      ),
+    };
+    this.indexes.set(collection, index);
+    return index;
   }
 }

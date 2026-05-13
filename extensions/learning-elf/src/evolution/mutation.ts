@@ -1,6 +1,6 @@
 import { isoFromSeed, stableId } from "../models/ids.js";
 import type { CandidateGenome } from "../models/types.js";
-import { assertMutationAllowed } from "../security/forbidden-mutations.js";
+import { detectForbiddenMutations } from "../security/forbidden-mutations.js";
 import type { SeededRng } from "./rng.js";
 
 const TOOL_CHOICES = [
@@ -36,14 +36,14 @@ export function mutateGenome(params: {
   generation: number;
   index: number;
   rng: SeededRng;
-}): CandidateGenome {
+}): CandidateGenome | null {
   const mutationKind = params.rng.pick([
     "add_tool",
     "add_memory_recipe",
     "add_review_focus",
     "adjust_max_findings",
   ]);
-  const candidate: CandidateGenome = JSON.parse(JSON.stringify(params.parent));
+  const candidate: CandidateGenome = structuredClone(params.parent);
   candidate.lineage = {
     seed: params.seed,
     generation: params.generation,
@@ -79,6 +79,5 @@ export function mutateGenome(params: {
     seed: params.seed,
   });
   candidate.idempotencyKey = `candidate:${candidate.id}`;
-  assertMutationAllowed(candidate);
-  return candidate;
+  return detectForbiddenMutations(candidate).length > 0 ? null : candidate;
 }
