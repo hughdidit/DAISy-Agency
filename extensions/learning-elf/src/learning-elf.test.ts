@@ -503,7 +503,7 @@ describe("DAISy ELF JSONL storage", () => {
     ]);
     await fs.appendFile(
       store.resolveCollectionPath("elf_candidate_genomes"),
-      "not-json\n[]\n{\"missingId\":true}\n",
+      'not-json\n[]\n{"missingId":true}\n',
       "utf8",
     );
 
