@@ -236,11 +236,10 @@ export function registerElfCli(params: {
           options.fixtureProvider === true
             ? new FixtureGitHubProposalProvider()
             : new GhCliGitHubProposalProvider();
-        const service = new ElfProposalService(
-          params.config.githubProposals!,
-          store,
-          provider,
-        );
+        if (!params.config.githubProposals) {
+          throw new Error("GitHub proposals are not configured for ELF.");
+        }
+        const service = new ElfProposalService(params.config.githubProposals, store, provider);
         printJson(
           await service.createPr({
             promotionId: options.promotionId,
@@ -271,11 +270,10 @@ export function registerElfCli(params: {
           options.fixtureProvider === true
             ? new FixtureGitHubProposalProvider()
             : new GhCliGitHubProposalProvider();
-        const service = new ElfProposalService(
-          params.config.githubProposals!,
-          store,
-          provider,
-        );
+        if (!params.config.githubProposals) {
+          throw new Error("GitHub proposals are not configured for ELF.");
+        }
+        const service = new ElfProposalService(params.config.githubProposals, store, provider);
         printJson(
           await service.updatePr({
             promotionId: options.promotionId,

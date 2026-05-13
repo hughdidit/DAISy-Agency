@@ -85,7 +85,7 @@ export function resolveLearningElfStateDir(config?: Pick<LearningElfConfig, "sta
 function parseLlmEvolution(value: unknown): LearningElfConfig["llmEvolution"] {
   const defaults = DEFAULT_LEARNING_ELF_CONFIG.llmEvolution!;
   if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return { ...defaults };
+    return { ...defaults, modelAllowlist: [...defaults.modelAllowlist] };
   }
   const raw = value as Record<string, unknown>;
   const provider =
@@ -107,7 +107,12 @@ function parseLlmEvolution(value: unknown): LearningElfConfig["llmEvolution"] {
 function parseGithubProposals(value: unknown): LearningElfConfig["githubProposals"] {
   const defaults = DEFAULT_LEARNING_ELF_CONFIG.githubProposals!;
   if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return { ...defaults, labels: [...defaults.labels] };
+    return {
+      ...defaults,
+      labels: [...defaults.labels],
+      allowedProposalPaths: [...defaults.allowedProposalPaths],
+      forbiddenPathGlobs: [...defaults.forbiddenPathGlobs],
+    };
   }
   const raw = value as Record<string, unknown>;
   return {
