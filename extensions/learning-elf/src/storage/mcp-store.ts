@@ -3,7 +3,10 @@ import type { LearningCollection, LearningRecord, LearningStore } from "./store.
 export class McpLearningStore implements LearningStore {
   readonly backend = "mcp" as const;
 
-  async saveRecord<T extends LearningRecord>(_collection: LearningCollection, _record: T): Promise<T> {
+  async saveRecord<T extends LearningRecord>(
+    _collection: LearningCollection,
+    _record: T,
+  ): Promise<T> {
     throw new Error("MCP-backed ELF storage is not configured for the initial implementation");
   }
 

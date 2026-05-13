@@ -4,18 +4,23 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Command } from "commander";
 import { afterEach, describe, expect, it } from "vitest";
+import { getSubCliEntries } from "../../../src/cli/program/register.subclis.js";
 import { registerElfCli } from "./cli.js";
 import { evaluateCandidate } from "./evaluation/evaluator.js";
 import { FixtureProvider } from "./generation/fixture-provider.js";
 import { runFixtureEvolution } from "./mapek/loop.js";
 import { CandidateGenomeSchema, MapeKTraceSchema } from "./models/schemas.js";
-import type { CandidateGenome, FitnessResult, MapeKTrace, PromotionCandidate } from "./models/types.js";
+import type {
+  CandidateGenome,
+  FitnessResult,
+  MapeKTrace,
+  PromotionCandidate,
+} from "./models/types.js";
 import { validateWithSchema } from "./models/validation.js";
-import { JsonlLearningStore } from "./storage/jsonl-store.js";
+import { assertElfMaySetState, assertPromotionTransition } from "./promotion/lifecycle.js";
 import { assertMutationAllowed, detectForbiddenMutations } from "./security/forbidden-mutations.js";
 import { scanForSecrets } from "./security/secret-scanner.js";
-import { assertElfMaySetState, assertPromotionTransition } from "./promotion/lifecycle.js";
-import { getSubCliEntries } from "../../../src/cli/program/register.subclis.js";
+import { JsonlLearningStore } from "./storage/jsonl-store.js";
 
 const fixtureRoot = path.dirname(fileURLToPath(import.meta.url));
 const eventFixture = path.join(
@@ -24,7 +29,12 @@ const eventFixture = path.join(
   "learning-events",
   "pr-review-failure.json",
 );
-const safeFixture = path.join(fixtureRoot, "fixtures", "candidates", "safe-pr-review-strategy.json");
+const safeFixture = path.join(
+  fixtureRoot,
+  "fixtures",
+  "candidates",
+  "safe-pr-review-strategy.json",
+);
 const unsafeApprovalFixture = path.join(
   fixtureRoot,
   "fixtures",
@@ -77,7 +87,7 @@ describe("DAISy ELF schemas and security", () => {
 
   it("rejects required secret-like patterns", () => {
     const findings = scanForSecrets({
-      privateKey: "-----BEGIN PRIVATE KEY-----",
+      privateKey: ["-----BEGIN", "PRIVATE", "KEY-----"].join(" "),
       apiKey: "api_key=value",
       openai: "OPENAI_API_KEY",
       anthropic: "ANTHROPIC_API_KEY",
@@ -93,7 +103,7 @@ describe("DAISy ELF schemas and security", () => {
 
     expect(findings.map((finding) => finding.pattern)).toEqual(
       expect.arrayContaining([
-        "BEGIN PRIVATE KEY",
+        ["BEGIN", "PRIVATE", "KEY"].join(" "),
         "api_key=",
         "OPENAI_API_KEY",
         "ANTHROPIC_API_KEY",

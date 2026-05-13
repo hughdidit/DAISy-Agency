@@ -5,7 +5,9 @@ export function selectPromotionEligible(params: {
   fitnessResults: FitnessResult[];
   limit: number;
 }): CandidateGenome[] {
-  const resultByCandidate = new Map(params.fitnessResults.map((result) => [result.candidateId, result]));
+  const resultByCandidate = new Map(
+    params.fitnessResults.map((result) => [result.candidateId, result]),
+  );
   return [...params.candidates]
     .filter((candidate) => resultByCandidate.get(candidate.id)?.promotionEligible)
     .sort((left, right) => {

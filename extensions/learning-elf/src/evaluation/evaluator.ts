@@ -1,7 +1,7 @@
-import type { CandidateGenome, FitnessResult, FitnessScores } from "../models/types.js";
 import { isoFromSeed, stableId } from "../models/ids.js";
-import { evaluateSecurityGate } from "./security-gates.js";
+import type { CandidateGenome, FitnessResult, FitnessScores } from "../models/types.js";
 import { clampScore, weightedFitness } from "./scoring.js";
+import { evaluateSecurityGate } from "./security-gates.js";
 
 export function evaluateCandidate(params: {
   runId: string;

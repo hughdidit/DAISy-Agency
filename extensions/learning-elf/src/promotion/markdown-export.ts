@@ -1,6 +1,11 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import type { CandidateGenome, FitnessResult, MapeKTrace, PromotionCandidate } from "../models/types.js";
+import type {
+  CandidateGenome,
+  FitnessResult,
+  MapeKTrace,
+  PromotionCandidate,
+} from "../models/types.js";
 
 export function renderPromotionMarkdown(params: {
   promotion: PromotionCandidate;

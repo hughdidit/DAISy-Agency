@@ -9,14 +9,8 @@
       "modify_github_workflow",
       "draft_findings"
     ],
-    "memoryRecipe": [
-      "repo_conventions",
-      "deployment_security_policy"
-    ],
-    "reviewFocus": [
-      "deployment",
-      "security"
-    ],
+    "memoryRecipe": ["repo_conventions", "deployment_security_policy"],
+    "reviewFocus": ["deployment", "security"],
     "maxFindings": 6,
     "approvalMode": "before_write",
     "outputFormat": "actionable_review"

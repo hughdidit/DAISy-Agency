@@ -1,5 +1,5 @@
-import type { CandidateGenome, LearningEvent } from "../models/types.js";
 import { isoFromSeed, stableId } from "../models/ids.js";
+import type { CandidateGenome, LearningEvent } from "../models/types.js";
 
 export function createPrototypeGithubPrReviewStrategy(params: {
   seed: number;

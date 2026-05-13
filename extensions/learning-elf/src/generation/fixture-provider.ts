@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import type { CandidateGenome, LearningEvent } from "../models/types.js";
 import { CandidateGenomeSchema, LearningEventSchema } from "../models/schemas.js";
+import type { CandidateGenome, LearningEvent } from "../models/types.js";
 import { validateWithSchema } from "../models/validation.js";
 import type { CandidateProvider, FixturePayload } from "./provider.js";
 
@@ -15,7 +15,10 @@ async function readJsonOrJsonl(filePath: string): Promise<unknown[]> {
     const parsed = JSON.parse(trimmed);
     return Array.isArray(parsed) ? parsed : [parsed];
   }
-  return trimmed.split("\n").filter(Boolean).map((line) => JSON.parse(line));
+  return trimmed
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => JSON.parse(line));
 }
 
 async function readCandidateDirectory(dir: string): Promise<unknown[]> {

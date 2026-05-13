@@ -1,3 +1,4 @@
+import { isoFromSeed, stableId } from "../models/ids.js";
 import type {
   EvolutionRun,
   FitnessResult,
@@ -7,7 +8,6 @@ import type {
   RiskFinding,
   SourceRef,
 } from "../models/types.js";
-import { isoFromSeed, stableId } from "../models/ids.js";
 import type { StoreBackend } from "../models/types.js";
 
 export function createMapeKTrace(params: {

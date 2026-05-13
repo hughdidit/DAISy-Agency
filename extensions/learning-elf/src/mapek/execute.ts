@@ -1,6 +1,6 @@
+import { selectPromotionEligible } from "../evolution/selection.js";
 import type { CandidateGenome, FitnessResult, PromotionCandidate } from "../models/types.js";
 import { createPromotionCandidate } from "../promotion/promotion-queue.js";
-import { selectPromotionEligible } from "../evolution/selection.js";
 
 export type ExecuteResult = {
   promotions: PromotionCandidate[];
@@ -19,7 +19,9 @@ export function executePromotionQueue(params: {
     fitnessResults: params.fitnessResults,
     limit: 3,
   });
-  const resultByCandidate = new Map(params.fitnessResults.map((result) => [result.candidateId, result]));
+  const resultByCandidate = new Map(
+    params.fitnessResults.map((result) => [result.candidateId, result]),
+  );
   const promotions = selected.map((candidate, index) => {
     const fitnessResult = resultByCandidate.get(candidate.id);
     if (!fitnessResult) {

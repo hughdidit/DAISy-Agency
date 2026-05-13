@@ -4,10 +4,16 @@ import type { Command } from "commander";
 import type { LearningElfConfig } from "../config.js";
 import { createLearningStore, runFixtureEvolution } from "./mapek/loop.js";
 import { CandidateGenomeSchema, LearningEventSchema } from "./models/schemas.js";
-import type { CandidateGenome, LearningEvent, FitnessResult, MapeKTrace, PromotionCandidate } from "./models/types.js";
+import type {
+  CandidateGenome,
+  LearningEvent,
+  FitnessResult,
+  MapeKTrace,
+  PromotionCandidate,
+} from "./models/types.js";
 import { validateWithSchema } from "./models/validation.js";
-import { assertNoSecrets } from "./security/secret-scanner.js";
 import { exportPromotionMarkdown } from "./promotion/markdown-export.js";
+import { assertNoSecrets } from "./security/secret-scanner.js";
 
 type Logger = {
   info?: (message: string) => void;
@@ -25,7 +31,10 @@ async function readPayloads(filePath: string): Promise<unknown[]> {
     const parsed = JSON.parse(trimmed);
     return Array.isArray(parsed) ? parsed : [parsed];
   }
-  return trimmed.split("\n").filter(Boolean).map((line) => JSON.parse(line));
+  return trimmed
+    .split("\n")
+    .filter(Boolean)
+    .map((line) => JSON.parse(line));
 }
 
 function parsePositiveInt(value: string, label: string): number {
@@ -86,16 +95,23 @@ export function registerElfCli(params: {
     .requiredOption("--generations <n>", "Generation count")
     .requiredOption("--population <n>", "Population size")
     .requiredOption("--seed <n>", "Deterministic seed")
-    .action(async (options: { fixture: string; generations: string; population: string; seed: string }) => {
-      const summary = await runFixtureEvolution({
-        config: params.config,
-        fixturePath: options.fixture,
-        generations: parsePositiveInt(options.generations, "generations"),
-        population: parsePositiveInt(options.population, "population"),
-        seed: parsePositiveInt(options.seed, "seed"),
-      });
-      printJson(summary);
-    });
+    .action(
+      async (options: {
+        fixture: string;
+        generations: string;
+        population: string;
+        seed: string;
+      }) => {
+        const summary = await runFixtureEvolution({
+          config: params.config,
+          fixturePath: options.fixture,
+          generations: parsePositiveInt(options.generations, "generations"),
+          population: parsePositiveInt(options.population, "population"),
+          seed: parsePositiveInt(options.seed, "seed"),
+        });
+        printJson(summary);
+      },
+    );
 
   root
     .command("candidates")

@@ -1,5 +1,5 @@
-import type { CandidateGenome } from "../models/types.js";
 import { isoFromSeed, stableId } from "../models/ids.js";
+import type { CandidateGenome } from "../models/types.js";
 import { assertMutationAllowed } from "../security/forbidden-mutations.js";
 import type { SeededRng } from "./rng.js";
 

@@ -18,7 +18,8 @@ export function resolveLearningElfConfig(raw: unknown): LearningElfConfig {
   const value = raw && typeof raw === "object" && !Array.isArray(raw) ? raw : {};
   const record = value as Record<string, unknown>;
   const storageBackend = record.storageBackend === "mcp" ? "mcp" : "jsonl";
-  const stateDir = typeof record.stateDir === "string" && record.stateDir.trim() ? record.stateDir : undefined;
+  const stateDir =
+    typeof record.stateDir === "string" && record.stateDir.trim() ? record.stateDir : undefined;
   return {
     enabled: typeof record.enabled === "boolean" ? record.enabled : true,
     storageBackend,

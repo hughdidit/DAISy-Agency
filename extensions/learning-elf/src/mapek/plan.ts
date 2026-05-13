@@ -1,8 +1,8 @@
-import type { CandidateGenome, FitnessResult } from "../models/types.js";
-import { createPrototypeGithubPrReviewStrategy } from "../generation/candidate-generator.js";
-import { evolvePopulation } from "../evolution/engine.js";
 import { evaluateCandidate } from "../evaluation/evaluator.js";
+import { evolvePopulation } from "../evolution/engine.js";
+import { createPrototypeGithubPrReviewStrategy } from "../generation/candidate-generator.js";
 import type { FixturePayload } from "../generation/provider.js";
+import type { CandidateGenome, FitnessResult } from "../models/types.js";
 
 export type PlanResult = {
   candidates: CandidateGenome[];

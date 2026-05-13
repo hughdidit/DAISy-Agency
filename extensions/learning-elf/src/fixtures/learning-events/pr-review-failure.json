@@ -9,11 +9,7 @@
       "ref": "pr-review-failure"
     }
   ],
-  "signals": [
-    "missed_ci_context",
-    "deployment_policy_review_gap",
-    "needs_actionable_findings"
-  ],
+  "signals": ["missed_ci_context", "deployment_policy_review_gap", "needs_actionable_findings"],
   "createdAt": "2026-01-01T00:00:00.000Z",
   "idempotencyKey": "fixture:event:pr-review-failure"
 }

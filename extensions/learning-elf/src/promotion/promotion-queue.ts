@@ -1,5 +1,5 @@
-import type { CandidateGenome, FitnessResult, PromotionCandidate } from "../models/types.js";
 import { isoFromSeed, stableId } from "../models/ids.js";
+import type { CandidateGenome, FitnessResult, PromotionCandidate } from "../models/types.js";
 import { assertElfMaySetState, assertPromotionTransition } from "./lifecycle.js";
 
 export function createPromotionCandidate(params: {

@@ -1,17 +1,17 @@
 import type { LearningElfConfig } from "../../config.js";
+import { FixtureProvider } from "../generation/fixture-provider.js";
+import { isoFromSeed, stableId } from "../models/ids.js";
+import type { EvolutionRun, EvolutionSummary, NegativeTestCandidate } from "../models/types.js";
+import { scanForSecrets } from "../security/secret-scanner.js";
 import { JsonlLearningStore } from "../storage/jsonl-store.js";
 import { McpLearningStore } from "../storage/mcp-store.js";
 import type { LearningStore } from "../storage/store.js";
-import { FixtureProvider } from "../generation/fixture-provider.js";
-import type { EvolutionRun, EvolutionSummary, NegativeTestCandidate } from "../models/types.js";
-import { isoFromSeed, stableId } from "../models/ids.js";
-import { monitorLearningEvents } from "./monitor.js";
 import { analyzeLearningInputs } from "./analyze.js";
-import { planEvolution } from "./plan.js";
 import { executePromotionQueue } from "./execute.js";
-import { createMapeKTrace } from "./trace.js";
 import { persistKnowledge } from "./knowledge.js";
-import { scanForSecrets } from "../security/secret-scanner.js";
+import { monitorLearningEvents } from "./monitor.js";
+import { planEvolution } from "./plan.js";
+import { createMapeKTrace } from "./trace.js";
 
 export function createLearningStore(config: LearningElfConfig): LearningStore {
   return config.storageBackend === "mcp"

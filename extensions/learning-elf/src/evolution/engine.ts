@@ -16,7 +16,10 @@ export function evolvePopulation(params: {
   }
 
   for (let generation = 1; generation <= params.generations; generation += 1) {
-    const generationParents = parents.slice(0, Math.max(1, Math.min(parents.length, params.population)));
+    const generationParents = parents.slice(
+      0,
+      Math.max(1, Math.min(parents.length, params.population)),
+    );
     for (let index = 0; candidates.length < params.population * params.generations; index += 1) {
       const parent = generationParents[index % generationParents.length];
       if (!parent) {

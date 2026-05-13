@@ -27,7 +27,10 @@ export class JsonlLearningStore implements LearningStore {
     return path.join(this.rootDir, COLLECTION_FILES[collection]);
   }
 
-  async saveRecord<T extends LearningRecord>(collection: LearningCollection, record: T): Promise<T> {
+  async saveRecord<T extends LearningRecord>(
+    collection: LearningCollection,
+    record: T,
+  ): Promise<T> {
     await fs.mkdir(this.rootDir, { recursive: true, mode: 0o700 });
     const existing = await this.listRecords<RecordWithIdempotency>(collection);
     const idempotencyKey = (record as RecordWithIdempotency).idempotencyKey;

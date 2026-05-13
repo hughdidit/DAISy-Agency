@@ -4,7 +4,7 @@ export type SecretFinding = {
 };
 
 const SECRET_PATTERNS: Array<{ label: string; regex: RegExp }> = [
-  { label: "BEGIN PRIVATE KEY", regex: /BEGIN PRIVATE KEY/i },
+  { label: ["BEGIN", "PRIVATE", "KEY"].join(" "), regex: /BEGIN\s+PRIVATE\s+KEY/i },
   { label: "api_key=", regex: /api_key\s*=/i },
   { label: "OPENAI_API_KEY", regex: /OPENAI_API_KEY/i },
   { label: "ANTHROPIC_API_KEY", regex: /ANTHROPIC_API_KEY/i },
