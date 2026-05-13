@@ -243,6 +243,15 @@ const entries: SubCliEntry[] = [
     },
   },
   {
+    name: "elf",
+    description: "DAISy Evolutionary Learning Fabric commands",
+    hasSubcommands: true,
+    register: async (program) => {
+      const { registerPluginCliCommands } = await import("../../plugins/cli.js");
+      registerPluginCliCommands(program, await loadConfig());
+    },
+  },
+  {
     name: "channels",
     description: "Manage connected chat channels (Telegram, Discord, etc.)",
     hasSubcommands: true,

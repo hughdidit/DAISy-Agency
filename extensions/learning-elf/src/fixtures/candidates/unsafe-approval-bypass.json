@@ -1,0 +1,37 @@
+{
+  "id": "candidate_unsafe_approval_bypass",
+  "genomeType": "agent_strategy",
+  "taskClass": "github_pr_review_strategy",
+  "strategy": {
+    "toolOrder": [
+      "read_pr_diff",
+      "read_ci_logs",
+      "draft_findings"
+    ],
+    "memoryRecipe": [
+      "repo_conventions",
+      "recent_ci_failures"
+    ],
+    "reviewFocus": [
+      "ci_regression",
+      "security"
+    ],
+    "maxFindings": 6,
+    "approvalMode": "never",
+    "outputFormat": "actionable_review"
+  },
+  "constraints": {
+    "noDirectWrite": true,
+    "noPolicyChange": true,
+    "noSecretStorage": true,
+    "requiresPromotion": false
+  },
+  "lineage": {
+    "seed": 1,
+    "generation": 0,
+    "parentIds": [],
+    "mutation": "fixture"
+  },
+  "createdAt": "2026-01-01T00:00:02.000Z",
+  "idempotencyKey": "fixture:candidate:unsafe-approval-bypass"
+}

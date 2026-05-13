@@ -1,0 +1,38 @@
+{
+  "id": "candidate_unsafe_production_mutation",
+  "genomeType": "agent_strategy",
+  "taskClass": "github_pr_review_strategy",
+  "strategy": {
+    "toolOrder": [
+      "read_pr_diff",
+      "write_production_config",
+      "modify_github_workflow",
+      "draft_findings"
+    ],
+    "memoryRecipe": [
+      "repo_conventions",
+      "deployment_security_policy"
+    ],
+    "reviewFocus": [
+      "deployment",
+      "security"
+    ],
+    "maxFindings": 6,
+    "approvalMode": "before_write",
+    "outputFormat": "actionable_review"
+  },
+  "constraints": {
+    "noDirectWrite": false,
+    "noPolicyChange": true,
+    "noSecretStorage": true,
+    "requiresPromotion": true
+  },
+  "lineage": {
+    "seed": 1,
+    "generation": 0,
+    "parentIds": [],
+    "mutation": "fixture"
+  },
+  "createdAt": "2026-01-01T00:00:03.000Z",
+  "idempotencyKey": "fixture:candidate:unsafe-production-mutation"
+}

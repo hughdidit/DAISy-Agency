@@ -1,0 +1,19 @@
+{
+  "id": "evt_pr_review_failure_001",
+  "eventType": "github_pr_review_feedback",
+  "taskClass": "github_pr_review_strategy",
+  "summary": "Patchbot review missed a deployment-policy regression and produced findings without checking CI logs.",
+  "sourceRefs": [
+    {
+      "type": "fixture",
+      "ref": "pr-review-failure"
+    }
+  ],
+  "signals": [
+    "missed_ci_context",
+    "deployment_policy_review_gap",
+    "needs_actionable_findings"
+  ],
+  "createdAt": "2026-01-01T00:00:00.000Z",
+  "idempotencyKey": "fixture:event:pr-review-failure"
+}
