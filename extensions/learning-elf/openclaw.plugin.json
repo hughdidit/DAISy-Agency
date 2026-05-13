@@ -1,0 +1,12 @@
+{
+  "id": "learning-elf",
+  "kind": "tool",
+  "name": "DAISy Evolutionary Learning Fabric",
+  "description": "Governed fixture-mode candidate optimizer for DAISy learning proposals",
+  "version": "2026.1.0-beta.1",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}
