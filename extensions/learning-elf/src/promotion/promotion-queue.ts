@@ -1,5 +1,10 @@
 import { isoFromSeed, stableId } from "../models/ids.js";
-import type { CandidateGenome, FitnessResult, PromotionCandidate } from "../models/types.js";
+import type {
+  CandidateGenome,
+  FitnessResult,
+  PromotionCandidate,
+  PromotionState,
+} from "../models/types.js";
 import { assertElfMaySetState, assertPromotionTransition } from "./lifecycle.js";
 
 export function createPromotionCandidate(params: {
@@ -9,7 +14,7 @@ export function createPromotionCandidate(params: {
   seed: number;
   index: number;
 }): PromotionCandidate {
-  let state = "draft" as const;
+  let state: PromotionState = "draft";
   assertPromotionTransition(state, "candidate");
   state = "candidate";
   assertPromotionTransition(state, "evaluated");
