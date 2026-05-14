@@ -441,6 +441,7 @@ export type GatewaySessionRow = {
   room?: string;
   space?: string;
   updatedAt: number | null;
+  closedAt?: number;
   sessionId?: string;
   systemSent?: boolean;
   abortedLastRun?: boolean;

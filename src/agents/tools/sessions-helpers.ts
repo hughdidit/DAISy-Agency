@@ -51,6 +51,7 @@ export type SessionListRow = {
   displayName?: string;
   deliveryContext?: SessionListDeliveryContext;
   updatedAt?: number | null;
+  closedAt?: number;
   sessionId?: string;
   model?: string;
   contextTokens?: number | null;
