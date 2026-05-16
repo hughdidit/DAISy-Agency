@@ -22,6 +22,9 @@ tool and workflow.
 1. Run `gws_status` before reads or writes and treat its route, delegated
    identity, transport, and write-readiness fields as the source of truth.
 2. Prefer the narrowest tool and action needed.
+   For unread Gmail inbox checks by sender, prefer structured filters such as
+   `fromEmail`, `fromDomain`, `unread`, and `inbox` over wildcard Gmail search
+   strings like `from:*@example.com`.
 3. Treat route and policy denials as configuration issues, not retry candidates.
 4. Escalate auth or API enablement issues to operators.
 

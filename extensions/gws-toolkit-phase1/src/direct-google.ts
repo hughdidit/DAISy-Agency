@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { JWT } from "google-auth-library";
+import { buildGmailReadQuery, extractWildcardFromDomainFilters } from "./command-builder.js";
 import { PluginError } from "./errors.js";
 import {
   READONLY_SCOPES,
@@ -57,6 +58,105 @@ function encodeSegment(value: string): string {
 
 function compactParams(input: Record<string, unknown>): Record<string, unknown> {
   return Object.fromEntries(Object.entries(input).filter(([, value]) => value !== undefined));
+}
+
+function readPositiveInt(value: unknown, fallback: number, maximum: number): number {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return fallback;
+  }
+  return Math.min(Math.max(Math.floor(value), 1), maximum);
+}
+
+function normalizeGmailDomain(value: unknown): string | undefined {
+  if (typeof value !== "string") {
+    return undefined;
+  }
+  const normalized = value.trim().replace(/^@/, "").toLowerCase();
+  return /^[a-z0-9][a-z0-9.-]*\.[a-z]{2,}$/.test(normalized) ? normalized : undefined;
+}
+
+function normalizeGmailEmail(value: unknown): string | undefined {
+  if (typeof value !== "string") {
+    return undefined;
+  }
+  const normalized = value.trim().toLowerCase();
+  return /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(normalized) ? normalized : undefined;
+}
+
+function buildGmailLabelIds(payload: Record<string, unknown>): string[] | undefined {
+  const labels = [
+    ...(payload.inbox === true ? ["INBOX"] : []),
+    ...(payload.unread === true ? ["UNREAD"] : []),
+  ];
+  return labels.length > 0 ? labels : undefined;
+}
+
+function resolveGmailSenderFilters(payload: Record<string, unknown>): {
+  fromEmail?: string;
+  fromDomains: string[];
+} {
+  const fromDomains: string[] = [];
+  const addDomain = (value: unknown) => {
+    const normalized = normalizeGmailDomain(value);
+    if (normalized && !fromDomains.includes(normalized)) {
+      fromDomains.push(normalized);
+    }
+  };
+  addDomain(payload.fromDomain);
+  for (const domain of extractWildcardFromDomainFilters(payload.query).fromDomains) {
+    addDomain(domain);
+  }
+  return {
+    fromEmail: normalizeGmailEmail(payload.fromEmail),
+    fromDomains,
+  };
+}
+
+function getHeaderValue(payload: unknown, name: string): string | undefined {
+  if (!payload || typeof payload !== "object") {
+    return undefined;
+  }
+  const headers = (payload as { payload?: { headers?: unknown } }).payload?.headers;
+  if (!Array.isArray(headers)) {
+    return undefined;
+  }
+  const match = headers.find((entry) => {
+    if (!entry || typeof entry !== "object") {
+      return false;
+    }
+    return String((entry as { name?: unknown }).name ?? "").toLowerCase() === name.toLowerCase();
+  });
+  return match && typeof (match as { value?: unknown }).value === "string"
+    ? (match as { value: string }).value
+    : undefined;
+}
+
+function extractEmailAddresses(value: string): string[] {
+  return [...value.matchAll(/[A-Z0-9._%+-]+@([A-Z0-9.-]+\.[A-Z]{2,})/gi)].map((match) =>
+    match[0].toLowerCase(),
+  );
+}
+
+function fromHeaderMatchesFilters(
+  fromHeader: string | undefined,
+  filters: { fromEmail?: string; fromDomains: string[] },
+): boolean {
+  if (!filters.fromEmail && filters.fromDomains.length === 0) {
+    return true;
+  }
+  if (!fromHeader) {
+    return false;
+  }
+  const addresses = extractEmailAddresses(fromHeader);
+  if (filters.fromEmail && !addresses.includes(filters.fromEmail)) {
+    return false;
+  }
+  return (
+    filters.fromDomains.length === 0 ||
+    filters.fromDomains.some((domain) =>
+      addresses.some((address) => address.endsWith(`@${domain}`)),
+    )
+  );
 }
 
 function compactRequestOptions<T extends Record<string, unknown>>(input: T): Partial<T> {
@@ -358,7 +458,11 @@ export function buildDirectGoogleRequest(params: {
         return {
           method: "GET",
           url: "https://gmail.googleapis.com/gmail/v1/users/me/messages",
-          params: compactParams({ q: p.query, maxResults: p.maxResults }),
+          params: compactParams({
+            q: buildGmailReadQuery(p, { includeDomainFilter: false }),
+            maxResults: p.maxResults,
+            labelIds: buildGmailLabelIds(p),
+          }),
         };
       }
       if (params.action === "get_message_metadata") {
@@ -517,6 +621,144 @@ function mapGoogleError(error: unknown, auth: AuthResolution): PluginError {
   });
 }
 
+async function executeDirectGmailListMessages(params: {
+  client: JWT;
+  config: GwsToolkitConfig;
+  payload: Record<string, unknown>;
+}): Promise<DirectGoogleResult> {
+  const filters = resolveGmailSenderFilters(params.payload);
+  const needsSenderPostFilter = Boolean(filters.fromEmail || filters.fromDomains.length > 0);
+  const requestedMaxResults = readPositiveInt(params.payload.maxResults, 100, 500);
+  const pageSize = needsSenderPostFilter
+    ? Math.min(500, Math.max(50, requestedMaxResults * 5))
+    : requestedMaxResults;
+  const maxInspected = needsSenderPostFilter
+    ? Math.min(2_000, Math.max(pageSize, requestedMaxResults * 20))
+    : pageSize;
+  const senderScanDeadlineAt = Date.now() + Math.min(params.config.timeoutMs, 30_000);
+  const metadataConcurrency = 8;
+  const query = buildGmailReadQuery(params.payload, {
+    includeDomainFilter: false,
+    includeEmailFilter: !needsSenderPostFilter,
+  });
+  const labelIds = buildGmailLabelIds(params.payload);
+  const messages: unknown[] = [];
+  let inspectedMessageCount = 0;
+  let pageToken: string | undefined;
+  let nextPageToken: string | undefined;
+  let deadlineReached = false;
+
+  do {
+    if (needsSenderPostFilter && Date.now() >= senderScanDeadlineAt) {
+      deadlineReached = true;
+      break;
+    }
+    const response = await params.client.request(
+      buildDirectGoogleClientRequestOptions({
+        method: "GET",
+        url: "https://gmail.googleapis.com/gmail/v1/users/me/messages",
+        params: compactParams({
+          q: query,
+          maxResults: Math.min(pageSize, maxInspected - inspectedMessageCount),
+          labelIds,
+          pageToken,
+        }),
+        timeoutMs: params.config.timeoutMs,
+      }),
+    );
+    const payload = (response.data ?? {}) as {
+      messages?: unknown[];
+      nextPageToken?: unknown;
+      resultSizeEstimate?: unknown;
+    };
+    const candidates = Array.isArray(payload.messages) ? payload.messages : [];
+    if (!needsSenderPostFilter) {
+      return {
+        payload: payload as Record<string, unknown>,
+        output: { stdoutTruncated: false, stderrTruncated: false },
+      };
+    }
+
+    const validCandidates = candidates.filter((candidate) => {
+      if (!candidate || typeof candidate !== "object") {
+        return false;
+      }
+      const id = (candidate as { id?: unknown }).id;
+      return typeof id === "string" && Boolean(id.trim());
+    });
+    const remainingInspectionSlots = maxInspected - inspectedMessageCount;
+    const candidatesToInspect = validCandidates.slice(0, remainingInspectionSlots);
+    for (let index = 0; index < candidatesToInspect.length; index += metadataConcurrency) {
+      if (Date.now() >= senderScanDeadlineAt) {
+        deadlineReached = true;
+        break;
+      }
+      const batch = candidatesToInspect.slice(index, index + metadataConcurrency);
+      inspectedMessageCount += batch.length;
+      const metadataResults = await Promise.all(
+        batch.map(async (candidate) => {
+          const id = (candidate as { id: string }).id;
+          const metadata = await params.client.request(
+            buildDirectGoogleClientRequestOptions({
+              method: "GET",
+              url: `https://gmail.googleapis.com/gmail/v1/users/me/messages/${encodeSegment(id)}`,
+              params: { format: "metadata", metadataHeaders: ["From"] },
+              timeoutMs: params.config.timeoutMs,
+            }),
+          );
+          return { candidate, fromHeader: getHeaderValue(metadata.data, "From") };
+        }),
+      );
+      for (const result of metadataResults) {
+        if (fromHeaderMatchesFilters(result.fromHeader, filters)) {
+          messages.push(result.candidate);
+          if (messages.length >= requestedMaxResults) {
+            break;
+          }
+        }
+      }
+      if (
+        messages.length >= requestedMaxResults ||
+        inspectedMessageCount >= maxInspected ||
+        deadlineReached
+      ) {
+        break;
+      }
+    }
+
+    nextPageToken = typeof payload.nextPageToken === "string" ? payload.nextPageToken : undefined;
+    pageToken =
+      !deadlineReached &&
+      messages.length < requestedMaxResults &&
+      inspectedMessageCount < maxInspected
+        ? nextPageToken
+        : undefined;
+  } while (pageToken);
+
+  const inspectionLimitReached = inspectedMessageCount >= maxInspected || deadlineReached;
+
+  return {
+    payload: {
+      messages,
+      resultSizeEstimate: messages.length,
+      resultLimitReached: messages.length >= requestedMaxResults,
+      scanLimitReached: inspectionLimitReached,
+      query,
+      filters: {
+        fromEmail: filters.fromEmail,
+        fromDomains: filters.fromDomains,
+        labelIds,
+      },
+      inspectedMessageCount,
+      senderFiltered: true,
+    },
+    output: {
+      stdoutTruncated: false,
+      stderrTruncated: false,
+    },
+  };
+}
+
 export async function executeDirectGoogleApi(params: {
   config: GwsToolkitConfig;
   auth: AuthResolution;
@@ -542,6 +784,17 @@ export async function executeDirectGoogleApi(params: {
       write: params.write,
     }),
   });
+  if (params.service === "gmail" && params.action === "list_messages") {
+    try {
+      return await executeDirectGmailListMessages({
+        client,
+        config: params.config,
+        payload: params.payload,
+      });
+    } catch (error) {
+      throw mapGoogleError(error, params.auth);
+    }
+  }
   const request = buildDirectGoogleRequest({
     service: params.service,
     action: params.action,
