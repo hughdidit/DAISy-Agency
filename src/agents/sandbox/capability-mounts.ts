@@ -1,5 +1,8 @@
 import type { OpenClawConfig } from "../../config/config.js";
-import { resolveSandboxGwsCredentialMount } from "./gws-credential-mounts.js";
+import {
+  resolveSandboxGmailPolicyMounts,
+  resolveSandboxGwsCredentialMount,
+} from "./gws-credential-mounts.js";
 import type { SandboxCapabilityMount } from "./types.js";
 
 export function resolveSandboxCapabilityMounts(params: {
@@ -12,5 +15,6 @@ export function resolveSandboxCapabilityMounts(params: {
   if (gwsMount) {
     mounts.push(gwsMount);
   }
+  mounts.push(...resolveSandboxGmailPolicyMounts(params));
   return mounts;
 }

@@ -1,4 +1,5 @@
 import path from "node:path";
+import { resolveGmailContactPolicy } from "./gmail-policy.js";
 import {
   ALL_SERVICES,
   DEFAULT_ALLOWED_CREDENTIAL_MODES,
@@ -35,6 +36,7 @@ const ALLOWED_CONFIG_KEYS = new Set([
   "defaultScopesProfile",
   "customScopes",
   "requireHumanApprovalFor",
+  "gmailPolicy",
 ]);
 
 function asObject(value: unknown): Record<string, unknown> | null {
@@ -322,6 +324,21 @@ export function resolveConfig(
         ? "service-set"
         : "minimal";
   const customScopes = normalizeStringArray(raw.customScopes);
+  const gmailPolicy = resolveGmailContactPolicy({
+    rawPolicy: raw.gmailPolicy,
+    sourcePath,
+  });
+  if (!gmailPolicy.ok) {
+    return {
+      ok: false,
+      error: buildConfigError(gmailPolicy.error),
+      posture: {
+        ...postureBase,
+        pluginConfigProvided: true,
+        message: "gmail policy invalid",
+      },
+    };
+  }
 
   if (defaultScopesProfile === "custom" && customScopes.length === 0) {
     return {
@@ -374,6 +391,7 @@ export function resolveConfig(
     defaultScopesProfile,
     customScopes: defaultScopesProfile === "custom" ? customScopes : undefined,
     requireHumanApprovalFor: normalizeStringArray(raw.requireHumanApprovalFor),
+    gmailPolicy: gmailPolicy.value,
   };
 
   const warnings: string[] = [];

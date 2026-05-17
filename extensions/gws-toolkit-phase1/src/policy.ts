@@ -1,5 +1,11 @@
-import type { AuthResolution } from "./types.js";
-import type { GwsToolkitConfig, PolicyDecision, ServiceFamily, ToolName } from "./types.js";
+import { evaluateGmailWriteContactPolicy } from "./gmail-policy.js";
+import type {
+  AuthResolution,
+  GwsToolkitConfig,
+  PolicyDecision,
+  ServiceFamily,
+  ToolName,
+} from "./types.js";
 
 const READ_ACTIONS: Record<ServiceFamily, Set<string>> = {
   drive: new Set(["list_files", "get_file_metadata", "export_file"]),
@@ -143,6 +149,21 @@ export function evaluatePolicy(params: {
         service: params.service,
         action: params.action,
       };
+    }
+    if (params.service === "gmail") {
+      const gmailPolicy = evaluateGmailWriteContactPolicy({
+        action: params.action,
+        payload: params.payload as Record<string, unknown>,
+        policy: params.config.gmailPolicy,
+      });
+      if (!gmailPolicy.allowed) {
+        return {
+          allowed: false,
+          reason: gmailPolicy.reason,
+          service: params.service,
+          action: params.action,
+        };
+      }
     }
   }
 

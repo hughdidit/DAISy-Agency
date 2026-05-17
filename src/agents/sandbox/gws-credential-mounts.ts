@@ -30,6 +30,11 @@ export type SandboxGwsCredentialMount = SandboxCapabilityMount & {
   approvedCredentialDir: string;
 };
 
+export type SandboxGmailPolicyMount = SandboxCapabilityMount & {
+  capabilityId: "gws-gmail-policy";
+  policyKey: "whitelistFile" | "blacklistFile";
+};
+
 function asObject(value: unknown): Record<string, unknown> | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     return null;
@@ -47,6 +52,25 @@ function normalizePosixPath(value: string | undefined | null): string | null {
   }
   const normalized = path.posix.normalize(trimmed);
   return normalized === "/" ? normalized : normalized.replace(/\/+$/, "");
+}
+
+function resolveConfigRelativePosixPath(value: unknown): string | null {
+  if (typeof value !== "string" || !value.trim()) {
+    return null;
+  }
+  const configPath = normalizePosixPath(process.env.OPENCLAW_CONFIG_FILE);
+  if (!configPath) {
+    return null;
+  }
+  const configDir = path.posix.dirname(configPath);
+  const raw = value.trim();
+  const candidate = raw.startsWith("/")
+    ? normalizePosixPath(raw)
+    : normalizePosixPath(path.posix.join(configDir, raw));
+  if (!candidate || !isPathInsidePosix(configDir, candidate)) {
+    return null;
+  }
+  return candidate;
 }
 
 function isPathInsidePosix(parent: string, target: string): boolean {
@@ -244,3 +268,42 @@ export function resolveSandboxGwsCredentialMount(params: {
 }
 
 export const resolveSandboxGwsCredentialProjection = resolveSandboxGwsCredentialMount;
+
+export function resolveSandboxGmailPolicyMounts(params: {
+  config?: OpenClawConfig;
+  agentId?: string;
+  sessionKey: string;
+}): SandboxGmailPolicyMount[] {
+  const pluginEntry = resolveEnabledGwsPluginEntry(params.config);
+  if (!pluginEntry) {
+    return [];
+  }
+  const rawPluginConfig = asObject(pluginEntry.config);
+  if (!rawPluginConfig) {
+    return [];
+  }
+  const gmailPolicy = asObject(rawPluginConfig.gmailPolicy);
+  if (!gmailPolicy) {
+    return [];
+  }
+  const bindingSubject = resolveBindingSubject({
+    agentId: params.agentId,
+    sessionKey: params.sessionKey,
+  });
+  const mounts: SandboxGmailPolicyMount[] = [];
+  for (const policyKey of ["whitelistFile", "blacklistFile"] as const) {
+    const policyPath = resolveConfigRelativePosixPath(gmailPolicy[policyKey]);
+    if (!policyPath) {
+      continue;
+    }
+    mounts.push({
+      capabilityId: "gws-gmail-policy",
+      bindingSubject,
+      policyKey,
+      sourceContainerPath: policyPath,
+      targetContainerPath: policyPath,
+      mode: "ro",
+    });
+  }
+  return mounts;
+}

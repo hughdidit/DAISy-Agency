@@ -1,6 +1,15 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import type { OpenClawConfig } from "../../config/config.js";
-import { resolveSandboxGwsCredentialProjection } from "./gws-credential-mounts.js";
+import {
+  resolveSandboxGmailPolicyMounts,
+  resolveSandboxGwsCredentialProjection,
+} from "./gws-credential-mounts.js";
+
+const envSnapshot = { ...process.env };
+
+afterEach(() => {
+  process.env = { ...envSnapshot };
+});
 
 function createConfig(pluginConfig: Record<string, unknown>, enabled = true): OpenClawConfig {
   return {
@@ -216,5 +225,71 @@ describe("resolveSandboxGwsCredentialProjection", () => {
       sourceContainerPath: "/home/node/.openclaw/secrets/gws/credentials.json",
       targetContainerPath: "/home/node/.openclaw/secrets/gws/credentials.json",
     });
+  });
+
+  it("projects configured gmail policy files as individual read-only mounts", () => {
+    process.env.OPENCLAW_CONFIG_FILE = "/home/node/.openclaw/openclaw.json";
+
+    const mounts = resolveSandboxGmailPolicyMounts({
+      config: createConfig(
+        createBasePluginConfig({
+          gmailPolicy: {
+            whitelistFile: "./gws/gmail-whitelist.json",
+            blacklistFile: "./gws/gmail-blacklist.json",
+          },
+        }),
+      ),
+      agentId: "main",
+      sessionKey: "agent:main:discord:channel:123",
+    });
+
+    expect(mounts).toEqual([
+      {
+        capabilityId: "gws-gmail-policy",
+        bindingSubject: "agent:main",
+        policyKey: "whitelistFile",
+        sourceContainerPath: "/home/node/.openclaw/gws/gmail-whitelist.json",
+        targetContainerPath: "/home/node/.openclaw/gws/gmail-whitelist.json",
+        mode: "ro",
+      },
+      {
+        capabilityId: "gws-gmail-policy",
+        bindingSubject: "agent:main",
+        policyKey: "blacklistFile",
+        sourceContainerPath: "/home/node/.openclaw/gws/gmail-blacklist.json",
+        targetContainerPath: "/home/node/.openclaw/gws/gmail-blacklist.json",
+        mode: "ro",
+      },
+    ]);
+    expect(mounts.map((mount) => mount.sourceContainerPath)).not.toContain("/home/node/.openclaw");
+    expect(mounts.every((mount) => mount.containerScopeKey === undefined)).toBe(true);
+  });
+
+  it("skips gmail policy mounts that escape the config directory", () => {
+    process.env.OPENCLAW_CONFIG_FILE = "/home/node/.openclaw/openclaw.json";
+
+    const mounts = resolveSandboxGmailPolicyMounts({
+      config: createConfig(
+        createBasePluginConfig({
+          gmailPolicy: {
+            whitelistFile: "../gmail-whitelist.json",
+            blacklistFile: "/home/node/.openclaw/gws/gmail-blacklist.json",
+          },
+        }),
+      ),
+      agentId: "main",
+      sessionKey: "agent:main:discord:channel:123",
+    });
+
+    expect(mounts).toEqual([
+      {
+        capabilityId: "gws-gmail-policy",
+        bindingSubject: "agent:main",
+        policyKey: "blacklistFile",
+        sourceContainerPath: "/home/node/.openclaw/gws/gmail-blacklist.json",
+        targetContainerPath: "/home/node/.openclaw/gws/gmail-blacklist.json",
+        mode: "ro",
+      },
+    ]);
   });
 });

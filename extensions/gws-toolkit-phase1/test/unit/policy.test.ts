@@ -117,4 +117,91 @@ describe("policy", () => {
     });
     expect(decision.allowed).toBe(true);
   });
+
+  it("applies gmail contact policy after existing write gates", () => {
+    const gmailConfig: GwsToolkitConfig = {
+      ...config,
+      enabledWriteServices: ["gmail"],
+      gmailPolicy: {
+        whitelist: {
+          emails: ["approved@example.com"],
+          domains: ["trusted.example"],
+        },
+        blacklist: {
+          emails: ["blocked@example.com"],
+          domains: [],
+        },
+      },
+    };
+    const gmailAuth: AuthResolution = {
+      ...auth,
+      route: {
+        ...auth.route,
+        allowedServices: ["gmail"],
+        allowedTools: ["gws_gmail_write"],
+        allowedActions: ["send_message", "draft_message"],
+      },
+    };
+
+    expect(
+      evaluatePolicy({
+        tool: "gws_gmail_write",
+        service: "gmail",
+        action: "send_message",
+        payload: { to: ["approved@example.com", "ops@trusted.example"] },
+        config: gmailConfig,
+        auth: gmailAuth,
+        isWrite: true,
+        confirm: true,
+      }).allowed,
+    ).toBe(true);
+    expect(
+      evaluatePolicy({
+        tool: "gws_gmail_write",
+        service: "gmail",
+        action: "draft_message",
+        payload: { to: "unknown@example.com" },
+        config: gmailConfig,
+        auth: gmailAuth,
+        isWrite: true,
+        confirm: true,
+      }).allowed,
+    ).toBe(true);
+    expect(
+      evaluatePolicy({
+        tool: "gws_gmail_write",
+        service: "gmail",
+        action: "send_message",
+        payload: { to: "unknown@example.com" },
+        config: gmailConfig,
+        auth: gmailAuth,
+        isWrite: true,
+        confirm: true,
+      }),
+    ).toMatchObject({ allowed: false });
+    expect(
+      evaluatePolicy({
+        tool: "gws_gmail_write",
+        service: "gmail",
+        action: "draft_message",
+        payload: { to: "blocked@example.com" },
+        config: gmailConfig,
+        auth: gmailAuth,
+        isWrite: true,
+        confirm: true,
+      }),
+    ).toMatchObject({ allowed: false });
+    expect(
+      evaluatePolicy({
+        tool: "gws_gmail_write",
+        service: "gmail",
+        action: "send_message",
+        payload: { to: "approved@example.com" },
+        config: gmailConfig,
+        auth: gmailAuth,
+        isWrite: true,
+        confirm: false,
+      }).reason,
+    ).toContain("confirm=true");
+  });
 });

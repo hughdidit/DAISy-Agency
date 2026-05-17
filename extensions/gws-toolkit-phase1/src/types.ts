@@ -66,6 +66,18 @@ export type CredentialRouteConfig = {
   impersonatedUserEnvVar?: string;
 };
 
+export type GmailContactList = {
+  emails: string[];
+  domains: string[];
+};
+
+export type GmailContactPolicy = {
+  whitelistFile?: string;
+  blacklistFile?: string;
+  whitelist: GmailContactList;
+  blacklist: GmailContactList;
+};
+
 export type GwsToolkitConfig = {
   enabledServices: ServiceFamily[];
   enabledWriteServices: ServiceFamily[];
@@ -87,6 +99,7 @@ export type GwsToolkitConfig = {
   defaultScopesProfile: "minimal" | "service-set" | "custom";
   customScopes?: string[];
   requireHumanApprovalFor: string[];
+  gmailPolicy?: GmailContactPolicy;
   warnings: string[];
 };
 

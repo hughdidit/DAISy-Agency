@@ -97,6 +97,18 @@
         },
         "default": []
       },
+      "gmailPolicy": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "whitelistFile": {
+            "type": "string"
+          },
+          "blacklistFile": {
+            "type": "string"
+          }
+        }
+      },
       "credentialRoutes": {
         "type": "object",
         "additionalProperties": {
@@ -238,6 +250,10 @@
     "requireHumanApprovalFor": {
       "label": "Approval Hints",
       "help": "Optional action labels to highlight as human-approval sensitive in diagnostics."
+    },
+    "gmailPolicy": {
+      "label": "Gmail Policy",
+      "help": "Optional whitelist/blacklist JSON files for Gmail read and write policy."
     }
   }
 }
