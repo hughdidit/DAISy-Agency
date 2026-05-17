@@ -7,6 +7,8 @@ const ajv = new Ajv({
 
 const boolean = { type: "boolean" };
 const string = { type: "string", minLength: 1 };
+const email = { ...string, pattern: "^[^\\s@<>]+@[^\\s@<>]+\\.[^\\s@<>]+$" };
+const domain = { ...string, pattern: "^@?[A-Za-z0-9][A-Za-z0-9.-]*\\.[A-Za-z]{2,}$" };
 const integer = (minimum: number, maximum: number) => ({
   type: "integer",
   minimum,
@@ -83,6 +85,10 @@ const gmailReadSchema = {
   properties: {
     action: { type: "string", enum: ["list_messages", "get_message_metadata"] },
     query: string,
+    fromEmail: email,
+    fromDomain: domain,
+    unread: boolean,
+    inbox: boolean,
     maxResults: integer(1, 500),
     messageId: string,
   },

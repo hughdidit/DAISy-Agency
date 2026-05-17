@@ -366,6 +366,14 @@ function createTools(params: {
           {
             action: Type.String({ enum: ["list_messages", "get_message_metadata"] }),
             query: Type.Optional(Type.String()),
+            fromEmail: Type.Optional(
+              Type.String({ pattern: "^[^\\s@<>]+@[^\\s@<>]+\\.[^\\s@<>]+$" }),
+            ),
+            fromDomain: Type.Optional(
+              Type.String({ pattern: "^@?[A-Za-z0-9][A-Za-z0-9.-]*\\.[A-Za-z]{2,}$" }),
+            ),
+            unread: Type.Optional(Type.Boolean()),
+            inbox: Type.Optional(Type.Boolean()),
             maxResults: Type.Optional(Type.Number()),
             messageId: Type.Optional(Type.String()),
           },

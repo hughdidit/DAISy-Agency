@@ -12,6 +12,12 @@ export type GwsCommandSpec = {
 
 type JsonParamValue = string | number | boolean | null | string[] | number[];
 
+const WILDCARD_FROM_DOMAIN_PATTERN =
+  /\bfrom:\s*(?:\(\s*)?\*?@([A-Za-z0-9][A-Za-z0-9.-]*\.[A-Za-z]{2,})(?:\s*\))?/gi;
+const WILDCARD_FROM_DOMAIN_GROUP_PATTERN =
+  /\bfrom:\(\s*((?:\*?@[A-Za-z0-9][A-Za-z0-9.-]*\.[A-Za-z]{2,}\s*(?:\bOR\b\s*)?)+)\)/gi;
+const DOMAIN_IN_GROUP_PATTERN = /\*?@([A-Za-z0-9][A-Za-z0-9.-]*\.[A-Za-z]{2,})/gi;
+
 function appendIfString(params: Record<string, JsonParamValue>, key: string, value: unknown): void {
   if (typeof value === "string" && value.trim()) {
     params[key] = value.trim();
@@ -45,6 +51,95 @@ function appendParamsArg(argv: string[], params: Record<string, JsonParamValue>)
   if (Object.keys(params).length > 0) {
     argv.push("--params", JSON.stringify(params));
   }
+}
+
+function normalizeDomain(value: unknown): string | undefined {
+  if (typeof value !== "string") {
+    return undefined;
+  }
+  const normalized = value.trim().replace(/^@/, "").toLowerCase();
+  return /^[a-z0-9][a-z0-9.-]*\.[a-z]{2,}$/.test(normalized) ? normalized : undefined;
+}
+
+function normalizeEmail(value: unknown): string | undefined {
+  if (typeof value !== "string") {
+    return undefined;
+  }
+  const normalized = value.trim().toLowerCase();
+  return /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(normalized) ? normalized : undefined;
+}
+
+export function extractWildcardFromDomainFilters(query: unknown): {
+  query?: string;
+  fromDomains: string[];
+} {
+  if (typeof query !== "string" || !query.trim()) {
+    return { fromDomains: [] };
+  }
+  const domains: string[] = [];
+  const addDomain = (value: string) => {
+    const normalized = normalizeDomain(value);
+    if (normalized && !domains.includes(normalized)) {
+      domains.push(normalized);
+    }
+  };
+  const withoutGroups = query.replace(
+    WILDCARD_FROM_DOMAIN_GROUP_PATTERN,
+    (_match, group: string) => {
+      for (const match of group.matchAll(DOMAIN_IN_GROUP_PATTERN)) {
+        addDomain(match[1] ?? "");
+      }
+      return " ";
+    },
+  );
+  const stripped = withoutGroups.replace(WILDCARD_FROM_DOMAIN_PATTERN, (_match, domain: string) => {
+    addDomain(domain);
+    return " ";
+  });
+  const normalizedQuery = stripped
+    .replace(/[()]/g, " ")
+    .replace(/\s+/g, " ")
+    .replace(/^(?:AND|OR)\b\s*/i, "")
+    .replace(/\s*\b(?:AND|OR)$/i, "")
+    .trim();
+  return {
+    query: /^(?:AND|OR)?$/i.test(normalizedQuery) ? undefined : normalizedQuery || undefined,
+    fromDomains: domains,
+  };
+}
+
+export function buildGmailReadQuery(
+  params: Record<string, unknown>,
+  options?: { includeDomainFilter?: boolean; includeEmailFilter?: boolean },
+): string | undefined {
+  const parts: string[] = [];
+  const extracted = extractWildcardFromDomainFilters(params.query);
+  if (extracted.query) {
+    parts.push(extracted.query);
+  }
+  if (params.unread === true) {
+    parts.push("is:unread");
+  }
+  if (params.inbox === true) {
+    parts.push("in:inbox");
+  }
+  const fromEmail = normalizeEmail(params.fromEmail);
+  if (fromEmail && options?.includeEmailFilter !== false) {
+    parts.push(`from:${fromEmail}`);
+  }
+  const domains = new Set<string>();
+  const fromDomain = normalizeDomain(params.fromDomain);
+  if (fromDomain) {
+    domains.add(fromDomain);
+  }
+  for (const domain of extracted.fromDomains) {
+    domains.add(domain);
+  }
+  if (domains.size > 0 && options?.includeDomainFilter) {
+    const domainFilters = [...domains].map((domain) => `from:${domain}`);
+    parts.push(domainFilters.length === 1 ? domainFilters[0] : `(${domainFilters.join(" OR ")})`);
+  }
+  return parts.length > 0 ? parts.join(" ") : undefined;
 }
 
 function appendJsonArg(argv: string[], payload: Record<string, unknown>): void {
@@ -185,7 +280,7 @@ export function buildGmailReadCommand(
   const argv = ["gmail", ...authArgs];
   if (params.action === "list_messages") {
     const requestParams: Record<string, JsonParamValue> = { userId: "me" };
-    appendIfString(requestParams, "q", params.query);
+    appendIfString(requestParams, "q", buildGmailReadQuery(params, { includeDomainFilter: true }));
     appendIfInt(requestParams, "maxResults", params.maxResults);
     argv.push("users", "messages", "list", "--format", "json");
     appendParamsArg(argv, requestParams);
