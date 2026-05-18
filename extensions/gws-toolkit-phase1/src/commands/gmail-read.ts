@@ -28,7 +28,7 @@ export async function executeGmailRead(params: {
 
   const value = buildGmailReadPolicyPayload(
     validated.value as Record<string, unknown> & { action: string },
-    params.deps.config.gmailPolicy,
+    undefined,
   ) as Record<string, unknown> & { action: string };
 
   return runToolkitCommand({
@@ -39,7 +39,13 @@ export async function executeGmailRead(params: {
     action: value.action,
     payload: value,
     readOnly: true,
-    buildCommand: (auth) => buildGmailReadCommand(value, auth.args),
+    buildCommand: (auth) =>
+      buildGmailReadCommand(
+        buildGmailReadPolicyPayload(value, params.deps.config.gmailPolicy, {
+          includeBlacklistQueryFilters: auth.transport === "gws_cli",
+        }),
+        auth.args,
+      ),
     postPolicy:
       value.action === "get_message_metadata"
         ? ({ payload }) => {

@@ -151,7 +151,7 @@ export async function runToolkitCommand(params: {
       const latencyMs = Date.now() - startedAt;
       const postPolicy = params.postPolicy?.({
         auth,
-        payload: direct.payload,
+        payload: (direct.payload ?? {}) as Record<string, unknown>,
       });
       if (postPolicy && !postPolicy.allowed) {
         params.deps.audit.emit({

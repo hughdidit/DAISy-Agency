@@ -7,6 +7,7 @@ import {
   READONLY_SCOPES,
   WRITE_SCOPES,
   type AuthResolution,
+  type GmailContactPolicy,
   type GwsToolkitConfig,
   type InvocationContext,
   type ServiceFamily,
@@ -91,10 +92,17 @@ function buildGmailLabelIds(payload: Record<string, unknown>): string[] | undefi
   return labels.length > 0 ? labels : undefined;
 }
 
-function resolveGmailSenderFilters(payload: Record<string, unknown>): {
+type GmailSenderFilters = {
   fromEmail?: string;
   fromDomains: string[];
-} {
+  excludeEmails: string[];
+  excludeDomains: string[];
+};
+
+function resolveGmailSenderFilters(
+  payload: Record<string, unknown>,
+  policy: GmailContactPolicy | undefined,
+): GmailSenderFilters {
   const fromDomains: string[] = [];
   const addDomain = (value: unknown) => {
     const normalized = normalizeGmailDomain(value);
@@ -109,6 +117,8 @@ function resolveGmailSenderFilters(payload: Record<string, unknown>): {
   return {
     fromEmail: normalizeGmailEmail(payload.fromEmail),
     fromDomains,
+    excludeEmails: policy?.blacklist.emails ?? [],
+    excludeDomains: policy?.blacklist.domains ?? [],
   };
 }
 
@@ -139,15 +149,25 @@ function extractEmailAddresses(value: string): string[] {
 
 function fromHeaderMatchesFilters(
   fromHeader: string | undefined,
-  filters: { fromEmail?: string; fromDomains: string[] },
+  filters: GmailSenderFilters,
 ): boolean {
-  if (!filters.fromEmail && filters.fromDomains.length === 0) {
+  const hasPolicyExclusions = filters.excludeEmails.length > 0 || filters.excludeDomains.length > 0;
+  if (!filters.fromEmail && filters.fromDomains.length === 0 && !hasPolicyExclusions) {
     return true;
   }
   if (!fromHeader) {
     return false;
   }
   const addresses = extractEmailAddresses(fromHeader);
+  if (
+    addresses.some(
+      (address) =>
+        filters.excludeEmails.includes(address) ||
+        filters.excludeDomains.some((domain) => address.endsWith(`@${domain}`)),
+    )
+  ) {
+    return false;
+  }
   if (filters.fromEmail && !addresses.includes(filters.fromEmail)) {
     return false;
   }
@@ -626,8 +646,14 @@ async function executeDirectGmailListMessages(params: {
   config: GwsToolkitConfig;
   payload: Record<string, unknown>;
 }): Promise<DirectGoogleResult> {
-  const filters = resolveGmailSenderFilters(params.payload);
-  const needsSenderPostFilter = Boolean(filters.fromEmail || filters.fromDomains.length > 0);
+  const filters = resolveGmailSenderFilters(params.payload, params.config.gmailPolicy);
+  const needsSenderPostFilter = Boolean(
+    filters.fromEmail ||
+      filters.fromDomains.length > 0 ||
+      filters.excludeEmails.length > 0 ||
+      filters.excludeDomains.length > 0,
+  );
+  const needsPositiveSenderFilter = Boolean(filters.fromEmail || filters.fromDomains.length > 0);
   const requestedMaxResults = readPositiveInt(params.payload.maxResults, 100, 500);
   const pageSize = needsSenderPostFilter
     ? Math.min(500, Math.max(50, requestedMaxResults * 5))
@@ -639,7 +665,7 @@ async function executeDirectGmailListMessages(params: {
   const metadataConcurrency = 8;
   const query = buildGmailReadQuery(params.payload, {
     includeDomainFilter: false,
-    includeEmailFilter: !needsSenderPostFilter,
+    includeEmailFilter: !needsPositiveSenderFilter,
   });
   const labelIds = buildGmailLabelIds(params.payload);
   const messages: unknown[] = [];
@@ -747,6 +773,8 @@ async function executeDirectGmailListMessages(params: {
       filters: {
         fromEmail: filters.fromEmail,
         fromDomains: filters.fromDomains,
+        excludeEmails: filters.excludeEmails,
+        excludeDomains: filters.excludeDomains,
         labelIds,
       },
       inspectedMessageCount,

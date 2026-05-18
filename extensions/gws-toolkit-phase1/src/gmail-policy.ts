@@ -289,12 +289,22 @@ export function gmailPolicyClassifyEmail(
 export function buildGmailReadPolicyPayload(
   payload: Record<string, unknown>,
   policy: GmailContactPolicy | undefined,
+  options?: { includeBlacklistQueryFilters?: boolean },
 ): Record<string, unknown> {
-  const queryParts = [
-    typeof payload.query === "string" && payload.query.trim() ? payload.query.trim() : "",
-    "-in:spam",
+  const existingQuery =
+    typeof payload.query === "string" && payload.query.trim() ? payload.query.trim() : "";
+  const hasQueryToken = (token: string) =>
+    new RegExp(`(?:^|\\s)${token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:\\s|$)`, "i").test(
+      existingQuery,
+    );
+  const blacklistFilters = [
     ...(policy?.blacklist.emails ?? []).map((email) => `-from:${email}`),
     ...(policy?.blacklist.domains ?? []).map((domain) => `-from:${domain}`),
+  ].filter((token) => !hasQueryToken(token));
+  const queryParts = [
+    existingQuery,
+    hasQueryToken("-in:spam") ? "" : "-in:spam",
+    ...(options?.includeBlacklistQueryFilters ? blacklistFilters : []),
   ].filter(Boolean);
   return {
     ...payload,

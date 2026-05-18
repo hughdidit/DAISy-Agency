@@ -235,7 +235,17 @@ describe("gmail contact policy", () => {
       policy,
     );
 
-    expect(payload.query).toBe("is:unread -in:spam -from:blocked@example.com -from:bad.example");
+    expect(payload.query).toBe("is:unread -in:spam");
+    expect(
+      buildGmailReadPolicyPayload(
+        {
+          action: "list_messages",
+          query: "is:unread -in:spam",
+        },
+        policy,
+        { includeBlacklistQueryFilters: true },
+      ).query,
+    ).toBe("is:unread -in:spam -from:blocked@example.com -from:bad.example");
     expect(buildGmailReadPolicyPayload({ action: "list_messages" }, undefined).query).toBe(
       "-in:spam",
     );
