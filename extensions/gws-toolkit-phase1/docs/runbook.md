@@ -131,9 +131,10 @@ agent's `googleWorkspace.email`.
 For Gmail triage, install the live policy files on the host at
 `/opt/DAISy/config/gws/gmail-whitelist.json` and
 `/opt/DAISy/config/gws/gmail-blacklist.json`, then point `gmailPolicy` at those
-files relative to `openclaw.json` as shown above. Keep the files
-operator-owned, mount them read-only into the gateway, and do not mount
-`/opt/DAISy/config` wholesale into sandboxes.
+files relative to `/opt/DAISy/config/openclaw.json` as shown above. Keep the
+files operator-owned regular JSON files, not symlinks. Mount them read-only
+into the gateway, and do not mount `/opt/DAISy/config` wholesale into
+sandboxes.
 Agents receive the `gmail-triage` workflow automatically when Gmail email is
 read through `gws_gmail_read` or delivered via a `hook:gmail:*` webhook session.
 The automatic skill requirement is guidance; whitelist/blacklist and write

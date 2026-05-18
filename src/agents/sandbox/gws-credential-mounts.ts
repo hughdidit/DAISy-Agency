@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import path from "node:path";
 import type { OpenClawConfig } from "../../config/config.js";
 import { isSubagentSessionKey } from "../../routing/session-key.js";
@@ -54,7 +55,14 @@ function normalizePosixPath(value: string | undefined | null): string | null {
   return normalized === "/" ? normalized : normalized.replace(/\/+$/, "");
 }
 
-function resolveConfigRelativePosixPath(value: unknown): string | null {
+function realpathSync(value: string): string {
+  return fs.realpathSync.native?.(value) ?? fs.realpathSync(value);
+}
+
+function resolveConfigRelativePolicyFile(value: unknown): {
+  sourceContainerPath: string;
+  targetContainerPath: string;
+} | null {
   if (typeof value !== "string" || !value.trim()) {
     return null;
   }
@@ -63,6 +71,12 @@ function resolveConfigRelativePosixPath(value: unknown): string | null {
     return null;
   }
   const configDir = path.posix.dirname(configPath);
+  let configDirRealPath: string;
+  try {
+    configDirRealPath = normalizePosixPath(realpathSync(configDir)) ?? configDir;
+  } catch {
+    return null;
+  }
   const raw = value.trim();
   const candidate = raw.startsWith("/")
     ? normalizePosixPath(raw)
@@ -70,7 +84,28 @@ function resolveConfigRelativePosixPath(value: unknown): string | null {
   if (!candidate || !isPathInsidePosix(configDir, candidate)) {
     return null;
   }
-  return candidate;
+  let stats: fs.Stats;
+  try {
+    stats = fs.lstatSync(candidate);
+  } catch {
+    return null;
+  }
+  if (stats.isSymbolicLink() || !stats.isFile()) {
+    return null;
+  }
+  let candidateRealPath: string;
+  try {
+    candidateRealPath = normalizePosixPath(realpathSync(candidate)) ?? candidate;
+  } catch {
+    return null;
+  }
+  if (!isPathInsidePosix(configDirRealPath, candidateRealPath)) {
+    return null;
+  }
+  return {
+    sourceContainerPath: candidateRealPath,
+    targetContainerPath: candidate,
+  };
 }
 
 function isPathInsidePosix(parent: string, target: string): boolean {
@@ -292,16 +327,16 @@ export function resolveSandboxGmailPolicyMounts(params: {
   });
   const mounts: SandboxGmailPolicyMount[] = [];
   for (const policyKey of ["whitelistFile", "blacklistFile"] as const) {
-    const policyPath = resolveConfigRelativePosixPath(gmailPolicy[policyKey]);
-    if (!policyPath) {
+    const policyFile = resolveConfigRelativePolicyFile(gmailPolicy[policyKey]);
+    if (!policyFile) {
       continue;
     }
     mounts.push({
       capabilityId: "gws-gmail-policy",
       bindingSubject,
       policyKey,
-      sourceContainerPath: policyPath,
-      targetContainerPath: policyPath,
+      sourceContainerPath: policyFile.sourceContainerPath,
+      targetContainerPath: policyFile.targetContainerPath,
       mode: "ro",
     });
   }

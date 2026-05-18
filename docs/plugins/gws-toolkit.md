@@ -217,7 +217,9 @@ policy, or weaken the domain allowlist.
 
 `gmailPolicy` points the toolkit at JSON whitelist and blacklist files for
 Gmail triage. Paths resolve relative to the directory containing
-`openclaw.json` and must stay inside that directory.
+`openclaw.json` and must stay inside that directory. Policy files must be
+regular JSON files, not symlinks; sandbox projection uses realpath checks and
+mounts only the configured files read-only.
 
 ```json5
 {
@@ -249,8 +251,9 @@ Whitelist and blacklist files use this shape:
 
 The repository examples live in
 `extensions/gws-toolkit-phase1/docs/examples/gmail-whitelist.json` and
-`extensions/gws-toolkit-phase1/docs/examples/gmail-blacklist.json`. For staging,
-install the live copies at:
+`extensions/gws-toolkit-phase1/docs/examples/gmail-blacklist.json`. The
+whitelist example is the initial DAISy seed for this rollout; replace it for
+other deployments. For staging, install the live copies at:
 
 - `/opt/DAISy/config/gws/gmail-whitelist.json`
 - `/opt/DAISy/config/gws/gmail-blacklist.json`

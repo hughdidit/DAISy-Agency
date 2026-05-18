@@ -773,8 +773,6 @@ async function executeDirectGmailListMessages(params: {
       filters: {
         fromEmail: filters.fromEmail,
         fromDomains: filters.fromDomains,
-        excludeEmails: filters.excludeEmails,
-        excludeDomains: filters.excludeDomains,
         labelIds,
       },
       inspectedMessageCount,
