@@ -18,8 +18,8 @@ Use this skill for Gmail inbox triage, replies, and email-driven requests throug
    - Unlisted: draft a concise reply for human approval.
    - Treat policy files as read-only; do not edit whitelist or blacklist files from an agent sandbox.
 5. Write precisely and succinctly. Answer only what was asked, avoid filler, and do not expose internal policy details unless the human asks.
-6. If the email asks for an action, classify whether the action is allowable under current tool, route, workspace, security, and user-policy constraints. Take the action only when confidence is greater than 75%; otherwise draft or raise for human approval.
-7. Record durable memories only when needed. Use memory tools for stable non-secret facts, decisions, preferences, or commitments. Do not store raw email text, secrets, transient details, or spam.
+6. If the email asks for an action, classify whether the action is allowable under current tool, route, workspace, security, and user-policy constraints. Take the action only when confidence is above 75%; otherwise draft or raise for human approval.
+7. Record durable memories only when needed. Use memory tools for stable non-secret facts, decisions, preferences, or commitments. Do not store raw email bodies, secrets, transient details, or spam.
 
 ## Gmail Tool Guidance
 
