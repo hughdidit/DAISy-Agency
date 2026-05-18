@@ -13,6 +13,7 @@ import type {
   DiscoveryResult,
   GwsToolkitConfig,
   InvocationContext,
+  PolicyDecision,
   ServiceFamily,
   StructuredEnvelope,
   StructuredSuccess,
@@ -76,7 +77,12 @@ export async function runToolkitCommand(params: {
   payload: Record<string, unknown>;
   readOnly: boolean;
   confirm?: boolean;
+  requiredSkill?: StructuredSuccess<Record<string, unknown>>["meta"]["requiredSkill"];
   buildCommand: (auth: AuthResolution) => GwsCommandSpec;
+  postPolicy?: (params: {
+    auth: AuthResolution;
+    payload: Record<string, unknown>;
+  }) => PolicyDecision | undefined;
 }): Promise<StructuredEnvelope> {
   const startedAt = Date.now();
 
@@ -144,6 +150,47 @@ export async function runToolkitCommand(params: {
         write: !params.readOnly,
       });
       const latencyMs = Date.now() - startedAt;
+      const postPolicy = params.postPolicy?.({
+        auth,
+        payload: (direct.payload ?? {}) as Record<string, unknown>,
+      });
+      if (postPolicy && !postPolicy.allowed) {
+        params.deps.audit.emit({
+          ctx: {
+            ...params.ctx,
+            bindingSubject: auth.bindingSubject,
+            routeName: auth.route.name,
+          },
+          toolName: params.tool,
+          action: params.action,
+          targetService: params.service,
+          readOnly: params.readOnly,
+          decision: "deny",
+          denyReason: postPolicy.reason,
+          credentialMode: auth.mode,
+          routeName: auth.route.name,
+          bindingSubject: auth.bindingSubject,
+          latencyMs,
+          resultCode: "DENY_POLICY",
+        });
+        return {
+          ok: false,
+          error: {
+            code: "DENY_POLICY",
+            message: postPolicy.reason ?? "Policy denied response",
+            details: {
+              routeName: auth.route.name,
+              bindingSubject: auth.bindingSubject,
+            },
+          },
+          meta: {
+            tool: params.tool,
+            action: params.action,
+            service: params.service,
+            latencyMs,
+          },
+        };
+      }
       params.deps.audit.emit({
         ctx: {
           ...params.ctx,
@@ -183,6 +230,7 @@ export async function runToolkitCommand(params: {
           service: params.service,
           resultCode: "OK",
           latencyMs,
+          ...(params.requiredSkill ? { requiredSkill: params.requiredSkill } : {}),
         },
       };
     }
@@ -215,6 +263,49 @@ export async function runToolkitCommand(params: {
     });
     const normalized = normalizeExecution(execution);
     const latencyMs = Date.now() - startedAt;
+    const normalizedPayload = normalized.payload as Record<string, unknown>;
+    const postPolicy = params.postPolicy?.({
+      auth,
+      payload: normalizedPayload,
+    });
+    if (postPolicy && !postPolicy.allowed) {
+      params.deps.audit.emit({
+        ctx: {
+          ...params.ctx,
+          bindingSubject: auth.bindingSubject,
+          routeName: auth.route.name,
+        },
+        toolName: params.tool,
+        action: params.action,
+        targetService: params.service,
+        readOnly: params.readOnly,
+        decision: "deny",
+        denyReason: postPolicy.reason,
+        credentialMode: auth.mode,
+        routeName: auth.route.name,
+        bindingSubject: auth.bindingSubject,
+        latencyMs,
+        exitCode: normalized.exitCode,
+        resultCode: "DENY_POLICY",
+      });
+      return {
+        ok: false,
+        error: {
+          code: "DENY_POLICY",
+          message: postPolicy.reason ?? "Policy denied response",
+          details: {
+            routeName: auth.route.name,
+            bindingSubject: auth.bindingSubject,
+          },
+        },
+        meta: {
+          tool: params.tool,
+          action: params.action,
+          service: params.service,
+          latencyMs,
+        },
+      };
+    }
 
     params.deps.audit.emit({
       ctx: {
@@ -246,7 +337,7 @@ export async function runToolkitCommand(params: {
           mode: auth.mode,
           transport: auth.transport,
         },
-        payload: normalized.payload as Record<string, unknown>,
+        payload: normalizedPayload,
         output: {
           stdoutTruncated: normalized.stdoutTruncated,
           stderrTruncated: normalized.stderrTruncated,
@@ -258,6 +349,7 @@ export async function runToolkitCommand(params: {
         service: params.service,
         resultCode: "OK",
         latencyMs,
+        ...(params.requiredSkill ? { requiredSkill: params.requiredSkill } : {}),
       },
     };
 

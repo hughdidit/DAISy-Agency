@@ -25,6 +25,7 @@ import {
 } from "./src/commands/status.js";
 import { resolveConfig } from "./src/config.js";
 import { PluginError } from "./src/errors.js";
+import { GMAIL_TRIAGE_TOOL_DESCRIPTION } from "./src/gmail-triage-skill.js";
 import { createRedactingLogger } from "./src/logger.js";
 import type {
   ConfigPosture,
@@ -361,7 +362,7 @@ function createTools(params: {
     guarded(
       withLabel({
         name: "gws_gmail_read",
-        description: "Read-only Gmail operations.",
+        description: `Read-only Gmail operations. ${GMAIL_TRIAGE_TOOL_DESCRIPTION}`,
         parameters: Type.Object(
           {
             action: Type.String({ enum: ["list_messages", "get_message_metadata"] }),
@@ -469,7 +470,7 @@ function createTools(params: {
     guarded(
       withLabel({
         name: "gws_gmail_write",
-        description: "Write-capable Gmail operations.",
+        description: `Write-capable Gmail operations. Follow gmail-triage policy before drafting or sending Gmail replies.`,
         parameters: Type.Object(
           {
             action: Type.String({ enum: ["draft_message", "send_message"] }),

@@ -13,9 +13,9 @@ export type GwsCommandSpec = {
 type JsonParamValue = string | number | boolean | null | string[] | number[];
 
 const WILDCARD_FROM_DOMAIN_PATTERN =
-  /\bfrom:\s*(?:\(\s*)?\*?@([A-Za-z0-9][A-Za-z0-9.-]*\.[A-Za-z]{2,})(?:\s*\))?/gi;
+  /(?<!-)\bfrom:\s*(?:\(\s*)?\*?@([A-Za-z0-9][A-Za-z0-9.-]*\.[A-Za-z]{2,})(?:\s*\))?/gi;
 const WILDCARD_FROM_DOMAIN_GROUP_PATTERN =
-  /\bfrom:\(\s*((?:\*?@[A-Za-z0-9][A-Za-z0-9.-]*\.[A-Za-z]{2,}\s*(?:\bOR\b\s*)?)+)\)/gi;
+  /(?<!-)\bfrom:\(\s*((?:\*?@[A-Za-z0-9][A-Za-z0-9.-]*\.[A-Za-z]{2,}\s*(?:\bOR\b\s*)?)+)\)/gi;
 const DOMAIN_IN_GROUP_PATTERN = /\*?@([A-Za-z0-9][A-Za-z0-9.-]*\.[A-Za-z]{2,})/gi;
 
 function appendIfString(params: Record<string, JsonParamValue>, key: string, value: unknown): void {

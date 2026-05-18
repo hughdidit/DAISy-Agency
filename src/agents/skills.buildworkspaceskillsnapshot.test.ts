@@ -138,6 +138,27 @@ describe("buildWorkspaceSkillSnapshot", () => {
     expect(snapshot.prompt).not.toContain("service-account");
   });
 
+  it("marks gmail-triage as mandatory for Gmail read and hook email handling", async () => {
+    const workspaceDir = await fixtureSuite.createCaseDir("workspace-gmail-triage-context");
+    await writeSkill({
+      dir: path.join(workspaceDir, "skills", "gmail-triage"),
+      name: "gmail-triage",
+      description: "Use Gmail triage.",
+    });
+
+    const snapshot = withWorkspaceHome(workspaceDir, () =>
+      buildWorkspaceSkillSnapshot(workspaceDir, {
+        agentId: "daisy",
+        managedSkillsDir: path.join(workspaceDir, ".managed"),
+        bundledSkillsDir: path.join(workspaceDir, ".bundled"),
+      }),
+    );
+
+    expect(snapshot.prompt).toContain("Gmail triage is mandatory");
+    expect(snapshot.prompt).toContain("gws_gmail_read");
+    expect(snapshot.prompt).toContain("hook:gmail");
+  });
+
   it("keeps prompt output aligned with buildWorkspaceSkillsPrompt", async () => {
     const workspaceDir = await fixtureSuite.createCaseDir("workspace");
     await writeSkill({

@@ -65,6 +65,10 @@ Example service-account delegated config:
           allowWriteOperations: true,
           safeMode: true,
           approvedCredentialDirs: ["./config/secrets/gws"],
+          gmailPolicy: {
+            whitelistFile: "./gws/gmail-whitelist.json",
+            blacklistFile: "./gws/gmail-blacklist.json",
+          },
           credentialRoutes: {
             "hughdidit-agent-gws": {
               mode: "credentials_file",
@@ -123,6 +127,18 @@ The route above intentionally omits `impersonatedUser` so multiple agents can
 share the same service-account route while retaining distinct delegated
 subjects. If `impersonatedUser` is present on a route, it must match the active
 agent's `googleWorkspace.email`.
+
+For Gmail triage, install the live policy files on the host at
+`/opt/DAISy/config/gws/gmail-whitelist.json` and
+`/opt/DAISy/config/gws/gmail-blacklist.json`, then point `gmailPolicy` at those
+files relative to `/opt/DAISy/config/openclaw.json` as shown above. Keep the
+files operator-owned regular JSON files, not symlinks. Mount them read-only
+into the gateway, and do not mount `/opt/DAISy/config` wholesale into
+sandboxes.
+Agents receive the `gmail-triage` workflow automatically when Gmail email is
+read through `gws_gmail_read` or delivered via a `hook:gmail:*` webhook session.
+The automatic skill requirement is guidance; whitelist/blacklist and write
+permission decisions are still enforced by the GWS toolkit.
 
 Staging route pattern:
 

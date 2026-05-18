@@ -180,4 +180,18 @@ describe("integration: command build", () => {
     expect(decodeBase64Url(payload.raw)).toContain("Content-Type: text/html; charset=UTF-8");
     expect(decodeBase64Url(payload.raw)).toContain("<b>Hi</b>");
   });
+
+  it("preserves negative gmail domain filters while extracting positive wildcard filters", () => {
+    const gmail = buildGmailReadCommand(
+      {
+        action: "list_messages",
+        query: "from:(*@trusted.example) -from:bad.example",
+      },
+      [],
+    ).argv;
+
+    const paramsIndex = gmail.indexOf("--params");
+    const request = JSON.parse(gmail[paramsIndex + 1] as string) as { q?: string };
+    expect(request.q).toBe("-from:bad.example from:trusted.example");
+  });
 });

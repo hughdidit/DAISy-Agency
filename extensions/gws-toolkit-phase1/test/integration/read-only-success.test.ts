@@ -30,6 +30,10 @@ describe("integration: read-only success", () => {
 
     expect(drive.ok).toBe(true);
     expect(gmail.ok).toBe(true);
+    expect(gmail.meta.requiredSkill).toMatchObject({
+      name: "gmail-triage",
+      timing: "before_reply_or_action",
+    });
     expect(calendar.ok).toBe(true);
   });
 });

@@ -68,6 +68,9 @@ Write tools:
   credential directories, and cannot be symlinks
 - legacy single-credential compatibility mode synthesizes a default route to
   preserve older read-only deployments until explicit bindings are configured
+- optional Gmail contact policy files are read from the config directory, must
+  be regular non-symlink JSON files, and are projected into sandboxes as
+  individual read-only files rather than by mounting the whole config tree
 
 ## Credential Routing
 
@@ -210,6 +213,61 @@ The helper writes agent metadata and explicit `agent:<id>` /
 `subagent:<id>` bindings together. It does not create routes, broaden route
 policy, or weaken the domain allowlist.
 
+## Gmail Triage Policy
+
+`gmailPolicy` points the toolkit at JSON whitelist and blacklist files for
+Gmail triage. Paths resolve relative to the directory containing
+`openclaw.json` and must stay inside that directory. Policy files must be
+regular JSON files, not symlinks; sandbox projection uses realpath checks and
+mounts only the configured files read-only.
+
+```json5
+{
+  plugins: {
+    entries: {
+      "gws-toolkit-phase1": {
+        enabled: true,
+        config: {
+          gmailPolicy: {
+            whitelistFile: "./gws/gmail-whitelist.json",
+            blacklistFile: "./gws/gmail-blacklist.json",
+          },
+        },
+      },
+    },
+  },
+}
+```
+
+Whitelist and blacklist files use this shape:
+
+```json
+{
+  "version": 1,
+  "emails": ["hughdidit@gmail.com"],
+  "domains": ["hughdidit.com"]
+}
+```
+
+The repository examples live in
+`extensions/gws-toolkit-phase1/docs/examples/gmail-whitelist.json` and
+`extensions/gws-toolkit-phase1/docs/examples/gmail-blacklist.json`. The
+whitelist example is the initial DAISy seed for this rollout; replace it for
+other deployments. For staging, install the live copies at:
+
+- `/opt/DAISy/config/gws/gmail-whitelist.json`
+- `/opt/DAISy/config/gws/gmail-blacklist.json`
+
+Blacklist entries take precedence over whitelist entries. Gmail reads exclude
+spam plus blacklisted senders. Gmail drafts are denied for blacklisted
+recipients. Gmail sends require all recipients to match the whitelist and still
+must pass the existing route, write-service, action, and `confirm: true` gates.
+Successful `gws_gmail_read` results include a mandatory `gmail-triage` skill
+marker, and Gmail webhook sessions (`hook:gmail:*`) inject the same triage
+requirement into the agent turn. The skill guides reply/no-reply decisions,
+direct-send versus draft behavior, action confidence, and memory capture; the
+toolkit policy remains the enforcement layer.
+
 ## Auth Workflow Matrix
 
 Upstream `gws` workflows:
@@ -271,6 +329,7 @@ Core Phase 2 fields:
 - `safeMode`
 - `defaultScopesProfile`
 - `customScopes`
+- `gmailPolicy`
 - `timeoutMs`
 - `maxStdoutBytes`
 - `maxStderrBytes`

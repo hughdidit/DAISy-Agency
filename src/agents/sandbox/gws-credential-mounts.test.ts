@@ -1,6 +1,22 @@
-import { describe, expect, it } from "vitest";
+import { mkdtempSync, mkdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { afterEach, describe, expect, it } from "vitest";
 import type { OpenClawConfig } from "../../config/config.js";
-import { resolveSandboxGwsCredentialProjection } from "./gws-credential-mounts.js";
+import {
+  resolveSandboxGmailPolicyMounts,
+  resolveSandboxGwsCredentialProjection,
+} from "./gws-credential-mounts.js";
+
+const envSnapshot = { ...process.env };
+const tempDirs: string[] = [];
+
+afterEach(() => {
+  process.env = { ...envSnapshot };
+  for (const tempDir of tempDirs.splice(0)) {
+    rmSync(tempDir, { force: true, recursive: true });
+  }
+});
 
 function createConfig(pluginConfig: Record<string, unknown>, enabled = true): OpenClawConfig {
   return {
@@ -41,6 +57,34 @@ function createBasePluginConfig(overrides?: Record<string, unknown>): Record<str
     defaultScopesProfile: "minimal",
     requireHumanApprovalFor: [],
     ...overrides,
+  };
+}
+
+function toPosixPath(value: string): string {
+  return value.replaceAll(path.sep, path.posix.sep);
+}
+
+function createGmailPolicyFixture(): {
+  root: string;
+  configFile: string;
+  whitelistFile: string;
+  blacklistFile: string;
+} {
+  const root = mkdtempSync(path.join(tmpdir(), "gws-policy-"));
+  tempDirs.push(root);
+  const gwsDir = path.join(root, "gws");
+  mkdirSync(gwsDir, { recursive: true });
+  const configFile = path.join(root, "openclaw.json");
+  const whitelistFile = path.join(gwsDir, "gmail-whitelist.json");
+  const blacklistFile = path.join(gwsDir, "gmail-blacklist.json");
+  writeFileSync(configFile, "{}\n");
+  writeFileSync(whitelistFile, '{ "version": 1, "emails": [], "domains": [] }\n');
+  writeFileSync(blacklistFile, '{ "version": 1, "emails": [], "domains": [] }\n');
+  return {
+    root: toPosixPath(root),
+    configFile: toPosixPath(configFile),
+    whitelistFile: toPosixPath(realpathSync.native(whitelistFile)),
+    blacklistFile: toPosixPath(realpathSync.native(blacklistFile)),
   };
 }
 
@@ -216,5 +260,150 @@ describe("resolveSandboxGwsCredentialProjection", () => {
       sourceContainerPath: "/home/node/.openclaw/secrets/gws/credentials.json",
       targetContainerPath: "/home/node/.openclaw/secrets/gws/credentials.json",
     });
+  });
+
+  it("projects configured gmail policy files as individual read-only mounts", () => {
+    const fixture = createGmailPolicyFixture();
+    process.env.OPENCLAW_CONFIG_FILE = fixture.configFile;
+
+    const mounts = resolveSandboxGmailPolicyMounts({
+      config: createConfig(
+        createBasePluginConfig({
+          gmailPolicy: {
+            whitelistFile: "./gws/gmail-whitelist.json",
+            blacklistFile: "./gws/gmail-blacklist.json",
+          },
+        }),
+      ),
+      agentId: "main",
+      sessionKey: "agent:main:discord:channel:123",
+    });
+
+    expect(mounts).toEqual([
+      {
+        capabilityId: "gws-gmail-policy",
+        bindingSubject: "agent:main",
+        policyKey: "whitelistFile",
+        sourceContainerPath: fixture.whitelistFile,
+        targetContainerPath: `${fixture.root}/gws/gmail-whitelist.json`,
+        mode: "ro",
+      },
+      {
+        capabilityId: "gws-gmail-policy",
+        bindingSubject: "agent:main",
+        policyKey: "blacklistFile",
+        sourceContainerPath: fixture.blacklistFile,
+        targetContainerPath: `${fixture.root}/gws/gmail-blacklist.json`,
+        mode: "ro",
+      },
+    ]);
+    expect(mounts.every((mount) => mount.sourceContainerPath !== fixture.root)).toBe(true);
+    expect(mounts.every((mount) => mount.targetContainerPath.startsWith(`${fixture.root}/`))).toBe(
+      true,
+    );
+    expect(mounts.every((mount) => mount.containerScopeKey === undefined)).toBe(true);
+  });
+
+  it("skips gmail policy mounts that escape the config directory", () => {
+    const fixture = createGmailPolicyFixture();
+    process.env.OPENCLAW_CONFIG_FILE = fixture.configFile;
+
+    const mounts = resolveSandboxGmailPolicyMounts({
+      config: createConfig(
+        createBasePluginConfig({
+          gmailPolicy: {
+            whitelistFile: "../gmail-whitelist.json",
+            blacklistFile: `${fixture.root}/gws/gmail-blacklist.json`,
+          },
+        }),
+      ),
+      agentId: "main",
+      sessionKey: "agent:main:discord:channel:123",
+    });
+
+    expect(mounts).toEqual([
+      {
+        capabilityId: "gws-gmail-policy",
+        bindingSubject: "agent:main",
+        policyKey: "blacklistFile",
+        sourceContainerPath: fixture.blacklistFile,
+        targetContainerPath: `${fixture.root}/gws/gmail-blacklist.json`,
+        mode: "ro",
+      },
+    ]);
+  });
+
+  it("skips gmail policy mounts whose configured file is a symlink", () => {
+    const fixture = createGmailPolicyFixture();
+    process.env.OPENCLAW_CONFIG_FILE = fixture.configFile;
+    const symlinkPath = path.join(fixture.root, "gws", "linked-whitelist.json");
+    try {
+      symlinkSync(fixture.whitelistFile, symlinkPath);
+    } catch {
+      return;
+    }
+
+    const mounts = resolveSandboxGmailPolicyMounts({
+      config: createConfig(
+        createBasePluginConfig({
+          gmailPolicy: {
+            whitelistFile: "./gws/linked-whitelist.json",
+            blacklistFile: "./gws/gmail-blacklist.json",
+          },
+        }),
+      ),
+      agentId: "main",
+      sessionKey: "agent:main:discord:channel:123",
+    });
+
+    expect(mounts).toEqual([
+      {
+        capabilityId: "gws-gmail-policy",
+        bindingSubject: "agent:main",
+        policyKey: "blacklistFile",
+        sourceContainerPath: fixture.blacklistFile,
+        targetContainerPath: `${fixture.root}/gws/gmail-blacklist.json`,
+        mode: "ro",
+      },
+    ]);
+  });
+
+  it("skips gmail policy mounts whose real path escapes through a symlinked directory", () => {
+    const fixture = createGmailPolicyFixture();
+    process.env.OPENCLAW_CONFIG_FILE = fixture.configFile;
+    const outsideRoot = mkdtempSync(path.join(tmpdir(), "gws-policy-outside-"));
+    tempDirs.push(outsideRoot);
+    const outsideWhitelist = path.join(outsideRoot, "gmail-whitelist.json");
+    writeFileSync(outsideWhitelist, '{ "version": 1, "emails": [], "domains": [] }\n');
+    const symlinkDir = path.join(fixture.root, "linked-gws");
+    try {
+      symlinkSync(outsideRoot, symlinkDir, "dir");
+    } catch {
+      return;
+    }
+
+    const mounts = resolveSandboxGmailPolicyMounts({
+      config: createConfig(
+        createBasePluginConfig({
+          gmailPolicy: {
+            whitelistFile: "./linked-gws/gmail-whitelist.json",
+            blacklistFile: "./gws/gmail-blacklist.json",
+          },
+        }),
+      ),
+      agentId: "main",
+      sessionKey: "agent:main:discord:channel:123",
+    });
+
+    expect(mounts).toEqual([
+      {
+        capabilityId: "gws-gmail-policy",
+        bindingSubject: "agent:main",
+        policyKey: "blacklistFile",
+        sourceContainerPath: fixture.blacklistFile,
+        targetContainerPath: `${fixture.root}/gws/gmail-blacklist.json`,
+        mode: "ro",
+      },
+    ]);
   });
 });

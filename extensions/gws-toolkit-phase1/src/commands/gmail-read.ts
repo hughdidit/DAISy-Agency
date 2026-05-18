@@ -1,4 +1,9 @@
 import { buildGmailReadCommand } from "../command-builder.js";
+import {
+  buildGmailReadPolicyPayload,
+  evaluateGmailMetadataContactPolicy,
+} from "../gmail-policy.js";
+import { GMAIL_TRIAGE_SKILL_INVOCATION } from "../gmail-triage-skill.js";
 import { validateGmailReadParams } from "../schema.js";
 import type { InvocationContext, StructuredEnvelope } from "../types.js";
 import { buildValidationDeniedEnvelope, runToolkitCommand, type RuntimeDeps } from "./helpers.js";
@@ -22,7 +27,10 @@ export async function executeGmailRead(params: {
     });
   }
 
-  const value = validated.value as Record<string, unknown> & { action: string };
+  const value = buildGmailReadPolicyPayload(
+    validated.value as Record<string, unknown> & { action: string },
+    undefined,
+  ) as Record<string, unknown> & { action: string };
 
   return runToolkitCommand({
     deps: params.deps,
@@ -32,6 +40,30 @@ export async function executeGmailRead(params: {
     action: value.action,
     payload: value,
     readOnly: true,
-    buildCommand: (auth) => buildGmailReadCommand(value, auth.args),
+    requiredSkill: GMAIL_TRIAGE_SKILL_INVOCATION,
+    buildCommand: (auth) =>
+      buildGmailReadCommand(
+        buildGmailReadPolicyPayload(value, params.deps.config.gmailPolicy, {
+          includeBlacklistQueryFilters: auth.transport === "gws_cli",
+        }),
+        auth.args,
+      ),
+    postPolicy:
+      value.action === "get_message_metadata"
+        ? ({ payload }) => {
+            const metadataPolicy = evaluateGmailMetadataContactPolicy({
+              payload,
+              policy: params.deps.config.gmailPolicy,
+            });
+            return metadataPolicy.allowed
+              ? undefined
+              : {
+                  allowed: false,
+                  reason: metadataPolicy.reason,
+                  service: "gmail",
+                  action: value.action,
+                };
+          }
+        : undefined,
   });
 }

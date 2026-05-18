@@ -66,6 +66,18 @@ export type CredentialRouteConfig = {
   impersonatedUserEnvVar?: string;
 };
 
+export type GmailContactList = {
+  emails: string[];
+  domains: string[];
+};
+
+export type GmailContactPolicy = {
+  whitelistFile?: string;
+  blacklistFile?: string;
+  whitelist: GmailContactList;
+  blacklist: GmailContactList;
+};
+
 export type GwsToolkitConfig = {
   enabledServices: ServiceFamily[];
   enabledWriteServices: ServiceFamily[];
@@ -87,6 +99,7 @@ export type GwsToolkitConfig = {
   defaultScopesProfile: "minimal" | "service-set" | "custom";
   customScopes?: string[];
   requireHumanApprovalFor: string[];
+  gmailPolicy?: GmailContactPolicy;
   warnings: string[];
 };
 
@@ -140,6 +153,12 @@ export type ResultCode =
   | "CLI_ERROR"
   | "INTERNAL_ERROR";
 
+export type RequiredSkillInvocation = {
+  name: string;
+  timing: "before_reply_or_action";
+  reason: string;
+};
+
 export type StructuredSuccess<T> = {
   ok: true;
   data: T;
@@ -149,6 +168,7 @@ export type StructuredSuccess<T> = {
     service: ServiceFamily | "status";
     resultCode: ResultCode;
     latencyMs: number;
+    requiredSkill?: RequiredSkillInvocation;
   };
 };
 

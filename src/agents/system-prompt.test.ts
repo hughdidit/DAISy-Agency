@@ -144,6 +144,7 @@ describe("buildAgentSystemPrompt", () => {
 
     expect(prompt).toContain("## Skills (mandatory)");
     expect(prompt).toContain("<available_skills>");
+    expect(prompt).toContain("meta.requiredSkill");
   });
 
   it("omits skills in minimal prompt mode when skillsPrompt is absent", () => {

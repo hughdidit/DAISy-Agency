@@ -20,6 +20,8 @@ describe("integration: plugin registration", () => {
       "gws_sheets_write",
       "gws_status",
     ]);
+    expect(harness.tools.get("gws_gmail_read")?.description).toContain("gmail-triage");
+    expect(harness.tools.get("gws_gmail_write")?.description).toContain("gmail-triage");
     expect(harness.cliCommands).toContain("gws");
   });
 });

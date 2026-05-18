@@ -539,11 +539,13 @@ function buildGwsRuntimeNote(params: {
   agentId?: string;
   eligible: SkillEntry[];
 }): string {
-  if (!params.eligible.some((entry) => entry.skill.name === "gws-toolkit")) {
+  const hasGwsToolkitSkill = params.eligible.some((entry) => entry.skill.name === "gws-toolkit");
+  const hasGmailTriageSkill = params.eligible.some((entry) => entry.skill.name === "gmail-triage");
+  if (!hasGwsToolkitSkill && !hasGmailTriageSkill) {
     return "";
   }
   const email = resolveAgentGoogleWorkspaceEmail(params.config, params.agentId);
-  if (!email) {
+  if (!email && !hasGmailTriageSkill) {
     return "";
   }
   const pluginConfig = asRecord(params.config?.plugins?.entries?.["gws-toolkit-phase1"]?.config);
@@ -563,11 +565,14 @@ function buildGwsRuntimeNote(params: {
     pluginConfig.enabledWriteServices.length > 0;
   return [
     "Google Workspace context:",
-    `- Active identity: ${email}`,
+    email ? `- Active identity: ${email}` : "",
     routeName ? `- GWS route: ${routeName}` : "- GWS route: not bound",
     services.length > 0 ? `- Available services: ${services.join(", ")}` : "",
     `- Writes: ${writesEnabled ? "route-gated" : "disabled"}`,
-    "- Use gws_status first; tools enforce policy and skills only guide workflows.",
+    "- Use gws_status first; tools enforce policy and skills guide workflows.",
+    hasGmailTriageSkill
+      ? "- Gmail triage is mandatory: when using gws_gmail_read or handling hook:gmail email, read and follow gmail-triage before replying, drafting, sending, acting, or recording memory."
+      : "",
   ]
     .filter(Boolean)
     .join("\n");
