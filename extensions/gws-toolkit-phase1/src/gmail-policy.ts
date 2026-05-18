@@ -153,7 +153,11 @@ function readContactList(
   if (unknownKeys.length > 0) {
     return { ok: false, error: `${label} contains unknown keys: ${unknownKeys.join(", ")}` };
   }
-  const emails = uniqueNormalizedList(obj.emails ?? [], normalizeGmailPolicyEmail, `${label}.emails`);
+  const emails = uniqueNormalizedList(
+    obj.emails ?? [],
+    normalizeGmailPolicyEmail,
+    `${label}.emails`,
+  );
   if (!emails.ok) {
     return emails;
   }
@@ -271,16 +275,10 @@ export function gmailPolicyClassifyEmail(
     return "unlisted";
   }
   const domain = emailDomain(normalized);
-  if (
-    policy.blacklist.emails.includes(normalized) ||
-    policy.blacklist.domains.includes(domain)
-  ) {
+  if (policy.blacklist.emails.includes(normalized) || policy.blacklist.domains.includes(domain)) {
     return "blacklisted";
   }
-  if (
-    policy.whitelist.emails.includes(normalized) ||
-    policy.whitelist.domains.includes(domain)
-  ) {
+  if (policy.whitelist.emails.includes(normalized) || policy.whitelist.domains.includes(domain)) {
     return "whitelisted";
   }
   return "unlisted";

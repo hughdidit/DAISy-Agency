@@ -649,9 +649,9 @@ async function executeDirectGmailListMessages(params: {
   const filters = resolveGmailSenderFilters(params.payload, params.config.gmailPolicy);
   const needsSenderPostFilter = Boolean(
     filters.fromEmail ||
-      filters.fromDomains.length > 0 ||
-      filters.excludeEmails.length > 0 ||
-      filters.excludeDomains.length > 0,
+    filters.fromDomains.length > 0 ||
+    filters.excludeEmails.length > 0 ||
+    filters.excludeDomains.length > 0,
   );
   const needsPositiveSenderFilter = Boolean(filters.fromEmail || filters.fromDomains.length > 0);
   const requestedMaxResults = readPositiveInt(params.payload.maxResults, 100, 500);

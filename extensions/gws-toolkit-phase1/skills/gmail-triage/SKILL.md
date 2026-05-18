@@ -10,7 +10,7 @@ Use this skill for Gmail inbox triage, replies, and email-driven requests throug
 ## Required Flow
 
 1. Run `gws_status` first. Treat route, delegated identity, transport, and write readiness as the source of truth.
-2. Ignore spam. Use Gmail reads with `inbox: true`, `unread: true` when appropriate, and do not read or process messages from spam folders or spam labels.
+2. Ignore messages in spam. Use Gmail reads with `inbox: true`, `unread: true` when appropriate, and do not read or process messages from spam folders or spam labels.
 3. Decide whether the email requires a reply before drafting or sending. Do not reply to FYI, automated, or no-action messages unless the sender asked a clear question or requested confirmation.
 4. Check sender policy from the configured Gmail whitelist/blacklist behavior:
    - Blacklisted or spam: ignore and do not reply.

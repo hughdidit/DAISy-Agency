@@ -50,7 +50,9 @@ async function makePolicyDir(params?: {
   return { dir, configPath, whitelistPath, blacklistPath };
 }
 
-function mustResolvePolicy(policy: ReturnType<typeof resolveGmailContactPolicy>): GmailContactPolicy {
+function mustResolvePolicy(
+  policy: ReturnType<typeof resolveGmailContactPolicy>,
+): GmailContactPolicy {
   expect(policy.ok).toBe(true);
   if (!policy.ok) {
     throw new Error(policy.error);
@@ -101,7 +103,11 @@ describe("gmail contact policy", () => {
     const outsideDir = await fs.mkdtemp(path.join(os.tmpdir(), "gws-gmail-policy-outside-"));
     tempDirs.push(outsideDir);
     const outsideFile = path.join(outsideDir, "gmail-whitelist.json");
-    await fs.writeFile(outsideFile, JSON.stringify({ version: 1, emails: [], domains: [] }), "utf8");
+    await fs.writeFile(
+      outsideFile,
+      JSON.stringify({ version: 1, emails: [], domains: [] }),
+      "utf8",
+    );
     const outside = resolveGmailContactPolicy({
       sourcePath: configPath,
       rawPolicy: {

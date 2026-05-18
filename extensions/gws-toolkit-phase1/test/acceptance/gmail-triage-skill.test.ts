@@ -2,9 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
-const skillPath = path.resolve(
-  "extensions/gws-toolkit-phase1/skills/gmail-triage/SKILL.md",
-);
+const skillPath = path.resolve("extensions/gws-toolkit-phase1/skills/gmail-triage/SKILL.md");
 
 describe("gmail-triage skill", () => {
   it("ships required frontmatter and policy guidance", async () => {
