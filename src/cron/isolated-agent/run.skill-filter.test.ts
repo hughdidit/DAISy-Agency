@@ -15,6 +15,7 @@ import {
   resolveAllowedModelRefMock,
   resolveCronSessionMock,
   runCliAgentMock,
+  runEmbeddedPiAgentMock,
   runWithModelFallbackMock,
 } from "./run.test-harness.js";
 
@@ -123,6 +124,32 @@ describe("runCronIsolatedAgentTurn — skill filter", () => {
     expect(resolveCronSessionMock.mock.calls[0]?.[0]).toMatchObject({
       forceNew: true,
     });
+  });
+
+  it("injects gmail-triage guidance for Gmail hook agent turns", async () => {
+    runWithModelFallbackMock.mockImplementationOnce(
+      async (params: { run: (provider: string, model: string) => Promise<unknown> }) => {
+        const result = await params.run("openai", "gpt-4");
+        return { result, provider: "openai", model: "gpt-4", attempts: [] };
+      },
+    );
+
+    const result = await runCronIsolatedAgentTurn(
+      makeSkillParams({
+        sessionKey: "hook:gmail:msg-1",
+        job: makeSkillJob({
+          name: "Gmail",
+          payload: { kind: "agentTurn", message: "New email from a@example.com" },
+        }),
+        message: "New email from a@example.com",
+      }),
+    );
+
+    expect(result.status).toBe("ok");
+    expect(runEmbeddedPiAgentMock).toHaveBeenCalledOnce();
+    expect(runEmbeddedPiAgentMock.mock.calls[0][0].prompt).toContain(
+      "Mandatory skill: read and follow `gmail-triage`",
+    );
   });
 
   it("reuses cached snapshot when version and normalized skillFilter are unchanged", async () => {

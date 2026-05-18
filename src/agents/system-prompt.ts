@@ -28,6 +28,7 @@ function buildSkillsSection(params: { skillsPrompt?: string; readToolName: strin
     `- If exactly one skill clearly applies: read its SKILL.md at <location> with \`${params.readToolName}\`, then follow it.`,
     "- If multiple could apply: choose the most specific one, then read/follow it.",
     "- If none clearly apply: do not read any SKILL.md.",
+    "- If a tool result includes `meta.requiredSkill`, read that skill's SKILL.md immediately and follow it before acting on the result.",
     "Constraints: never read more than one skill up front; only read after selecting.",
     trimmed,
     "",

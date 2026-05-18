@@ -114,6 +114,7 @@ describe("hooks mapping", () => {
     const mappings = resolveHookMappings({ presets: ["gmail"] });
     expect(mappings.length).toBeGreaterThan(0);
     expect(mappings[0]?.matchPath).toBe("gmail");
+    expect(mappings[0]?.sessionKey).toBe("hook:gmail:{{messages[0].id}}");
   });
 
   it("renders template from payload", async () => {

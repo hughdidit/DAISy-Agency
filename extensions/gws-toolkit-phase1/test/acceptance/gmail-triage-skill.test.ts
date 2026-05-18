@@ -15,5 +15,6 @@ describe("gmail-triage skill", () => {
     expect(skill).toContain("Use `gws_gmail_write` with `send_message` only for whitelisted");
     expect(skill).toContain("above 75%");
     expect(skill).toContain("Do not store raw email bodies");
+    expect(skill).toContain("required automatically");
   });
 });

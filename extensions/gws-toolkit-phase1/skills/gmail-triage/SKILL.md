@@ -5,7 +5,7 @@ description: Safely read, triage, draft, and reply to Gmail messages through gws
 
 # Gmail Triage
 
-Use this skill for Gmail inbox triage, replies, and email-driven requests through `gws-toolkit-phase1`.
+Use this skill for Gmail inbox triage, replies, and email-driven requests through `gws-toolkit-phase1`. This skill is required automatically when Gmail email is read through `gws_gmail_read` or delivered through a `hook:gmail` session.
 
 ## Required Flow
 

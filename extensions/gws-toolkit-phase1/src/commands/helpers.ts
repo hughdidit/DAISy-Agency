@@ -77,6 +77,7 @@ export async function runToolkitCommand(params: {
   payload: Record<string, unknown>;
   readOnly: boolean;
   confirm?: boolean;
+  requiredSkill?: StructuredSuccess<Record<string, unknown>>["meta"]["requiredSkill"];
   buildCommand: (auth: AuthResolution) => GwsCommandSpec;
   postPolicy?: (params: {
     auth: AuthResolution;
@@ -229,6 +230,7 @@ export async function runToolkitCommand(params: {
           service: params.service,
           resultCode: "OK",
           latencyMs,
+          ...(params.requiredSkill ? { requiredSkill: params.requiredSkill } : {}),
         },
       };
     }
@@ -347,6 +349,7 @@ export async function runToolkitCommand(params: {
         service: params.service,
         resultCode: "OK",
         latencyMs,
+        ...(params.requiredSkill ? { requiredSkill: params.requiredSkill } : {}),
       },
     };
 

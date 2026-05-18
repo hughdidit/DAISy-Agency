@@ -134,6 +134,10 @@ For Gmail triage, install the live policy files on the host at
 files relative to `openclaw.json` as shown above. Keep the files
 operator-owned, mount them read-only into the gateway, and do not mount
 `/opt/DAISy/config` wholesale into sandboxes.
+Agents receive the `gmail-triage` workflow automatically when Gmail email is
+read through `gws_gmail_read` or delivered via a `hook:gmail:*` webhook session.
+The automatic skill requirement is guidance; whitelist/blacklist and write
+permission decisions are still enforced by the GWS toolkit.
 
 Staging route pattern:
 

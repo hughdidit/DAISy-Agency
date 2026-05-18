@@ -259,6 +259,11 @@ Blacklist entries take precedence over whitelist entries. Gmail reads exclude
 spam plus blacklisted senders. Gmail drafts are denied for blacklisted
 recipients. Gmail sends require all recipients to match the whitelist and still
 must pass the existing route, write-service, action, and `confirm: true` gates.
+Successful `gws_gmail_read` results include a mandatory `gmail-triage` skill
+marker, and Gmail webhook sessions (`hook:gmail:*`) inject the same triage
+requirement into the agent turn. The skill guides reply/no-reply decisions,
+direct-send versus draft behavior, action confidence, and memory capture; the
+toolkit policy remains the enforcement layer.
 
 ## Auth Workflow Matrix
 

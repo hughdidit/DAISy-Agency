@@ -36,6 +36,7 @@ type PluginApi = {
 
 type RegisteredTool = {
   name: string;
+  description?: string;
   execute: (id: string, params: Record<string, unknown>) => Promise<{ details?: unknown }>;
 };
 

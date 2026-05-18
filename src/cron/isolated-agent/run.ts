@@ -68,6 +68,9 @@ import { resolveCronAgentSessionKey } from "./session-key.js";
 import { resolveCronSession } from "./session.js";
 import { resolveCronSkillsSnapshot } from "./skills-snapshot.js";
 
+const GMAIL_TRIAGE_SKILL_DIRECTIVE =
+  "Mandatory skill: read and follow `gmail-triage` before replying, drafting, sending, acting, or recording memory for this email.";
+
 export type RunCronAgentTurnResult = {
   /** Last non-empty agent text output (not truncated). */
   outputText?: string;
@@ -378,6 +381,9 @@ export async function runCronIsolatedAgentTurn(params: {
   } else {
     // Internal/trusted source - use original format
     commandBody = `${base}\n${timeLine}`.trim();
+  }
+  if (isGmailHook) {
+    commandBody = `${GMAIL_TRIAGE_SKILL_DIRECTIVE}\n\n${commandBody}`.trim();
   }
   if (deliveryRequested) {
     commandBody =

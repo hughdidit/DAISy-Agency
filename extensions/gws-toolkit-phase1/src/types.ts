@@ -153,6 +153,12 @@ export type ResultCode =
   | "CLI_ERROR"
   | "INTERNAL_ERROR";
 
+export type RequiredSkillInvocation = {
+  name: string;
+  timing: "before_reply_or_action";
+  reason: string;
+};
+
 export type StructuredSuccess<T> = {
   ok: true;
   data: T;
@@ -162,6 +168,7 @@ export type StructuredSuccess<T> = {
     service: ServiceFamily | "status";
     resultCode: ResultCode;
     latencyMs: number;
+    requiredSkill?: RequiredSkillInvocation;
   };
 };
 

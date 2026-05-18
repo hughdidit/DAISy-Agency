@@ -3,6 +3,7 @@ import {
   buildGmailReadPolicyPayload,
   evaluateGmailMetadataContactPolicy,
 } from "../gmail-policy.js";
+import { GMAIL_TRIAGE_SKILL_INVOCATION } from "../gmail-triage-skill.js";
 import { validateGmailReadParams } from "../schema.js";
 import type { InvocationContext, StructuredEnvelope } from "../types.js";
 import { buildValidationDeniedEnvelope, runToolkitCommand, type RuntimeDeps } from "./helpers.js";
@@ -39,6 +40,7 @@ export async function executeGmailRead(params: {
     action: value.action,
     payload: value,
     readOnly: true,
+    requiredSkill: GMAIL_TRIAGE_SKILL_INVOCATION,
     buildCommand: (auth) =>
       buildGmailReadCommand(
         buildGmailReadPolicyPayload(value, params.deps.config.gmailPolicy, {
