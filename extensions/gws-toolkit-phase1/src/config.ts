@@ -258,9 +258,16 @@ export function resolveConfig(
 ):
   | { ok: true; value: ResolvedConfig }
   | { ok: false; error: StructuredError; posture: ConfigPosture } {
-  const sourcePath = process.env.OPENCLAW_CONFIG_FILE;
+  const explicitConfigFile = process.env.OPENCLAW_CONFIG_FILE?.trim();
+  const explicitConfigPath = process.env.OPENCLAW_CONFIG_PATH?.trim();
+  const sourcePath = explicitConfigFile || explicitConfigPath;
+  const sourceEnvVar = explicitConfigFile
+    ? "OPENCLAW_CONFIG_FILE"
+    : explicitConfigPath
+      ? "OPENCLAW_CONFIG_PATH"
+      : "OPENCLAW_CONFIG_FILE";
   const postureBase: ConfigPosture = {
-    sourceEnvVar: "OPENCLAW_CONFIG_FILE",
+    sourceEnvVar,
     sourcePathPresent: typeof sourcePath === "string" && sourcePath.trim().length > 0,
     sourcePathBasename:
       typeof sourcePath === "string" && sourcePath.trim().length > 0
@@ -276,7 +283,7 @@ export function resolveConfig(
     return {
       ok: false,
       error: buildConfigError(
-        "gws-toolkit-phase1 plugin config missing or invalid. Ensure plugins.entries.gws-toolkit-phase1.config is set in OPENCLAW_CONFIG_FILE.",
+        "gws-toolkit-phase1 plugin config missing or invalid. Ensure plugins.entries.gws-toolkit-phase1.config is set in OPENCLAW_CONFIG_FILE or OPENCLAW_CONFIG_PATH.",
       ),
       posture: postureBase,
     };

@@ -97,12 +97,15 @@ describe("resolveSandboxGwsCredentialProjection", () => {
     });
 
     expect(projection).toEqual({
+      capabilityId: "gws",
       bindingSubject: "agent:main",
       routeName: "ops-main",
       credentialsFile: "/home/node/.openclaw/secrets/gws/credentials.json",
       approvedCredentialDir: "/home/node/.openclaw/secrets/gws",
       sourceContainerPath: "/home/node/.openclaw/secrets/gws/credentials.json",
       targetContainerPath: "/home/node/.openclaw/secrets/gws/credentials.json",
+      mode: "ro",
+      containerScopeKey: "agent:main",
     });
   });
 
@@ -130,12 +133,15 @@ describe("resolveSandboxGwsCredentialProjection", () => {
     });
 
     expect(projection).toEqual({
+      capabilityId: "gws",
       bindingSubject: "subagent:main",
       routeName: "ops-main",
       credentialsFile: "/home/node/.openclaw/secrets/gws/credentials.json",
       approvedCredentialDir: "/home/node/.openclaw/secrets/gws",
       sourceContainerPath: "/home/node/.openclaw/secrets/gws/credentials.json",
       targetContainerPath: "/home/node/.openclaw/secrets/gws/credentials.json",
+      mode: "ro",
+      containerScopeKey: "subagent:main",
     });
   });
 
@@ -253,12 +259,15 @@ describe("resolveSandboxGwsCredentialProjection", () => {
     });
 
     expect(projection).toEqual({
+      capabilityId: "gws",
       bindingSubject: "agent:main",
       routeName: "ops-main",
       credentialsFile: "/home/node/.openclaw/secrets/gws/credentials.json",
       approvedCredentialDir: "/home/node/.openclaw/secrets/gws/credentials.json",
       sourceContainerPath: "/home/node/.openclaw/secrets/gws/credentials.json",
       targetContainerPath: "/home/node/.openclaw/secrets/gws/credentials.json",
+      mode: "ro",
+      containerScopeKey: "agent:main",
     });
   });
 
@@ -302,6 +311,73 @@ describe("resolveSandboxGwsCredentialProjection", () => {
       true,
     );
     expect(mounts.every((mount) => mount.containerScopeKey === undefined)).toBe(true);
+  });
+
+  it("uses OPENCLAW_CONFIG_PATH when deriving gmail policy mounts", () => {
+    const fixture = createGmailPolicyFixture();
+    process.env.OPENCLAW_CONFIG_FILE = " ";
+    process.env.OPENCLAW_CONFIG_PATH = fixture.configFile;
+
+    const mounts = resolveSandboxGmailPolicyMounts({
+      config: createConfig(
+        createBasePluginConfig({
+          gmailPolicy: {
+            whitelistFile: "./gws/gmail-whitelist.json",
+            blacklistFile: "./gws/gmail-blacklist.json",
+          },
+        }),
+      ),
+      agentId: "main",
+      sessionKey: "agent:main:discord:channel:123",
+    });
+
+    expect(mounts.map((mount) => mount.sourceContainerPath)).toEqual([
+      fixture.whitelistFile,
+      fixture.blacklistFile,
+    ]);
+    expect(mounts.map((mount) => mount.targetContainerPath)).toEqual([
+      `${fixture.root}/gws/gmail-whitelist.json`,
+      `${fixture.root}/gws/gmail-blacklist.json`,
+    ]);
+  });
+
+  it("targets gmail policy mounts beside the readonly projected config", () => {
+    const fixture = createGmailPolicyFixture();
+    delete process.env.OPENCLAW_CONFIG_FILE;
+    process.env.OPENCLAW_CONFIG_PATH = fixture.configFile;
+
+    const mounts = resolveSandboxGmailPolicyMounts({
+      config: createConfig(
+        createBasePluginConfig({
+          gmailPolicy: {
+            whitelistFile: "./gws/gmail-whitelist.json",
+            blacklistFile: "./gws/gmail-blacklist.json",
+          },
+        }),
+      ),
+      agentId: "main",
+      sessionKey: "agent:main:discord:channel:123",
+      targetConfigPath: "/tmp/.openclaw-readonly/agents/main/openclaw.json",
+    });
+
+    expect(mounts).toEqual([
+      {
+        capabilityId: "gws-gmail-policy",
+        bindingSubject: "agent:main",
+        policyKey: "whitelistFile",
+        sourceContainerPath: fixture.whitelistFile,
+        targetContainerPath: "/tmp/.openclaw-readonly/agents/main/gws/gmail-whitelist.json",
+        mode: "ro",
+      },
+      {
+        capabilityId: "gws-gmail-policy",
+        bindingSubject: "agent:main",
+        policyKey: "blacklistFile",
+        sourceContainerPath: fixture.blacklistFile,
+        targetContainerPath: "/tmp/.openclaw-readonly/agents/main/gws/gmail-blacklist.json",
+        mode: "ro",
+      },
+    ]);
   });
 
   it("skips gmail policy mounts that escape the config directory", () => {

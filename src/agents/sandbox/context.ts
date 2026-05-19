@@ -210,12 +210,34 @@ export async function resolveSandboxContext(params: {
     }
   }
 
+  const openclawReadonlyProjectionEnvVisible =
+    openclawReadonlyProjection.enabled && openclawReadonlyProjectionVisible;
   const capabilityMounts = resolveSandboxCapabilityMounts({
     config: effectiveConfig,
     agentId: runtime.agentId,
     sessionKey: rawSessionKey,
+    targetConfigPath: openclawReadonlyProjectionEnvVisible
+      ? openclawReadonlyProjection.containerConfigPath
+      : undefined,
   });
   for (const mount of capabilityMounts) {
+    if (
+      openclawReadonlyProjection.enabled &&
+      mount.targetContainerPath.startsWith(`${openclawReadonlyProjection.containerProjectionRoot}/`)
+    ) {
+      const relativeTargetDir = path.posix.relative(
+        openclawReadonlyProjection.containerProjectionRoot,
+        path.posix.dirname(mount.targetContainerPath),
+      );
+      if (relativeTargetDir && !relativeTargetDir.startsWith("..")) {
+        await fs.mkdir(
+          path.join(openclawReadonlyProjection.hostProjectionRoot, relativeTargetDir),
+          {
+            recursive: true,
+          },
+        );
+      }
+    }
     const hostPath = await resolveDockerHostPathInfo(mount.sourceContainerPath);
     if (hostPath.remapSucceeded) {
       try {
@@ -250,16 +272,18 @@ export async function resolveSandboxContext(params: {
           ),
         }
       : resolvedCfg.docker;
-  const dockerEnv =
-    effectiveDocker.env?.[OPENCLAW_READONLY_PROJECTION_ROOT_ENV] !== undefined
-      ? effectiveDocker.env
-      : openclawReadonlyProjection.enabled && openclawReadonlyProjectionVisible
-        ? {
-            ...effectiveDocker.env,
-            [OPENCLAW_READONLY_PROJECTION_ROOT_ENV]:
-              openclawReadonlyProjection.containerProjectionRoot,
-          }
-        : effectiveDocker.env;
+  const configuredProjectionRoot =
+    effectiveDocker.env?.[OPENCLAW_READONLY_PROJECTION_ROOT_ENV]?.trim();
+  const configuredConfigPath = effectiveDocker.env?.OPENCLAW_CONFIG_PATH?.trim();
+  const dockerEnv = openclawReadonlyProjectionEnvVisible
+    ? {
+        ...effectiveDocker.env,
+        [OPENCLAW_READONLY_PROJECTION_ROOT_ENV]:
+          configuredProjectionRoot || openclawReadonlyProjection.containerProjectionRoot,
+        OPENCLAW_CONFIG_PATH:
+          configuredConfigPath || openclawReadonlyProjection.containerConfigPath,
+      }
+    : effectiveDocker.env;
   const sandboxDocker =
     dockerEnv === effectiveDocker.env ? effectiveDocker : { ...effectiveDocker, env: dockerEnv };
   const derivedBindRequiresIsolatedContainer =

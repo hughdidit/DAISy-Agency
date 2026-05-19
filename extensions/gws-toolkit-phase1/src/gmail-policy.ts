@@ -74,7 +74,9 @@ function resolvePolicyFile(params: {
   if (!params.sourcePath?.trim()) {
     return {
       ok: false,
-      error: `${params.label} requires OPENCLAW_CONFIG_FILE so relative policy paths can be resolved`,
+      error:
+        `${params.label} requires OPENCLAW_CONFIG_FILE or OPENCLAW_CONFIG_PATH ` +
+        "so relative policy paths can be resolved",
     };
   }
   let configDir: string;

@@ -9,6 +9,7 @@ export function resolveSandboxCapabilityMounts(params: {
   config?: OpenClawConfig;
   agentId?: string;
   sessionKey: string;
+  targetConfigPath?: string;
 }): SandboxCapabilityMount[] {
   const mounts: SandboxCapabilityMount[] = [];
   const gwsMount = resolveSandboxGwsCredentialMount(params);

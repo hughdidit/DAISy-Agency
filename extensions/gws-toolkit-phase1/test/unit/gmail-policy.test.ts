@@ -85,6 +85,25 @@ describe("gmail contact policy", () => {
     expect(gmailPolicyClassifyEmail(policy, "agent@hughdidit.com")).toBe("whitelisted");
   });
 
+  it("resolves relative policy files from the provided source path", async () => {
+    const { configPath } = await makePolicyDir();
+
+    const policy = mustResolvePolicy(
+      resolveGmailContactPolicy({
+        sourcePath: configPath,
+        rawPolicy: {
+          whitelistFile: "./gws/gmail-whitelist.json",
+          blacklistFile: "./gws/gmail-blacklist.json",
+        },
+      }),
+    );
+
+    expect(policy.whitelistFile).toBe(
+      path.join(path.dirname(configPath), "gws", "gmail-whitelist.json"),
+    );
+    expect(gmailPolicyClassifyEmail(policy, "agent@hughdidit.com")).toBe("whitelisted");
+  });
+
   it("rejects invalid JSON and paths outside the config directory", async () => {
     const { configPath, whitelistPath } = await makePolicyDir();
     await fs.writeFile(whitelistPath, "{bad json", "utf8");

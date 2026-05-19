@@ -47,8 +47,9 @@ function normalizePosixPath(value: string | undefined | null): string | null {
   if (value === null || value === undefined) {
     return null;
   }
-  const trimmed = value.trim();
-  if (!trimmed.startsWith("/")) {
+  const trimmed = value.trim().replaceAll("\\", "/");
+  const isWindowsAbsolute = process.platform === "win32" && /^[A-Za-z]:\//.test(trimmed);
+  if (!trimmed.startsWith("/") && !isWindowsAbsolute) {
     return null;
   }
   const normalized = path.posix.normalize(trimmed);
@@ -59,18 +60,25 @@ function realpathSync(value: string): string {
   return fs.realpathSync.native?.(value) ?? fs.realpathSync(value);
 }
 
-function resolveConfigRelativePolicyFile(value: unknown): {
+function resolveConfigRelativePolicyFileForTarget(
+  value: unknown,
+  targetConfigPath: string | undefined,
+): {
   sourceContainerPath: string;
   targetContainerPath: string;
 } | null {
   if (typeof value !== "string" || !value.trim()) {
     return null;
   }
-  const configPath = normalizePosixPath(process.env.OPENCLAW_CONFIG_FILE);
+  const explicitConfigFile = process.env.OPENCLAW_CONFIG_FILE?.trim();
+  const explicitConfigPath = process.env.OPENCLAW_CONFIG_PATH?.trim();
+  const configPath = normalizePosixPath(explicitConfigFile || explicitConfigPath);
   if (!configPath) {
     return null;
   }
   const configDir = path.posix.dirname(configPath);
+  const targetConfig = normalizePosixPath(targetConfigPath) ?? configPath;
+  const targetConfigDir = path.posix.dirname(targetConfig);
   let configDirRealPath: string;
   try {
     configDirRealPath = normalizePosixPath(realpathSync(configDir)) ?? configDir;
@@ -102,9 +110,12 @@ function resolveConfigRelativePolicyFile(value: unknown): {
   if (!isPathInsidePosix(configDirRealPath, candidateRealPath)) {
     return null;
   }
+  const targetCandidate = raw.startsWith("/")
+    ? candidate
+    : (normalizePosixPath(path.posix.join(targetConfigDir, raw)) ?? candidate);
   return {
     sourceContainerPath: candidateRealPath,
-    targetContainerPath: candidate,
+    targetContainerPath: targetCandidate,
   };
 }
 
@@ -308,6 +319,7 @@ export function resolveSandboxGmailPolicyMounts(params: {
   config?: OpenClawConfig;
   agentId?: string;
   sessionKey: string;
+  targetConfigPath?: string;
 }): SandboxGmailPolicyMount[] {
   const pluginEntry = resolveEnabledGwsPluginEntry(params.config);
   if (!pluginEntry) {
@@ -327,7 +339,10 @@ export function resolveSandboxGmailPolicyMounts(params: {
   });
   const mounts: SandboxGmailPolicyMount[] = [];
   for (const policyKey of ["whitelistFile", "blacklistFile"] as const) {
-    const policyFile = resolveConfigRelativePolicyFile(gmailPolicy[policyKey]);
+    const policyFile = resolveConfigRelativePolicyFileForTarget(
+      gmailPolicy[policyKey],
+      params.targetConfigPath,
+    );
     if (!policyFile) {
       continue;
     }
