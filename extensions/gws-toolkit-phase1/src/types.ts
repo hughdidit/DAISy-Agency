@@ -104,7 +104,7 @@ export type GwsToolkitConfig = {
 };
 
 export type ConfigPosture = {
-  sourceEnvVar: "OPENCLAW_CONFIG_FILE";
+  sourceEnvVar: "OPENCLAW_CONFIG_FILE" | "OPENCLAW_CONFIG_PATH";
   sourcePathPresent: boolean;
   sourcePathBasename?: string;
   pluginConfigProvided: boolean;

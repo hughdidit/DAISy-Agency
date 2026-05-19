@@ -43,6 +43,35 @@ describe("integration: OPENCLAW_CONFIG_FILE posture", () => {
     }
   });
 
+  it("falls back to OPENCLAW_CONFIG_PATH when OPENCLAW_CONFIG_FILE is unset", async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "gws-config-path-source-"));
+    try {
+      const configPath = path.join(dir, "openclaw.json");
+      await fs.writeFile(configPath, JSON.stringify({ plugins: { entries: {} } }), "utf8");
+      delete process.env.OPENCLAW_CONFIG_FILE;
+      process.env.OPENCLAW_CONFIG_PATH = configPath;
+
+      const harness = createHarness({
+        pluginConfig: defaultPluginConfig(),
+      });
+      const status = await executeTool(harness, "gws_status", {});
+
+      expect(status.ok).toBe(true);
+      expect(status.data).toMatchObject({
+        config: {
+          posture: {
+            sourceEnvVar: "OPENCLAW_CONFIG_PATH",
+            sourcePathPresent: true,
+            sourcePathBasename: "openclaw.json",
+            pluginConfigProvided: true,
+          },
+        },
+      });
+    } finally {
+      await fs.rm(dir, { recursive: true, force: true });
+    }
+  });
+
   it("honors gws_status include flags", async () => {
     process.env.GOOGLE_WORKSPACE_CLI_TOKEN = "token";
     const harness = createHarness({
