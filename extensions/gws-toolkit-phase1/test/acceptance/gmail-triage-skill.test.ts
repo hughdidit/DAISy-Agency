@@ -13,6 +13,8 @@ describe("gmail-triage skill", () => {
     expect(skill).toContain("Ignore messages in spam");
     expect(skill).toContain("Use `gws_gmail_write` with `draft_message`");
     expect(skill).toContain("Use `gws_gmail_write` with `send_message` only for whitelisted");
+    expect(skill).toContain("mark the email as read");
+    expect(skill).toContain("pending human approval");
     expect(skill).toContain("above 75%");
     expect(skill).toContain("Do not store raw email bodies");
     expect(skill).toContain("required automatically");
