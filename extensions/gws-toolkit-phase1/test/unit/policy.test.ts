@@ -237,6 +237,27 @@ describe("policy", () => {
       evaluatePolicy({
         tool: "gws_gmail_write",
         service: "gmail",
+        action: "mark_message_read",
+        payload: { messageId: "msg-123" },
+        config: gmailConfig,
+        auth: {
+          ...gmailAuth,
+          route: {
+            ...gmailAuth.route,
+            allowedActions: undefined,
+          },
+        },
+        isWrite: true,
+        confirm: true,
+      }),
+    ).toMatchObject({
+      allowed: false,
+      reason: "route route must explicitly allow gmail:mark_message_read",
+    });
+    expect(
+      evaluatePolicy({
+        tool: "gws_gmail_write",
+        service: "gmail",
         action: "send_message",
         payload: { to: "approved@example.com" },
         config: gmailConfig,

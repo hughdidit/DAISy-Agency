@@ -27,6 +27,6 @@ Use this skill for Gmail inbox triage, replies, and email-driven requests throug
 - Prefer `gws_gmail_read` with structured filters such as `fromEmail`, `fromDomain`, `unread`, and `inbox`.
 - Use `gws_gmail_write` with `draft_message` for unlisted senders or lower-confidence responses.
 - Use `gws_gmail_write` with `send_message` only for whitelisted recipients and only when the existing GWS route, action policy, write service, and `confirm: true` gates all allow it.
-- Use `gws_gmail_write` with `mark_message_read` and the handled `messageId` after a direct completion or no-reply decision, only when route policy allows it.
+- Use `gws_gmail_write` with `mark_message_read`, the handled `messageId`, and `confirm: true` after a direct completion or no-reply decision, only when route policy allows it.
 - Mark messages as read after direct completion only through an explicit Gmail mutation allowed by the active route; keep approval-needed messages unread, and do not remove labels or change read state speculatively.
 - Treat policy denials as expected safety outcomes, not retry candidates.

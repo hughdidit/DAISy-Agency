@@ -73,6 +73,18 @@ function routeAllowsAction(
   return auth.route.allowedActions.includes(action) || auth.route.allowedActions.includes(compound);
 }
 
+function routeExplicitlyAllowsAction(
+  auth: AuthResolution,
+  service: ServiceFamily,
+  action: string,
+): boolean {
+  const compound = `${service}:${action}`;
+  return (
+    auth.route.allowedActions?.includes(action) === true ||
+    auth.route.allowedActions?.includes(compound) === true
+  );
+}
+
 export function evaluatePolicy(params: {
   tool: ToolName;
   service: ServiceFamily | "status";
@@ -180,6 +192,18 @@ export function evaluatePolicy(params: {
       return {
         allowed: false,
         reason: `route ${params.auth.route.name} does not allow ${params.service}:${params.action}`,
+        service: params.service,
+        action: params.action,
+      };
+    }
+    if (
+      params.service === "gmail" &&
+      params.action === "mark_message_read" &&
+      !routeExplicitlyAllowsAction(params.auth, params.service, params.action)
+    ) {
+      return {
+        allowed: false,
+        reason: `route ${params.auth.route.name} must explicitly allow gmail:mark_message_read`,
         service: params.service,
         action: params.action,
       };
