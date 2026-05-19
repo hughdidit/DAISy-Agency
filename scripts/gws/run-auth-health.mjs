@@ -1,4 +1,5 @@
 import { spawnSync } from "node:child_process";
+import { resolveActiveConfigPath } from "./active-config.mjs";
 
 const ANSI_ESCAPE = String.fromCharCode(0x1b);
 const ANSI_ESCAPE_PATTERN = new RegExp(`${ANSI_ESCAPE}\\[[0-9;?]*[ -/]*[@-~]`, "g");
@@ -48,13 +49,34 @@ if (!subject) {
 }
 
 const runnerCwd = (process.env.OPENCLAW_APP_CWD ?? "").trim() || process.cwd();
+const childEnv = { ...process.env };
+const configFile = childEnv.OPENCLAW_CONFIG_FILE?.trim() ?? "";
+const configPath = childEnv.OPENCLAW_CONFIG_PATH?.trim() ?? "";
+if (!configFile || !configPath) {
+  let activeConfigPath;
+  try {
+    activeConfigPath = resolveActiveConfigPath();
+  } catch (error) {
+    fail("Failed to resolve active OpenClaw config for GWS auth-health.", {
+      openclawConfigFile: childEnv.OPENCLAW_CONFIG_FILE ?? null,
+      openclawConfigPath: childEnv.OPENCLAW_CONFIG_PATH ?? null,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+  if (!configFile) {
+    childEnv.OPENCLAW_CONFIG_FILE = activeConfigPath;
+  }
+  if (!configPath) {
+    childEnv.OPENCLAW_CONFIG_PATH = activeConfigPath;
+  }
+}
 const child = spawnSync(
   process.execPath,
   ["dist/entry.js", "gws", "auth-health", "--subject", subject],
   {
     cwd: runnerCwd,
     encoding: "utf8",
-    env: process.env,
+    env: childEnv,
     timeout: 30_000,
   },
 );
