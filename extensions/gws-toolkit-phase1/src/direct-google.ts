@@ -506,6 +506,17 @@ export function buildDirectGoogleRequest(params: {
           data: { raw: buildRawEmail(p) },
         };
       }
+      if (params.action === "mark_message_read") {
+        const messageId = typeof p.messageId === "string" ? p.messageId.trim() : "";
+        if (!messageId) {
+          throw new PluginError("VALIDATION_ERROR", "messageId is required");
+        }
+        return {
+          method: "POST",
+          url: `https://gmail.googleapis.com/gmail/v1/users/me/messages/${encodeSegment(messageId)}/modify`,
+          data: { removeLabelIds: ["UNREAD"] },
+        };
+      }
       break;
     }
     case "calendar": {

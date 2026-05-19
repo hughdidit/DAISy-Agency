@@ -194,4 +194,28 @@ describe("integration: command build", () => {
     const request = JSON.parse(gmail[paramsIndex + 1] as string) as { q?: string };
     expect(request.q).toBe("-from:bad.example from:trusted.example");
   });
+
+  it("builds Gmail mark-read mutations without requiring message bodies", () => {
+    const gmail = buildGmailWriteCommand(
+      {
+        action: "mark_message_read",
+        confirm: true,
+        messageId: "msg-123",
+      },
+      [],
+    ).argv;
+
+    expect(gmail).toEqual([
+      "gmail",
+      "users",
+      "messages",
+      "modify",
+      "--format",
+      "json",
+      "--params",
+      '{"userId":"me","id":"msg-123"}',
+      "--json",
+      '{"removeLabelIds":["UNREAD"]}',
+    ]);
+  });
 });

@@ -135,6 +135,20 @@ describe("direct Google API transport", () => {
     expect(decoded).not.toContain("\r\nInjected: yes");
   });
 
+  it("builds Gmail mark-read modify requests", () => {
+    const request = buildDirectGoogleRequest({
+      service: "gmail",
+      action: "mark_message_read",
+      payload: { messageId: "msg/123" },
+    });
+
+    expect(request).toEqual({
+      method: "POST",
+      url: "https://gmail.googleapis.com/gmail/v1/users/me/messages/msg%2F123/modify",
+      data: { removeLabelIds: ["UNREAD"] },
+    });
+  });
+
   it("formats Drive parent parameters and restricts uploads to the workspace", async () => {
     const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "gws-direct-upload-"));
     const uploadPath = path.join(workspaceDir, "report.txt");

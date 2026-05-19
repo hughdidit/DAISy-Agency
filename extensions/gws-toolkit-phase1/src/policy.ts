@@ -17,7 +17,7 @@ const READ_ACTIONS: Record<ServiceFamily, Set<string>> = {
 
 const WRITE_ACTIONS: Record<ServiceFamily, Set<string>> = {
   drive: new Set(["create_folder", "upload_file", "update_file_metadata"]),
-  gmail: new Set(["draft_message", "send_message"]),
+  gmail: new Set(["draft_message", "send_message", "mark_message_read"]),
   calendar: new Set(["create_event", "update_event"]),
   docs: new Set(["create_document", "append_text", "batch_update_document"]),
   sheets: new Set(["append_values", "update_values", "create_spreadsheet"]),
