@@ -1,4 +1,5 @@
 import { spawnSync } from "node:child_process";
+import { resolveActiveConfigPath } from "./active-config.mjs";
 
 const ANSI_ESCAPE = String.fromCharCode(0x1b);
 const ANSI_ESCAPE_PATTERN = new RegExp(`${ANSI_ESCAPE}\\[[0-9;?]*[ -/]*[@-~]`, "g");
@@ -48,13 +49,17 @@ if (!subject) {
 }
 
 const runnerCwd = (process.env.OPENCLAW_APP_CWD ?? "").trim() || process.cwd();
+const childEnv = { ...process.env };
+if (!childEnv.OPENCLAW_CONFIG_FILE?.trim()) {
+  childEnv.OPENCLAW_CONFIG_FILE = resolveActiveConfigPath();
+}
 const child = spawnSync(
   process.execPath,
   ["dist/entry.js", "gws", "auth-health", "--subject", subject],
   {
     cwd: runnerCwd,
     encoding: "utf8",
-    env: process.env,
+    env: childEnv,
     timeout: 30_000,
   },
 );
