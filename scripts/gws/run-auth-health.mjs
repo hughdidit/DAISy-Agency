@@ -50,8 +50,25 @@ if (!subject) {
 
 const runnerCwd = (process.env.OPENCLAW_APP_CWD ?? "").trim() || process.cwd();
 const childEnv = { ...process.env };
-if (!childEnv.OPENCLAW_CONFIG_FILE?.trim()) {
-  childEnv.OPENCLAW_CONFIG_FILE = resolveActiveConfigPath();
+const configFile = childEnv.OPENCLAW_CONFIG_FILE?.trim() ?? "";
+const configPath = childEnv.OPENCLAW_CONFIG_PATH?.trim() ?? "";
+if (!configFile || !configPath) {
+  let activeConfigPath;
+  try {
+    activeConfigPath = resolveActiveConfigPath();
+  } catch (error) {
+    fail("Failed to resolve active OpenClaw config for GWS auth-health.", {
+      openclawConfigFile: childEnv.OPENCLAW_CONFIG_FILE ?? null,
+      openclawConfigPath: childEnv.OPENCLAW_CONFIG_PATH ?? null,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+  if (!configFile) {
+    childEnv.OPENCLAW_CONFIG_FILE = activeConfigPath;
+  }
+  if (!configPath) {
+    childEnv.OPENCLAW_CONFIG_PATH = activeConfigPath;
+  }
 }
 const child = spawnSync(
   process.execPath,
