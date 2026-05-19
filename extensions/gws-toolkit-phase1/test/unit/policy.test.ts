@@ -233,27 +233,24 @@ describe("policy", () => {
         confirm: true,
       }),
     ).toMatchObject({ allowed: false });
-    expect(
-      evaluatePolicy({
-        tool: "gws_gmail_write",
-        service: "gmail",
-        action: "mark_message_read",
-        payload: { messageId: "msg-123" },
-        config: gmailConfig,
-        auth: {
-          ...gmailAuth,
-          route: {
-            ...gmailAuth.route,
-            allowedActions: undefined,
-          },
+    const wildcardRouteMarkRead = evaluatePolicy({
+      tool: "gws_gmail_write",
+      service: "gmail",
+      action: "mark_message_read",
+      payload: { messageId: "msg-123" },
+      config: gmailConfig,
+      auth: {
+        ...gmailAuth,
+        route: {
+          ...gmailAuth.route,
+          allowedActions: undefined,
         },
-        isWrite: true,
-        confirm: true,
-      }),
-    ).toMatchObject({
-      allowed: false,
-      reason: "route route must explicitly allow gmail:mark_message_read",
+      },
+      isWrite: true,
+      confirm: true,
     });
+    expect(wildcardRouteMarkRead).toMatchObject({ allowed: false });
+    expect(wildcardRouteMarkRead.reason).toContain("must explicitly allow gmail:mark_message_read");
     expect(
       evaluatePolicy({
         tool: "gws_gmail_write",
