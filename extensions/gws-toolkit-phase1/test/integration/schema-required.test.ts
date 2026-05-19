@@ -20,5 +20,12 @@ describe("integration: action-specific required params", () => {
     });
     expect(calendarMissingEventId.ok).toBe(false);
     expect(calendarMissingEventId.error).toMatchObject({ code: "VALIDATION_ERROR" });
+
+    const gmailMissingMessageId = await executeTool(harness, "gws_gmail_write", {
+      action: "mark_message_read",
+      confirm: true,
+    });
+    expect(gmailMissingMessageId.ok).toBe(false);
+    expect(gmailMissingMessageId.error).toMatchObject({ code: "VALIDATION_ERROR" });
   });
 });

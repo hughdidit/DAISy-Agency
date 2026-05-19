@@ -17,7 +17,7 @@ const READ_ACTIONS: Record<ServiceFamily, Set<string>> = {
 
 const WRITE_ACTIONS: Record<ServiceFamily, Set<string>> = {
   drive: new Set(["create_folder", "upload_file", "update_file_metadata"]),
-  gmail: new Set(["draft_message", "send_message"]),
+  gmail: new Set(["draft_message", "send_message", "mark_message_read"]),
   calendar: new Set(["create_event", "update_event"]),
   docs: new Set(["create_document", "append_text", "batch_update_document"]),
   sheets: new Set(["append_values", "update_values", "create_spreadsheet"]),
@@ -71,6 +71,18 @@ function routeAllowsAction(
   }
   const compound = `${service}:${action}`;
   return auth.route.allowedActions.includes(action) || auth.route.allowedActions.includes(compound);
+}
+
+function routeExplicitlyAllowsAction(
+  auth: AuthResolution,
+  service: ServiceFamily,
+  action: string,
+): boolean {
+  const compound = `${service}:${action}`;
+  return (
+    auth.route.allowedActions?.includes(action) === true ||
+    auth.route.allowedActions?.includes(compound) === true
+  );
 }
 
 export function evaluatePolicy(params: {
@@ -180,6 +192,18 @@ export function evaluatePolicy(params: {
       return {
         allowed: false,
         reason: `route ${params.auth.route.name} does not allow ${params.service}:${params.action}`,
+        service: params.service,
+        action: params.action,
+      };
+    }
+    if (
+      params.service === "gmail" &&
+      params.action === "mark_message_read" &&
+      !routeExplicitlyAllowsAction(params.auth, params.service, params.action)
+    ) {
+      return {
+        allowed: false,
+        reason: `route ${params.auth.route.name} must explicitly allow gmail:mark_message_read`,
         service: params.service,
         action: params.action,
       };

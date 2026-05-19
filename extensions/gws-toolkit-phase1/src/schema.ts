@@ -184,7 +184,7 @@ const gmailWriteSchema = {
   additionalProperties: false,
   required: ["action", "confirm"],
   properties: {
-    action: { type: "string", enum: ["draft_message", "send_message"] },
+    action: { type: "string", enum: ["draft_message", "send_message", "mark_message_read"] },
     confirm: boolean,
     to: {
       anyOf: [string, stringArray],
@@ -199,6 +199,7 @@ const gmailWriteSchema = {
     subject: string,
     bodyText: string,
     bodyHtml: string,
+    messageId: string,
   },
   allOf: [
     {
@@ -210,6 +211,10 @@ const gmailWriteSchema = {
       then: {
         anyOf: [{ required: ["bodyText"] }, { required: ["bodyHtml"] }],
       },
+    },
+    {
+      if: { properties: { action: { const: "mark_message_read" } } },
+      then: { required: ["messageId"] },
     },
   ],
 };

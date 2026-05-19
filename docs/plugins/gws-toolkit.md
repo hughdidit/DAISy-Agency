@@ -44,7 +44,7 @@ Read tools:
 Write tools:
 
 - `gws_drive_write`
-- `gws_gmail_write`
+- `gws_gmail_write` (`draft_message`, `send_message`, `mark_message_read`)
 - `gws_calendar_write`
 - `gws_docs_write`
 - `gws_sheets_write`
@@ -167,6 +167,7 @@ Recommended reusable-route shape:
                 "calendar:create_event",
                 "gmail:list_messages",
                 "gmail:draft_message",
+                "gmail:mark_message_read",
                 "drive:list_files",
                 "drive:upload_file",
                 "docs:get_document",

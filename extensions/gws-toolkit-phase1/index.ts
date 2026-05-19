@@ -470,18 +470,19 @@ function createTools(params: {
     guarded(
       withLabel({
         name: "gws_gmail_write",
-        description: `Write-capable Gmail operations. Follow gmail-triage policy before drafting or sending Gmail replies.`,
+        description: `Write-capable Gmail operations. Follow gmail-triage policy before drafting, sending, or marking Gmail messages read.`,
         parameters: Type.Object(
           {
-            action: Type.String({ enum: ["draft_message", "send_message"] }),
+            action: Type.String({ enum: ["draft_message", "send_message", "mark_message_read"] }),
             confirm: Type.Boolean(),
-            to: Type.Union([Type.String(), Type.Array(Type.String())]),
+            to: Type.Optional(Type.Union([Type.String(), Type.Array(Type.String())])),
             cc: Type.Optional(Type.Union([Type.String(), Type.Array(Type.String())])),
             bcc: Type.Optional(Type.Union([Type.String(), Type.Array(Type.String())])),
             replyTo: Type.Optional(Type.String()),
             subject: Type.Optional(Type.String()),
             bodyText: Type.Optional(Type.String()),
             bodyHtml: Type.Optional(Type.String()),
+            messageId: Type.Optional(Type.String()),
           },
           { additionalProperties: false },
         ),

@@ -25,7 +25,7 @@ export type DocsReadAction = "get_document";
 export type SheetsReadAction = "get_spreadsheet" | "get_values";
 
 export type DriveWriteAction = "create_folder" | "upload_file" | "update_file_metadata";
-export type GmailWriteAction = "draft_message" | "send_message";
+export type GmailWriteAction = "draft_message" | "send_message" | "mark_message_read";
 export type CalendarWriteAction = "create_event" | "update_event";
 export type DocsWriteAction = "create_document" | "append_text" | "batch_update_document";
 export type SheetsWriteAction = "append_values" | "update_values" | "create_spreadsheet";

@@ -89,6 +89,7 @@ Example service-account delegated config:
               ],
               allowedActions: [
                 "gmail:draft_message",
+                "gmail:mark_message_read",
                 "calendar:list_events",
                 "calendar:create_event",
                 "docs:append_text",
@@ -152,7 +153,8 @@ Delegate reference posture:
 
 - create the agent with `openclaw agents add --preset delegate`
 - bind both `agent:<id>` and `subagent:<id>` even when they use the same route
-- keep tier1 routes restricted to read actions plus `draft_message`
+- keep tier1 routes restricted to read actions plus `draft_message`; add
+  `gmail:mark_message_read` only for agents expected to close handled mail
 - treat missing explicit bindings as a configuration failure, not a convenience fallback
 
 ## 4. Apply OpenClaw tool policy

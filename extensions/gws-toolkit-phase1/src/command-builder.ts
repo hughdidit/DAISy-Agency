@@ -428,18 +428,25 @@ export function buildGmailWriteCommand(
   params: Record<string, unknown>,
   authArgs: string[],
 ): GwsCommandSpec {
-  const raw = createMimeMessage(params);
   if (params.action === "draft_message") {
+    const raw = createMimeMessage(params);
     const argv = ["gmail", ...authArgs, "users", "drafts", "create", "--format", "json"];
     appendParamsArg(argv, { userId: "me" });
     appendJsonArg(argv, { message: { raw } });
     return { argv, action: "draft_message", service: "gmail", isWrite: true };
   }
   if (params.action === "send_message") {
+    const raw = createMimeMessage(params);
     const argv = ["gmail", ...authArgs, "users", "messages", "send", "--format", "json"];
     appendParamsArg(argv, { userId: "me" });
     appendJsonArg(argv, { raw });
     return { argv, action: "send_message", service: "gmail", isWrite: true };
+  }
+  if (params.action === "mark_message_read") {
+    const argv = ["gmail", ...authArgs, "users", "messages", "modify", "--format", "json"];
+    appendParamsArg(argv, { userId: "me", id: readString(params.messageId, "messageId") });
+    appendJsonArg(argv, { removeLabelIds: ["UNREAD"] });
+    return { argv, action: "mark_message_read", service: "gmail", isWrite: true };
   }
   throw new PluginError("DENY_POLICY", `Unsupported gmail write action: ${String(params.action)}`);
 }

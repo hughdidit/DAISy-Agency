@@ -139,7 +139,7 @@ describe("policy", () => {
         ...auth.route,
         allowedServices: ["gmail"],
         allowedTools: ["gws_gmail_write"],
-        allowedActions: ["send_message", "draft_message"],
+        allowedActions: ["send_message", "draft_message", "gmail:mark_message_read"],
       },
     };
 
@@ -191,6 +191,66 @@ describe("policy", () => {
         confirm: true,
       }),
     ).toMatchObject({ allowed: false });
+    expect(
+      evaluatePolicy({
+        tool: "gws_gmail_write",
+        service: "gmail",
+        action: "mark_message_read",
+        payload: { messageId: "msg-123" },
+        config: gmailConfig,
+        auth: gmailAuth,
+        isWrite: true,
+        confirm: true,
+      }).allowed,
+    ).toBe(true);
+    expect(
+      evaluatePolicy({
+        tool: "gws_gmail_write",
+        service: "gmail",
+        action: "mark_message_read",
+        payload: { messageId: "msg-123" },
+        config: gmailConfig,
+        auth: gmailAuth,
+        isWrite: true,
+        confirm: false,
+      }).reason,
+    ).toContain("confirm=true");
+    expect(
+      evaluatePolicy({
+        tool: "gws_gmail_write",
+        service: "gmail",
+        action: "mark_message_read",
+        payload: { messageId: "msg-123" },
+        config: gmailConfig,
+        auth: {
+          ...gmailAuth,
+          route: {
+            ...gmailAuth.route,
+            allowedActions: ["send_message", "draft_message"],
+          },
+        },
+        isWrite: true,
+        confirm: true,
+      }),
+    ).toMatchObject({ allowed: false });
+    const wildcardRouteMarkRead = evaluatePolicy({
+      tool: "gws_gmail_write",
+      service: "gmail",
+      action: "mark_message_read",
+      payload: { messageId: "msg-123" },
+      config: gmailConfig,
+      auth: {
+        ...gmailAuth,
+        route: {
+          ...gmailAuth.route,
+          allowedActions: undefined,
+        },
+      },
+      isWrite: true,
+      confirm: true,
+    });
+    expect(wildcardRouteMarkRead).toMatchObject({ allowed: false });
+    expect(wildcardRouteMarkRead.reason).toContain("must explicitly allow gmail:mark_message_read");
     expect(
       evaluatePolicy({
         tool: "gws_gmail_write",
