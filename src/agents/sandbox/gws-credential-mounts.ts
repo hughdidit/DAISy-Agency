@@ -56,6 +56,11 @@ function normalizePosixPath(value: string | undefined | null): string | null {
   return normalized === "/" ? normalized : normalized.replace(/\/+$/, "");
 }
 
+function isAbsolutePolicyPath(value: string): boolean {
+  const trimmed = value.trim().replaceAll("\\", "/");
+  return trimmed.startsWith("/") || (process.platform === "win32" && /^[A-Za-z]:\//.test(trimmed));
+}
+
 function realpathSync(value: string): string {
   return fs.realpathSync.native?.(value) ?? fs.realpathSync(value);
 }
@@ -86,7 +91,8 @@ function resolveConfigRelativePolicyFileForTarget(
     return null;
   }
   const raw = value.trim();
-  const candidate = raw.startsWith("/")
+  const rawIsAbsolute = isAbsolutePolicyPath(raw);
+  const candidate = rawIsAbsolute
     ? normalizePosixPath(raw)
     : normalizePosixPath(path.posix.join(configDir, raw));
   if (!candidate || !isPathInsidePosix(configDir, candidate)) {
@@ -110,7 +116,7 @@ function resolveConfigRelativePolicyFileForTarget(
   if (!isPathInsidePosix(configDirRealPath, candidateRealPath)) {
     return null;
   }
-  const targetCandidate = raw.startsWith("/")
+  const targetCandidate = rawIsAbsolute
     ? candidate
     : (normalizePosixPath(path.posix.join(targetConfigDir, raw)) ?? candidate);
   return {

@@ -222,20 +222,40 @@ export async function resolveSandboxContext(params: {
   });
   for (const mount of capabilityMounts) {
     if (
-      openclawReadonlyProjection.enabled &&
+      openclawReadonlyProjectionEnvVisible &&
+      mount.capabilityId === "gws-gmail-policy" &&
       mount.targetContainerPath.startsWith(`${openclawReadonlyProjection.containerProjectionRoot}/`)
     ) {
-      const relativeTargetDir = path.posix.relative(
+      const relativeTargetFile = path.posix.relative(
         openclawReadonlyProjection.containerProjectionRoot,
-        path.posix.dirname(mount.targetContainerPath),
+        mount.targetContainerPath,
       );
-      if (relativeTargetDir && !relativeTargetDir.startsWith("..")) {
-        await fs.mkdir(
-          path.join(openclawReadonlyProjection.hostProjectionRoot, relativeTargetDir),
-          {
-            recursive: true,
-          },
+      if (
+        relativeTargetFile &&
+        !relativeTargetFile.startsWith("..") &&
+        !path.posix.isAbsolute(relativeTargetFile)
+      ) {
+        const hostTargetPath = path.join(
+          openclawReadonlyProjection.hostProjectionRoot,
+          relativeTargetFile,
         );
+        try {
+          await fs.mkdir(path.dirname(hostTargetPath), { recursive: true });
+          await fs.copyFile(mount.sourceContainerPath, hostTargetPath);
+          appliedCapabilityMounts.push(mount);
+          continue;
+        } catch (error) {
+          const rawCode = error instanceof Error && "code" in error ? error.code : undefined;
+          const code = typeof rawCode === "string" ? rawCode : undefined;
+          const reason =
+            code === "ENOENT"
+              ? "does not exist inside the gateway container"
+              : `could not be staged into the readonly projection (code: ${code ?? "unknown"})`;
+          defaultRuntime.log(
+            `Skipping derived ${mount.capabilityId} sandbox bind for ${mount.bindingSubject}: source path ${mount.sourceContainerPath} ${reason}.`,
+          );
+          continue;
+        }
       }
     }
     const hostPath = await resolveDockerHostPathInfo(mount.sourceContainerPath);
