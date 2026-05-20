@@ -45,6 +45,25 @@ function createConfig(sandboxRoot: string, workspaceAccess: "rw" | "ro" | "none"
   };
 }
 
+function addGmailPolicyConfig(config: OpenClawConfig): OpenClawConfig {
+  return {
+    ...config,
+    plugins: {
+      entries: {
+        "gws-toolkit-phase1": {
+          enabled: true,
+          config: {
+            gmailPolicy: {
+              whitelistFile: "./gws/gmail-whitelist.json",
+              blacklistFile: "./gws/gmail-blacklist.json",
+            },
+          },
+        },
+      },
+    },
+  } as OpenClawConfig;
+}
+
 describe("resolveSandboxContext openclaw-readonly wiring", () => {
   let envSnapshot: ReturnType<typeof captureFullEnv>;
   const cleanupDirs = new Set<string>();
@@ -126,6 +145,54 @@ describe("resolveSandboxContext openclaw-readonly wiring", () => {
         "utf8",
       ),
     ).resolves.toContain('"agents"');
+  });
+
+  it("stages gmail policy files into the synthetic readonly projection without nested binds", async () => {
+    const sandboxRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-sandbox-root-"));
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-workspace-"));
+    const configRoot = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-config-"));
+    cleanupDirs.add(sandboxRoot);
+    cleanupDirs.add(workspaceDir);
+    cleanupDirs.add(configRoot);
+
+    await fs.mkdir(path.join(configRoot, "gws"), { recursive: true });
+    await fs.writeFile(path.join(configRoot, "openclaw.json"), "{}\n", "utf8");
+    await fs.writeFile(
+      path.join(configRoot, "gws", "gmail-whitelist.json"),
+      '{ "version": 1, "emails": ["hughdidit@gmail.com"], "domains": ["hughdidit.com"] }\n',
+      "utf8",
+    );
+    await fs.writeFile(
+      path.join(configRoot, "gws", "gmail-blacklist.json"),
+      '{ "version": 1, "emails": [], "domains": [] }\n',
+      "utf8",
+    );
+    delete process.env.OPENCLAW_CONFIG_FILE;
+    process.env.OPENCLAW_CONFIG_PATH = path.join(configRoot, "openclaw.json");
+
+    const context = await resolveSandboxContext({
+      config: addGmailPolicyConfig(createConfig(sandboxRoot, "rw")),
+      sessionKey: "agent:main:main",
+      workspaceDir,
+    });
+
+    expect(context).toBeDefined();
+    expect(context?.docker.binds).toEqual([
+      `/host/openclaw-readonly-projection:${OPENCLAW_READONLY_SYNTHETIC_CONTAINER_ROOT}/agents/main:ro`,
+    ]);
+
+    const projectionRoot = path.join(
+      resolveSandboxWorkspaceDir(sandboxRoot, "agent:main:main"),
+      ".openclaw-readonly",
+      "agents",
+      "main",
+    );
+    await expect(
+      fs.readFile(path.join(projectionRoot, "gws", "gmail-whitelist.json"), "utf8"),
+    ).resolves.toContain("hughdidit@gmail.com");
+    await expect(
+      fs.readFile(path.join(projectionRoot, "gws", "gmail-blacklist.json"), "utf8"),
+    ).resolves.toContain('"domains": []');
   });
 
   it("uses the resolved host path directly when rw projection remap is unavailable", async () => {
