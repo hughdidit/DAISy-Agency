@@ -423,19 +423,22 @@ export async function runCronIsolatedAgentTurn(params: {
     }
     shouldCloseRunSession = false;
     if (params.job.deleteAfterRun === true && status === "ok") {
-      delete cronSession.store[agentSessionKey];
       if (runSessionKey !== agentSessionKey) {
         delete cronSession.store[runSessionKey];
       }
+      const closedAt = Date.now();
+      cronSession.sessionEntry.closedAt = closedAt;
+      cronSession.sessionEntry.updatedAt = closedAt;
+      cronSession.store[agentSessionKey] = cronSession.sessionEntry;
       try {
         await updateSessionStore(cronSession.storePath, (store) => {
-          delete store[agentSessionKey];
+          store[agentSessionKey] = cronSession.sessionEntry;
           if (runSessionKey !== agentSessionKey) {
             delete store[runSessionKey];
           }
         });
       } catch (err) {
-        logWarn(`[cron:${params.job.id}] Failed to remove finished cron session: ${String(err)}`);
+        logWarn(`[cron:${params.job.id}] Failed to close finished cron session: ${String(err)}`);
       }
       return;
     }

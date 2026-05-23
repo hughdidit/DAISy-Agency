@@ -866,7 +866,9 @@ export function listSessionsFromStore(params: {
 
   if (activeMinutes !== undefined) {
     const cutoff = now - activeMinutes * 60_000;
-    sessions = sessions.filter((s) => s.closedAt === undefined && (s.updatedAt ?? 0) >= cutoff);
+    sessions = sessions.filter(
+      (s) => (s.closedAt === undefined || s.closedAt >= cutoff) && (s.updatedAt ?? 0) >= cutoff,
+    );
   }
 
   if (typeof opts.limit === "number" && Number.isFinite(opts.limit)) {
