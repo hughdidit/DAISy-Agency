@@ -160,10 +160,7 @@ export async function sweepCronRunSessions(params: {
     );
   }
   if (closed > 0) {
-    params.log.info(
-      { closed, retentionMs },
-      `cron-reaper: closed ${closed} stale cron session(s)`,
-    );
+    params.log.info({ closed, retentionMs }, `cron-reaper: closed ${closed} stale cron session(s)`);
   }
 
   return { swept: true, pruned };
