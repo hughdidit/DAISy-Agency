@@ -583,6 +583,7 @@ export async function runCronIsolatedAgentTurn(params: {
   // Update token+model fields in the session store.
   // Also collect best-effort telemetry for the cron run log.
   let telemetry: CronRunTelemetry | undefined;
+  let postPersistError: string | undefined;
   {
     const usage = runResult.meta?.agentMeta?.usage;
     const promptTokens = runResult.meta?.agentMeta?.promptTokens;
@@ -641,19 +642,28 @@ export async function runCronIsolatedAgentTurn(params: {
     try {
       await persistSessionEntry();
     } catch (err) {
-      return await finalizeRun(
-        withRunSession({
-          status: "error",
-          error: `Failed to persist post-run session entry: ${String(err)}`,
-          ...telemetry,
-        }),
-      );
+      postPersistError = `Failed to persist post-run session entry: ${String(err)}`;
+      logWarn(`[cron:${params.job.id}] ${postPersistError}`);
     }
   }
 
+  const withPostPersistError = (result: RunCronAgentTurnResult): RunCronAgentTurnResult => {
+    if (postPersistError === undefined) {
+      return result;
+    }
+    return {
+      ...result,
+      status: "error",
+      error:
+        result.status === "error" && result.error
+          ? `${result.error}; ${postPersistError}`
+          : postPersistError,
+    };
+  };
+
   if (isAborted()) {
     return await finalizeRun(
-      withRunSession({ status: "error", error: abortReason(), ...telemetry }),
+      withPostPersistError(withRunSession({ status: "error", error: abortReason(), ...telemetry })),
     );
   }
   const firstText = payloads[0]?.text ?? "";
@@ -750,13 +760,15 @@ export async function runCronIsolatedAgentTurn(params: {
     });
   } catch (err) {
     return await finalizeRun(
-      withRunSession({
-        status: "error",
-        error: String(err),
-        summary,
-        outputText,
-        ...telemetry,
-      }),
+      withPostPersistError(
+        withRunSession({
+          status: "error",
+          error: String(err),
+          summary,
+          outputText,
+          ...telemetry,
+        }),
+      ),
     );
   }
   if (deliveryResult.result) {
@@ -766,13 +778,15 @@ export async function runCronIsolatedAgentTurn(params: {
         deliveryResult.result.deliveryAttempted ?? deliveryResult.deliveryAttempted,
     };
     if (!hasFatalErrorPayload || deliveryResult.result.status !== "ok") {
-      return await finalizeRun(resultWithDeliveryMeta);
+      return await finalizeRun(withPostPersistError(resultWithDeliveryMeta));
     }
     return await finalizeRun(
-      resolveRunOutcome({
-        delivered: deliveryResult.result.delivered,
-        deliveryAttempted: resultWithDeliveryMeta.deliveryAttempted,
-      }),
+      withPostPersistError(
+        resolveRunOutcome({
+          delivered: deliveryResult.result.delivered,
+          deliveryAttempted: resultWithDeliveryMeta.deliveryAttempted,
+        }),
+      ),
     );
   }
   const delivered = deliveryResult.delivered;
@@ -780,5 +794,7 @@ export async function runCronIsolatedAgentTurn(params: {
   summary = deliveryResult.summary;
   outputText = deliveryResult.outputText;
 
-  return await finalizeRun(resolveRunOutcome({ delivered, deliveryAttempted }));
+  return await finalizeRun(
+    withPostPersistError(resolveRunOutcome({ delivered, deliveryAttempted })),
+  );
 }
