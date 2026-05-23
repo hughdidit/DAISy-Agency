@@ -199,6 +199,7 @@ export function createSessionsListTool(opts?: {
                 }
               : undefined,
           updatedAt: typeof entry.updatedAt === "number" ? entry.updatedAt : undefined,
+          closedAt: typeof entry.closedAt === "number" ? entry.closedAt : undefined,
           sessionId,
           model: typeof entry.model === "string" ? entry.model : undefined,
           contextTokens: typeof entry.contextTokens === "number" ? entry.contextTokens : undefined,

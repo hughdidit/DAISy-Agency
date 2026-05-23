@@ -1444,7 +1444,7 @@ export async function runSubagentAnnounceFlow(params: {
         // Best-effort
       }
     }
-    if (shouldDeleteChildSession) {
+    if (shouldDeleteChildSession && params.announceType !== "cron job") {
       try {
         await callGateway({
           method: "sessions.delete",

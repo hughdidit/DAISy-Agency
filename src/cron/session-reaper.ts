@@ -14,7 +14,7 @@ import {
   archiveSessionTranscripts,
   cleanupArchivedSessionTranscripts,
 } from "../gateway/session-utils.fs.js";
-import { isCronRunSessionKey } from "../sessions/session-key-utils.js";
+import { isCronRunSessionKey, isCronSessionKey } from "../sessions/session-key-utils.js";
 import type { Logger } from "./service/state.js";
 
 const DEFAULT_RETENTION_MS = 24 * 3_600_000; // 24 hours
@@ -78,20 +78,28 @@ export async function sweepCronRunSessions(params: {
     return { swept: false, pruned: 0 };
   }
 
+  let closed = 0;
   let pruned = 0;
   const prunedSessions = new Map<string, string | undefined>();
   try {
     await updateSessionStore(storePath, (store) => {
       const cutoff = now - retentionMs;
       for (const key of Object.keys(store)) {
-        if (!isCronRunSessionKey(key)) {
-          continue;
-        }
         const entry = store[key];
         if (!entry) {
           continue;
         }
         const updatedAt = entry.updatedAt ?? 0;
+        if (isCronSessionKey(key) && !isCronRunSessionKey(key)) {
+          if (entry.closedAt === undefined && updatedAt < cutoff) {
+            entry.closedAt = updatedAt;
+            closed++;
+          }
+          continue;
+        }
+        if (!isCronRunSessionKey(key)) {
+          continue;
+        }
         if (updatedAt < cutoff) {
           if (!prunedSessions.has(entry.sessionId) || entry.sessionFile) {
             prunedSessions.set(entry.sessionId, entry.sessionFile);
@@ -150,6 +158,9 @@ export async function sweepCronRunSessions(params: {
       { pruned, retentionMs },
       `cron-reaper: pruned ${pruned} expired cron run session(s)`,
     );
+  }
+  if (closed > 0) {
+    params.log.info({ closed, retentionMs }, `cron-reaper: closed ${closed} stale cron session(s)`);
   }
 
   return { swept: true, pruned };

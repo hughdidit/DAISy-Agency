@@ -787,6 +787,7 @@ export function listSessionsFromStore(params: {
     })
     .map(([key, entry]) => {
       const updatedAt = entry?.updatedAt ?? null;
+      const closedAt = typeof entry?.closedAt === "number" ? entry.closedAt : undefined;
       const total = resolveFreshSessionTotalTokens(entry);
       const totalTokensFresh =
         typeof entry?.totalTokens === "number" ? entry?.totalTokensFresh !== false : false;
@@ -831,6 +832,7 @@ export function listSessionsFromStore(params: {
         chatType: entry?.chatType,
         origin,
         updatedAt,
+        closedAt,
         sessionId: entry?.sessionId,
         systemSent: entry?.systemSent,
         abortedLastRun: entry?.abortedLastRun,
@@ -864,7 +866,7 @@ export function listSessionsFromStore(params: {
 
   if (activeMinutes !== undefined) {
     const cutoff = now - activeMinutes * 60_000;
-    sessions = sessions.filter((s) => (s.updatedAt ?? 0) >= cutoff);
+    sessions = sessions.filter((s) => s.closedAt === undefined && (s.updatedAt ?? 0) >= cutoff);
   }
 
   if (typeof opts.limit === "number" && Number.isFinite(opts.limit)) {

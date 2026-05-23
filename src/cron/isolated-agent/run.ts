@@ -415,25 +415,71 @@ export async function runCronIsolatedAgentTurn(params: {
   cronSession.sessionEntry.modelProvider = provider;
   cronSession.sessionEntry.model = model;
   cronSession.sessionEntry.systemSent = true;
+  delete cronSession.sessionEntry.closedAt;
   try {
     await persistSessionEntry();
   } catch (err) {
     logWarn(`[cron:${params.job.id}] Failed to persist pre-run session entry: ${String(err)}`);
   }
 
+  let shouldCloseRunSession = !isFastTestEnv;
+  const closeRunSession = async (status: CronRunOutcome["status"]) => {
+    if (!shouldCloseRunSession) {
+      return;
+    }
+    shouldCloseRunSession = false;
+    if (params.job.deleteAfterRun === true && status === "ok") {
+      if (runSessionKey !== agentSessionKey) {
+        delete cronSession.store[runSessionKey];
+      }
+      const closedAt = Date.now();
+      cronSession.sessionEntry.closedAt = closedAt;
+      cronSession.sessionEntry.updatedAt = closedAt;
+      cronSession.store[agentSessionKey] = cronSession.sessionEntry;
+      try {
+        await updateSessionStore(cronSession.storePath, (store) => {
+          store[agentSessionKey] = cronSession.sessionEntry;
+          if (runSessionKey !== agentSessionKey) {
+            delete store[runSessionKey];
+          }
+        });
+      } catch (err) {
+        logWarn(`[cron:${params.job.id}] Failed to close finished cron session: ${String(err)}`);
+      }
+      return;
+    }
+    const closedAt = Date.now();
+    cronSession.sessionEntry.closedAt = closedAt;
+    cronSession.sessionEntry.updatedAt = closedAt;
+    try {
+      await persistSessionEntry();
+    } catch (err) {
+      logWarn(`[cron:${params.job.id}] Failed to close finished cron session: ${String(err)}`);
+    }
+  };
+  const finalizeRun = async (result: RunCronAgentTurnResult): Promise<RunCronAgentTurnResult> => {
+    await closeRunSession(result.status);
+    return result;
+  };
+
   // Resolve auth profile for the session, mirroring the inbound auto-reply path
   // (get-reply-run.ts). Without this, isolated cron sessions fall back to env-var
   // auth which may not match the configured auth-profiles, causing 401 errors.
-  const authProfileId = await resolveSessionAuthProfileOverride({
-    cfg: cfgWithAgentDefaults,
-    provider,
-    agentDir,
-    sessionEntry: cronSession.sessionEntry,
-    sessionStore: cronSession.store,
-    sessionKey: agentSessionKey,
-    storePath: cronSession.storePath,
-    isNewSession: cronSession.isNewSession,
-  });
+  let authProfileId: string | undefined;
+  try {
+    authProfileId = await resolveSessionAuthProfileOverride({
+      cfg: cfgWithAgentDefaults,
+      provider,
+      agentDir,
+      sessionEntry: cronSession.sessionEntry,
+      sessionStore: cronSession.store,
+      sessionKey: agentSessionKey,
+      storePath: cronSession.storePath,
+      isNewSession: cronSession.isNewSession,
+    });
+  } catch (err) {
+    return await finalizeRun(withRunSession({ status: "error", error: String(err) }));
+  }
   const authProfileIdSource = cronSession.sessionEntry.authProfileOverrideSource;
 
   let runResult: Awaited<ReturnType<typeof runEmbeddedPiAgent>>;
@@ -531,11 +577,11 @@ export async function runCronIsolatedAgentTurn(params: {
     fallbackModel = fallbackResult.model;
     runEndedAt = Date.now();
   } catch (err) {
-    return withRunSession({ status: "error", error: String(err) });
+    return await finalizeRun(withRunSession({ status: "error", error: String(err) }));
   }
 
   if (isAborted()) {
-    return withRunSession({ status: "error", error: abortReason() });
+    return await finalizeRun(withRunSession({ status: "error", error: abortReason() }));
   }
 
   const payloads = runResult.payloads ?? [];
@@ -543,6 +589,7 @@ export async function runCronIsolatedAgentTurn(params: {
   // Update token+model fields in the session store.
   // Also collect best-effort telemetry for the cron run log.
   let telemetry: CronRunTelemetry | undefined;
+  let postPersistError: string | undefined;
   {
     const usage = runResult.meta?.agentMeta?.usage;
     const promptTokens = runResult.meta?.agentMeta?.promptTokens;
@@ -598,11 +645,32 @@ export async function runCronIsolatedAgentTurn(params: {
         provider: providerUsed,
       };
     }
-    await persistSessionEntry();
+    try {
+      await persistSessionEntry();
+    } catch (err) {
+      postPersistError = `Failed to persist post-run session entry: ${String(err)}`;
+      logWarn(`[cron:${params.job.id}] ${postPersistError}`);
+    }
   }
 
+  const withPostPersistError = (result: RunCronAgentTurnResult): RunCronAgentTurnResult => {
+    if (postPersistError === undefined) {
+      return result;
+    }
+    return {
+      ...result,
+      status: "error",
+      error:
+        result.status === "error" && result.error
+          ? `${result.error}; ${postPersistError}`
+          : postPersistError,
+    };
+  };
+
   if (isAborted()) {
-    return withRunSession({ status: "error", error: abortReason(), ...telemetry });
+    return await finalizeRun(
+      withPostPersistError(withRunSession({ status: "error", error: abortReason(), ...telemetry })),
+    );
   }
   const firstText = payloads[0]?.text ?? "";
   let summary = pickSummaryFromPayloads(payloads) ?? pickSummaryFromOutput(firstText);
@@ -667,33 +735,48 @@ export async function runCronIsolatedAgentTurn(params: {
       }),
     );
 
-  const deliveryResult = await dispatchCronDelivery({
-    cfg: params.cfg,
-    cfgWithAgentDefaults,
-    deps: params.deps,
-    job: params.job,
-    agentId,
-    agentSessionKey,
-    runSessionId,
-    runStartedAt,
-    runEndedAt,
-    timeoutMs,
-    resolvedDelivery,
-    deliveryRequested,
-    skipHeartbeatDelivery,
-    skipMessagingToolDelivery,
-    deliveryBestEffort,
-    deliveryPayloadHasStructuredContent,
-    deliveryPayloads,
-    synthesizedText,
-    summary,
-    outputText,
-    telemetry,
-    abortSignal,
-    isAborted,
-    abortReason,
-    withRunSession,
-  });
+  let deliveryResult: Awaited<ReturnType<typeof dispatchCronDelivery>>;
+  try {
+    deliveryResult = await dispatchCronDelivery({
+      cfg: params.cfg,
+      cfgWithAgentDefaults,
+      deps: params.deps,
+      job: params.job,
+      agentId,
+      agentSessionKey,
+      runSessionId,
+      runStartedAt,
+      runEndedAt,
+      timeoutMs,
+      resolvedDelivery,
+      deliveryRequested,
+      skipHeartbeatDelivery,
+      skipMessagingToolDelivery,
+      deliveryBestEffort,
+      deliveryPayloadHasStructuredContent,
+      deliveryPayloads,
+      synthesizedText,
+      summary,
+      outputText,
+      telemetry,
+      abortSignal,
+      isAborted,
+      abortReason,
+      withRunSession,
+    });
+  } catch (err) {
+    return await finalizeRun(
+      withPostPersistError(
+        withRunSession({
+          status: "error",
+          error: String(err),
+          summary,
+          outputText,
+          ...telemetry,
+        }),
+      ),
+    );
+  }
   if (deliveryResult.result) {
     const resultWithDeliveryMeta: RunCronAgentTurnResult = {
       ...deliveryResult.result,
@@ -701,17 +784,23 @@ export async function runCronIsolatedAgentTurn(params: {
         deliveryResult.result.deliveryAttempted ?? deliveryResult.deliveryAttempted,
     };
     if (!hasFatalErrorPayload || deliveryResult.result.status !== "ok") {
-      return resultWithDeliveryMeta;
+      return await finalizeRun(withPostPersistError(resultWithDeliveryMeta));
     }
-    return resolveRunOutcome({
-      delivered: deliveryResult.result.delivered,
-      deliveryAttempted: resultWithDeliveryMeta.deliveryAttempted,
-    });
+    return await finalizeRun(
+      withPostPersistError(
+        resolveRunOutcome({
+          delivered: deliveryResult.result.delivered,
+          deliveryAttempted: resultWithDeliveryMeta.deliveryAttempted,
+        }),
+      ),
+    );
   }
   const delivered = deliveryResult.delivered;
   const deliveryAttempted = deliveryResult.deliveryAttempted;
   summary = deliveryResult.summary;
   outputText = deliveryResult.outputText;
 
-  return resolveRunOutcome({ delivered, deliveryAttempted });
+  return await finalizeRun(
+    withPostPersistError(resolveRunOutcome({ delivered, deliveryAttempted })),
+  );
 }

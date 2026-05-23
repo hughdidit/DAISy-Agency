@@ -443,7 +443,8 @@ Cron has two built-in maintenance paths: isolated run-session retention and run-
 ### How it works
 
 - Isolated runs create session entries (`...:cron:<jobId>:run:<uuid>`) and transcript files.
-- The reaper removes expired run-session entries older than `cron.sessionRetention`.
+- Finished isolated run sessions are marked closed so they do not appear in active-session views while their retained transcript remains available.
+- The reaper closes stale base cron session entries and removes expired run-session entries older than `cron.sessionRetention`.
 - For removed run sessions no longer referenced by the session store, OpenClaw archives transcript files and purges old deleted archives on the same retention window.
 - After each run append, `cron/runs/<jobId>.jsonl` is size-checked:
   - if file size exceeds `runLog.maxBytes`, it is trimmed to the newest `runLog.keepLines` lines.

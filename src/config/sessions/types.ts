@@ -75,6 +75,8 @@ export type SessionEntry = {
   lastHeartbeatSentAt?: number;
   sessionId: string;
   updatedAt: number;
+  /** Epoch ms when the session reached a terminal state and should no longer count as active. */
+  closedAt?: number;
   sessionFile?: string;
   /** Parent session key that spawned this session (used for sandbox session-tool scoping). */
   spawnedBy?: string;
