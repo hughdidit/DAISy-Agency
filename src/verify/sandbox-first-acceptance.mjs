@@ -155,6 +155,11 @@ export function isValidAgentCronRunSessionKey(value) {
   return typeof value === "string" && AGENT_CRON_RUN_SESSION_KEY_PATTERN.test(value.trim());
 }
 
+function isAgentCronRunSessionKeyForJob(value, jobId) {
+  const trimmed = typeof value === "string" ? value.trim() : "";
+  return isValidAgentCronRunSessionKey(trimmed) && trimmed.includes(`:cron:${jobId}:run:`);
+}
+
 function resolveCronBaseSessionKey(runSessionKey) {
   const trimmed = typeof runSessionKey === "string" ? runSessionKey.trim() : "";
   const marker = ":run:";
@@ -456,7 +461,7 @@ async function cleanupAcceptanceCronArtifacts(ctx, params) {
   if (runSessionKey) {
     try {
       const cleanupRaw = ctx.dockerExecBash(
-        deleteSessionCommand(runSessionKey, { deleteTranscript: false }),
+        deleteSessionCommand(runSessionKey, { deleteTranscript: true }),
       );
       outputs.push({ action: "sessions.delete.run", key: runSessionKey, raw: cleanupRaw });
     } catch (error) {
@@ -1171,6 +1176,12 @@ export async function runIsolatedCronScenario(ctx) {
       );
     }
     runSessionKey = typeof last?.sessionKey === "string" ? last.sessionKey.trim() : "";
+    if (!isAgentCronRunSessionKeyForJob(runSessionKey, jobId)) {
+      throw new ScenarioError(
+        "scheduler-gap",
+        `isolated cron run did not expose the expected agent-scoped per-run session key for ${jobId}, got ${runSessionKey || "<empty>"}`,
+      );
+    }
     verified = true;
   } finally {
     if (jobId || runSessionKey) {
@@ -1339,10 +1350,10 @@ export async function runCronIsolationAndSubagentModelScenario(ctx) {
       );
     }
     runSessionKey = typeof last?.sessionKey === "string" ? last.sessionKey.trim() : "";
-    if (!isValidAgentCronRunSessionKey(runSessionKey)) {
+    if (!isAgentCronRunSessionKeyForJob(runSessionKey, jobId)) {
       throw new ScenarioError(
         "scheduler-gap",
-        `SBX-404 isolated cron run did not expose an agent-scoped per-run session key, got ${runSessionKey || "<empty>"}`,
+        `SBX-404 isolated cron run did not expose the expected agent-scoped per-run session key for ${jobId}, got ${runSessionKey || "<empty>"}`,
       );
     }
     await ctx.writeArtifactJson("cron-isolation-metadata.json", {
