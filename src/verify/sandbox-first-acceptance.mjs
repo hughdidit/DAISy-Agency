@@ -1123,6 +1123,7 @@ export async function runIsolatedCronScenario(ctx) {
   let jobId = "";
   let runSessionKey = "";
   let verified = false;
+  let cleanupError = null;
 
   try {
     const addRaw = ctx.dockerExecBash(
@@ -1187,12 +1188,15 @@ export async function runIsolatedCronScenario(ctx) {
     if (jobId || runSessionKey) {
       const cleanup = await cleanupAcceptanceCronArtifacts(ctx, { jobId, runSessionKey });
       if (verified && cleanup.errors.length > 0) {
-        throw new ScenarioError(
+        cleanupError = new ScenarioError(
           "scheduler-gap",
           "isolated cron acceptance cleanup failed; see cron-cleanup-error.txt",
         );
       }
     }
+  }
+  if (cleanupError) {
+    throw cleanupError;
   }
 }
 
@@ -1285,6 +1289,7 @@ export async function runCronIsolationAndSubagentModelScenario(ctx) {
   let jobId = "";
   let runSessionKey = "";
   let verified = false;
+  let cleanupError = null;
 
   try {
     const addRaw = ctx.dockerExecBash(
@@ -1369,12 +1374,15 @@ export async function runCronIsolationAndSubagentModelScenario(ctx) {
     if (jobId || runSessionKey) {
       const cleanup = await cleanupAcceptanceCronArtifacts(ctx, { jobId, runSessionKey });
       if (verified && cleanup.errors.length > 0) {
-        throw new ScenarioError(
+        cleanupError = new ScenarioError(
           "scheduler-gap",
           "SBX-404 isolated cron cleanup failed; see cron-cleanup-error.txt",
         );
       }
     }
+  }
+  if (cleanupError) {
+    throw cleanupError;
   }
 }
 
