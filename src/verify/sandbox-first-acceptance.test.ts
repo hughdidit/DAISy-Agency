@@ -7,7 +7,6 @@ import {
   analyzeReadonlyDiagnostics,
   buildScenarioSummaryEntry,
   isValidAgentCronRunSessionKey,
-  runIsolatedCronScenario,
   runSandboxFirstAcceptance,
   SANDBOX_FIRST_ACCEPTANCE_SCENARIOS,
   selectIntegrationPath,
@@ -639,9 +638,15 @@ describe("runSandboxFirstAcceptance", () => {
           );
         }
         if (command.includes("node dist/index.js cron add")) {
+          if (command.includes("SBX-404 cron isolation")) {
+            return JSON.stringify({ id: "job-2" }, null, 2);
+          }
           return JSON.stringify({ id: "job-1" }, null, 2);
         }
         if (command === "cd /app && node dist/index.js cron run 'job-1'") {
+          return JSON.stringify({ ok: true, ran: true }, null, 2);
+        }
+        if (command === "cd /app && node dist/index.js cron run 'job-2'") {
           return JSON.stringify({ ok: true, ran: true }, null, 2);
         }
         if (command === "cd /app && node dist/index.js cron runs --id 'job-1' --limit 20") {
@@ -662,7 +667,28 @@ describe("runSandboxFirstAcceptance", () => {
             2,
           );
         }
+        if (command === "cd /app && node dist/index.js cron runs --id 'job-2' --limit 20") {
+          return JSON.stringify(
+            {
+              entries: [
+                {
+                  action: "finished",
+                  status: "ok",
+                  deliveryStatus: "not-requested",
+                  sessionKey: "agent:daisy:cron:job-2:run:run-2",
+                  provider: "anthropic",
+                  model: "claude-sonnet-4-5",
+                },
+              ],
+            },
+            null,
+            2,
+          );
+        }
         if (command === "cd /app && node dist/index.js cron rm 'job-1' --json") {
+          return JSON.stringify({ ok: true, removed: false }, null, 2);
+        }
+        if (command === "cd /app && node dist/index.js cron rm 'job-2' --json") {
           return JSON.stringify({ ok: true, removed: false }, null, 2);
         }
         if (command.includes("node dist/index.js gateway call sessions.delete")) {
@@ -862,8 +888,11 @@ describe("runSandboxFirstAcceptance", () => {
           );
         },
       };
+      const acceptanceModule = (await import("./sandbox-first-acceptance.mjs")) as unknown as {
+        runIsolatedCronScenario: (scenarioContext: typeof ctx) => Promise<void>;
+      };
 
-      await expect(runIsolatedCronScenario(ctx)).rejects.toMatchObject({
+      await expect(acceptanceModule.runIsolatedCronScenario(ctx)).rejects.toMatchObject({
         failureClass: "scheduler-gap",
         message: "isolated cron acceptance cleanup failed; see cron-cleanup-error.txt",
       });
