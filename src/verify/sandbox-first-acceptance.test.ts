@@ -419,6 +419,9 @@ describe("runSandboxFirstAcceptance", () => {
         if (command === "cd /app && node dist/index.js cron rm 'job-2' --json") {
           return JSON.stringify({ ok: true, removed: false }, null, 2);
         }
+        if (command.includes("node dist/index.js gateway call sessions.delete")) {
+          return JSON.stringify({ ok: true, deleted: true, archived: [] }, null, 2);
+        }
         if (command.includes("spawnAcpDirect")) {
           return JSON.stringify(
             {
@@ -644,6 +647,9 @@ describe("runSandboxFirstAcceptance", () => {
         if (command === "cd /app && node dist/index.js cron rm 'job-1' --json") {
           return JSON.stringify({ ok: true, removed: false }, null, 2);
         }
+        if (command.includes("node dist/index.js gateway call sessions.delete")) {
+          return JSON.stringify({ ok: true, deleted: true, archived: [] }, null, 2);
+        }
         if (command.includes("spawnAcpDirect")) {
           return JSON.stringify(
             {
@@ -724,8 +730,33 @@ describe("runSandboxFirstAcceptance", () => {
         "sbx-401-08-isolated-cron",
         "cron-cleanup.json",
       );
-      expect(await fs.readFile(cleanupPath, "utf8")).toContain('"removed": false');
+      const cleanup = JSON.parse(await fs.readFile(cleanupPath, "utf8")) as {
+        jobId: string;
+        runSessionKey: string;
+        baseSessionKey: string;
+        outputs: Array<{ action: string; key: string }>;
+        errors: unknown[];
+      };
+      expect(cleanup).toEqual(
+        expect.objectContaining({
+          jobId: "job-1",
+          runSessionKey: "agent:main:cron:job-1:run:run-1",
+          baseSessionKey: "agent:main:cron:job-1",
+          errors: [],
+        }),
+      );
+      expect(cleanup.outputs.map((entry) => entry.action)).toEqual([
+        "cron.rm",
+        "sessions.delete.run",
+        "sessions.delete.base",
+      ]);
       expect(commands.some((command) => command.includes("cron rm 'job-1' --json"))).toBe(true);
+      expect(
+        commands.some((command) => command.includes('"key":"agent:main:cron:job-1:run:run-1"')),
+      ).toBe(true);
+      expect(commands.some((command) => command.includes('"key":"agent:main:cron:job-1"'))).toBe(
+        true,
+      );
     });
   });
 });
