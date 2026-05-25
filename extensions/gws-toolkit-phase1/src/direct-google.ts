@@ -279,6 +279,172 @@ function resolveWorkspaceUploadFile(params: { filePath: unknown; workspaceDir?: 
   }
 }
 
+function sanitizeDriveFileName(value: unknown): string | undefined {
+  if (typeof value !== "string" || !value.trim()) {
+    return undefined;
+  }
+  const sanitized = value
+    .trim()
+    .replace(/[<>:"/\\|?*\x00-\x1f]/g, "_")
+    .replace(/[. ]+$/g, "")
+    .slice(0, 180);
+  return sanitized || undefined;
+}
+
+function driveExportExtensionForMimeType(mimeType: unknown): string {
+  switch (mimeType) {
+    case "application/pdf":
+      return ".pdf";
+    case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+      return ".docx";
+    case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+      return ".xlsx";
+    case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+      return ".pptx";
+    case "text/plain":
+      return ".txt";
+    case "text/csv":
+      return ".csv";
+    default:
+      return "";
+  }
+}
+
+export function driveExportDefaultFileName(params: {
+  fileId: unknown;
+  mimeType?: unknown;
+}): string {
+  const fileId = String(params.fileId);
+  const extension = driveExportExtensionForMimeType(params.mimeType);
+  return extension && !fileId.toLowerCase().endsWith(extension) ? `${fileId}${extension}` : fileId;
+}
+
+function bufferFromArrayBufferResponse(data: unknown): Buffer {
+  return Buffer.from((data as ArrayBuffer | undefined | null) ?? new ArrayBuffer(0));
+}
+
+function ensureWorkspaceRoot(workspaceDir: string | undefined): string {
+  const rawWorkspaceDir = workspaceDir?.trim();
+  if (!rawWorkspaceDir) {
+    throw new PluginError("VALIDATION_ERROR", "Drive downloads require an active agent workspace.");
+  }
+  try {
+    return fs.realpathSync(path.resolve(rawWorkspaceDir));
+  } catch {
+    throw new PluginError("VALIDATION_ERROR", "Active agent workspace could not be resolved.");
+  }
+}
+
+function resolveExistingParent(candidate: string): string {
+  let current = path.dirname(candidate);
+  while (!fs.existsSync(current)) {
+    const next = path.dirname(current);
+    if (next === current) {
+      break;
+    }
+    current = next;
+  }
+  return fs.realpathSync(current);
+}
+
+export function resolveDriveWorkspaceOutputPath(params: {
+  workspaceDir?: string;
+  fileId: string;
+  fileName?: unknown;
+  outputPath?: unknown;
+  overwrite?: unknown;
+}): { path: string; workspaceRelativePath: string } {
+  const workspaceRoot = ensureWorkspaceRoot(params.workspaceDir);
+  const rawOutputPath = typeof params.outputPath === "string" ? params.outputPath.trim() : "";
+  const defaultName =
+    sanitizeDriveFileName(params.fileName) ??
+    sanitizeDriveFileName(`${params.fileId}.bin`) ??
+    "drive-file.bin";
+  const requestedPath = rawOutputPath || path.join("drive-downloads", defaultName);
+  const candidate = path.isAbsolute(requestedPath)
+    ? path.resolve(requestedPath)
+    : path.resolve(workspaceRoot, requestedPath);
+
+  if (!isPathInside(workspaceRoot, candidate)) {
+    throw new PluginError(
+      "VALIDATION_ERROR",
+      "Drive download outputPath must remain inside the active agent workspace.",
+      { workspaceDir: workspaceRoot },
+    );
+  }
+
+  const existingParent = resolveExistingParent(candidate);
+  if (!isPathInside(workspaceRoot, existingParent)) {
+    throw new PluginError(
+      "VALIDATION_ERROR",
+      "Drive download outputPath cannot resolve outside the active agent workspace.",
+      { workspaceDir: workspaceRoot },
+    );
+  }
+
+  if (fs.existsSync(candidate)) {
+    const lstat = fs.lstatSync(candidate);
+    if (lstat.isSymbolicLink()) {
+      throw new PluginError(
+        "VALIDATION_ERROR",
+        "Drive download outputPath cannot target a symbolic link.",
+      );
+    }
+    if (!lstat.isFile()) {
+      throw new PluginError("VALIDATION_ERROR", "Drive download outputPath must target a file.");
+    }
+    if (params.overwrite !== true) {
+      throw new PluginError(
+        "VALIDATION_ERROR",
+        "Drive download outputPath already exists; set overwrite=true to replace it.",
+      );
+    }
+    const resolvedCandidate = fs.realpathSync(candidate);
+    if (!isPathInside(workspaceRoot, resolvedCandidate)) {
+      throw new PluginError(
+        "VALIDATION_ERROR",
+        "Drive download outputPath cannot resolve outside the active agent workspace.",
+        { workspaceDir: workspaceRoot },
+      );
+    }
+  }
+
+  return {
+    path: candidate,
+    workspaceRelativePath: path.relative(workspaceRoot, candidate),
+  };
+}
+
+export function writeDriveBytesToWorkspace(params: {
+  workspaceDir?: string;
+  fileId: string;
+  fileName?: unknown;
+  outputPath?: unknown;
+  overwrite?: unknown;
+  bytes: Buffer;
+}): { path: string; workspaceRelativePath: string } {
+  const target = resolveDriveWorkspaceOutputPath(params);
+  fs.mkdirSync(path.dirname(target.path), { recursive: true });
+  try {
+    fs.writeFileSync(target.path, params.bytes, { flag: params.overwrite === true ? "w" : "wx" });
+  } catch (error) {
+    const code =
+      typeof error === "object" && error !== null && "code" in error
+        ? String((error as { code?: unknown }).code)
+        : undefined;
+    if (code === "EEXIST") {
+      throw new PluginError(
+        "VALIDATION_ERROR",
+        "Drive download outputPath already exists; set overwrite=true to replace it.",
+      );
+    }
+    throw new PluginError("VALIDATION_ERROR", "Drive download outputPath could not be written.", {
+      cause: error instanceof Error ? error.message : String(error),
+    });
+  }
+  return target;
+}
+
 function sanitizeHeaderValue(value: string): string {
   return value.replace(/[\r\n]/g, "").trim();
 }
@@ -391,6 +557,32 @@ function buildRawEmail(payload: Record<string, unknown>): string {
   ).toString("base64url");
 }
 
+export function buildDirectDriveDownloadRequests(fileId: string): {
+  metadata: DirectGoogleRequest;
+  media: DirectGoogleRequest;
+} {
+  const encodedFileId = encodeSegment(fileId);
+  return {
+    metadata: {
+      method: "GET",
+      url: `https://www.googleapis.com/drive/v3/files/${encodedFileId}`,
+      params: {
+        supportsAllDrives: true,
+        fields: "id,name,mimeType,size",
+      },
+    },
+    media: {
+      method: "GET",
+      url: `https://www.googleapis.com/drive/v3/files/${encodedFileId}`,
+      params: {
+        alt: "media",
+        supportsAllDrives: true,
+      },
+      responseType: "arraybuffer",
+    },
+  };
+}
+
 export function buildDirectGoogleRequest(params: {
   service: ServiceFamily;
   action: string;
@@ -404,13 +596,21 @@ export function buildDirectGoogleRequest(params: {
         return {
           method: "GET",
           url: "https://www.googleapis.com/drive/v3/files",
-          params: compactParams({ pageSize: p.pageSize, q: p.query }),
+          params: compactParams({
+            pageSize: p.pageSize,
+            q: p.query,
+            supportsAllDrives: true,
+            includeItemsFromAllDrives: p.includeItemsFromAllDrives,
+            corpora: p.corpora,
+            driveId: p.driveId,
+          }),
         };
       }
       if (params.action === "get_file_metadata") {
         return {
           method: "GET",
           url: `https://www.googleapis.com/drive/v3/files/${encodeSegment(String(p.fileId))}`,
+          params: { supportsAllDrives: true },
         };
       }
       if (params.action === "export_file") {
@@ -420,6 +620,9 @@ export function buildDirectGoogleRequest(params: {
           params: { mimeType: p.mimeType },
           responseType: "arraybuffer",
         };
+      }
+      if (params.action === "download_file") {
+        return buildDirectDriveDownloadRequests(String(p.fileId)).media;
       }
       if (params.action === "create_folder") {
         return {
@@ -832,6 +1035,64 @@ export async function executeDirectGoogleApi(params: {
       throw mapGoogleError(error, params.auth);
     }
   }
+  if (params.service === "drive" && params.action === "download_file") {
+    try {
+      const requests = buildDirectDriveDownloadRequests(String(params.payload.fileId));
+      const metadataResponse = await client.request(
+        buildDirectGoogleClientRequestOptions({
+          method: requests.metadata.method,
+          url: requests.metadata.url,
+          params: requests.metadata.params,
+          timeoutMs: params.config.timeoutMs,
+        }),
+      );
+      const metadata = (metadataResponse.data ?? {}) as Record<string, unknown>;
+      const mediaResponse = await client.request(
+        buildDirectGoogleClientRequestOptions({
+          method: requests.media.method,
+          url: requests.media.url,
+          params: requests.media.params,
+          responseType: requests.media.responseType,
+          timeoutMs: params.config.timeoutMs,
+        }),
+      );
+      const bytes = bufferFromArrayBufferResponse(mediaResponse.data);
+      const parsedSize =
+        typeof metadata.size === "string" && metadata.size.trim()
+          ? Number(metadata.size)
+          : undefined;
+      const target = writeDriveBytesToWorkspace({
+        workspaceDir: params.ctx?.workspaceDir,
+        fileId: String(metadata.id ?? params.payload.fileId),
+        fileName: metadata.name,
+        outputPath: params.payload.outputPath,
+        overwrite: params.payload.overwrite,
+        bytes,
+      });
+      return {
+        payload: {
+          fileId: String(metadata.id ?? params.payload.fileId),
+          name: typeof metadata.name === "string" ? metadata.name : undefined,
+          mimeType: typeof metadata.mimeType === "string" ? metadata.mimeType : undefined,
+          sizeBytes:
+            typeof parsedSize === "number" && Number.isFinite(parsedSize)
+              ? parsedSize
+              : bytes.length,
+          workspaceRelativePath: target.workspaceRelativePath,
+          path: target.path,
+        },
+        output: {
+          stdoutTruncated: false,
+          stderrTruncated: false,
+        },
+      };
+    } catch (error) {
+      if (error instanceof PluginError) {
+        throw error;
+      }
+      throw mapGoogleError(error, params.auth);
+    }
+  }
   const request = buildDirectGoogleRequest({
     service: params.service,
     action: params.action,
@@ -852,10 +1113,35 @@ export async function executeDirectGoogleApi(params: {
     );
     const payload =
       request.responseType === "arraybuffer"
-        ? {
-            contentBase64: Buffer.from(response.data as ArrayBuffer).toString("base64"),
-            mimeType: params.payload.mimeType,
-          }
+        ? params.service === "drive" &&
+          params.action === "export_file" &&
+          typeof params.payload.outputPath === "string" &&
+          params.payload.outputPath.trim()
+          ? (() => {
+              const bytes = bufferFromArrayBufferResponse(response.data);
+              const target = writeDriveBytesToWorkspace({
+                workspaceDir: params.ctx?.workspaceDir,
+                fileId: String(params.payload.fileId),
+                fileName: driveExportDefaultFileName({
+                  fileId: params.payload.fileId,
+                  mimeType: params.payload.mimeType,
+                }),
+                outputPath: params.payload.outputPath,
+                overwrite: params.payload.overwrite,
+                bytes,
+              });
+              return {
+                fileId: params.payload.fileId,
+                mimeType: params.payload.mimeType,
+                sizeBytes: bytes.length,
+                workspaceRelativePath: target.workspaceRelativePath,
+                path: target.path,
+              };
+            })()
+          : {
+              contentBase64: bufferFromArrayBufferResponse(response.data).toString("base64"),
+              mimeType: params.payload.mimeType,
+            }
         : ((response.data ?? {}) as Record<string, unknown>);
     return {
       payload,

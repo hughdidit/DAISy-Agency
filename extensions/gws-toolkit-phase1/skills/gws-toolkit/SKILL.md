@@ -25,6 +25,10 @@ tool and workflow.
    For unread Gmail inbox checks by sender, prefer structured filters such as
    `fromEmail`, `fromDomain`, `unread`, and `inbox` over wildcard Gmail search
    strings like `from:*@example.com`.
+   For Drive PDFs or other ordinary files, use `gws_drive_read` with
+   `action: "download_file"` and an `outputPath` inside the workspace; for
+   shared Drive folders, list with `includeItemsFromAllDrives: true`,
+   `corpora: "drive"`, and the target `driveId`.
 3. Treat route and policy denials as configuration issues, not retry candidates.
 4. Escalate auth or API enablement issues to operators.
 

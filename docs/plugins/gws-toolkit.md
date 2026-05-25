@@ -35,7 +35,8 @@ toolkit. The implementation now covers:
 Read tools:
 
 - `gws_status`
-- `gws_drive_read`
+- `gws_drive_read` (`list_files`, `get_file_metadata`, `export_file`,
+  `download_file`)
 - `gws_gmail_read`
 - `gws_calendar_read`
 - `gws_docs_read`
@@ -48,6 +49,28 @@ Write tools:
 - `gws_calendar_write`
 - `gws_docs_write`
 - `gws_sheets_write`
+
+## Drive Downloads
+
+Use `gws_drive_read` with `action: "download_file"` to download ordinary Drive
+files, such as PDFs, into the active agent workspace. Shared Drive folder scans
+can use `list_files` with `includeItemsFromAllDrives: true`,
+`corpora: "drive"`, and `driveId`; all Drive reads set
+`supportsAllDrives: true`.
+
+Example:
+
+```json
+{
+  "action": "download_file",
+  "fileId": "drive-file-id",
+  "outputPath": "reports/source.pdf"
+}
+```
+
+The response returns the saved workspace path and metadata, not inline file
+bytes. `download_file` must use delegated Google API transport; legacy `gws`
+CLI routes fail closed instead of emitting binary output.
 
 ## Security Model
 
@@ -169,6 +192,7 @@ Recommended reusable-route shape:
                 "gmail:draft_message",
                 "gmail:mark_message_read",
                 "drive:list_files",
+                "drive:download_file",
                 "drive:upload_file",
                 "docs:get_document",
                 "docs:append_text",

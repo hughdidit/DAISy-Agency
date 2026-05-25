@@ -60,11 +60,19 @@ const driveReadSchema = {
   additionalProperties: false,
   required: ["action"],
   properties: {
-    action: { type: "string", enum: ["list_files", "get_file_metadata", "export_file"] },
+    action: {
+      type: "string",
+      enum: ["list_files", "get_file_metadata", "export_file", "download_file"],
+    },
     pageSize: integer(1, 200),
     query: string,
     fileId: string,
     mimeType: string,
+    outputPath: string,
+    overwrite: boolean,
+    includeItemsFromAllDrives: boolean,
+    corpora: { type: "string", enum: ["user", "drive", "allDrives", "domain"] },
+    driveId: string,
   },
   allOf: [
     {
@@ -74,6 +82,10 @@ const driveReadSchema = {
     {
       if: { properties: { action: { const: "export_file" } } },
       then: { required: ["fileId", "mimeType"] },
+    },
+    {
+      if: { properties: { action: { const: "download_file" } } },
+      then: { required: ["fileId"] },
     },
   ],
 };

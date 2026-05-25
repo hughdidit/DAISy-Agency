@@ -79,6 +79,7 @@ export async function runToolkitCommand(params: {
   confirm?: boolean;
   requiredSkill?: StructuredSuccess<Record<string, unknown>>["meta"]["requiredSkill"];
   buildCommand: (auth: AuthResolution) => GwsCommandSpec;
+  transformPayload?: (payload: Record<string, unknown>) => Record<string, unknown>;
   postPolicy?: (params: {
     auth: AuthResolution;
     payload: Record<string, unknown>;
@@ -150,9 +151,12 @@ export async function runToolkitCommand(params: {
         write: !params.readOnly,
       });
       const latencyMs = Date.now() - startedAt;
+      const finalPayload = params.transformPayload
+        ? params.transformPayload(direct.payload)
+        : direct.payload;
       const postPolicy = params.postPolicy?.({
         auth,
-        payload: (direct.payload ?? {}) as Record<string, unknown>,
+        payload: (finalPayload ?? {}) as Record<string, unknown>,
       });
       if (postPolicy && !postPolicy.allowed) {
         params.deps.audit.emit({
@@ -221,7 +225,7 @@ export async function runToolkitCommand(params: {
             transport: auth.transport,
             delegatedSubject: auth.impersonatedUser,
           },
-          payload: direct.payload,
+          payload: finalPayload,
           output: direct.output,
         },
         meta: {
@@ -263,7 +267,9 @@ export async function runToolkitCommand(params: {
     });
     const normalized = normalizeExecution(execution);
     const latencyMs = Date.now() - startedAt;
-    const normalizedPayload = normalized.payload as Record<string, unknown>;
+    const normalizedPayload = params.transformPayload
+      ? params.transformPayload(normalized.payload as Record<string, unknown>)
+      : (normalized.payload as Record<string, unknown>);
     const postPolicy = params.postPolicy?.({
       auth,
       payload: normalizedPayload,

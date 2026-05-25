@@ -18,7 +18,7 @@ export type WriteToolName =
 
 export type ToolName = "gws_status" | ReadToolName | WriteToolName;
 
-export type DriveReadAction = "list_files" | "get_file_metadata" | "export_file";
+export type DriveReadAction = "list_files" | "get_file_metadata" | "export_file" | "download_file";
 export type GmailReadAction = "list_messages" | "get_message_metadata";
 export type CalendarReadAction = "list_events" | "get_event";
 export type DocsReadAction = "get_document";

@@ -47,6 +47,16 @@ function appendIfInt(params: Record<string, JsonParamValue>, key: string, value:
   }
 }
 
+function appendIfBoolean(
+  params: Record<string, JsonParamValue>,
+  key: string,
+  value: unknown,
+): void {
+  if (typeof value === "boolean") {
+    params[key] = value;
+  }
+}
+
 function appendParamsArg(argv: string[], params: Record<string, JsonParamValue>): void {
   if (Object.keys(params).length > 0) {
     argv.push("--params", JSON.stringify(params));
@@ -153,6 +163,16 @@ function readString(value: unknown, label: string): string {
   return value.trim();
 }
 
+function appendDriveSharedReadParams(
+  requestParams: Record<string, JsonParamValue>,
+  params: Record<string, unknown>,
+): void {
+  requestParams.supportsAllDrives = true;
+  appendIfBoolean(requestParams, "includeItemsFromAllDrives", params.includeItemsFromAllDrives);
+  appendIfString(requestParams, "corpora", params.corpora);
+  appendIfString(requestParams, "driveId", params.driveId);
+}
+
 function resolveUploadFile(input: unknown): { cwd: string; relativePath: string } {
   const rawPath = readString(input, "filePath");
   const resolvedPath = path.resolve(rawPath);
@@ -253,13 +273,17 @@ export function buildDriveReadCommand(
     const requestParams: Record<string, JsonParamValue> = {};
     appendIfInt(requestParams, "pageSize", params.pageSize);
     appendIfString(requestParams, "q", params.query);
+    appendDriveSharedReadParams(requestParams, params);
     argv.push("files", "list", "--format", "json");
     appendParamsArg(argv, requestParams);
     return { argv, action: "list_files", service: "drive", isWrite: false };
   }
   if (params.action === "get_file_metadata") {
     argv.push("files", "get", "--format", "json");
-    appendParamsArg(argv, { fileId: readString(params.fileId, "fileId") });
+    appendParamsArg(argv, {
+      fileId: readString(params.fileId, "fileId"),
+      supportsAllDrives: true,
+    });
     return { argv, action: "get_file_metadata", service: "drive", isWrite: false };
   }
   if (params.action === "export_file") {
@@ -267,8 +291,16 @@ export function buildDriveReadCommand(
     appendParamsArg(argv, {
       fileId: readString(params.fileId, "fileId"),
       mimeType: readString(params.mimeType, "mimeType"),
+      supportsAllDrives: true,
     });
     return { argv, action: "export_file", service: "drive", isWrite: false };
+  }
+  if (params.action === "download_file") {
+    readString(params.fileId, "fileId");
+    throw new PluginError(
+      "AUTH_ERROR",
+      "Drive file downloads require delegated Google API transport; legacy gws CLI transport cannot safely return binary file bytes.",
+    );
   }
   throw new PluginError("DENY_POLICY", `Unsupported drive action: ${String(params.action)}`);
 }
