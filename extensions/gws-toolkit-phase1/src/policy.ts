@@ -8,7 +8,7 @@ import type {
 } from "./types.js";
 
 const READ_ACTIONS: Record<ServiceFamily, Set<string>> = {
-  drive: new Set(["list_files", "get_file_metadata", "export_file"]),
+  drive: new Set(["list_files", "get_file_metadata", "export_file", "download_file"]),
   gmail: new Set(["list_messages", "get_message_metadata"]),
   calendar: new Set(["list_events", "get_event"]),
   docs: new Set(["get_document"]),

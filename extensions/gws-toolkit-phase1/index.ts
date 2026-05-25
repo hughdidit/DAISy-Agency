@@ -345,11 +345,18 @@ function createTools(params: {
         description: "Read-only Google Drive operations.",
         parameters: Type.Object(
           {
-            action: Type.String({ enum: ["list_files", "get_file_metadata", "export_file"] }),
+            action: Type.String({
+              enum: ["list_files", "get_file_metadata", "export_file", "download_file"],
+            }),
             pageSize: Type.Optional(Type.Number()),
             query: Type.Optional(Type.String()),
             fileId: Type.Optional(Type.String()),
             mimeType: Type.Optional(Type.String()),
+            outputPath: Type.Optional(Type.String()),
+            overwrite: Type.Optional(Type.Boolean()),
+            includeItemsFromAllDrives: Type.Optional(Type.Boolean()),
+            corpora: Type.Optional(Type.String({ enum: ["user", "drive", "allDrives", "domain"] })),
+            driveId: Type.Optional(Type.String()),
           },
           { additionalProperties: false },
         ),

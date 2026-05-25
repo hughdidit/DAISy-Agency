@@ -18,7 +18,16 @@ function decodeBase64Url(input: string): string {
 
 describe("integration: command build", () => {
   it("builds deterministic read argv", () => {
-    const drive = buildDriveReadCommand({ action: "list_files", pageSize: 10 }, ["--auth"]).argv;
+    const drive = buildDriveReadCommand(
+      {
+        action: "list_files",
+        pageSize: 10,
+        includeItemsFromAllDrives: true,
+        corpora: "drive",
+        driveId: "shared-drive-1",
+      },
+      ["--auth"],
+    ).argv;
     const gmail = buildGmailReadCommand({ action: "list_messages", maxResults: 5 }, []).argv;
     const calendar = buildCalendarReadCommand({ action: "list_events", pageSize: 7 }, []).argv;
     const docs = buildDocsReadCommand({ action: "get_document", documentId: "doc-1" }, []).argv;
@@ -35,7 +44,7 @@ describe("integration: command build", () => {
       "--format",
       "json",
       "--params",
-      '{"pageSize":10}',
+      '{"pageSize":10,"supportsAllDrives":true,"includeItemsFromAllDrives":true,"corpora":"drive","driveId":"shared-drive-1"}',
     ]);
     expect(gmail).toEqual([
       "gmail",
@@ -217,5 +226,11 @@ describe("integration: command build", () => {
       "--json",
       '{"removeLabelIds":["UNREAD"]}',
     ]);
+  });
+
+  it("denies legacy CLI media downloads before binary output can be emitted", () => {
+    expect(() => buildDriveReadCommand({ action: "download_file", fileId: "file-1" }, [])).toThrow(
+      /delegated Google API transport/,
+    );
   });
 });

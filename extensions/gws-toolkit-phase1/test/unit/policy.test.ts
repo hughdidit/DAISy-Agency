@@ -118,6 +118,55 @@ describe("policy", () => {
     expect(decision.allowed).toBe(true);
   });
 
+  it("allows Drive downloads only through the read tool and route action policy", () => {
+    expect(
+      evaluatePolicy({
+        tool: "gws_drive_read",
+        service: "drive",
+        action: "download_file",
+        payload: { fileId: "file-1", outputPath: "reports/report.pdf" },
+        config,
+        auth: {
+          ...auth,
+          route: {
+            ...auth.route,
+            allowedActions: ["drive:download_file"],
+          },
+        },
+      }),
+    ).toMatchObject({ allowed: true });
+
+    expect(
+      evaluatePolicy({
+        tool: "gws_drive_read",
+        service: "drive",
+        action: "download_file",
+        payload: { fileId: "file-1" },
+        config,
+        auth,
+      }),
+    ).toMatchObject({ allowed: false });
+
+    expect(
+      evaluatePolicy({
+        tool: "gws_drive_write",
+        service: "drive",
+        action: "download_file",
+        payload: { fileId: "file-1" },
+        config,
+        auth: {
+          ...auth,
+          route: {
+            ...auth.route,
+            allowedActions: ["drive:download_file"],
+          },
+        },
+        isWrite: true,
+        confirm: true,
+      }),
+    ).toMatchObject({ allowed: false });
+  });
+
   it("applies gmail contact policy after existing write gates", () => {
     const gmailConfig: GwsToolkitConfig = {
       ...config,

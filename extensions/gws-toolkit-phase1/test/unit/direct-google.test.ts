@@ -3,10 +3,12 @@ import os from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  buildDirectDriveDownloadRequests,
   buildDirectGoogleClientRequestOptions,
   buildDirectGoogleRequest,
   createDelegatedGoogleClient,
   resolveDirectGoogleScopes,
+  resolveDriveWorkspaceOutputPath,
 } from "../../src/direct-google.js";
 import type { GwsToolkitConfig } from "../../src/types.js";
 
@@ -184,5 +186,114 @@ describe("direct Google API transport", () => {
         ctx: { workspaceDir },
       }),
     ).toThrow(/inside the active agent workspace/);
+  });
+
+  it("builds Drive shared-drive read requests and media download requests", () => {
+    expect(
+      buildDirectGoogleRequest({
+        service: "drive",
+        action: "list_files",
+        payload: {
+          pageSize: 25,
+          query: "'folder-1' in parents",
+          includeItemsFromAllDrives: true,
+          corpora: "drive",
+          driveId: "shared-drive-1",
+        },
+      }),
+    ).toMatchObject({
+      method: "GET",
+      url: "https://www.googleapis.com/drive/v3/files",
+      params: {
+        pageSize: 25,
+        q: "'folder-1' in parents",
+        includeItemsFromAllDrives: true,
+        supportsAllDrives: true,
+        corpora: "drive",
+        driveId: "shared-drive-1",
+      },
+    });
+
+    expect(
+      buildDirectGoogleRequest({
+        service: "drive",
+        action: "get_file_metadata",
+        payload: { fileId: "file/1" },
+      }),
+    ).toMatchObject({
+      method: "GET",
+      url: "https://www.googleapis.com/drive/v3/files/file%2F1",
+      params: { supportsAllDrives: true },
+    });
+
+    expect(buildDirectDriveDownloadRequests("file/1")).toEqual({
+      metadata: {
+        method: "GET",
+        url: "https://www.googleapis.com/drive/v3/files/file%2F1",
+        params: {
+          supportsAllDrives: true,
+          fields: "id,name,mimeType,size",
+        },
+      },
+      media: {
+        method: "GET",
+        url: "https://www.googleapis.com/drive/v3/files/file%2F1",
+        params: {
+          alt: "media",
+          supportsAllDrives: true,
+        },
+        responseType: "arraybuffer",
+      },
+    });
+  });
+
+  it("resolves Drive download targets inside the workspace and applies overwrite policy", async () => {
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "gws-direct-download-"));
+    const nested = resolveDriveWorkspaceOutputPath({
+      workspaceDir,
+      fileId: "file-1",
+      fileName: "Quarterly Report.pdf",
+      outputPath: "reports/q1.pdf",
+    });
+    expect(nested.workspaceRelativePath).toBe(path.join("reports", "q1.pdf"));
+    expect(nested.path).toBe(path.join(workspaceDir, "reports", "q1.pdf"));
+
+    const defaulted = resolveDriveWorkspaceOutputPath({
+      workspaceDir,
+      fileId: "file-1",
+      fileName: "Quarterly Report?.pdf",
+    });
+    expect(defaulted.workspaceRelativePath).toBe(
+      path.join("drive-downloads", "Quarterly Report_.pdf"),
+    );
+
+    expect(() =>
+      resolveDriveWorkspaceOutputPath({
+        workspaceDir,
+        fileId: "file-1",
+        fileName: "report.pdf",
+        outputPath: path.join(os.tmpdir(), "outside.pdf"),
+      }),
+    ).toThrow(/inside the active agent workspace/);
+
+    const existingPath = path.join(workspaceDir, "existing.pdf");
+    await fs.writeFile(existingPath, "existing", "utf8");
+    expect(() =>
+      resolveDriveWorkspaceOutputPath({
+        workspaceDir,
+        fileId: "file-1",
+        fileName: "report.pdf",
+        outputPath: "existing.pdf",
+      }),
+    ).toThrow(/already exists/);
+    expect(
+      resolveDriveWorkspaceOutputPath({
+        workspaceDir,
+        fileId: "file-1",
+        fileName: "report.pdf",
+        outputPath: "existing.pdf",
+        overwrite: true,
+      }).path,
+    ).toBe(existingPath);
   });
 });
