@@ -227,6 +227,19 @@ describe("direct Google API transport", () => {
       params: { supportsAllDrives: true },
     });
 
+    expect(
+      buildDirectGoogleRequest({
+        service: "drive",
+        action: "export_file",
+        payload: { fileId: "file/1", mimeType: "application/pdf" },
+      }),
+    ).toMatchObject({
+      method: "GET",
+      url: "https://www.googleapis.com/drive/v3/files/file%2F1/export",
+      params: { mimeType: "application/pdf" },
+      responseType: "arraybuffer",
+    });
+
     expect(buildDirectDriveDownloadRequests("file/1")).toEqual({
       metadata: {
         method: "GET",

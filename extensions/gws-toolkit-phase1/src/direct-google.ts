@@ -617,7 +617,7 @@ export function buildDirectGoogleRequest(params: {
         return {
           method: "GET",
           url: `https://www.googleapis.com/drive/v3/files/${encodeSegment(String(p.fileId))}/export`,
-          params: { mimeType: p.mimeType, supportsAllDrives: true },
+          params: { mimeType: p.mimeType },
           responseType: "arraybuffer",
         };
       }

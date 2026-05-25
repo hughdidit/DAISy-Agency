@@ -69,7 +69,7 @@ Example:
 ```
 
 The response returns the saved workspace path and metadata, not inline file
-bytes. `download_file` requires delegated Google API transport; legacy `gws`
+bytes. `download_file` must use delegated Google API transport; legacy `gws`
 CLI routes fail closed instead of emitting binary output.
 
 ## Security Model

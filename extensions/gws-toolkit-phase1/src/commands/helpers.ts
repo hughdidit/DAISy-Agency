@@ -151,9 +151,12 @@ export async function runToolkitCommand(params: {
         write: !params.readOnly,
       });
       const latencyMs = Date.now() - startedAt;
+      const finalPayload = params.transformPayload
+        ? params.transformPayload(direct.payload)
+        : direct.payload;
       const postPolicy = params.postPolicy?.({
         auth,
-        payload: (direct.payload ?? {}) as Record<string, unknown>,
+        payload: (finalPayload ?? {}) as Record<string, unknown>,
       });
       if (postPolicy && !postPolicy.allowed) {
         params.deps.audit.emit({
@@ -222,9 +225,7 @@ export async function runToolkitCommand(params: {
             transport: auth.transport,
             delegatedSubject: auth.impersonatedUser,
           },
-          payload: params.transformPayload
-            ? params.transformPayload(direct.payload)
-            : direct.payload,
+          payload: finalPayload,
           output: direct.output,
         },
         meta: {
