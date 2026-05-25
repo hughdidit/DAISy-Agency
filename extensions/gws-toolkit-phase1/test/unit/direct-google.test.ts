@@ -7,6 +7,7 @@ import {
   buildDirectGoogleClientRequestOptions,
   buildDirectGoogleRequest,
   createDelegatedGoogleClient,
+  driveExportDefaultFileName,
   resolveDirectGoogleScopes,
   resolveDriveWorkspaceOutputPath,
 } from "../../src/direct-google.js";
@@ -295,5 +296,26 @@ describe("direct Google API transport", () => {
         overwrite: true,
       }).path,
     ).toBe(existingPath);
+  });
+
+  it("adds common export extensions to default Drive export file names", () => {
+    expect(
+      driveExportDefaultFileName({
+        fileId: "doc-1",
+        mimeType: "application/pdf",
+      }),
+    ).toBe("doc-1.pdf");
+    expect(
+      driveExportDefaultFileName({
+        fileId: "sheet-1.xlsx",
+        mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      }),
+    ).toBe("sheet-1.xlsx");
+    expect(
+      driveExportDefaultFileName({
+        fileId: "unknown-1",
+        mimeType: "application/octet-stream",
+      }),
+    ).toBe("unknown-1");
   });
 });

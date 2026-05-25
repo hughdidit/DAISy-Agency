@@ -1,5 +1,5 @@
 import { buildDriveReadCommand } from "../command-builder.js";
-import { writeDriveBytesToWorkspace } from "../direct-google.js";
+import { driveExportDefaultFileName, writeDriveBytesToWorkspace } from "../direct-google.js";
 import { validateDriveReadParams } from "../schema.js";
 import type { InvocationContext, StructuredEnvelope } from "../types.js";
 import { buildValidationDeniedEnvelope, runToolkitCommand, type RuntimeDeps } from "./helpers.js";
@@ -21,7 +21,10 @@ function maybeSaveExportedDriveFile(params: {
   const target = writeDriveBytesToWorkspace({
     workspaceDir: params.ctx.workspaceDir,
     fileId: String(params.request.fileId),
-    fileName: params.request.fileId,
+    fileName: driveExportDefaultFileName({
+      fileId: params.request.fileId,
+      mimeType: params.payload.mimeType ?? params.request.mimeType,
+    }),
     outputPath: params.request.outputPath,
     overwrite: params.request.overwrite,
     bytes,

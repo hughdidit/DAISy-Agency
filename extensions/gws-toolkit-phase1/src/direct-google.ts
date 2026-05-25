@@ -291,6 +291,38 @@ function sanitizeDriveFileName(value: unknown): string | undefined {
   return sanitized || undefined;
 }
 
+function driveExportExtensionForMimeType(mimeType: unknown): string {
+  switch (mimeType) {
+    case "application/pdf":
+      return ".pdf";
+    case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+      return ".docx";
+    case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+      return ".xlsx";
+    case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+      return ".pptx";
+    case "text/plain":
+      return ".txt";
+    case "text/csv":
+      return ".csv";
+    default:
+      return "";
+  }
+}
+
+export function driveExportDefaultFileName(params: {
+  fileId: unknown;
+  mimeType?: unknown;
+}): string {
+  const fileId = String(params.fileId);
+  const extension = driveExportExtensionForMimeType(params.mimeType);
+  return extension && !fileId.toLowerCase().endsWith(extension) ? `${fileId}${extension}` : fileId;
+}
+
+function bufferFromArrayBufferResponse(data: unknown): Buffer {
+  return Buffer.from((data as ArrayBuffer | undefined | null) ?? new ArrayBuffer(0));
+}
+
 function ensureWorkspaceRoot(workspaceDir: string | undefined): string {
   const rawWorkspaceDir = workspaceDir?.trim();
   if (!rawWorkspaceDir) {
@@ -1024,7 +1056,7 @@ export async function executeDirectGoogleApi(params: {
           timeoutMs: params.config.timeoutMs,
         }),
       );
-      const bytes = Buffer.from(mediaResponse.data as ArrayBuffer);
+      const bytes = bufferFromArrayBufferResponse(mediaResponse.data);
       const parsedSize =
         typeof metadata.size === "string" && metadata.size.trim()
           ? Number(metadata.size)
@@ -1086,11 +1118,14 @@ export async function executeDirectGoogleApi(params: {
           typeof params.payload.outputPath === "string" &&
           params.payload.outputPath.trim()
           ? (() => {
-              const bytes = Buffer.from(response.data as ArrayBuffer);
+              const bytes = bufferFromArrayBufferResponse(response.data);
               const target = writeDriveBytesToWorkspace({
                 workspaceDir: params.ctx?.workspaceDir,
                 fileId: String(params.payload.fileId),
-                fileName: params.payload.fileId,
+                fileName: driveExportDefaultFileName({
+                  fileId: params.payload.fileId,
+                  mimeType: params.payload.mimeType,
+                }),
                 outputPath: params.payload.outputPath,
                 overwrite: params.payload.overwrite,
                 bytes,
@@ -1104,7 +1139,7 @@ export async function executeDirectGoogleApi(params: {
               };
             })()
           : {
-              contentBase64: Buffer.from(response.data as ArrayBuffer).toString("base64"),
+              contentBase64: bufferFromArrayBufferResponse(response.data).toString("base64"),
               mimeType: params.payload.mimeType,
             }
         : ((response.data ?? {}) as Record<string, unknown>);
