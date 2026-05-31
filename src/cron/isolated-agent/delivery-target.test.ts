@@ -1,5 +1,10 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { discordPlugin } from "../../../extensions/discord/src/channel.js";
+import { telegramPlugin } from "../../../extensions/telegram/src/channel.js";
+import { whatsappPlugin } from "../../../extensions/whatsapp/src/channel.js";
 import type { OpenClawConfig } from "../../config/config.js";
+import { setActivePluginRegistry } from "../../plugins/runtime.js";
+import { createTestRegistry } from "../../test-utils/channel-plugins.js";
 
 vi.mock("../../config/sessions.js", () => ({
   loadSessionStore: vi.fn().mockReturnValue({}),
@@ -82,6 +87,20 @@ async function resolveForAgent(params: {
 }
 
 describe("resolveDeliveryTarget", () => {
+  beforeEach(() => {
+    setActivePluginRegistry(
+      createTestRegistry([
+        { pluginId: "discord", plugin: discordPlugin, source: "test" },
+        { pluginId: "telegram", plugin: telegramPlugin, source: "test" },
+        { pluginId: "whatsapp", plugin: whatsappPlugin, source: "test" },
+      ]),
+    );
+  });
+
+  afterEach(() => {
+    setActivePluginRegistry(createTestRegistry());
+  });
+
   it("reroutes implicit whatsapp delivery to authorized allowFrom recipient", async () => {
     setMainSessionEntry({
       sessionId: "sess-w1",
