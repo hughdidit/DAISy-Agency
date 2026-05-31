@@ -256,6 +256,41 @@ describe("resolveDeliveryTarget", () => {
       expect(result.channel).toBe("discord");
       expect(result.to).toBe("channel:111222333444555666");
       expect(result.accountId).toBe("default");
+      expect(result.threadId).toBeUndefined();
+    });
+  });
+
+  it('uses Discord account defaultTo when delivery.channel is "last" and delivery.to is "default"', async () => {
+    await withDiscordDeliveryTargetPlugin(async () => {
+      setMainSessionEntry({
+        sessionId: "sess-discord-stale",
+        updatedAt: 1000,
+        lastChannel: "discord",
+        lastTo: "channel:999999999999999999",
+        lastThreadId: "stale-thread",
+      });
+
+      const result = await resolveDeliveryTarget(
+        makeCfg({
+          channels: {
+            discord: {
+              defaultTo: "channel:111222333444555666",
+            },
+          },
+        }),
+        AGENT_ID,
+        {
+          channel: "last",
+          to: "default",
+          accountId: "default",
+        },
+      );
+
+      expect(result.ok).toBe(true);
+      expect(result.channel).toBe("discord");
+      expect(result.to).toBe("channel:111222333444555666");
+      expect(result.accountId).toBe("default");
+      expect(result.threadId).toBeUndefined();
     });
   });
 

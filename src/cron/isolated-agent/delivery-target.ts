@@ -49,9 +49,7 @@ export async function resolveDeliveryTarget(
 ): Promise<DeliveryTargetResolution> {
   const requestedChannel = typeof jobPayload.channel === "string" ? jobPayload.channel : "last";
   const rawExplicitTo = typeof jobPayload.to === "string" ? jobPayload.to : undefined;
-  const useDiscordConfiguredDefaultTarget =
-    requestedChannel === "discord" && rawExplicitTo?.trim().toLowerCase() === "default";
-  const explicitTo = useDiscordConfiguredDefaultTarget ? undefined : rawExplicitTo;
+  const explicitTo = rawExplicitTo;
   const allowMismatchedLastTo = requestedChannel === "last";
 
   const sessionCfg = cfg.session;
@@ -102,6 +100,8 @@ export async function resolveDeliveryTarget(
     : preliminary;
 
   const channel = resolved.channel ?? fallbackChannel;
+  const useDiscordConfiguredDefaultTarget =
+    channel === "discord" && rawExplicitTo?.trim().toLowerCase() === "default";
   const mode = resolved.mode as "explicit" | "implicit";
   let toCandidate = useDiscordConfiguredDefaultTarget ? undefined : resolved.to;
 
