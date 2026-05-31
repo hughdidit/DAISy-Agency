@@ -190,6 +190,102 @@ describe("resolveDeliveryTarget", () => {
     expect(result.accountId).toBeUndefined();
   });
 
+  it('uses Discord account defaultTo when delivery.to is "default"', async () => {
+    setMainSessionEntry({
+      sessionId: "sess-discord-stale",
+      updatedAt: 1000,
+      lastChannel: "discord",
+      lastTo: "channel:999999999999999999",
+      lastThreadId: "stale-thread",
+    });
+
+    const result = await resolveDeliveryTarget(
+      makeCfg({
+        channels: {
+          discord: {
+            defaultTo: "channel:111222333444555666",
+          },
+        },
+      }),
+      AGENT_ID,
+      {
+        channel: "discord",
+        to: "default",
+        accountId: "default",
+      },
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.channel).toBe("discord");
+    expect(result.to).toBe("channel:111222333444555666");
+    expect(result.accountId).toBe("default");
+  });
+
+  it("preserves explicit Discord cron delivery targets", async () => {
+    setMainSessionEntry(undefined);
+
+    const cfg = makeCfg({
+      channels: {
+        discord: {
+          defaultTo: "channel:111222333444555666",
+        },
+      },
+    });
+
+    await expect(
+      resolveDeliveryTarget(cfg, AGENT_ID, {
+        channel: "discord",
+        to: "channel:999888777666555444",
+      }),
+    ).resolves.toMatchObject({
+      ok: true,
+      channel: "discord",
+      to: "channel:999888777666555444",
+    });
+
+    await expect(
+      resolveDeliveryTarget(cfg, AGENT_ID, {
+        channel: "discord",
+        to: "123456789012345678",
+      }),
+    ).resolves.toMatchObject({
+      ok: true,
+      channel: "discord",
+      to: "channel:123456789012345678",
+    });
+  });
+
+  it('fails Discord delivery.to="default" when no Discord defaultTo is configured', async () => {
+    setMainSessionEntry({
+      sessionId: "sess-discord-stale",
+      updatedAt: 1000,
+      lastChannel: "discord",
+      lastTo: "channel:999999999999999999",
+    });
+
+    const result = await resolveDeliveryTarget(
+      makeCfg({
+        channels: {
+          discord: {},
+        },
+      }),
+      AGENT_ID,
+      {
+        channel: "discord",
+        to: "default",
+        accountId: "default",
+      },
+    );
+
+    expect(result.ok).toBe(false);
+    if (result.ok) {
+      throw new Error("expected unresolved Discord default target");
+    }
+    expect(result.channel).toBe("discord");
+    expect(result.to).toBeUndefined();
+    expect(result.error.message).toContain("Discord recipient is required");
+  });
+
   it("drops session threadId when destination does not match the previous recipient", async () => {
     setMainSessionEntry({
       sessionId: "sess-2",

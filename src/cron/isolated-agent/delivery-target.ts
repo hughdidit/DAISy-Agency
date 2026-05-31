@@ -48,7 +48,10 @@ export async function resolveDeliveryTarget(
   },
 ): Promise<DeliveryTargetResolution> {
   const requestedChannel = typeof jobPayload.channel === "string" ? jobPayload.channel : "last";
-  const explicitTo = typeof jobPayload.to === "string" ? jobPayload.to : undefined;
+  const rawExplicitTo = typeof jobPayload.to === "string" ? jobPayload.to : undefined;
+  const useDiscordConfiguredDefaultTarget =
+    requestedChannel === "discord" && rawExplicitTo?.trim().toLowerCase() === "default";
+  const explicitTo = useDiscordConfiguredDefaultTarget ? undefined : rawExplicitTo;
   const allowMismatchedLastTo = requestedChannel === "last";
 
   const sessionCfg = cfg.session;
@@ -100,7 +103,7 @@ export async function resolveDeliveryTarget(
 
   const channel = resolved.channel ?? fallbackChannel;
   const mode = resolved.mode as "explicit" | "implicit";
-  let toCandidate = resolved.to;
+  let toCandidate = useDiscordConfiguredDefaultTarget ? undefined : resolved.to;
 
   // Prefer an explicit accountId from the job's delivery config (set via
   // --account on cron add/edit). Fall back to the session's lastAccountId,
@@ -129,6 +132,7 @@ export async function resolveDeliveryTarget(
   // Session-derived threadIds are dropped when the target differs to prevent
   // stale thread IDs from leaking to a different chat.
   const threadId =
+    !useDiscordConfiguredDefaultTarget &&
     resolved.threadId &&
     (resolved.threadIdExplicit || (resolved.to && resolved.to === resolved.lastTo))
       ? resolved.threadId
