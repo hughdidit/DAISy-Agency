@@ -7,7 +7,8 @@ Requires=docker.service
 [Service]
 Type=simple
 User=daisy-monitor
-Group=docker
+Group=daisy-monitor
+SupplementaryGroups=docker
 ExecStart=/usr/bin/python3 /opt/DAISy/monitoring/watchdog/daisy-watchdog.py
 Restart=always
 RestartSec=5
