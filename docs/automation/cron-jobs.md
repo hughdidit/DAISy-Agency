@@ -252,6 +252,7 @@ If `delivery.channel` or `delivery.to` is omitted, cron can fall back to the mai
 Target format reminders:
 
 - Slack/Discord/Mattermost (plugin) targets should use explicit prefixes (e.g. `channel:<id>`, `user:<id>`) to avoid ambiguity.
+- For Discord, omit `delivery.to` and set `delivery.accountId` to use the configured `channels.discord.defaultTo` or `channels.discord.accounts.<accountId>.defaultTo`; do not use `delivery.to: "default"` for new jobs.
 - Telegram topics should use the `:topic:` form (see below).
 
 #### Telegram delivery targets (topics / forum threads)

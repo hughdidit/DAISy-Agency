@@ -252,10 +252,11 @@ PAYLOAD TYPES (payload.kind):
   { "kind": "agentTurn", "message": "<prompt>", "model": "<optional>", "thinking": "<optional>", "timeoutSeconds": <optional, 0 means no timeout> }
 
 DELIVERY (top-level):
-  { "mode": "none|announce|webhook", "channel": "<optional>", "to": "<optional>", "bestEffort": <optional-bool> }
+  { "mode": "none|announce|webhook", "channel": "<optional>", "to": "<optional>", "accountId": "<optional>", "bestEffort": <optional-bool> }
   - Default for isolated agentTurn jobs (when delivery omitted): "announce"
   - announce: send to chat channel (optional channel/to target)
   - webhook: send finished-run event as HTTP POST to delivery.to (URL required)
+  - Discord: use to="channel:<id>" for explicit channels, or omit to and set accountId to use configured defaultTo. Do not set to="default".
   - If the task needs to send to a specific chat/recipient, set announce delivery.channel/to; do not call messaging tools inside the run.
 
 CRITICAL CONSTRAINTS:

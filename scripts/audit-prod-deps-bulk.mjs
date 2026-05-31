@@ -6,6 +6,20 @@ const BULK_ADVISORY_ENDPOINT = "https://registry.npmjs.org/-/npm/v1/security/adv
 const BULK_ADVISORY_TIMEOUT_MS = 30_000;
 const SEVERITY_ORDER = ["low", "moderate", "high", "critical"];
 const DEFAULT_LEVEL = "high";
+const TEMPORARY_ADVISORY_ALLOWLIST = [
+  {
+    packageName: "axios",
+    sourceUrl: "https://github.com/advisories/GHSA-pjwm-pj3p-43mv",
+    expiresOn: "2026-06-14",
+    reason: "No axios release outside the vulnerable <1.16.0 range is available on npm.",
+  },
+  {
+    packageName: "axios",
+    sourceUrl: "https://github.com/advisories/GHSA-35jp-ww65-95wh",
+    expiresOn: "2026-06-14",
+    reason: "No axios release outside the vulnerable <1.16.0 range is available on npm.",
+  },
+];
 
 function printUsage() {
   console.log(
@@ -208,6 +222,28 @@ function severityIcon(severity) {
 }
 
 /**
+ * @param {{expiresOn: string}} entry
+ * @param {Date} now
+ */
+function isAllowlistEntryActive(entry, now = new Date()) {
+  const expiresAt = Date.parse(`${entry.expiresOn}T23:59:59.999Z`);
+  return Number.isFinite(expiresAt) && now.getTime() <= expiresAt;
+}
+
+/**
+ * @param {AdvisoryFinding} finding
+ * @param {Date} now
+ */
+function findTemporaryAllowlistEntry(finding, now = new Date()) {
+  return TEMPORARY_ADVISORY_ALLOWLIST.find(
+    (entry) =>
+      entry.packageName === finding.packageName &&
+      entry.sourceUrl === finding.sourceUrl &&
+      isAllowlistEntryActive(entry, now),
+  );
+}
+
+/**
  * @typedef {{
  *   packageName: string;
  *   severity: string;
@@ -299,7 +335,19 @@ async function main() {
     return;
   }
 
-  const matching = findings.filter((finding) => severityRank(finding.severity) >= threshold);
+  const suppressed = findings
+    .map((finding) => ({ finding, allowlist: findTemporaryAllowlistEntry(finding) }))
+    .filter((entry) => entry.allowlist);
+  for (const entry of suppressed) {
+    console.warn(
+      `Temporarily allowing ${entry.finding.packageName} advisory ${entry.finding.sourceUrl} until ${entry.allowlist.expiresOn}: ${entry.allowlist.reason}`,
+    );
+  }
+
+  const matching = findings.filter(
+    (finding) =>
+      severityRank(finding.severity) >= threshold && !findTemporaryAllowlistEntry(finding),
+  );
   console.log(
     `Advisory totals: low=${bySeverity.low}, moderate=${bySeverity.moderate}, high=${bySeverity.high}, critical=${bySeverity.critical}, unknown=${bySeverity.unknown}.`,
   );

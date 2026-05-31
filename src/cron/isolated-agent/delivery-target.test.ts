@@ -1,5 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
+import { normalizeDiscordOutboundTarget } from "../../channels/plugins/normalize/discord.js";
+import type { ChannelPlugin } from "../../channels/plugins/types.js";
 import type { OpenClawConfig } from "../../config/config.js";
+import { resolveDiscordAccount } from "../../discord/accounts.js";
+import { setActivePluginRegistry } from "../../plugins/runtime.js";
+import {
+  createChannelTestPluginBase,
+  createTestRegistry,
+} from "../../test-utils/channel-plugins.js";
 
 vi.mock("../../config/sessions.js", () => ({
   loadSessionStore: vi.fn().mockReturnValue({}),
@@ -67,6 +75,34 @@ function setWhatsAppAllowFrom(allowFrom: string[]) {
 
 function setStoredWhatsAppAllowFrom(allowFrom: string[]) {
   vi.mocked(readChannelAllowFromStoreSync).mockReturnValue(allowFrom);
+}
+
+const discordDeliveryTargetPlugin: ChannelPlugin = {
+  ...createChannelTestPluginBase({
+    id: "discord",
+    label: "Discord",
+    config: {
+      resolveDefaultTo: ({ cfg, accountId }) =>
+        resolveDiscordAccount({ cfg, accountId }).config.defaultTo?.trim() || undefined,
+    },
+  }),
+  outbound: {
+    deliveryMode: "direct",
+    resolveTarget: ({ to }) => normalizeDiscordOutboundTarget(to),
+  },
+};
+
+async function withDiscordDeliveryTargetPlugin<T>(fn: () => Promise<T>): Promise<T> {
+  setActivePluginRegistry(
+    createTestRegistry([
+      { pluginId: "discord", plugin: discordDeliveryTargetPlugin, source: "test" },
+    ]),
+  );
+  try {
+    return await fn();
+  } finally {
+    setActivePluginRegistry(createTestRegistry());
+  }
 }
 
 async function resolveForAgent(params: {
@@ -188,6 +224,143 @@ describe("resolveDeliveryTarget", () => {
     const result = await resolveForAgent({ cfg });
 
     expect(result.accountId).toBeUndefined();
+  });
+
+  it('uses Discord account defaultTo when delivery.to is "default"', async () => {
+    await withDiscordDeliveryTargetPlugin(async () => {
+      setMainSessionEntry({
+        sessionId: "sess-discord-stale",
+        updatedAt: 1000,
+        lastChannel: "discord",
+        lastTo: "channel:999999999999999999",
+        lastThreadId: "stale-thread",
+      });
+
+      const result = await resolveDeliveryTarget(
+        makeCfg({
+          channels: {
+            discord: {
+              defaultTo: "channel:111222333444555666",
+            },
+          },
+        }),
+        AGENT_ID,
+        {
+          channel: "discord",
+          to: "default",
+          accountId: "default",
+        },
+      );
+
+      expect(result.ok).toBe(true);
+      expect(result.channel).toBe("discord");
+      expect(result.to).toBe("channel:111222333444555666");
+      expect(result.accountId).toBe("default");
+      expect(result.threadId).toBeUndefined();
+    });
+  });
+
+  it('uses Discord account defaultTo when delivery.channel is "last" and delivery.to is "default"', async () => {
+    await withDiscordDeliveryTargetPlugin(async () => {
+      setMainSessionEntry({
+        sessionId: "sess-discord-stale",
+        updatedAt: 1000,
+        lastChannel: "discord",
+        lastTo: "channel:999999999999999999",
+        lastThreadId: "stale-thread",
+      });
+
+      const result = await resolveDeliveryTarget(
+        makeCfg({
+          channels: {
+            discord: {
+              defaultTo: "channel:111222333444555666",
+            },
+          },
+        }),
+        AGENT_ID,
+        {
+          channel: "last",
+          to: "default",
+          accountId: "default",
+        },
+      );
+
+      expect(result.ok).toBe(true);
+      expect(result.channel).toBe("discord");
+      expect(result.to).toBe("channel:111222333444555666");
+      expect(result.accountId).toBe("default");
+      expect(result.threadId).toBeUndefined();
+    });
+  });
+
+  it("preserves explicit Discord cron delivery targets", async () => {
+    await withDiscordDeliveryTargetPlugin(async () => {
+      setMainSessionEntry(undefined);
+
+      const cfg = makeCfg({
+        channels: {
+          discord: {
+            defaultTo: "channel:111222333444555666",
+          },
+        },
+      });
+
+      await expect(
+        resolveDeliveryTarget(cfg, AGENT_ID, {
+          channel: "discord",
+          to: "channel:999888777666555444",
+        }),
+      ).resolves.toMatchObject({
+        ok: true,
+        channel: "discord",
+        to: "channel:999888777666555444",
+      });
+
+      await expect(
+        resolveDeliveryTarget(cfg, AGENT_ID, {
+          channel: "discord",
+          to: "123456789012345678",
+        }),
+      ).resolves.toMatchObject({
+        ok: true,
+        channel: "discord",
+        to: "channel:123456789012345678",
+      });
+    });
+  });
+
+  it('fails Discord delivery.to="default" when no Discord defaultTo is configured', async () => {
+    await withDiscordDeliveryTargetPlugin(async () => {
+      setMainSessionEntry({
+        sessionId: "sess-discord-stale",
+        updatedAt: 1000,
+        lastChannel: "discord",
+        lastTo: "channel:999999999999999999",
+      });
+
+      const result = await resolveDeliveryTarget(
+        makeCfg({
+          channels: {
+            discord: {},
+          },
+        }),
+        AGENT_ID,
+        {
+          channel: "discord",
+          to: "default",
+          accountId: "default",
+        },
+      );
+
+      expect(result.ok).toBe(false);
+      if (result.ok) {
+        throw new Error("expected unresolved Discord default target");
+      }
+      expect(result.channel).toBe("discord");
+      expect(result.to).toBeUndefined();
+      expect(result.error.message).toContain("Discord recipient is required");
+    });
   });
 
   it("drops session threadId when destination does not match the previous recipient", async () => {
