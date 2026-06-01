@@ -2,7 +2,7 @@
 
 ## Conntrack Logger
 
-Logs all new outbound TCP/UDP connections as JSONL using the kernel's connection tracking subsystem (`conntrack`).
+Logs new outbound TCP/UDP connections as bounded JSONL using the kernel's connection tracking subsystem (`conntrack`).
 
 | Setting      | Value                                                     |
 | ------------ | --------------------------------------------------------- |
@@ -10,10 +10,12 @@ Logs all new outbound TCP/UDP connections as JSONL using the kernel's connection
 | Systemd unit | `daisy-conntrack-logger.service`                          |
 | Output       | stdout (captured by systemd journal, shipped by Promtail) |
 | Exclusions   | Localhost traffic (127.\*, ::1)                           |
+| Rate limit   | `CONNTRACK_LOG_RATE_PER_SEC` (default 25)                 |
+| Burst        | `CONNTRACK_LOG_BURST` (default 50)                        |
 
 ### How It Works
 
-The script runs `conntrack -E -e NEW` to stream new connection events from the kernel's netfilter connection tracking table, piped through a single long-running `awk` process that parses and formats each event as a JSONL record. This avoids per-line process forking.
+The script runs `conntrack -E -e NEW` to stream new connection events from the kernel's netfilter connection tracking table. It parses, rate limits, and formats events with shell builtins, avoiding per-line process forking while keeping sandbox or metadata-service connection storms from wedging the host through journal pressure.
 
 **Logged fields:**
 
@@ -27,6 +29,19 @@ The script runs `conntrack -E -e NEW` to stream new connection events from the k
 | `dst`        | Destination IP address |
 | `sport`      | Source port            |
 | `dport`      | Destination port       |
+
+When events are suppressed by rate limiting, the logger emits a summary record:
+
+```json
+{
+  "timestamp": "2026-03-14T10:05:13Z",
+  "service": "conntrack-logger",
+  "event_type": "rate_limited",
+  "suppressed": 137,
+  "rate_per_sec": 25,
+  "burst": 50
+}
+```
 
 **Example output:**
 
@@ -50,7 +65,7 @@ Combined with Prometheus alert rules and Grafana dashboards:
 - **Unexpected outbound connections** to unknown IPs
 - **High connection rates** suggesting scanning or data exfiltration
 - **Connections to suspicious ports** (crypto mining, C2 channels)
-- **Metadata service access** (169.254.169.254) is additionally caught by Falco
+- **Metadata service access** (169.254.169.254) is logged within the rate limit and additionally caught by Falco
 
 ### Viewing Connection Logs
 

@@ -21,7 +21,7 @@ This performs three steps on the VM via IAP tunnel:
 
 1. **Transfer configs**: Tars the `monitoring/` directory, base64-encodes it, and extracts it to `${DEPLOY_DIR}/monitoring/` on the VM. Clears `chattr +i` immutable bits before extraction so files can be updated.
 
-2. **Run setup-permissions.sh**: On first deploy, installs packages (aide, auditd, conntrack, apparmor-utils), creates the `daisy-monitor` user, sets file permissions, applies `chattr +i` on critical configs, and installs systemd units. On subsequent deploys, skips package installation but re-applies permissions.
+2. **Run host provisioning and per-deploy refresh**: On first deploy, installs packages (aide, auditd, conntrack, apparmor-utils), creates the `daisy-monitor` user, masks stale legacy gateway host units, sets file permissions, applies `chattr +i` on critical configs, and installs systemd units. On subsequent deploys, skips package installation but re-applies permissions, refreshes audit/AppArmor/systemd config, and keeps stale legacy gateway units masked.
 
 3. **Start services**: Pulls and starts the Docker monitoring stack, then restarts `daisy-watchdog` and `daisy-conntrack-logger` systemd services.
 
@@ -96,6 +96,7 @@ This script:
 - Copies Falco config and rules to `/etc/falco/`
 - Initializes the AIDE database (first run only)
 - Installs the AIDE cron job (every 15 minutes)
+- Masks stale legacy host gateway units (`clawdbot-gateway`, `moltbot-gateway`, `moldbot-gateway`)
 - Installs systemd units for watchdog and conntrack-logger
 
 ### 4. Create Environment File
@@ -235,7 +236,7 @@ All monitoring files are owned by `root:daisy-monitor` with `750` (directories) 
 4. The deploy script will:
    - Clear `chattr +i` on existing configs
    - Extract the new configs
-   - Re-run `setup-permissions.sh --skip-packages`
+   - Run per-deploy monitoring refresh tasks, including audit/AppArmor/systemd refresh and stale legacy gateway unit masking
    - Restart Docker services and systemd units
 
 ## Ports Reference

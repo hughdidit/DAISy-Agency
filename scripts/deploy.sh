@@ -287,6 +287,46 @@ else
   exit 1
 fi
 
+# -- Mask stale legacy host gateway units (keeps existing VMs in sync) --
+STALE_UNIT_ERRORS=0
+for stale_unit in clawdbot-gateway.service moltbot-gateway.service moldbot-gateway.service; do
+  unit_path=\"/etc/systemd/system/\${stale_unit}\"
+  systemctl disable --now \"\${stale_unit}\" 2>/dev/null || true
+
+  if [[ -L \"\${unit_path}\" && \"\$(readlink \"\${unit_path}\")\" == \"/dev/null\" ]]; then
+    echo \"  \${stale_unit} already masked.\"
+    continue
+  fi
+
+  if [[ -e \"\${unit_path}\" || -L \"\${unit_path}\" ]]; then
+    archive_path=\"\${unit_path}.disabled-stale\"
+    if [[ -e \"\${archive_path}\" || -L \"\${archive_path}\" ]]; then
+      archive_path=\"\${unit_path}.disabled-stale-\$(date -u +%Y%m%d%H%M%S)\"
+    fi
+    if mv \"\${unit_path}\" \"\${archive_path}\"; then
+      echo \"  Archived stale \${stale_unit} unit to \${archive_path}.\"
+    else
+      echo \"ERROR: Failed to archive stale \${stale_unit} unit at \${unit_path}.\" >&2
+      STALE_UNIT_ERRORS=1
+      continue
+    fi
+  fi
+
+  if ln -sfn /dev/null \"\${unit_path}\"; then
+    echo \"  Masked stale \${stale_unit}.\"
+  else
+    echo \"ERROR: Failed to mask stale \${stale_unit}.\" >&2
+    STALE_UNIT_ERRORS=1
+  fi
+done
+if (( STALE_UNIT_ERRORS > 0 )); then
+  exit 1
+fi
+if ! systemctl daemon-reload 2>/dev/null; then
+  echo \"ERROR: Failed to reload systemd daemon after stale-unit masking.\" >&2
+  exit 1
+fi
+
 # -- Log directories + promtail bind mount --
 mkdir -p \"\${LOG_BASE}/falco\" \"\${LOG_BASE}/daisy-watchdog\"
 mkdir -p /tmp/openclaw \"\${LOG_BASE}/openclaw\"
