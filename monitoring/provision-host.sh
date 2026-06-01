@@ -106,7 +106,49 @@ else
   echo "AIDE cron entry already exists."
 fi
 
-# ── 6. Install systemd units ────────────────────────────────────
+# ── 6. Mask stale legacy host gateway units ─────────────────────
+disable_stale_gateway_unit() {
+  local unit="$1"
+  local unit_path="/etc/systemd/system/${unit}"
+  local archive_path="${unit_path}.disabled-stale"
+
+  systemctl disable --now "${unit}" 2>/dev/null || true
+
+  if [[ -L "${unit_path}" && "$(readlink "${unit_path}")" == "/dev/null" ]]; then
+    echo "${unit} already masked."
+    return
+  fi
+
+  if [[ -e "${unit_path}" || -L "${unit_path}" ]]; then
+    if [[ -e "${archive_path}" || -L "${archive_path}" ]]; then
+      archive_path="${unit_path}.disabled-stale-$(date -u +%Y%m%d%H%M%S)"
+    fi
+    if ! mv "${unit_path}" "${archive_path}"; then
+      echo "ERROR: Failed to archive stale ${unit} unit at ${unit_path}."
+      return 1
+    fi
+    echo "Archived stale ${unit} unit to ${archive_path}."
+  fi
+
+  if ! ln -sfn /dev/null "${unit_path}"; then
+    echo "ERROR: Failed to mask stale ${unit}."
+    return 1
+  fi
+  echo "Masked stale ${unit}."
+}
+
+echo "Disabling stale legacy gateway units..."
+for stale_unit in clawdbot-gateway.service moltbot-gateway.service moldbot-gateway.service; do
+  if ! disable_stale_gateway_unit "${stale_unit}"; then
+    ERRORS=$((ERRORS + 1))
+  fi
+done
+if ! systemctl daemon-reload 2>/dev/null; then
+  echo "ERROR: Failed to reload systemd daemon after stale-unit masking."
+  ERRORS=$((ERRORS + 1))
+fi
+
+# ── 7. Install systemd units ────────────────────────────────────
 echo "Installing systemd units..."
 
 # Watchdog service
@@ -153,7 +195,7 @@ else
   ERRORS=$((ERRORS + 1))
 fi
 
-# ── 7. Install persistent bind mount for promtail log access ────
+# ── 8. Install persistent bind mount for promtail log access ────
 # Ensures /var/log/openclaw survives reboots without needing a deploy.
 MOUNT_UNIT="var-log-openclaw.mount"
 cat > "/etc/systemd/system/${MOUNT_UNIT}" <<MOUNT
@@ -189,4 +231,3 @@ else
   echo "=== Host Provisioning Complete ==="
 fi
 echo ""
-

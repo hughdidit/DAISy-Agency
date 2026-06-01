@@ -7,6 +7,13 @@
 #
 # Logs go to /var/log/audit/audit.log → ingested by Promtail → Loki
 
+# ── Audit Backpressure Controls ─────────────────────────────────────
+# Keep host audit useful without allowing routine container/runtime churn to
+# wedge the VM during sandbox-heavy incidents.
+-b 8192
+-r 200
+-f 1
+
 # ── Docker Socket Access ────────────────────────────────────────────
 # Watch all access to the Docker socket
 -w /var/run/docker.sock -p rwxa -k docker_socket
@@ -23,24 +30,30 @@
 -w /opt/DAISy/monitoring/ -p wa -k monitoring_change
 
 # ── Sensitive Syscalls from Non-Root Users ────────────────────────────
+# Suppress routine Docker CLI calls from the container gateway user. Docker
+# socket access is still watched above, while this avoids execve storms from
+# health checks and sandbox inspection loops.
+-a never,exit -F arch=b64 -S execve -F uid=1000 -F exe=/usr/bin/docker
+
 # Track execve from non-root users (uid >= 1000 covers container processes
 # like node uid 1000, plus any other unprivileged users on the host)
--a always,exit -F arch=b64 -S execve -F uid>=1000 -F uid!=65534 -k container_exec
+-a always,exit -F arch=b64 -S execve -F uid>=1000 -F uid!=65534 -F success=1 -k container_exec
 
 # Track ptrace (process injection/debugging)
 -a always,exit -F arch=b64 -S ptrace -k ptrace_attempt
 
-# Track mount/umount (filesystem manipulation)
--a always,exit -F arch=b64 -S mount -S umount2 -k mount_ops
+# Track host-user mount/umount activity. Routine container runtime mount churn
+# has unset auid and is covered by Docker/Falco/watchdog telemetry.
+-a always,exit -F arch=b64 -S mount -S umount2 -F auid!=4294967295 -k mount_ops
 
 # Track kernel module loading
 -a always,exit -F arch=b64 -S init_module -S finit_module -S delete_module -k module_load
 
-# Track privilege changes
--a always,exit -F arch=b64 -S setuid -S setgid -S setreuid -S setregid -k priv_change
+# Track host-user privilege changes.
+-a always,exit -F arch=b64 -S setuid -S setgid -S setreuid -S setregid -F auid!=4294967295 -k priv_change
 
-# Track namespace operations (container escape vectors)
--a always,exit -F arch=b64 -S unshare -S setns -k namespace_ops
+# Track host-user namespace operations (container escape vectors).
+-a always,exit -F arch=b64 -S unshare -S setns -F auid!=4294967295 -k namespace_ops
 
 # ── Credential File Access ──────────────────────────────────────────
 # Watch access to sensitive credential files

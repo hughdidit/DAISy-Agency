@@ -111,6 +111,8 @@ Low-level kernel audit rules for tracking sensitive syscalls.
 | Install path | `/etc/audit/rules.d/`                      |
 | Log          | `/var/log/audit/audit.log`                 |
 
+The audit rules include host backpressure controls (`-b 8192`, `-r 200`, `-f 1`) so audit volume remains bounded during sandbox-heavy incidents. Routine Docker CLI executions by the gateway user are suppressed because Docker socket access is still watched directly and container runtime activity is also covered by Falco/watchdog telemetry.
+
 ### Audit Rules
 
 **File access monitoring:**
@@ -124,21 +126,27 @@ Low-level kernel audit rules for tracking sensitive syscalls.
 - `kill`/`tkill` (signal at arg position a1): tracks SIGKILL (9) and SIGTERM (15)
 - `tgkill` (signal at arg position a2): separate rules for correct argument position
 
-**Syscall monitoring (non-root users, uid >= 1000):**
+**Syscall monitoring:**
 
-- `execve`: all program executions
-- `connect`: outbound network connections
-- `mount`/`umount2`: filesystem mount attempts
+- `execve`: successful program executions from non-root users (uid >= 1000), excluding routine gateway Docker CLI probes
+- `mount`/`umount2`: host-user filesystem mount attempts
 - `ptrace`: process tracing attempts
 - `init_module`/`finit_module`: kernel module loading
+- `setuid`/`setgid`: host-user privilege changes
+- `unshare`/`setns`: host-user namespace operations
 
 ### Viewing Audit Logs
 
 ```bash
 # Search by key
-sudo ausearch -k docker_sock
+sudo ausearch -k docker_socket
 sudo ausearch -k process_kill
-sudo ausearch -k net_connect
+sudo ausearch -k container_exec
+sudo ausearch -k mount_ops
+sudo ausearch -k ptrace_attempt
+sudo ausearch -k module_load
+sudo ausearch -k priv_change
+sudo ausearch -k namespace_ops
 
 # Recent events
 sudo ausearch --start recent
