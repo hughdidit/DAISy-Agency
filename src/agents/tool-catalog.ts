@@ -235,6 +235,14 @@ const CORE_TOOL_DEFINITIONS: CoreToolDefinition[] = [
     includeInOpenClawGroup: true,
   },
   {
+    id: "ocr_extract",
+    label: "ocr_extract",
+    description: "Local OCR extraction",
+    sectionId: "media",
+    profiles: ["coding"],
+    includeInOpenClawGroup: true,
+  },
+  {
     id: "tts",
     label: "tts",
     description: "Text-to-speech conversion",

@@ -82,6 +82,11 @@
       "title": "Memory Get",
       "detailKeys": ["path", "from", "lines"]
     },
+    "ocr_extract": {
+      "emoji": "🔤",
+      "title": "OCR Extract",
+      "detailKeys": ["filePath", "mimeType", "mode", "pages"]
+    },
     "web_search": {
       "emoji": "🔎",
       "title": "Web Search",

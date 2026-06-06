@@ -22,6 +22,7 @@ import {
 import { GeminiService } from "./gemini-service.js";
 import { McpClientService } from "./mcp-client-service.js";
 import { MemoryAutonomyService } from "./memory-autonomy-service.js";
+import { ingestDocumentToMemory } from "./document-ingest.js";
 import { MemoryOpsService, resolveScopeSubjectFromContext } from "./memory-ops-service.js";
 import {
   MEMORY_OPS_KINDS,
@@ -375,6 +376,33 @@ const multimodalPartSchema = Type.Union([
   ),
 ]);
 
+const documentMetadataSchema = Type.Object(
+  {
+    title: Type.Optional(Type.String()),
+    filename: Type.Optional(Type.String()),
+    mimeType: Type.Optional(Type.String()),
+    sha256: Type.Optional(Type.String()),
+    documentSha256: Type.Optional(Type.String()),
+    byteLength: Type.Optional(Type.Number({ minimum: 0 })),
+    pageCount: Type.Optional(Type.Number({ minimum: 0 })),
+    chunkId: Type.Optional(Type.String()),
+    parentMemoryId: Type.Optional(Type.String()),
+    sourceRange: Type.Optional(
+      Type.Object(
+        {
+          pages: Type.Optional(Type.Tuple([Type.Number(), Type.Number()])),
+          slides: Type.Optional(Type.Tuple([Type.Number(), Type.Number()])),
+          sheetName: Type.Optional(Type.String()),
+          rows: Type.Optional(Type.Tuple([Type.Number(), Type.Number()])),
+          chars: Type.Optional(Type.Tuple([Type.Number(), Type.Number()])),
+        },
+        { additionalProperties: false },
+      ),
+    ),
+  },
+  { additionalProperties: false },
+);
+
 const memoryCaptureEntrySchema = Type.Object(
   {
     text: Type.Optional(Type.String()),
@@ -434,6 +462,7 @@ const memoryCaptureEntrySchema = Type.Object(
         { additionalProperties: false },
       ),
     ),
+    document: Type.Optional(documentMetadataSchema),
   },
   {
     additionalProperties: false,
@@ -1130,6 +1159,86 @@ const memoryPlugin = {
         };
       },
       { name: "memory_capture" },
+    );
+
+    api.registerTool(
+      (ctx) => {
+        const scopeSubject = resolveScopeSubject(ctx);
+        return {
+          name: "memory_ingest_document",
+          label: "Memory Ingest Document",
+          description:
+            "Extract a local document into manifest, summary, chunk, and table memory candidates, " +
+            "then store through memory_capture-compatible memory-ops paths and verify recall.",
+          parameters: Type.Object(
+            {
+              filePath: Type.String(),
+              filename: Type.Optional(Type.String()),
+              mimeType: Type.Optional(Type.String()),
+              title: Type.Optional(Type.String()),
+              mode: Type.Optional(
+                stringEnum([
+                  "manifest_only",
+                  "summary",
+                  "chunks",
+                  "summary_and_chunks",
+                ] as const),
+              ),
+              tags: Type.Optional(Type.Array(Type.String())),
+              sourceMessageIds: Type.Optional(Type.Array(Type.String())),
+              maxCharsPerChunk: Type.Optional(Type.Number({ minimum: 1 })),
+              maxChunks: Type.Optional(Type.Number({ minimum: 1 })),
+              enableOcr: Type.Optional(Type.Boolean()),
+              enableTables: Type.Optional(Type.Boolean()),
+              dryRun: Type.Optional(Type.Boolean()),
+            },
+            { additionalProperties: false },
+          ),
+          async execute(_toolCallId, params) {
+            if (!scopeSubject) {
+              return scopeErrorResult();
+            }
+            await ensureMcpRuntimeDirs();
+            const result = await ingestDocumentToMemory({
+              ...(params as {
+                filePath: string;
+                filename?: string;
+                mimeType?: string;
+                title?: string;
+                mode?: "manifest_only" | "summary" | "chunks" | "summary_and_chunks";
+                tags?: string[];
+                sourceMessageIds?: string[];
+                maxCharsPerChunk?: number;
+                maxChunks?: number;
+                enableOcr?: boolean;
+                enableTables?: boolean;
+                dryRun?: boolean;
+              }),
+              scopeSubject,
+              opsService,
+            }).catch((error) => ({
+              ok: false as const,
+              error: {
+                code: "memory_capture_failed",
+                message: error instanceof Error ? error.message : String(error),
+              },
+              warnings: [],
+            }));
+            return {
+              content: [
+                {
+                  type: "text",
+                  text: result.ok
+                    ? `Document ingest ${result.document.filename}: ${result.document.chunkCount} chunk(s).`
+                    : `Document ingest failed: ${result.error.code}`,
+                },
+              ],
+              details: { scopeSubject, ...result },
+            };
+          },
+        };
+      },
+      { name: "memory_ingest_document" },
     );
 
     api.registerTool(
