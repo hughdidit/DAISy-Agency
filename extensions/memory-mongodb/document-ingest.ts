@@ -24,7 +24,7 @@ import {
   type OcrStatus,
   type OpsServiceLike,
 } from "./document-ingest-types.js";
-import type { MemoryCaptureOutcome } from "./memory-ops-types.js";
+import type { MemoryCaptureCandidate, MemoryCaptureOutcome } from "./memory-ops-types.js";
 export type {
   DocumentExtractionFailure,
   DocumentExtractionResult,

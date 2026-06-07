@@ -138,7 +138,6 @@ export async function extractPdf(buffer: Buffer): Promise<{ text: string; pageCo
   const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
   const loadingTask = pdfjs.getDocument({
     data: new Uint8Array(buffer),
-    disableFontFace: true,
     disableWorker: true,
   });
   const pdf = await loadingTask.promise;
@@ -159,6 +158,14 @@ export async function extractPdf(buffer: Buffer): Promise<{ text: string; pageCo
     }
     return { text: normalizeWhitespace(pages.join("\n\n")), pageCount: pdf.numPages };
   } finally {
-    await pdf.destroy();
+    const closePdf = pdf as {
+      destroy?: () => Promise<void> | void;
+      cleanup?: () => Promise<void> | void;
+    };
+    if (closePdf.destroy) {
+      await closePdf.destroy();
+    } else {
+      await closePdf.cleanup?.();
+    }
   }
 }

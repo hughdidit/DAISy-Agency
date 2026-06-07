@@ -180,6 +180,8 @@ describe("document memory candidate shaping", () => {
           "manifest-id",
         );
         expect(opsService.recallCalls.length).toBeGreaterThan(0);
+        expect("recallVerification" in result).toBe(true);
+        if (!("recallVerification" in result)) throw new Error("expected recall verification");
         expect(result.recallVerification?.pass).toBe(true);
       },
     );
@@ -198,6 +200,8 @@ describe("document memory candidate shaping", () => {
 
         expect(result.ok).toBe(true);
         if (!result.ok) throw new Error("expected ok");
+        expect("recallVerification" in result).toBe(true);
+        if (!("recallVerification" in result)) throw new Error("expected recall verification");
         expect(result.recallVerification?.pass).toBe(false);
         expect(result.recallVerification?.queries[0]?.matchedCreatedIds).toEqual([]);
       },
