@@ -264,7 +264,7 @@
     },
     "overrides": {
       "hono": "4.12.4",
-      "@larksuiteoapi/node-sdk>axios": "1.15.2",
+      "@larksuiteoapi/node-sdk>axios": "1.16.0",
       "@aws-sdk/client-bedrock>@aws-sdk/core": "3.973.19",
       "@aws-sdk/client-bedrock>@aws-sdk/token-providers": "3.1007.0",
       "@aws-sdk/client-bedrock>@aws-sdk/types": "3.973.5",
