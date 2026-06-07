@@ -34,7 +34,7 @@ function uniqueTools(list: string[]) {
 export const TOOL_GROUPS: Record<string, string[]> = {
   ...CORE_TOOL_GROUPS,
   "group:memory": uniqueTools([
-    ...(CORE_TOOL_GROUPS["group:memory"] ?? []),
+    ...((CORE_TOOL_GROUPS as Record<string, string[]>)["group:memory"] ?? []),
     ...MEMORY_PLUGIN_TOOL_NAMES,
   ]),
 };
