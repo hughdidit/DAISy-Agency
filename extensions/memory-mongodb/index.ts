@@ -390,11 +390,11 @@ const documentMetadataSchema = Type.Object(
     sourceRange: Type.Optional(
       Type.Object(
         {
-          pages: Type.Optional(Type.Tuple([Type.Number(), Type.Number()])),
-          slides: Type.Optional(Type.Tuple([Type.Number(), Type.Number()])),
+          pages: Type.Optional(Type.Array(Type.Number(), { minItems: 2, maxItems: 2 })),
+          slides: Type.Optional(Type.Array(Type.Number(), { minItems: 2, maxItems: 2 })),
           sheetName: Type.Optional(Type.String()),
-          rows: Type.Optional(Type.Tuple([Type.Number(), Type.Number()])),
-          chars: Type.Optional(Type.Tuple([Type.Number(), Type.Number()])),
+          rows: Type.Optional(Type.Array(Type.Number(), { minItems: 2, maxItems: 2 })),
+          chars: Type.Optional(Type.Array(Type.Number(), { minItems: 2, maxItems: 2 })),
         },
         { additionalProperties: false },
       ),
