@@ -59,6 +59,34 @@ describe("ocr_extract tool", () => {
     });
   });
 
+  it("distinguishes disabled OCR from unavailable OCR", async () => {
+    await withTempFile("sample.png", Buffer.from([0x89, 0x50, 0x4e, 0x47]), async (filePath) => {
+      const result = await extractOcrFromFile({ filePath, mimeType: "image/png", mode: "off" });
+      expect(result).toMatchObject({
+        ok: false,
+        error: { code: "ocr_disabled" },
+        warnings: [],
+      });
+    });
+  });
+
+  it("recognizes GIF and SVG as OCR-capable image MIME types", async () => {
+    await withTempFile("sample.gif", Buffer.from("GIF89a"), async (filePath) => {
+      const result = await extractOcrFromFile({ filePath });
+      expect(result).toMatchObject({
+        ok: false,
+        error: { code: "ocr_unavailable" },
+      });
+    });
+    await withTempFile("sample.svg", "<svg></svg>", async (filePath) => {
+      const result = await extractOcrFromFile({ filePath });
+      expect(result).toMatchObject({
+        ok: false,
+        error: { code: "ocr_unavailable" },
+      });
+    });
+  });
+
   it("exposes stable JSON through the agent tool", async () => {
     const tool = createOcrExtractTool();
     expect(tool.name).toBe("ocr_extract");

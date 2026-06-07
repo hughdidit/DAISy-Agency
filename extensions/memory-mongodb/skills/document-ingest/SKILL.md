@@ -70,7 +70,7 @@ DOCX ingest:
 }
 ```
 
-OCR-only diagnostic:
+`ocr_extract` OCR-only diagnostic:
 
 ```json
 {

@@ -1,6 +1,7 @@
 // extensions/memory-mongodb/skills/document-ingest/scripts/document-ingest.mjs
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import JSZip from "jszip";
 
@@ -69,12 +70,49 @@ function failure(code, message, warnings = []) {
   return { ok: false, error: { code, message }, warnings };
 }
 
+function resolveUserPath(filePath) {
+  if (filePath === "~") return os.homedir();
+  if (filePath.startsWith("~/") || filePath.startsWith("~\\")) {
+    return path.join(os.homedir(), filePath.slice(2));
+  }
+  return path.resolve(filePath);
+}
+
+function clampPositiveInteger(value, defaultValue, maxValue) {
+  if (!Number.isFinite(value) || value < 1) return defaultValue;
+  return Math.min(Math.floor(value), maxValue);
+}
+
 function normalizeWhitespace(text) {
   return text
     .replace(/\r\n/g, "\n")
     .replace(/[ \t]+\n/g, "\n")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
+}
+
+function splitCsvLine(line) {
+  const cells = [];
+  let cell = "";
+  let inQuotes = false;
+  for (let index = 0; index < line.length; index += 1) {
+    const char = line[index];
+    if (char === '"') {
+      if (inQuotes && line[index + 1] === '"') {
+        cell += '"';
+        index += 1;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (char === "," && !inQuotes) {
+      cells.push(cell.trim());
+      cell = "";
+    } else {
+      cell += char;
+    }
+  }
+  cells.push(cell.trim());
+  return cells;
 }
 
 function safeXmlText(xml) {
@@ -107,6 +145,29 @@ function chunkText(text, maxChars, maxChunks, title) {
   return chunks.filter((chunk) => chunk.text);
 }
 
+function extractSharedStrings(xml) {
+  return Array.from(xml.matchAll(/<si\b[\s\S]*?<\/si>/g), (match) => safeXmlText(match[0]));
+}
+
+function extractWorksheetText(xml, sharedStrings) {
+  const values = [];
+  for (const match of xml.matchAll(/<c\b([^>]*)>([\s\S]*?)<\/c>/g)) {
+    const attrs = match[1] ?? "";
+    const body = match[2] ?? "";
+    const rawValue = /<v>([\s\S]*?)<\/v>/.exec(body)?.[1]?.trim();
+    let value = "";
+    if (/\bt=["']s["']/.test(attrs) && rawValue) {
+      value = sharedStrings[Number.parseInt(rawValue, 10)] ?? "";
+    } else if (/\bt=["']inlineStr["']/.test(attrs)) {
+      value = safeXmlText(body);
+    } else {
+      value = safeXmlText(rawValue ?? body);
+    }
+    if (value) values.push(value);
+  }
+  return values.join(" ");
+}
+
 async function extractOffice(buffer, mimeType) {
   const zip = await JSZip.loadAsync(buffer);
   if (mimeType.includes("wordprocessingml")) {
@@ -118,8 +179,17 @@ async function extractOffice(buffer, mimeType) {
   const files = Object.keys(zip.files).filter(
     (name) => name.startsWith(prefix) && name.endsWith(".xml"),
   );
+  const sharedStringsXml = await zip.file("xl/sharedStrings.xml")?.async("string");
+  const sharedStrings = sharedStringsXml ? extractSharedStrings(sharedStringsXml) : [];
   const parts = await Promise.all(
-    files.sort().map(async (name) => safeXmlText((await zip.file(name)?.async("string")) ?? "")),
+    files.sort().map(async (name, index) => {
+      const xml = (await zip.file(name)?.async("string")) ?? "";
+      if (mimeType.includes("spreadsheetml")) {
+        const text = extractWorksheetText(xml, sharedStrings);
+        return text ? `Sheet ${index + 1}: ${text}` : "";
+      }
+      return safeXmlText(xml);
+    }),
   );
   return normalizeWhitespace(parts.filter(Boolean).join("\n\n"));
 }
@@ -132,23 +202,27 @@ async function extractPdf(buffer) {
     disableWorker: true,
   });
   const pdf = await loadingTask.promise;
-  const pages = [];
-  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
-    const page = await pdf.getPage(pageNumber);
-    const content = await page.getTextContent();
-    const text = content.items
-      .map((item) => (typeof item.str === "string" ? item.str : ""))
-      .filter(Boolean)
-      .join(" ");
-    pages.push(`Page ${pageNumber}: ${text}`);
+  try {
+    const pages = [];
+    for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+      const page = await pdf.getPage(pageNumber);
+      const content = await page.getTextContent();
+      const text = content.items
+        .map((item) => (typeof item.str === "string" ? item.str : ""))
+        .filter(Boolean)
+        .join(" ");
+      if (text.trim()) pages.push(`Page ${pageNumber}: ${text}`);
+    }
+    return { text: normalizeWhitespace(pages.join("\n\n")), pageCount: pdf.numPages };
+  } finally {
+    await pdf.destroy();
   }
-  return { text: normalizeWhitespace(pages.join("\n\n")), pageCount: pdf.numPages };
 }
 
-function parseCsvTables(text) {
+function parseCsvTable(text) {
   const rows = text
     .split(/\r?\n/)
-    .map((line) => line.split(",").map((cell) => cell.trim()))
+    .map(splitCsvLine)
     .filter((row) => row.some(Boolean));
   if (rows.length < 2) return [];
   return [
@@ -167,7 +241,7 @@ function parseCsvTables(text) {
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (!args.filePath) return failure("invalid_argument", "file path required");
-  const resolved = path.resolve(args.filePath);
+  const resolved = resolveUserPath(args.filePath);
   let stat;
   try {
     stat = await fs.stat(resolved);
@@ -198,8 +272,10 @@ async function main() {
   } else {
     return failure("unsupported_mime_type", `Unsupported MIME type: ${mimeType}`);
   }
-  const chunks = chunkText(text, args.maxCharsPerChunk, args.maxChunks, title);
-  const tables = args.tables === "off" || mimeType !== "text/csv" ? [] : parseCsvTables(text);
+  const maxChars = clampPositiveInteger(args.maxCharsPerChunk, 18000, 18000);
+  const maxChunks = clampPositiveInteger(args.maxChunks, 80, 80);
+  const chunks = chunkText(text, maxChars, maxChunks, title);
+  const tables = args.tables === "off" || mimeType !== "text/csv" ? [] : parseCsvTable(text);
   return {
     ok: true,
     document: {

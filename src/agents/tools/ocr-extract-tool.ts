@@ -25,6 +25,7 @@ export type OcrExtractFailure = {
       | "path_is_directory"
       | "unsupported_mime_type"
       | "ocr_unavailable"
+      | "ocr_disabled"
       | "ocr_failed"
       | "invalid_argument";
     message: string;
@@ -42,6 +43,8 @@ const OCR_SUPPORTED_MIME_TYPES = new Set([
   "image/webp",
   "image/tiff",
   "image/bmp",
+  "image/gif",
+  "image/svg+xml",
 ]);
 
 function errorResult(
@@ -92,6 +95,12 @@ function inferMimeType(filePath: string, explicitMimeType?: string): string {
   if (ext === ".bmp") {
     return "image/bmp";
   }
+  if (ext === ".gif") {
+    return "image/gif";
+  }
+  if (ext === ".svg") {
+    return "image/svg+xml";
+  }
   return "application/octet-stream";
 }
 
@@ -121,7 +130,7 @@ export async function extractOcrFromFile(input: {
     return errorResult("unsupported_mime_type", `OCR does not support MIME type: ${mimeType}`);
   }
   if ((input.mode ?? "auto") === "off") {
-    return errorResult("ocr_unavailable", "OCR is disabled for this request.", ["ocr_unavailable"]);
+    return errorResult("ocr_disabled", "OCR is disabled for this request.");
   }
 
   return errorResult(

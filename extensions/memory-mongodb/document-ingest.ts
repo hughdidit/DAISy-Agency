@@ -2,8 +2,14 @@
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
-import JSZip from "jszip";
 import { extractOcrFromFile } from "../../src/agents/tools/ocr-extract-tool.js";
+import { resolveUserPath } from "../../src/utils.js";
+import {
+  extractOffice,
+  extractPdf,
+  normalizeWhitespace,
+  parseCsvTable,
+} from "./document-ingest-extractors.js";
 import {
   DEFAULT_MAX_CHARS_PER_CHUNK,
   DEFAULT_MAX_CHUNKS,
@@ -15,10 +21,10 @@ import {
   type DocumentExtractionSuccess,
   type DocumentIngestChunk,
   type DocumentIngestMode,
-  type DocumentIngestTable,
   type OcrStatus,
   type OpsServiceLike,
 } from "./document-ingest-types.js";
+import type { MemoryCaptureOutcome } from "./memory-ops-types.js";
 export type {
   DocumentExtractionFailure,
   DocumentExtractionResult,
@@ -37,23 +43,17 @@ function failure(
 function normalizeMime(filePath: string, mimeType?: string): string {
   return mimeType?.trim().toLowerCase() || MIME_BY_EXT[path.extname(filePath).toLowerCase()] || "";
 }
-function normalizeWhitespace(text: string): string {
-  return text
-    .replace(/\r\n/g, "\n")
-    .replace(/[ \t]+\n/g, "\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
+function clampPositiveInteger(value: number | undefined, defaultValue: number, maxValue: number) {
+  if (value === undefined || !Number.isFinite(value) || value < 1) {
+    return defaultValue;
+  }
+  return Math.min(Math.floor(value), maxValue);
 }
-function safeXmlText(xml: string): string {
-  return xml
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&apos;/g, "'")
-    .replace(/\s+/g, " ")
-    .trim();
+function truncateCodePoints(text: string | undefined, maxLength: number): string | undefined {
+  if (!text) {
+    return undefined;
+  }
+  return Array.from(text).slice(0, maxLength).join("");
 }
 function chunkText(text: string, maxChars: number, maxChunks: number, title: string) {
   const chunks: DocumentIngestChunk[] = [];
@@ -76,88 +76,6 @@ function chunkText(text: string, maxChars: number, maxChunks: number, title: str
   }
   return chunks.filter((chunk) => chunk.text.length > 0);
 }
-function parseCsvTable(text: string): DocumentIngestTable[] {
-  const rows = text
-    .split(/\r?\n/)
-    .map((line) => line.split(",").map((cell) => cell.trim()))
-    .filter((row) => row.some(Boolean));
-  if (rows.length < 2) {
-    return [];
-  }
-  const headers = rows[0] ?? [];
-  return [
-    {
-      tableId: "table-0001",
-      index: 0,
-      source: "csv",
-      rowStart: 1,
-      rowEnd: rows.length,
-      headers,
-      text: rows.map((row) => row.join(" | ")).join("\n"),
-    },
-  ];
-}
-async function extractOffice(buffer: Buffer, mimeType: string) {
-  const zip = await JSZip.loadAsync(buffer);
-  if (mimeType.includes("wordprocessingml")) {
-    const xml = await zip.file("word/document.xml")?.async("string");
-    return { text: normalizeWhitespace(safeXmlText(xml ?? "")), slideCount: 0, sheetCount: 0 };
-  }
-  if (mimeType.includes("presentationml")) {
-    const slideFiles = Object.keys(zip.files).filter((name) =>
-      /^ppt\/slides\/slide\d+\.xml$/.test(name),
-    );
-    const slides = await Promise.all(
-      slideFiles.sort().map(async (name, index) => {
-        const text = safeXmlText((await zip.file(name)?.async("string")) ?? "");
-        return text ? `Slide ${index + 1}: ${text}` : "";
-      }),
-    );
-    return {
-      text: normalizeWhitespace(slides.filter(Boolean).join("\n\n")),
-      slideCount: slideFiles.length,
-      sheetCount: 0,
-    };
-  }
-  const sheetFiles = Object.keys(zip.files).filter((name) =>
-    /^xl\/worksheets\/sheet\d+\.xml$/.test(name),
-  );
-  const sheets = await Promise.all(
-    sheetFiles
-      .sort()
-      .map(
-        async (name, index) =>
-          `Sheet ${index + 1}: ${safeXmlText((await zip.file(name)?.async("string")) ?? "")}`,
-      ),
-  );
-  return {
-    text: normalizeWhitespace(sheets.join("\n\n")),
-    slideCount: 0,
-    sheetCount: sheetFiles.length,
-  };
-}
-async function extractPdf(buffer: Buffer): Promise<{ text: string; pageCount: number }> {
-  const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
-  const loadingTask = pdfjs.getDocument({
-    data: new Uint8Array(buffer),
-    disableFontFace: true,
-    disableWorker: true,
-  });
-  const pdf = await loadingTask.promise;
-  const pages: string[] = [];
-  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
-    const page = await pdf.getPage(pageNumber);
-    const content = await page.getTextContent();
-    const text = content.items
-      .map((item: unknown) =>
-        typeof (item as { str?: unknown }).str === "string" ? (item as { str: string }).str : "",
-      )
-      .filter(Boolean)
-      .join(" ");
-    pages.push(`Page ${pageNumber}: ${text}`);
-  }
-  return { text: normalizeWhitespace(pages.join("\n\n")), pageCount: pdf.numPages };
-}
 export async function extractDocumentFile(input: {
   filePath: string;
   filename?: string;
@@ -168,7 +86,9 @@ export async function extractDocumentFile(input: {
   enableOcr?: boolean;
   enableTables?: boolean;
 }): Promise<DocumentExtractionResult> {
-  const resolved = path.resolve(input.filePath);
+  const resolved = input.filePath.startsWith("~")
+    ? resolveUserPath(input.filePath)
+    : path.resolve(input.filePath);
   let stat;
   try {
     stat = await fs.stat(resolved);
@@ -223,8 +143,12 @@ export async function extractDocumentFile(input: {
     const code = mimeType === "application/pdf" ? "pdf_parse_failed" : "office_parse_failed";
     return failure(code, error instanceof Error ? error.message : String(error), warnings);
   }
-  const maxChars = Math.max(1, input.maxCharsPerChunk ?? DEFAULT_MAX_CHARS_PER_CHUNK);
-  const maxChunks = Math.max(1, input.maxChunks ?? DEFAULT_MAX_CHUNKS);
+  const maxChars = clampPositiveInteger(
+    input.maxCharsPerChunk,
+    DEFAULT_MAX_CHARS_PER_CHUNK,
+    DEFAULT_MAX_CHARS_PER_CHUNK,
+  );
+  const maxChunks = clampPositiveInteger(input.maxChunks, DEFAULT_MAX_CHUNKS, DEFAULT_MAX_CHUNKS);
   const chunks = chunkText(text, maxChars, maxChunks, title);
   const tables = input.enableTables === false || mimeType !== "text/csv" ? [] : parseCsvTable(text);
   return {
@@ -301,7 +225,7 @@ export function buildDocumentMemoryCandidates(
   const mode = options.mode ?? "summary_and_chunks";
   const children: MemoryCaptureCandidate[] = [];
   if (mode === "summary" || mode === "summary_and_chunks") {
-    const text = extraction.chunks[0]?.text.slice(0, 900) ?? extraction.document.title;
+    const text = truncateCodePoints(extraction.chunks[0]?.text, 900) ?? extraction.document.title;
     children.push({
       text: `Document summary: ${extraction.document.title}. ${text}`,
       kind: "fact",
@@ -382,7 +306,15 @@ export async function ingestDocumentToMemory(input: {
     source: "memory_ingest_document",
     entries: [candidates.manifest],
   });
-  const parentMemoryId = resolveParentId(manifestCapture.outcomes[0]);
+  const manifestOutcome = manifestCapture.outcomes[0];
+  const parentMemoryId = resolveParentId(manifestOutcome);
+  if (!parentMemoryId) {
+    return failure(
+      "memory_capture_failed",
+      `Manifest capture failed with status: ${manifestOutcome?.status ?? "unknown"}.`,
+      extraction.warnings,
+    );
+  }
   const childEntries = candidates.children.map((entry) => ({
     ...entry,
     document: { ...(entry.document ?? {}), parentMemoryId },
@@ -399,8 +331,9 @@ export async function ingestDocumentToMemory(input: {
     .filter((id): id is string => typeof id === "string");
   const queries = [
     extraction.document.title,
-    extraction.document.sha256.slice(0, 12),
-    extraction.chunks[0]?.text.slice(0, 80),
+    truncateCodePoints(extraction.document.sha256, 12),
+    truncateCodePoints(extraction.chunks[0]?.text, 80),
+    truncateCodePoints(extraction.tables[0]?.text, 80),
   ].filter((query): query is string => Boolean(query?.trim()));
   const verificationQueries = [];
   for (const query of queries) {
@@ -412,12 +345,14 @@ export async function ingestDocumentToMemory(input: {
       minScore: 0,
       filters: { includeMetadata: true },
     });
+    const matchedIds = recall.memories
+      .map((memory) => memory.id)
+      .filter((id): id is string => typeof id === "string");
     verificationQueries.push({
       query,
       hitCount: recall.count,
-      matchedIds: recall.memories
-        .map((memory) => memory.id)
-        .filter((id): id is string => typeof id === "string"),
+      matchedIds,
+      matchedCreatedIds: matchedIds.filter((id) => ids.includes(id)),
     });
   }
   return {
@@ -427,7 +362,7 @@ export async function ingestDocumentToMemory(input: {
       (outcome) => outcome.status === "duplicate",
     ),
     recallVerification: {
-      pass: verificationQueries.some((query) => query.hitCount > 0),
+      pass: verificationQueries.some((query) => query.matchedCreatedIds.length > 0),
       queries: verificationQueries,
     },
   };
