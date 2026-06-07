@@ -42,6 +42,20 @@ function memoryInsertCalls() {
   return mcpClientMocks.insertMany.mock.calls.filter((call) => call[1] === "memories");
 }
 
+function hasTupleStyleItems(schema: unknown): boolean {
+  if (!schema || typeof schema !== "object") {
+    return false;
+  }
+  if (Array.isArray(schema)) {
+    return schema.some((item) => hasTupleStyleItems(item));
+  }
+  const record = schema as Record<string, unknown>;
+  if (Array.isArray(record.items)) {
+    return true;
+  }
+  return Object.values(record).some((value) => hasTupleStyleItems(value));
+}
+
 function registerMemoryPluginForTest(memoryPlugin: any, registeredTools: Map<string, any>) {
   memoryPlugin.register({
     pluginConfig: {
@@ -442,6 +456,7 @@ describe("memory-mongodb plugin", () => {
     expect(memoryRecallXProps).toContain("includeMetadata");
 
     const memoryCapture = registeredTools.get("memory_capture");
+    expect(hasTupleStyleItems(memoryCapture.parameters)).toBe(false);
     const captureResult = await memoryCapture.execute("tc_capture", {
       entries: [
         {
@@ -474,6 +489,7 @@ describe("memory-mongodb plugin", () => {
             documentSha256: "a".repeat(64),
             byteLength: 12,
             chunkId: "doc-manifest",
+            sourceRange: { chars: [0, 12] },
           },
         },
       ],
@@ -484,6 +500,7 @@ describe("memory-mongodb plugin", () => {
       title: "Test document",
       filename: "test.txt",
       chunkId: "doc-manifest",
+      sourceRange: { chars: [0, 12] },
     });
 
     const memoryHygiene = registeredTools.get("memory_hygiene");
