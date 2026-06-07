@@ -14,6 +14,7 @@ import { createImageGenerateTool } from "./tools/image-generate-tool.js";
 import { createImageTool } from "./tools/image-tool.js";
 import { createMessageTool } from "./tools/message-tool.js";
 import { createNodesTool } from "./tools/nodes-tool.js";
+import { createOcrExtractTool } from "./tools/ocr-extract-tool.js";
 import { createOpenClawDoctorRepairTool } from "./tools/openclaw-doctor-repair-tool.js";
 import { createPdfTool } from "./tools/pdf-tool.js";
 import { createSessionStatusTool } from "./tools/session-status-tool.js";
@@ -169,6 +170,7 @@ export function createOpenClawTools(options?: {
       currentThreadTs: options?.currentThreadTs,
       config: options?.config,
     }),
+    createOcrExtractTool(),
     createAgentsListTool({
       agentSessionKey: options?.agentSessionKey,
       requesterAgentIdOverride: options?.requesterAgentIdOverride,

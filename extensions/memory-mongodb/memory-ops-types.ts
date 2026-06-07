@@ -100,6 +100,26 @@ export type MemoryOpsMetadata = {
       finalPrecedence: number;
     }>;
   };
+  document?: MemoryDocumentMetadata;
+};
+
+export type MemoryDocumentMetadata = {
+  title?: string;
+  filename?: string;
+  mimeType?: string;
+  sha256?: string;
+  documentSha256?: string;
+  byteLength?: number;
+  pageCount?: number;
+  chunkId?: string;
+  parentMemoryId?: string;
+  sourceRange?: {
+    pages?: [number, number];
+    slides?: [number, number];
+    sheetName?: string;
+    rows?: [number, number];
+    chars?: [number, number];
+  };
 };
 
 export type MemoryCaptureCandidate = {
@@ -129,6 +149,7 @@ export type MemoryCaptureCandidate = {
     key: string;
     value: string;
   };
+  document?: MemoryDocumentMetadata;
 };
 
 export type MemoryCaptureOutcomeStatus =

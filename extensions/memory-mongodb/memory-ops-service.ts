@@ -902,6 +902,7 @@ export class MemoryOpsService {
       attachments: combinedAttachments,
       preference: input.candidate.preference,
       supersedesId: input.candidate.supersedesId,
+      document: input.candidate.document,
       contentHash,
     };
 

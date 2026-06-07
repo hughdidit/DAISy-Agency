@@ -419,6 +419,7 @@ describe("memory-mongodb plugin", () => {
       "preference_miner",
       "memory_audit",
       "memory_recallx",
+      "memory_ingest_document",
     ];
     for (const name of required) {
       expect(registeredTools.has(name)).toBe(true);
@@ -456,6 +457,34 @@ describe("memory-mongodb plugin", () => {
       ],
     });
     expect(Array.isArray(captureResult.details?.outcomes)).toBe(true);
+
+    const documentCaptureResult = await memoryCapture.execute("tc_document_capture", {
+      entries: [
+        {
+          text: "Document ingested: Test document.",
+          kind: "fact",
+          importance: 0.8,
+          confidence: 0.95,
+          category: "fact",
+          document: {
+            title: "Test document",
+            filename: "test.txt",
+            mimeType: "text/plain",
+            sha256: "a".repeat(64),
+            documentSha256: "a".repeat(64),
+            byteLength: 12,
+            chunkId: "doc-manifest",
+          },
+        },
+      ],
+    });
+    expect(documentCaptureResult.details?.outcomes?.[0]?.status).toBe("created");
+    const inserted = memoryInsertCalls().at(-1)?.[2]?.[0] as Record<string, any>;
+    expect(inserted.metadata?.ops?.document).toMatchObject({
+      title: "Test document",
+      filename: "test.txt",
+      chunkId: "doc-manifest",
+    });
 
     const memoryHygiene = registeredTools.get("memory_hygiene");
     const hygieneResult = await memoryHygiene.execute("tc_hygiene", {

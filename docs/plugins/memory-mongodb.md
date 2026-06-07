@@ -426,6 +426,106 @@ Phased extraction behavior:
 - PDF and media-compatible formats keep inline multimodal embedding paths
 - heavier office formats use deterministic deferred-text embedding fallbacks plus durable manifest metadata
 
+## Document Ingestion Skill and Tool
+
+The `memory-mongodb` plugin ships a `document-ingest` skill and
+`memory_ingest_document` tool for converting supported local documents into
+durable structured memory. This is the preferred path for PDFs and other
+documents because it extracts first, shapes memory second, captures through
+existing memory-ops primitives third, and verifies recall last.
+
+The ingestion flow is:
+
+1. Extract text locally with deterministic parsers.
+2. Use OCR only when requested/needed and available.
+3. Chunk by document structure where possible.
+4. Build document manifest, summary, chunk, and table candidates.
+5. Store through the same `MemoryOpsService.capture` path used by
+   `memory_capture`.
+6. Verify recall through the same `MemoryOpsService.recall` path used by
+   `memory_recallx`.
+
+Do not store raw PDF, Office, image, or full-document inline payloads directly
+as durable memory. Extract first, summarize or structure second, capture third,
+verify recall last.
+
+Supported v1 inputs:
+
+- PDF: `application/pdf`
+- text-like documents: TXT, Markdown, CSV, JSON, XML, HTML, RTF, TOML, and
+  common code/text MIME types already accepted by the memory payload chunker
+- Office Open XML: DOCX, XLSX, PPTX
+
+`memory_ingest_document` accepts:
+
+```json
+{
+  "filePath": "/path/to/file.pdf",
+  "filename": "optional-display-name.pdf",
+  "mimeType": "application/pdf",
+  "title": "Optional document title",
+  "mode": "summary_and_chunks",
+  "tags": ["source-tag"],
+  "sourceMessageIds": ["optional-message-id"],
+  "maxCharsPerChunk": 18000,
+  "maxChunks": 80,
+  "enableOcr": true,
+  "enableTables": true,
+  "dryRun": false
+}
+```
+
+Defaults are `mode: "summary_and_chunks"`, `maxCharsPerChunk: 18000`,
+`maxChunks: 80`, `enableOcr: true`, `enableTables: true`, and
+`dryRun: false`.
+
+Dry runs return extraction details and memory candidates without calling
+capture. Live runs capture the manifest first, resolve the manifest memory ID
+or duplicate ID, then capture child summary/chunk/table memories with
+`metadata.ops.document.parentMemoryId` when available.
+
+Document metadata is additive and does not require a MongoDB migration. It is
+stored under `metadata.ops.document` with fields such as title, filename, MIME
+type, SHA-256 hash, byte length, page count, chunk ID, parent memory ID, and
+source range.
+
+### OCR Support
+
+OCR is exposed as the reusable built-in `ocr_extract` tool so other skills can
+use the same capability. The document ingest path uses OCR only when
+`enableOcr` is true and no usable PDF text layer is available. OCR is optional:
+when no local OCR engine is configured, the tool returns `ocr_unavailable`
+rather than making OCR a required dependency.
+
+### Tables
+
+CSV and spreadsheet-like documents produce best-effort table summaries. XLSX
+extraction is text-oriented in v1, while CSV includes header and row-range
+metadata. PDF table extraction remains best-effort and should be treated as text
+flow unless a later specialized parser is added.
+
+### Troubleshooting and Limitations
+
+- `missing_file`: the local path could not be resolved.
+- `path_is_directory`: the path is a directory, not a document.
+- `unsupported_mime_type`: export or convert the document to a supported local
+  format first.
+- `pdf_no_extractable_text`: enable OCR or provide a text-bearing PDF.
+- `ocr_unavailable`: configure a local OCR engine before relying on scanned
+  document ingest.
+- `memory_capture_failed`: capture did not complete through memory-ops.
+- `recall_verification_failed`: capture may have occurred, but verification did
+  not prove recallability.
+
+Known limitations:
+
+- OCR quality depends on the local OCR engine and source image quality.
+- PDF table reconstruction is not layout-perfect.
+- Office extraction is text-oriented and does not extract embedded objects.
+- Large documents are capped by chunk limits.
+- Original binary files are not persisted by this feature.
+- BLOCKED: No stable file-action UI extension point identified in this pass.
+
 ## CLI
 
 ```bash
