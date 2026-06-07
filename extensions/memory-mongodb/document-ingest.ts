@@ -4,116 +4,45 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import JSZip from "jszip";
 import { extractOcrFromFile } from "../../src/agents/tools/ocr-extract-tool.js";
-import type { MemoryCaptureCandidate, MemoryCaptureOutcome } from "./memory-ops-types.js";
-type DocumentIngestMode = "manifest_only" | "summary" | "chunks" | "summary_and_chunks";
-type OcrStatus = "not_needed" | "unavailable" | "failed" | "used";
-type TableStatus = "not_needed" | "ok";
-export type DocumentIngestChunk = {
-  chunkId: string;
-  index: number;
-  kind: "text" | "table";
-  title: string;
-  pageStart?: number;
-  pageEnd?: number;
-  slideStart?: number;
-  slideEnd?: number;
-  sheetName?: string;
-  charStart: number;
-  charEnd: number;
-  text: string;
-};
-export type DocumentIngestTable = {
-  tableId: string;
-  index: number;
-  source: string;
-  page?: number;
-  sheetName?: string;
-  rowStart?: number;
-  rowEnd?: number;
-  headers: string[];
-  text: string;
-};
-export type DocumentExtractionSuccess = {
-  ok: true;
-  document: {
-    title: string;
-    filename: string;
-    path: string;
-    mimeType: string;
-    sha256: string;
-    byteLength: number;
-    pageCount: number;
-    slideCount: number;
-    sheetCount: number;
-    extractionStatus: "ok";
-    ocrStatus: OcrStatus;
-    tableExtractionStatus: TableStatus;
-    extractedCharCount: number;
-    chunkCount: number;
-  };
-  chunks: DocumentIngestChunk[];
-  tables: DocumentIngestTable[];
-  warnings: string[];
-};
-export type DocumentExtractionFailure = {
-  ok: false;
-  error: { code: string; message: string };
-  warnings: string[];
-};
-export type DocumentExtractionResult = DocumentExtractionSuccess | DocumentExtractionFailure;
-type OpsServiceLike = {
-  capture(input: {
-    scopeSubject: string;
-    entries: MemoryCaptureCandidate[];
-    source: string;
-    dedupeThreshold?: number;
-  }): Promise<{ outcomes: MemoryCaptureOutcome[] }>;
-  recall(input: {
-    query: string;
-    scopeSubject: string;
-    limit?: number;
-    maxLimit?: number;
-    minScore?: number;
-    filters?: { includeMetadata?: boolean };
-  }): Promise<{ count: number; noResult: boolean; memories: Array<Record<string, unknown>> }>;
-};
-const DEFAULT_MAX_CHARS_PER_CHUNK = 18_000, DEFAULT_MAX_CHUNKS = 80;
-const DEFAULT_MAX_FILE_BYTES = 50 * 1024 * 1024;
-const MIME_BY_EXT: Record<string, string> = {
-  ".csv": "text/csv",
-  ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  ".html": "text/html",
-  ".json": "application/json",
-  ".md": "text/markdown",
-  ".pdf": "application/pdf",
-  ".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-  ".txt": "text/plain",
-  ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  ".xml": "application/xml",
-};
-const TEXT_MIME_TYPES = new Set([
-  "text/plain",
-  "text/markdown",
-  "text/csv",
-  "application/json",
-  "application/ld+json",
-  "application/x-ndjson",
-  "application/xml",
-  "text/xml",
-  "text/html",
-  "application/rtf",
-  "text/rtf",
-  "application/toml",
-  "text/x-toml",
-]);
-function failure(code: string, message: string, warnings: string[] = []): DocumentExtractionFailure {
+import {
+  DEFAULT_MAX_CHARS_PER_CHUNK,
+  DEFAULT_MAX_CHUNKS,
+  DEFAULT_MAX_FILE_BYTES,
+  MIME_BY_EXT,
+  TEXT_MIME_TYPES,
+  type DocumentExtractionFailure,
+  type DocumentExtractionResult,
+  type DocumentExtractionSuccess,
+  type DocumentIngestChunk,
+  type DocumentIngestMode,
+  type DocumentIngestTable,
+  type OcrStatus,
+  type OpsServiceLike,
+} from "./document-ingest-types.js";
+export type {
+  DocumentExtractionFailure,
+  DocumentExtractionResult,
+  DocumentExtractionSuccess,
+  DocumentIngestChunk,
+  DocumentIngestMode,
+  DocumentIngestTable,
+} from "./document-ingest-types.js";
+function failure(
+  code: string,
+  message: string,
+  warnings: string[] = [],
+): DocumentExtractionFailure {
   return { ok: false, error: { code, message }, warnings };
 }
 function normalizeMime(filePath: string, mimeType?: string): string {
   return mimeType?.trim().toLowerCase() || MIME_BY_EXT[path.extname(filePath).toLowerCase()] || "";
 }
 function normalizeWhitespace(text: string): string {
-  return text.replace(/\r\n/g, "\n").replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+  return text
+    .replace(/\r\n/g, "\n")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 function safeXmlText(xml: string): string {
   return xml
@@ -201,7 +130,11 @@ async function extractOffice(buffer: Buffer, mimeType: string) {
           `Sheet ${index + 1}: ${safeXmlText((await zip.file(name)?.async("string")) ?? "")}`,
       ),
   );
-  return { text: normalizeWhitespace(sheets.join("\n\n")), slideCount: 0, sheetCount: sheetFiles.length };
+  return {
+    text: normalizeWhitespace(sheets.join("\n\n")),
+    slideCount: 0,
+    sheetCount: sheetFiles.length,
+  };
 }
 async function extractPdf(buffer: Buffer): Promise<{ text: string; pageCount: number }> {
   const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
@@ -217,9 +150,7 @@ async function extractPdf(buffer: Buffer): Promise<{ text: string; pageCount: nu
     const content = await page.getTextContent();
     const text = content.items
       .map((item: unknown) =>
-        typeof (item as { str?: unknown }).str === "string"
-          ? (item as { str: string }).str
-          : "",
+        typeof (item as { str?: unknown }).str === "string" ? (item as { str: string }).str : "",
       )
       .filter(Boolean)
       .join(" ");
@@ -278,7 +209,8 @@ export async function extractDocumentFile(input: {
           warnings.push(ocr.error.code);
         }
       }
-      if (!text) return failure("pdf_no_extractable_text", "PDF has no extractable text.", warnings);
+      if (!text)
+        return failure("pdf_no_extractable_text", "PDF has no extractable text.", warnings);
     } else if (mimeType.includes("officedocument")) {
       const office = await extractOffice(buffer, mimeType);
       text = office.text;
@@ -319,7 +251,10 @@ export async function extractDocumentFile(input: {
   };
 }
 function mimeTag(mimeType: string): string {
-  return mimeType.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase();
+  return mimeType
+    .replace(/[^a-z0-9]+/gi, "-")
+    .replace(/^-|-$/g, "")
+    .toLowerCase();
 }
 function documentMetadata(doc: DocumentExtractionSuccess["document"], chunkId: string) {
   return {
@@ -466,8 +401,7 @@ export async function ingestDocumentToMemory(input: {
     extraction.document.title,
     extraction.document.sha256.slice(0, 12),
     extraction.chunks[0]?.text.slice(0, 80),
-  ]
-    .filter((query): query is string => Boolean(query?.trim()));
+  ].filter((query): query is string => Boolean(query?.trim()));
   const verificationQueries = [];
   for (const query of queries) {
     const recall = await input.opsService.recall({

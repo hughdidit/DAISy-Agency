@@ -114,9 +114,7 @@ describe("document memory candidate shaping", () => {
         if (!result.ok) throw new Error("expected ok");
         expect(capture).toHaveBeenCalledTimes(2);
         expect(capture.mock.calls[0]?.[0].entries).toHaveLength(1);
-        expect(capture.mock.calls[1]?.[0].entries[0].document.parentMemoryId).toBe(
-          "manifest-id",
-        );
+        expect(capture.mock.calls[1]?.[0].entries[0].document.parentMemoryId).toBe("manifest-id");
         expect(recall).toHaveBeenCalled();
         expect(result.recallVerification?.pass).toBe(true);
       },

@@ -19,10 +19,10 @@ import {
   memoryConfigSchema,
   vectorDimsForModel,
 } from "./config.js";
+import { ingestDocumentToMemory } from "./document-ingest.js";
 import { GeminiService } from "./gemini-service.js";
 import { McpClientService } from "./mcp-client-service.js";
 import { MemoryAutonomyService } from "./memory-autonomy-service.js";
-import { ingestDocumentToMemory } from "./document-ingest.js";
 import { MemoryOpsService, resolveScopeSubjectFromContext } from "./memory-ops-service.js";
 import {
   MEMORY_OPS_KINDS,
@@ -1177,12 +1177,7 @@ const memoryPlugin = {
               mimeType: Type.Optional(Type.String()),
               title: Type.Optional(Type.String()),
               mode: Type.Optional(
-                stringEnum([
-                  "manifest_only",
-                  "summary",
-                  "chunks",
-                  "summary_and_chunks",
-                ] as const),
+                stringEnum(["manifest_only", "summary", "chunks", "summary_and_chunks"] as const),
               ),
               tags: Type.Optional(Type.Array(Type.String())),
               sourceMessageIds: Type.Optional(Type.Array(Type.String())),

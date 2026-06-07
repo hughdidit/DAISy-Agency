@@ -121,9 +121,7 @@ export async function extractOcrFromFile(input: {
     return errorResult("unsupported_mime_type", `OCR does not support MIME type: ${mimeType}`);
   }
   if ((input.mode ?? "auto") === "off") {
-    return errorResult("ocr_unavailable", "OCR is disabled for this request.", [
-      "ocr_unavailable",
-    ]);
+    return errorResult("ocr_unavailable", "OCR is disabled for this request.", ["ocr_unavailable"]);
   }
 
   return errorResult(

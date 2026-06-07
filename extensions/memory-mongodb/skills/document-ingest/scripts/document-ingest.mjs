@@ -70,7 +70,11 @@ function failure(code, message, warnings = []) {
 }
 
 function normalizeWhitespace(text) {
-  return text.replace(/\r\n/g, "\n").replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+  return text
+    .replace(/\r\n/g, "\n")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 function safeXmlText(xml) {
@@ -106,11 +110,17 @@ function chunkText(text, maxChars, maxChunks, title) {
 async function extractOffice(buffer, mimeType) {
   const zip = await JSZip.loadAsync(buffer);
   if (mimeType.includes("wordprocessingml")) {
-    return normalizeWhitespace(safeXmlText((await zip.file("word/document.xml")?.async("string")) ?? ""));
+    return normalizeWhitespace(
+      safeXmlText((await zip.file("word/document.xml")?.async("string")) ?? ""),
+    );
   }
   const prefix = mimeType.includes("presentationml") ? "ppt/slides/" : "xl/worksheets/";
-  const files = Object.keys(zip.files).filter((name) => name.startsWith(prefix) && name.endsWith(".xml"));
-  const parts = await Promise.all(files.sort().map(async (name) => safeXmlText((await zip.file(name)?.async("string")) ?? "")));
+  const files = Object.keys(zip.files).filter(
+    (name) => name.startsWith(prefix) && name.endsWith(".xml"),
+  );
+  const parts = await Promise.all(
+    files.sort().map(async (name) => safeXmlText((await zip.file(name)?.async("string")) ?? "")),
+  );
   return normalizeWhitespace(parts.filter(Boolean).join("\n\n"));
 }
 
@@ -141,15 +151,17 @@ function parseCsvTables(text) {
     .map((line) => line.split(",").map((cell) => cell.trim()))
     .filter((row) => row.some(Boolean));
   if (rows.length < 2) return [];
-  return [{
-    tableId: "table-0001",
-    index: 0,
-    source: "csv",
-    rowStart: 1,
-    rowEnd: rows.length,
-    headers: rows[0] ?? [],
-    text: rows.map((row) => row.join(" | ")).join("\n"),
-  }];
+  return [
+    {
+      tableId: "table-0001",
+      index: 0,
+      source: "csv",
+      rowStart: 1,
+      rowEnd: rows.length,
+      headers: rows[0] ?? [],
+      text: rows.map((row) => row.join(" | ")).join("\n"),
+    },
+  ];
 }
 
 async function main() {
@@ -162,7 +174,8 @@ async function main() {
   } catch {
     return failure("missing_file", `File not found: ${args.filePath}`);
   }
-  if (stat.isDirectory()) return failure("path_is_directory", `Path is a directory: ${args.filePath}`);
+  if (stat.isDirectory())
+    return failure("path_is_directory", `Path is a directory: ${args.filePath}`);
   const buffer = await fs.readFile(resolved);
   const mimeType = args.mimeType || MIME_BY_EXT[path.extname(resolved).toLowerCase()] || "";
   const filename = path.basename(resolved);
