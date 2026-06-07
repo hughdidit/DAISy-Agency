@@ -53,10 +53,33 @@ describe("tool-policy", () => {
     expect(set.has("edit")).toBe(true);
   });
 
+  it("expands memory group to memory plugin operations", () => {
+    const expanded = expandToolGroups(["group:memory"]);
+    expect(expanded).toEqual(
+      expect.arrayContaining([
+        "memory_search",
+        "memory_get",
+        "memory_recall",
+        "memory_recallx",
+        "memory_store",
+        "memory_forget",
+        "memory_capture",
+        "memory_ingest_document",
+        "memory_hygiene",
+        "commitment_tracker",
+        "preference_miner",
+        "memory_audit",
+      ]),
+    );
+  });
+
   it("resolves known profiles and ignores unknown ones", () => {
     const coding = resolveToolProfilePolicy("coding");
     expect(coding?.allow).toContain("read");
     expect(coding?.allow).toContain("cron");
+    expect(coding?.allow).toContain("group:memory");
+    expect(coding?.allow).not.toContain("memory_search");
+    expect(coding?.allow).not.toContain("memory_get");
     expect(coding?.allow).not.toContain("gateway");
     expect(resolveToolProfilePolicy("nope")).toBeUndefined();
   });
