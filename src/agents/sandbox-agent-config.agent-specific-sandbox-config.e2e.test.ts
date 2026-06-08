@@ -405,7 +405,8 @@ describe("Agent-specific sandbox config", () => {
     for (const scenario of [
       {
         cfg: createDefaultsSandboxConfig(),
-        expected: ["session_status", "image"],
+        expected: ["session_status", "image", "memory_ingest_document"],
+        unexpected: ["memory_forget", "memory_hygiene", "memory_audit"],
       },
       {
         cfg: {
@@ -427,11 +428,15 @@ describe("Agent-specific sandbox config", () => {
           },
         } satisfies OpenClawConfig,
         expected: ["image"],
+        unexpected: [],
       },
     ]) {
       const sandbox = resolveSandboxConfigForAgent(scenario.cfg, "main");
       for (const tool of scenario.expected) {
         expect(sandbox.tools.allow).toContain(tool);
+      }
+      for (const tool of scenario.unexpected) {
+        expect(sandbox.tools.allow).not.toContain(tool);
       }
     }
   });
