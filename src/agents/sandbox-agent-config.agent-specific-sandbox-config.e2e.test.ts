@@ -405,7 +405,7 @@ describe("Agent-specific sandbox config", () => {
     for (const scenario of [
       {
         cfg: createDefaultsSandboxConfig(),
-        expected: ["session_status", "image"],
+        expected: ["session_status", "image", "memory_ingest_document"],
       },
       {
         cfg: {
