@@ -164,12 +164,14 @@ memory tools partially registered but disconnected.
 | `plugins.entries.memory-mongodb.enabled: true` | Whether the plugin is loaded                    | Plugin is not loaded; memory slot falls back to `memory-core`                                                                                       |
 | `agents.defaults.memorySearch.enabled: false`  | Whether the built-in `MemoryIndexManager` runs  | Built-in system tries to index `MEMORY.md` and `memory/` from the workspace directory, producing sandbox/ENOENT errors in containerized deployments |
 
-Sandboxed agents allow `group:memory` by default. When `memory-mongodb` is the
-active memory slot, that group includes the MongoDB memory operations such as
-`memory_recallx`, `memory_capture`, and `memory_ingest_document`. If an
-operator replaces `tools.sandbox.tools.allow` or
-`agents.list[].tools.sandbox.tools.allow`, the replacement must include either
-`group:memory` or the specific memory tools the sandboxed agent should use.
+Sandboxed agents allow the memory tools needed for recall, capture, and
+document ingest by default, including `memory_recallx`, `memory_capture`, and
+`memory_ingest_document`. They do not default-allow administrative memory tools
+such as `memory_forget`, `memory_hygiene`, or `memory_audit`. If an operator
+replaces `tools.sandbox.tools.allow` or
+`agents.list[].tools.sandbox.tools.allow`, the replacement must include the
+specific memory tools the sandboxed agent should use. Use `group:memory` only
+when the sandboxed agent should receive the full active memory tool group.
 
 > **Note:** The `memory-lancedb` extension has the same requirement — any
 > third-party memory plugin that replaces the built-in system must also set

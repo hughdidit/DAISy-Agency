@@ -23,7 +23,12 @@ export const DEFAULT_TOOL_ALLOW = [
   "sessions_spawn",
   "subagents",
   "session_status",
-  "group:memory",
+  "memory_search",
+  "memory_get",
+  "memory_recall",
+  "memory_recallx",
+  "memory_capture",
+  "memory_ingest_document",
 ] as const;
 
 // Provider docking: keep sandbox policy aligned with provider tool names.
