@@ -70,9 +70,10 @@ export function resolveToolProfilePolicy(profile?: string): ToolProfilePolicy | 
   if (profile !== "coding" || !policy?.allow) {
     return policy;
   }
-  const allow = policy.allow.filter(
-    (toolName) => toolName !== "memory_search" && toolName !== "memory_get",
+  const coreMemoryTools = new Set(
+    (CORE_TOOL_GROUPS as Record<string, string[]>)["group:memory"] ?? [],
   );
+  const allow = policy.allow.filter((toolName) => !coreMemoryTools.has(toolName));
   return {
     ...policy,
     allow: uniqueTools([...allow, "group:memory"]),

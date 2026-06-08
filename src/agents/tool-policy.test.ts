@@ -54,9 +54,8 @@ describe("tool-policy", () => {
   });
 
   it("expands memory group to memory plugin operations", () => {
-    const expanded = expandToolGroups(["group:memory"]);
-    expect(expanded).toEqual(
-      expect.arrayContaining([
+    expect(new Set(expandToolGroups(["group:memory"]))).toEqual(
+      new Set([
         "memory_search",
         "memory_get",
         "memory_recall",
@@ -75,11 +74,15 @@ describe("tool-policy", () => {
 
   it("resolves known profiles and ignores unknown ones", () => {
     const coding = resolveToolProfilePolicy("coding");
+    const expandedAllow = new Set(expandToolGroups(coding?.allow));
     expect(coding?.allow).toContain("read");
     expect(coding?.allow).toContain("cron");
     expect(coding?.allow).toContain("group:memory");
     expect(coding?.allow).not.toContain("memory_search");
     expect(coding?.allow).not.toContain("memory_get");
+    expect(expandedAllow.has("read")).toBe(true);
+    expect(expandedAllow.has("memory_ingest_document")).toBe(true);
+    expect(expandedAllow.has("gateway")).toBe(false);
     expect(coding?.allow).not.toContain("gateway");
     expect(resolveToolProfilePolicy("nope")).toBeUndefined();
   });
