@@ -14,7 +14,30 @@ const TOOL_NAME_ALIASES: Record<string, string> = {
   "apply-patch": "apply_patch",
 };
 
-export const TOOL_GROUPS: Record<string, string[]> = { ...CORE_TOOL_GROUPS };
+export const MEMORY_PLUGIN_TOOL_NAMES = [
+  "memory_recall",
+  "memory_recallx",
+  "memory_store",
+  "memory_forget",
+  "memory_capture",
+  "memory_ingest_document",
+  "memory_hygiene",
+  "commitment_tracker",
+  "preference_miner",
+  "memory_audit",
+];
+
+function uniqueTools(list: string[]) {
+  return Array.from(new Set(list));
+}
+
+export const TOOL_GROUPS: Record<string, string[]> = {
+  ...CORE_TOOL_GROUPS,
+  "group:memory": uniqueTools([
+    ...((CORE_TOOL_GROUPS as Record<string, string[]>)["group:memory"] ?? []),
+    ...MEMORY_PLUGIN_TOOL_NAMES,
+  ]),
+};
 
 export function normalizeToolName(name: string) {
   const normalized = name.trim().toLowerCase();
@@ -43,7 +66,18 @@ export function expandToolGroups(list?: string[]) {
 }
 
 export function resolveToolProfilePolicy(profile?: string): ToolProfilePolicy | undefined {
-  return resolveCoreToolProfilePolicy(profile);
+  const policy = resolveCoreToolProfilePolicy(profile);
+  if (profile !== "coding" || !policy?.allow) {
+    return policy;
+  }
+  const coreMemoryTools = new Set(
+    (CORE_TOOL_GROUPS as Record<string, string[]>)["group:memory"] ?? [],
+  );
+  const allow = policy.allow.filter((toolName) => !coreMemoryTools.has(toolName));
+  return {
+    ...policy,
+    allow: uniqueTools([...allow, "group:memory"]),
+  };
 }
 
 export type { ToolProfileId };

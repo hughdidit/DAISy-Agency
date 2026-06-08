@@ -247,10 +247,10 @@ For a brand-new staging VM, the real deploy requires the config file to exist at
    include the full memory tool surface in both the agent and sandbox tool
    policies for each active agent that should use memory:
    `memory_recall`, `memory_store`, `memory_forget`, `memory_capture`,
-   `memory_recallx`, `memory_hygiene`, `commitment_tracker`,
-   `preference_miner`, and `memory_audit`. After changing these allowlists,
-   recreate or reset the affected sandbox sessions so projected config and
-   skill snapshots refresh.
+   `memory_recallx`, `memory_ingest_document`, `memory_hygiene`,
+   `commitment_tracker`, `preference_miner`, and `memory_audit`. After
+   changing these allowlists, recreate or reset the affected sandbox sessions
+   so projected config and skill snapshots refresh.
 
 2. **Add staging environment variables** in GitHub:
    - `OPENCLAW_GATEWAY_PORT`
