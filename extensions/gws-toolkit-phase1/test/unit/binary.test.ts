@@ -29,6 +29,25 @@ describe("binary discovery", () => {
     ).rejects.toMatchObject({ code: "BINARY_NOT_FOUND" });
   });
 
+  it("maps missing JavaScript entrypoint errors", async () => {
+    clearBinaryCacheForTests();
+    await expect(
+      discoverBinary({
+        configuredPath: "gws.js",
+        runVersion: async () => ({
+          stdout: "",
+          stderr: "Error: Cannot find module 'gws.js'",
+          exitCode: 1,
+          signal: null,
+          timedOut: false,
+          stdoutTruncated: false,
+          stderrTruncated: false,
+          durationMs: 1,
+        }),
+      }),
+    ).rejects.toMatchObject({ code: "BINARY_NOT_FOUND" });
+  });
+
   it("maps executable failures to EXEC_ERROR when binary exists", async () => {
     clearBinaryCacheForTests();
     await expect(

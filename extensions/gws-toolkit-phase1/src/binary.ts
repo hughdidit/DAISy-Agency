@@ -11,7 +11,11 @@ type CacheEntry = {
 
 const cache = new Map<string, CacheEntry>();
 
-const NOT_FOUND_PATTERN = /enoent|not\s+recognized|not\s+found/i;
+const NOT_FOUND_PATTERN = /enoent|not\s+recognized|not\s+found|cannot\s+find\s+module|module_not_found/i;
+
+function isMissingBinaryError(error: PluginError): boolean {
+  return error.details?.code === "ENOENT" || NOT_FOUND_PATTERN.test(error.message);
+}
 
 function isCacheEnabled(): boolean {
   return process.env.VITEST === undefined && process.env.NODE_ENV !== "test";
@@ -78,8 +82,7 @@ export async function discoverBinary(params: {
         throw error;
       }
       if (error.code === "EXEC_ERROR") {
-        const message = error.message;
-        if (NOT_FOUND_PATTERN.test(message)) {
+        if (isMissingBinaryError(error)) {
           throw new PluginError("BINARY_NOT_FOUND", "gws binary not found", {
             binaryPath,
           });

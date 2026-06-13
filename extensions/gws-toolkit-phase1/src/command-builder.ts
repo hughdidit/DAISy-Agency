@@ -1,5 +1,10 @@
 import fs from "node:fs";
 import path from "node:path";
+import {
+  buildCalendarEventBody,
+  buildCalendarListParams,
+  buildCalendarWriteRequestParams,
+} from "./calendar-event.js";
 import { PluginError } from "./errors.js";
 
 export type GwsCommandSpec = {
@@ -336,18 +341,8 @@ export function buildCalendarReadCommand(
 ): GwsCommandSpec {
   const argv = ["calendar", ...authArgs];
   if (params.action === "list_events") {
-    const requestParams: Record<string, JsonParamValue> = {
-      calendarId:
-        typeof params.calendarId === "string" && params.calendarId.trim()
-          ? params.calendarId.trim()
-          : "primary",
-      singleEvents: true,
-    };
-    appendIfInt(requestParams, "maxResults", params.pageSize);
-    appendIfString(requestParams, "timeMin", params.timeMin);
-    appendIfString(requestParams, "timeMax", params.timeMax);
     argv.push("events", "list", "--format", "json");
-    appendParamsArg(argv, requestParams);
+    appendParamsArg(argv, buildCalendarListParams(params));
     return { argv, action: "list_events", service: "calendar", isWrite: false };
   }
   if (params.action === "get_event") {
@@ -487,44 +482,17 @@ export function buildCalendarWriteCommand(
   params: Record<string, unknown>,
   authArgs: string[],
 ): GwsCommandSpec {
-  const calendarId =
-    typeof params.calendarId === "string" && params.calendarId.trim()
-      ? params.calendarId.trim()
-      : "primary";
-  const attendees =
-    Array.isArray(params.attendees) && params.attendees.length > 0
-      ? params.attendees
-          .filter((entry) => typeof entry === "string")
-          .map((entry) => ({ email: entry.trim() }))
-      : undefined;
-  const body: Record<string, unknown> = {};
-  if (typeof params.summary === "string" && params.summary.trim()) {
-    body.summary = params.summary.trim();
-  }
-  if (typeof params.description === "string" && params.description.trim()) {
-    body.description = params.description.trim();
-  }
-  if (typeof params.location === "string" && params.location.trim()) {
-    body.location = params.location.trim();
-  }
-  if (typeof params.start === "string" && params.start.trim()) {
-    body.start = { dateTime: params.start.trim() };
-  }
-  if (typeof params.end === "string" && params.end.trim()) {
-    body.end = { dateTime: params.end.trim() };
-  }
-  if (attendees) {
-    body.attendees = attendees;
-  }
+  const request = buildCalendarWriteRequestParams(params);
+  const body = buildCalendarEventBody(params);
   if (params.action === "create_event") {
     const argv = ["calendar", ...authArgs, "events", "insert", "--format", "json"];
-    appendParamsArg(argv, { calendarId });
+    appendParamsArg(argv, request.requestParams);
     appendJsonArg(argv, body);
     return { argv, action: "create_event", service: "calendar", isWrite: true };
   }
   if (params.action === "update_event") {
     const argv = ["calendar", ...authArgs, "events", "patch", "--format", "json"];
-    appendParamsArg(argv, { calendarId, eventId: readString(params.eventId, "eventId") });
+    appendParamsArg(argv, request.requestParams);
     appendJsonArg(argv, body);
     return { argv, action: "update_event", service: "calendar", isWrite: true };
   }

@@ -79,6 +79,55 @@ describe("gws-toolkit-phase1 phase2 acceptance contracts", () => {
     expect(sheetsWrite.ok).toBe(true);
   });
 
+  it("registers Calendar recurrence and event configuration parameters", () => {
+    const harness = createHarness({
+      pluginConfig: defaultPluginConfig(),
+    });
+
+    const readTool = harness.tools.get("gws_calendar_read") as unknown as {
+      parameters: { properties: Record<string, unknown> };
+    };
+    const writeTool = harness.tools.get("gws_calendar_write") as unknown as {
+      parameters: { properties: Record<string, unknown> };
+    };
+
+    expect(Object.keys(readTool.parameters.properties)).toEqual(
+      expect.arrayContaining([
+        "singleEvents",
+        "showDeleted",
+        "orderBy",
+        "q",
+        "timeZone",
+        "updatedMin",
+        "pageToken",
+        "syncToken",
+        "iCalUID",
+        "maxAttendees",
+      ]),
+    );
+    expect(Object.keys(writeTool.parameters.properties)).toEqual(
+      expect.arrayContaining([
+        "recurrence",
+        "startDate",
+        "endDate",
+        "startTimeZone",
+        "endTimeZone",
+        "visibility",
+        "transparency",
+        "colorId",
+        "reminders",
+        "source",
+        "extendedProperties",
+        "attachments",
+        "supportsAttachments",
+        "sendUpdates",
+        "guestsCanInviteOthers",
+        "guestsCanModify",
+        "guestsCanSeeOtherGuests",
+      ]),
+    );
+  });
+
   it("denies writes without confirm and malformed params", async () => {
     process.env.GOOGLE_WORKSPACE_CLI_TOKEN = "token-for-tests";
 

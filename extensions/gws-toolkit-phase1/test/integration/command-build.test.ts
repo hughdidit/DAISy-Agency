@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildCalendarReadCommand,
+  buildCalendarWriteCommand,
   buildDocsReadCommand,
   buildDocsWriteCommand,
   buildDriveReadCommand,
@@ -232,5 +233,109 @@ describe("integration: command build", () => {
     expect(() => buildDriveReadCommand({ action: "download_file", fileId: "file-1" }, [])).toThrow(
       /delegated Google API transport/,
     );
+  });
+
+  it("builds Calendar recurrence and event property request shapes", () => {
+    const read = buildCalendarReadCommand(
+      {
+        action: "list_events",
+        calendarId: "team@example.com",
+        pageSize: 20,
+        singleEvents: false,
+        showDeleted: true,
+        orderBy: "updated",
+        q: "planning",
+        timeZone: "America/Los_Angeles",
+        updatedMin: "2026-07-01T00:00:00Z",
+        pageToken: "page-1",
+        syncToken: "sync-1",
+        iCalUID: "ical-1@example.com",
+        maxAttendees: 10,
+      },
+      ["--auth"],
+    ).argv;
+
+    expect(read.slice(0, 7)).toEqual([
+      "calendar",
+      "--auth",
+      "events",
+      "list",
+      "--format",
+      "json",
+      "--params",
+    ]);
+    const readParams = JSON.parse(read[read.indexOf("--params") + 1] as string);
+    expect(readParams).toEqual({
+      calendarId: "team@example.com",
+      singleEvents: false,
+      maxResults: 20,
+      showDeleted: true,
+      orderBy: "updated",
+      q: "planning",
+      timeZone: "America/Los_Angeles",
+      updatedMin: "2026-07-01T00:00:00Z",
+      pageToken: "page-1",
+      syncToken: "sync-1",
+      iCalUID: "ical-1@example.com",
+      maxAttendees: 10,
+    });
+
+    const write = buildCalendarWriteCommand(
+      {
+        action: "create_event",
+        confirm: true,
+        calendarId: "team@example.com",
+        summary: "Weekly planning",
+        startDate: "2026-07-06",
+        endDate: "2026-07-07",
+        recurrence: ["RRULE:FREQ=WEEKLY;BYDAY=MO"],
+        visibility: "private",
+        transparency: "transparent",
+        colorId: "5",
+        reminders: {
+          useDefault: false,
+          overrides: [{ method: "popup", minutes: 10 }],
+        },
+        extendedProperties: {
+          private: { daisyWorkflow: "planning" },
+        },
+        supportsAttachments: true,
+        sendUpdates: "externalOnly",
+        guestsCanInviteOthers: false,
+        guestsCanModify: true,
+        guestsCanSeeOtherGuests: false,
+      },
+      [],
+    ).argv;
+
+    expect(write.slice(0, 7)).toEqual([
+      "calendar",
+      "events",
+      "insert",
+      "--format",
+      "json",
+      "--params",
+      '{"calendarId":"team@example.com","supportsAttachments":true,"sendUpdates":"externalOnly"}',
+    ]);
+    expect(write[7]).toBe("--json");
+    expect(JSON.parse(write[8] as string)).toEqual({
+      summary: "Weekly planning",
+      start: { date: "2026-07-06" },
+      end: { date: "2026-07-07" },
+      recurrence: ["RRULE:FREQ=WEEKLY;BYDAY=MO"],
+      visibility: "private",
+      transparency: "transparent",
+      colorId: "5",
+      reminders: {
+        useDefault: false,
+        overrides: [{ method: "popup", minutes: 10 }],
+      },
+      extendedProperties: {
+        private: { daisyWorkflow: "planning" },
+      },
+      guestsCanInviteOthers: false,
+      guestsCanModify: true,
+      guestsCanSeeOtherGuests: false,
+    });
   });
 });

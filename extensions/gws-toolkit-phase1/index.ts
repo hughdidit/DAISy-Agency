@@ -47,11 +47,11 @@ function toToolResult(payload: StructuredEnvelope) {
   };
 }
 
-function withLabel<T extends { name: string }>(tool: T): T & { label: string } {
+function withLabel<N extends string>(tool: { name: N } & Record<string, unknown>): AnyAgentTool & { name: N } {
   return {
     ...tool,
     label: tool.name,
-  };
+  } as unknown as AnyAgentTool & { name: N };
 }
 
 function defaultConfig(): GwsToolkitConfig {
@@ -405,6 +405,16 @@ function createTools(params: {
             pageSize: Type.Optional(Type.Number()),
             timeMin: Type.Optional(Type.String()),
             timeMax: Type.Optional(Type.String()),
+            singleEvents: Type.Optional(Type.Boolean()),
+            showDeleted: Type.Optional(Type.Boolean()),
+            orderBy: Type.Optional(Type.String({ enum: ["startTime", "updated"] })),
+            q: Type.Optional(Type.String()),
+            timeZone: Type.Optional(Type.String()),
+            updatedMin: Type.Optional(Type.String()),
+            pageToken: Type.Optional(Type.String()),
+            syncToken: Type.Optional(Type.String()),
+            iCalUID: Type.Optional(Type.String()),
+            maxAttendees: Type.Optional(Type.Number()),
           },
           { additionalProperties: false },
         ),
@@ -514,7 +524,75 @@ function createTools(params: {
             location: Type.Optional(Type.String()),
             start: Type.Optional(Type.String()),
             end: Type.Optional(Type.String()),
+            startDate: Type.Optional(Type.String()),
+            endDate: Type.Optional(Type.String()),
+            startTimeZone: Type.Optional(Type.String()),
+            endTimeZone: Type.Optional(Type.String()),
             attendees: Type.Optional(Type.Array(Type.String())),
+            recurrence: Type.Optional(
+              Type.Array(Type.String({ pattern: "^(RRULE|RDATE|EXDATE):.+$" })),
+            ),
+            visibility: Type.Optional(
+              Type.String({ enum: ["default", "public", "private", "confidential"] }),
+            ),
+            transparency: Type.Optional(Type.String({ enum: ["opaque", "transparent"] })),
+            colorId: Type.Optional(Type.String()),
+            reminders: Type.Optional(
+              Type.Object(
+                {
+                  useDefault: Type.Optional(Type.Boolean()),
+                  overrides: Type.Optional(
+                    Type.Array(
+                      Type.Object(
+                        {
+                          method: Type.String({ enum: ["email", "popup"] }),
+                          minutes: Type.Number(),
+                        },
+                        { additionalProperties: false },
+                      ),
+                    ),
+                  ),
+                },
+                { additionalProperties: false },
+              ),
+            ),
+            source: Type.Optional(
+              Type.Object(
+                {
+                  title: Type.Optional(Type.String()),
+                  url: Type.Optional(Type.String()),
+                },
+                { additionalProperties: false },
+              ),
+            ),
+            extendedProperties: Type.Optional(
+              Type.Object(
+                {
+                  private: Type.Optional(Type.Record(Type.String(), Type.String())),
+                  shared: Type.Optional(Type.Record(Type.String(), Type.String())),
+                },
+                { additionalProperties: false },
+              ),
+            ),
+            attachments: Type.Optional(
+              Type.Array(
+                Type.Object(
+                  {
+                    fileUrl: Type.String(),
+                    title: Type.Optional(Type.String()),
+                    mimeType: Type.Optional(Type.String()),
+                    iconLink: Type.Optional(Type.String()),
+                    fileId: Type.Optional(Type.String()),
+                  },
+                  { additionalProperties: false },
+                ),
+              ),
+            ),
+            supportsAttachments: Type.Optional(Type.Boolean()),
+            sendUpdates: Type.Optional(Type.String({ enum: ["all", "externalOnly", "none"] })),
+            guestsCanInviteOthers: Type.Optional(Type.Boolean()),
+            guestsCanModify: Type.Optional(Type.Boolean()),
+            guestsCanSeeOtherGuests: Type.Optional(Type.Boolean()),
           },
           { additionalProperties: false },
         ),

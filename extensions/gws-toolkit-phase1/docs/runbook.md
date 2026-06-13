@@ -205,6 +205,11 @@ For Calendar, read the user's `primary` calendar after auth-health passes. A
 Workspace user for that service and should be treated as a configuration
 failure.
 
+To inspect recurring Calendar masters and their `recurrence` rules, use
+`gws_calendar_read` with `action: "list_events"` and `singleEvents: false`.
+The default remains `singleEvents: true`, which returns expanded event
+instances for normal scheduling workflows.
+
 ## 6. Verify writes intentionally
 
 Before any write succeeds, all of these must pass:
@@ -222,6 +227,15 @@ Run deny checks as part of staging validation:
 - write from a subject with no binding
 - write from a route that only allows reads
 - credentials file outside approved directory
+
+Calendar writes intentionally expose a curated event surface, not raw Google
+Calendar event JSON. Use `recurrence` as Google-compatible RFC5545 strings such
+as `RRULE:FREQ=WEEKLY;BYDAY=MO`, `RDATE:20260706T160000Z`, or
+`EXDATE:20260713T160000Z`. Supported write fields include date-time or all-day
+start/end values, time zones, attendees, recurrence, visibility, transparency,
+color, reminders, source, extended properties, attachments, `sendUpdates`,
+`supportsAttachments`, and guest permission booleans. Unknown properties remain
+schema errors.
 
 ## 7. Phase 1 migration
 
