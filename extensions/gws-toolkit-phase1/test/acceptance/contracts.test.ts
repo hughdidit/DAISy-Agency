@@ -105,6 +105,11 @@ describe("gws-toolkit-phase1 phase2 acceptance contracts", () => {
         "maxAttendees",
       ]),
     );
+    expect(readTool.parameters.properties.maxAttendees).toMatchObject({
+      type: "integer",
+      minimum: 1,
+      maximum: 200,
+    });
     expect(Object.keys(writeTool.parameters.properties)).toEqual(
       expect.arrayContaining([
         "recurrence",
@@ -126,6 +131,31 @@ describe("gws-toolkit-phase1 phase2 acceptance contracts", () => {
         "guestsCanSeeOtherGuests",
       ]),
     );
+    expect(writeTool.parameters.properties.recurrence).toMatchObject({
+      type: "array",
+      minItems: 1,
+    });
+    expect(writeTool.parameters.properties.reminders).toMatchObject({
+      properties: {
+        overrides: {
+          type: "array",
+          minItems: 1,
+          items: {
+            properties: {
+              minutes: {
+                type: "integer",
+                minimum: 0,
+                maximum: 40320,
+              },
+            },
+          },
+        },
+      },
+    });
+    expect(writeTool.parameters.properties.attachments).toMatchObject({
+      type: "array",
+      minItems: 1,
+    });
   });
 
   it("denies writes without confirm and malformed params", async () => {

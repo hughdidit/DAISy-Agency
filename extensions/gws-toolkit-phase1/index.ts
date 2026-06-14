@@ -416,7 +416,7 @@ function createTools(params: {
             pageToken: Type.Optional(Type.String()),
             syncToken: Type.Optional(Type.String()),
             iCalUID: Type.Optional(Type.String()),
-            maxAttendees: Type.Optional(Type.Number()),
+            maxAttendees: Type.Optional(Type.Integer({ minimum: 1, maximum: 200 })),
           },
           { additionalProperties: false },
         ),
@@ -532,7 +532,9 @@ function createTools(params: {
             endTimeZone: Type.Optional(Type.String()),
             attendees: Type.Optional(Type.Array(Type.String())),
             recurrence: Type.Optional(
-              Type.Array(Type.String({ pattern: "^(RRULE|RDATE|EXDATE):.+$" })),
+              Type.Array(Type.String({ pattern: "^(RRULE|RDATE|EXDATE):.+$" }), {
+                minItems: 1,
+              }),
             ),
             visibility: Type.Optional(
               Type.String({ enum: ["default", "public", "private", "confidential"] }),
@@ -548,10 +550,11 @@ function createTools(params: {
                       Type.Object(
                         {
                           method: Type.String({ enum: ["email", "popup"] }),
-                          minutes: Type.Number(),
+                          minutes: Type.Integer({ minimum: 0, maximum: 40320 }),
                         },
                         { additionalProperties: false },
                       ),
+                      { minItems: 1 },
                     ),
                   ),
                 },
@@ -588,6 +591,7 @@ function createTools(params: {
                   },
                   { additionalProperties: false },
                 ),
+                { minItems: 1 },
               ),
             ),
             supportsAttachments: Type.Optional(Type.Boolean()),
