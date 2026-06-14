@@ -80,6 +80,60 @@ function normalizeCard(value: unknown): TrelloCard {
   };
 }
 
+async function readLimitedResponseBytes(
+  response: Response,
+  maxResponseBytes: number,
+): Promise<Uint8Array> {
+  const contentLength = response.headers.get("content-length");
+  if (contentLength && Number(contentLength) > maxResponseBytes) {
+    throw new TrelloClientError("RESPONSE_TOO_LARGE", "Trello response exceeded size limit", {
+      status: response.status,
+      details: { maxResponseBytes },
+    });
+  }
+  if (!response.body) {
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    if (bytes.byteLength > maxResponseBytes) {
+      throw new TrelloClientError("RESPONSE_TOO_LARGE", "Trello response exceeded size limit", {
+        status: response.status,
+        details: { maxResponseBytes },
+      });
+    }
+    return bytes;
+  }
+
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let totalBytes = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        break;
+      }
+      totalBytes += value.byteLength;
+      if (totalBytes > maxResponseBytes) {
+        await reader.cancel();
+        throw new TrelloClientError("RESPONSE_TOO_LARGE", "Trello response exceeded size limit", {
+          status: response.status,
+          details: { maxResponseBytes },
+        });
+      }
+      chunks.push(value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  const bytes = new Uint8Array(totalBytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return bytes;
+}
+
 export function createTrelloClient(params: {
   apiKey: string;
   token: string;
@@ -123,20 +177,7 @@ export function createTrelloClient(params: {
         init.body = form;
       }
       const response = await fetchImpl(url, init);
-      const contentLength = response.headers.get("content-length");
-      if (contentLength && Number(contentLength) > maxResponseBytes) {
-        throw new TrelloClientError("RESPONSE_TOO_LARGE", "Trello response exceeded size limit", {
-          status: response.status,
-          details: { maxResponseBytes },
-        });
-      }
-      const bytes = await response.arrayBuffer();
-      if (bytes.byteLength > maxResponseBytes) {
-        throw new TrelloClientError("RESPONSE_TOO_LARGE", "Trello response exceeded size limit", {
-          status: response.status,
-          details: { maxResponseBytes },
-        });
-      }
+      const bytes = await readLimitedResponseBytes(response, maxResponseBytes);
       const text = Buffer.from(bytes).toString("utf8");
       let parsed: unknown;
       try {

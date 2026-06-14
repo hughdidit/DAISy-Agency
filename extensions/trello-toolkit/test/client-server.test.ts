@@ -104,6 +104,25 @@ describe("trello client", () => {
     });
   });
 
+  it("rejects oversized responses while reading the response body", async () => {
+    const server = await startServer((_req, res) => {
+      res.setHeader("content-type", "application/json");
+      res.write("[");
+      res.write(JSON.stringify({ id: "board-1", name: "A".repeat(64) }));
+      res.end("]");
+    });
+    const client = createTrelloClient({
+      apiKey: "secret-key",
+      token: "secret-token",
+      baseUrl: server.baseUrl,
+      maxResponseBytes: 16,
+    });
+
+    await expect(client.listBoards()).rejects.toMatchObject({
+      code: "RESPONSE_TOO_LARGE",
+    });
+  });
+
   it("creates, moves, comments, and archives cards through Trello endpoints", async () => {
     const server = await startServer((req, res, body) => {
       res.setHeader("content-type", "application/json");
