@@ -64,7 +64,7 @@ export function successEnvelope<T>(params: {
 export function deniedEnvelope(params: {
   tool: TrelloToolName;
   action: TrelloAction;
-  decision: PolicyDecision;
+  decision: Extract<PolicyDecision, { allowed: false }>;
   startedAt: number;
 }) {
   return errorEnvelope({
