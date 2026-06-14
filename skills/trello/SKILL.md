@@ -1,95 +1,50 @@
 ---
 name: trello
-description: Manage Trello boards, lists, and cards via the Trello REST API.
+description: Manage Trello boards, lists, and cards through the brokered Trello toolkit.
 homepage: https://developer.atlassian.com/cloud/trello/rest/
-metadata:
-  {
-    "openclaw":
-      { "emoji": "📋", "requires": { "bins": ["jq"], "env": ["TRELLO_API_KEY", "TRELLO_TOKEN"] } },
-  }
+metadata: { "openclaw": { "emoji": "📋", "requires": { "config": ["plugins.entries.trello-toolkit.enabled"] } } }
 ---
 
 # Trello Skill
 
-Manage Trello boards, lists, and cards directly from OpenClaw.
+Use the brokered `trello_*` tools to work with Trello. Do not run Trello `curl`
+commands directly from a sandbox; Trello credentials stay in the gateway and are
+never exposed as sandbox environment variables.
 
-## Setup
+## Tools
 
-1. Get your API key: https://trello.com/app-key
-2. Generate a token (click "Token" link on that page)
-3. Set environment variables:
-   ```bash
-   export TRELLO_API_KEY="your-api-key"
-   export TRELLO_TOKEN="your-token"
-   ```
+### `trello_status`
 
-## Usage
+Check Trello config, credential presence, route binding, and optional account
+health.
 
-All commands use curl to hit the Trello REST API.
+Use `includeAccount: true` only when you need a live Trello account smoke.
 
-### List boards
+### `trello_read`
 
-```bash
-curl -s "https://api.trello.com/1/members/me/boards?key=$TRELLO_API_KEY&token=$TRELLO_TOKEN" | jq '.[] | {name, id}'
-```
+Read boards, lists, and cards.
 
-### List lists in a board
+- `list_boards`: no IDs required.
+- `list_lists`: requires `boardId`.
+- `list_cards`: requires `listId`.
+- `get_card`: requires `cardId`.
 
-```bash
-curl -s "https://api.trello.com/1/boards/{boardId}/lists?key=$TRELLO_API_KEY&token=$TRELLO_TOKEN" | jq '.[] | {name, id}'
-```
+### `trello_write`
 
-### List cards in a list
+Create, move, comment on, or archive cards.
 
-```bash
-curl -s "https://api.trello.com/1/lists/{listId}/cards?key=$TRELLO_API_KEY&token=$TRELLO_TOKEN" | jq '.[] | {name, id, desc}'
-```
+- `create_card`: requires `listId`, `name`, optional `desc`, and `confirm: true`.
+- `move_card`: requires `cardId`, `targetListId`, and `confirm: true`.
+- `add_comment`: requires `cardId`, `text`, and `confirm: true`.
+- `archive_card`: requires `cardId` and `confirm: true`.
 
-### Create a card
-
-```bash
-curl -s -X POST "https://api.trello.com/1/cards?key=$TRELLO_API_KEY&token=$TRELLO_TOKEN" \
-  -d "idList={listId}" \
-  -d "name=Card Title" \
-  -d "desc=Card description"
-```
-
-### Move a card to another list
-
-```bash
-curl -s -X PUT "https://api.trello.com/1/cards/{cardId}?key=$TRELLO_API_KEY&token=$TRELLO_TOKEN" \
-  -d "idList={newListId}"
-```
-
-### Add a comment to a card
-
-```bash
-curl -s -X POST "https://api.trello.com/1/cards/{cardId}/actions/comments?key=$TRELLO_API_KEY&token=$TRELLO_TOKEN" \
-  -d "text=Your comment here"
-```
-
-### Archive a card
-
-```bash
-curl -s -X PUT "https://api.trello.com/1/cards/{cardId}?key=$TRELLO_API_KEY&token=$TRELLO_TOKEN" \
-  -d "closed=true"
-```
+Writes also require `plugins.entries.trello-toolkit.config.allowWriteOperations`
+and the active agent route to allow the requested tool, action, board, and list.
 
 ## Notes
 
-- Board/List/Card IDs can be found in the Trello URL or via the list commands
-- The API key and token provide full access to your Trello account - keep them secret!
-- Rate limits: 300 requests per 10 seconds per API key; 100 requests per 10 seconds per token; `/1/members` endpoints are limited to 100 requests per 900 seconds
-
-## Examples
-
-```bash
-# Get all boards
-curl -s "https://api.trello.com/1/members/me/boards?key=$TRELLO_API_KEY&token=$TRELLO_TOKEN&fields=name,id" | jq
-
-# Find a specific board by name
-curl -s "https://api.trello.com/1/members/me/boards?key=$TRELLO_API_KEY&token=$TRELLO_TOKEN" | jq '.[] | select(.name | contains("Work"))'
-
-# Get all cards on a board
-curl -s "https://api.trello.com/1/boards/{boardId}/cards?key=$TRELLO_API_KEY&token=$TRELLO_TOKEN" | jq '.[] | {name, list: .idList}'
-```
+- Board, list, and card IDs can be found from Trello URLs or with the read tools.
+- If a tool returns `DENY_POLICY`, check the active agent route in
+  `plugins.entries.trello-toolkit.config`.
+- If a tool returns `CONFIG_ERROR`, check gateway `TRELLO_API_KEY`,
+  `TRELLO_TOKEN`, and the `trello-toolkit` plugin config.
