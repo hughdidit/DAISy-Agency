@@ -1,0 +1,17 @@
+{
+  "name": "@openclaw/trello-toolkit",
+  "version": "2026.3.2",
+  "private": true,
+  "description": "Gateway-brokered Trello toolkit with per-agent policy controls",
+  "type": "module",
+  "scripts": {
+    "lint": "node ../../scripts/run-local-node-tool.mjs oxlint --type-aware .",
+    "test": "cd ../.. && vitest run --config vitest.extensions.config.ts extensions/trello-toolkit",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit"
+  },
+  "openclaw": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

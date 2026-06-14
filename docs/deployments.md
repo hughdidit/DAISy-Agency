@@ -115,12 +115,12 @@ These secrets are passed to docker compose on the target VM.
 - `GEMINI_API_KEY` - Gemini embeddings / Google provider access
 - `BRAVE_API_KEY` - Brave web search access
 - `FIRECRAWL_API_KEY` - Firecrawl access
-- `TRELLO_API_KEY` - Trello API key for Trello integration features
-- `TRELLO_TOKEN` - Trello token for Trello integration features
+- `TRELLO_API_KEY` - Trello API key used by the gateway-brokered `trello-toolkit`
+- `TRELLO_TOKEN` - Trello token used by the gateway-brokered `trello-toolkit`
 - `GOOGLE_WORKSPACE_CLI_TOKEN` - optional bearer token for `gws-toolkit-phase1` token mode
 - `GWS_CREDENTIALS` - optional Google Workspace credentials JSON for `gws-toolkit-phase1` `credentials_file` mode (service-account JSON required for delegated agent Workspace identities in staging/production)
 
-Trello secrets are optional and only needed when Trello integration is enabled. Staging currently uses `gws-toolkit-phase1` in `credentials_file` mode, so `GWS_CREDENTIALS` is the active path and `GOOGLE_WORKSPACE_CLI_TOKEN` can remain unset. DAISy agent Workspace users are configured in `agents.list[].googleWorkspace.email`; route-level `impersonatedUser` is only a compatibility/projection check and must match that agent email when present. In enforced runtime environments (`staging`, `production`), delegated agent routes reject `authorized_user`/headless-export credential files and require service-account JSON with Google Workspace Domain-Wide Delegation.
+Trello secrets are optional and only needed when `plugins.entries.trello-toolkit.enabled` is true. The toolkit runs Trello API calls in the gateway and does not project Trello secrets into sandboxes. Staging currently uses `gws-toolkit-phase1` in `credentials_file` mode, so `GWS_CREDENTIALS` is the active path and `GOOGLE_WORKSPACE_CLI_TOKEN` can remain unset. DAISy agent Workspace users are configured in `agents.list[].googleWorkspace.email`; route-level `impersonatedUser` is only a compatibility/projection check and must match that agent email when present. In enforced runtime environments (`staging`, `production`), delegated agent routes reject `authorized_user`/headless-export credential files and require service-account JSON with Google Workspace Domain-Wide Delegation.
 
 ### Monitoring Secrets
 

@@ -1,0 +1,119 @@
+{
+  "id": "trello-toolkit",
+  "name": "Trello Toolkit",
+  "description": "Gateway-brokered Trello integration with per-agent action and board/list policy.",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "apiKeyEnvVar": {
+        "type": "string",
+        "default": "TRELLO_API_KEY"
+      },
+      "tokenEnvVar": {
+        "type": "string",
+        "default": "TRELLO_TOKEN"
+      },
+      "timeoutMs": {
+        "type": "number",
+        "minimum": 1000,
+        "default": 15000
+      },
+      "maxResponseBytes": {
+        "type": "number",
+        "minimum": 1024,
+        "default": 262144
+      },
+      "allowWriteOperations": {
+        "type": "boolean",
+        "default": false
+      },
+      "allowUnboundAgents": {
+        "type": "boolean",
+        "default": false
+      },
+      "defaultRoute": {
+        "type": ["string", "null"],
+        "default": null
+      },
+      "routes": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["allowedTools", "allowedActions"],
+          "properties": {
+            "allowedTools": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["trello_status", "trello_read", "trello_write"]
+              }
+            },
+            "allowedActions": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "status",
+                  "list_boards",
+                  "list_lists",
+                  "list_cards",
+                  "get_card",
+                  "create_card",
+                  "move_card",
+                  "add_comment",
+                  "archive_card"
+                ]
+              }
+            },
+            "allowedBoardIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": []
+            },
+            "allowedListIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": []
+            }
+          }
+        },
+        "default": {}
+      },
+      "agentRouteBindings": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        },
+        "default": {}
+      }
+    }
+  },
+  "uiHints": {
+    "apiKeyEnvVar": {
+      "label": "API Key Environment Variable",
+      "help": "Gateway environment variable containing the Trello API key."
+    },
+    "tokenEnvVar": {
+      "label": "Token Environment Variable",
+      "help": "Gateway environment variable containing the Trello token."
+    },
+    "allowWriteOperations": {
+      "label": "Allow Write Operations",
+      "help": "Global write gate. Writes also require route policy and confirm=true."
+    },
+    "routes": {
+      "label": "Routes",
+      "help": "Named per-agent Trello policy routes."
+    },
+    "agentRouteBindings": {
+      "label": "Agent Route Bindings",
+      "help": "Bind subjects like agent:daisy to Trello routes."
+    }
+  }
+}
