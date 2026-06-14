@@ -50,6 +50,43 @@ Write tools:
 - `gws_docs_write`
 - `gws_sheets_write`
 
+## Calendar Events
+
+`gws_calendar_read` lists expanded event instances by default with
+`singleEvents: true`. To inspect recurring master events and their
+`recurrence` rules, call `list_events` with `singleEvents: false`:
+
+```json
+{
+  "action": "list_events",
+  "calendarId": "primary",
+  "singleEvents": false,
+  "showDeleted": true
+}
+```
+
+`gws_calendar_write` supports a curated Calendar event surface for
+`create_event` and `update_event`. Recurrence uses Google Calendar-compatible
+RFC5545 strings only:
+
+```json
+{
+  "action": "create_event",
+  "confirm": true,
+  "summary": "Weekly planning",
+  "start": "2026-07-06T09:00:00-07:00",
+  "end": "2026-07-06T09:30:00-07:00",
+  "recurrence": ["RRULE:FREQ=WEEKLY;BYDAY=MO"],
+  "sendUpdates": "externalOnly"
+}
+```
+
+Supported event fields are summary, description, location, attendees,
+date-time or all-day start/end values, recurrence, visibility, transparency,
+color, reminders, source, extended properties, attachments, attachment support,
+guest permissions, and send-update behavior. Arbitrary raw event JSON remains
+rejected by schema validation.
+
 ## Drive Downloads
 
 Use `gws_drive_read` with `action: "download_file"` to download ordinary Drive

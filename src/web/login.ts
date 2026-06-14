@@ -34,7 +34,7 @@ export async function loginWeb(
         ),
       );
       try {
-        sock.ws?.close();
+        void Promise.resolve(sock.ws?.close()).catch(() => undefined);
       } catch {
         // ignore
       }
@@ -46,7 +46,7 @@ export async function loginWeb(
         console.log(success("✅ Linked after restart; web session ready."));
         return;
       } finally {
-        setTimeout(() => retry.ws?.close(), 500);
+        setTimeout(() => void Promise.resolve(retry.ws?.close()).catch(() => undefined), 500);
       }
     }
     if (code === DisconnectReason.loggedOut) {
@@ -69,7 +69,7 @@ export async function loginWeb(
     // Let Baileys flush any final events before closing the socket.
     setTimeout(() => {
       try {
-        sock.ws?.close();
+        void Promise.resolve(sock.ws?.close()).catch(() => undefined);
       } catch {
         // ignore
       }

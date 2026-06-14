@@ -40,7 +40,7 @@ const activeLogins = new Map<string, ActiveLogin>();
 
 function closeSocket(sock: WaSocket) {
   try {
-    sock.ws?.close();
+    void Promise.resolve(sock.ws?.close()).catch(() => undefined);
   } catch {
     // ignore
   }

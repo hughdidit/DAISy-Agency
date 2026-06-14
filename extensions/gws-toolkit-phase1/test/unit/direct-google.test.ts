@@ -70,6 +70,136 @@ describe("direct Google API transport", () => {
     });
   });
 
+  it("builds expanded Calendar recurrence and property requests", () => {
+    expect(
+      buildDirectGoogleRequest({
+        service: "calendar",
+        action: "list_events",
+        payload: {
+          calendarId: "team@example.com",
+          pageSize: 20,
+          singleEvents: false,
+          showDeleted: true,
+          orderBy: "updated",
+          q: "planning",
+          timeZone: "America/Los_Angeles",
+          updatedMin: "2026-07-01T00:00:00Z",
+          pageToken: "page-1",
+          syncToken: "sync-1",
+          iCalUID: "ical-1@example.com",
+          maxAttendees: 10,
+        },
+      }),
+    ).toEqual({
+      method: "GET",
+      url: "https://www.googleapis.com/calendar/v3/calendars/team%40example.com/events",
+      params: {
+        singleEvents: false,
+        maxResults: 20,
+        showDeleted: true,
+        orderBy: "updated",
+        q: "planning",
+        timeZone: "America/Los_Angeles",
+        updatedMin: "2026-07-01T00:00:00Z",
+        pageToken: "page-1",
+        syncToken: "sync-1",
+        iCalUID: "ical-1@example.com",
+        maxAttendees: 10,
+      },
+    });
+
+    expect(
+      buildDirectGoogleRequest({
+        service: "calendar",
+        action: "update_event",
+        payload: {
+          calendarId: "team@example.com",
+          eventId: "event/1",
+          summary: "Weekly planning",
+          startDate: "2026-07-06",
+          endDate: "2026-07-07",
+          recurrence: ["RRULE:FREQ=WEEKLY;BYDAY=MO"],
+          visibility: "private",
+          transparency: "transparent",
+          colorId: "5",
+          reminders: {
+            useDefault: false,
+            overrides: [{ method: "popup", minutes: 10 }],
+          },
+          source: {
+            title: "DAISy",
+            url: "https://daisy.example/workflows/planning",
+          },
+          extendedProperties: {
+            private: { daisyWorkflow: "planning" },
+          },
+          attachments: [
+            {
+              fileUrl: "https://drive.google.com/file/d/file-1/view",
+              title: "Agenda",
+              mimeType: "application/pdf",
+            },
+          ],
+          supportsAttachments: true,
+          sendUpdates: "externalOnly",
+          guestsCanInviteOthers: false,
+          guestsCanModify: true,
+          guestsCanSeeOtherGuests: false,
+        },
+      }),
+    ).toEqual({
+      method: "PATCH",
+      url: "https://www.googleapis.com/calendar/v3/calendars/team%40example.com/events/event%2F1",
+      params: { supportsAttachments: true, sendUpdates: "externalOnly" },
+      data: {
+        summary: "Weekly planning",
+        start: { date: "2026-07-06" },
+        end: { date: "2026-07-07" },
+        recurrence: ["RRULE:FREQ=WEEKLY;BYDAY=MO"],
+        visibility: "private",
+        transparency: "transparent",
+        colorId: "5",
+        reminders: {
+          useDefault: false,
+          overrides: [{ method: "popup", minutes: 10 }],
+        },
+        source: {
+          title: "DAISy",
+          url: "https://daisy.example/workflows/planning",
+        },
+        extendedProperties: {
+          private: { daisyWorkflow: "planning" },
+        },
+        attachments: [
+          {
+            fileUrl: "https://drive.google.com/file/d/file-1/view",
+            title: "Agenda",
+            mimeType: "application/pdf",
+          },
+        ],
+        guestsCanInviteOthers: false,
+        guestsCanModify: true,
+        guestsCanSeeOtherGuests: false,
+      },
+    });
+
+    expect(
+      buildDirectGoogleRequest({
+        service: "calendar",
+        action: "update_event",
+        payload: {
+          calendarId: "team@example.com",
+          eventId: "event-1",
+          attendees: [],
+        },
+      }),
+    ).toMatchObject({
+      method: "PATCH",
+      url: "https://www.googleapis.com/calendar/v3/calendars/team%40example.com/events/event-1",
+      data: { attendees: [] },
+    });
+  });
+
   it("uses action-level scopes for delegated direct calls", () => {
     expect(resolveDirectGoogleScopes({ config, service: "calendar", write: false })).toEqual([
       "https://www.googleapis.com/auth/calendar.readonly",

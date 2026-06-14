@@ -79,6 +79,85 @@ describe("gws-toolkit-phase1 phase2 acceptance contracts", () => {
     expect(sheetsWrite.ok).toBe(true);
   });
 
+  it("registers Calendar recurrence and event configuration parameters", () => {
+    const harness = createHarness({
+      pluginConfig: defaultPluginConfig(),
+    });
+
+    const readTool = harness.tools.get("gws_calendar_read") as unknown as {
+      parameters: { properties: Record<string, unknown> };
+    };
+    const writeTool = harness.tools.get("gws_calendar_write") as unknown as {
+      parameters: { properties: Record<string, unknown> };
+    };
+
+    expect(Object.keys(readTool.parameters.properties)).toEqual(
+      expect.arrayContaining([
+        "singleEvents",
+        "showDeleted",
+        "orderBy",
+        "q",
+        "timeZone",
+        "updatedMin",
+        "pageToken",
+        "syncToken",
+        "iCalUID",
+        "maxAttendees",
+      ]),
+    );
+    expect(readTool.parameters.properties.maxAttendees).toMatchObject({
+      type: "integer",
+      minimum: 1,
+      maximum: 200,
+    });
+    expect(Object.keys(writeTool.parameters.properties)).toEqual(
+      expect.arrayContaining([
+        "recurrence",
+        "startDate",
+        "endDate",
+        "startTimeZone",
+        "endTimeZone",
+        "visibility",
+        "transparency",
+        "colorId",
+        "reminders",
+        "source",
+        "extendedProperties",
+        "attachments",
+        "supportsAttachments",
+        "sendUpdates",
+        "guestsCanInviteOthers",
+        "guestsCanModify",
+        "guestsCanSeeOtherGuests",
+      ]),
+    );
+    expect(writeTool.parameters.properties.recurrence).toMatchObject({
+      type: "array",
+      minItems: 1,
+    });
+    expect(writeTool.parameters.properties.reminders).toMatchObject({
+      properties: {
+        overrides: {
+          type: "array",
+          minItems: 1,
+          items: {
+            properties: {
+              minutes: {
+                type: "integer",
+                minimum: 0,
+                maximum: 40320,
+              },
+            },
+          },
+        },
+      },
+    });
+    expect(writeTool.parameters.properties.attachments).toMatchObject({
+      type: "array",
+      minItems: 1,
+    });
+  });
+
   it("denies writes without confirm and malformed params", async () => {
     process.env.GOOGLE_WORKSPACE_CLI_TOKEN = "token-for-tests";
 

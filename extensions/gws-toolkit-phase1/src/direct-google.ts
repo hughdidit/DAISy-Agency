@@ -1,6 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import { JWT } from "google-auth-library";
+import {
+  buildCalendarEventBody,
+  buildCalendarListParams,
+  buildCalendarWriteRequestParams,
+} from "./calendar-event.js";
 import { buildGmailReadQuery, extractWildcardFromDomainFilters } from "./command-builder.js";
 import { PluginError } from "./errors.js";
 import {
@@ -723,19 +728,16 @@ export function buildDirectGoogleRequest(params: {
       break;
     }
     case "calendar": {
-      const calendarId = String(p.calendarId ?? "primary");
       if (params.action === "list_events") {
+        const { calendarId, ...requestParams } = buildCalendarListParams(p);
         return {
           method: "GET",
-          url: `https://www.googleapis.com/calendar/v3/calendars/${encodeSegment(calendarId)}/events`,
-          params: compactParams({
-            singleEvents: true,
-            maxResults: p.pageSize,
-            timeMin: p.timeMin,
-            timeMax: p.timeMax,
-          }),
+          url: `https://www.googleapis.com/calendar/v3/calendars/${encodeSegment(String(calendarId))}/events`,
+          params: compactParams(requestParams),
         };
       }
+      const calendarId =
+        typeof p.calendarId === "string" && p.calendarId.trim() ? p.calendarId.trim() : "primary";
       if (params.action === "get_event") {
         return {
           method: "GET",
@@ -743,26 +745,27 @@ export function buildDirectGoogleRequest(params: {
         };
       }
       if (params.action === "create_event" || params.action === "update_event") {
-        const event = compactParams({
-          summary: p.summary,
-          description: p.description,
-          location: p.location,
-          start: p.start ? { dateTime: p.start } : undefined,
-          end: p.end ? { dateTime: p.end } : undefined,
-          attendees: Array.isArray(p.attendees)
-            ? p.attendees.map((email) => ({ email: String(email) }))
-            : undefined,
-        });
+        const event = buildCalendarEventBody(p);
+        const writeRequest = buildCalendarWriteRequestParams({ ...p, action: params.action });
+        const {
+          calendarId: _calendarId,
+          eventId: _eventId,
+          ...requestParams
+        } = writeRequest.requestParams;
         if (params.action === "create_event") {
           return {
             method: "POST",
-            url: `https://www.googleapis.com/calendar/v3/calendars/${encodeSegment(calendarId)}/events`,
+            url: `https://www.googleapis.com/calendar/v3/calendars/${encodeSegment(writeRequest.calendarId)}/events`,
+            params: compactParams(requestParams),
             data: event,
           };
         }
         return {
           method: "PATCH",
-          url: `https://www.googleapis.com/calendar/v3/calendars/${encodeSegment(calendarId)}/events/${encodeSegment(String(p.eventId))}`,
+          url: `https://www.googleapis.com/calendar/v3/calendars/${encodeSegment(
+            writeRequest.calendarId,
+          )}/events/${encodeSegment(String(writeRequest.eventId))}`,
+          params: compactParams(requestParams),
           data: event,
         };
       }

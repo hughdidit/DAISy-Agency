@@ -21,6 +21,76 @@ const stringArray = {
   minItems: 1,
 };
 
+const stringMap = {
+  type: "object",
+  additionalProperties: string,
+};
+
+const calendarRecurrenceArray = {
+  type: "array",
+  minItems: 1,
+  items: {
+    ...string,
+    pattern: "^(RRULE|RDATE|EXDATE):.+$",
+  },
+};
+
+const calendarReminders = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    useDefault: boolean,
+    overrides: {
+      type: "array",
+      minItems: 1,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["method", "minutes"],
+        properties: {
+          method: { type: "string", enum: ["email", "popup"] },
+          minutes: integer(0, 40320),
+        },
+      },
+    },
+  },
+};
+
+const calendarSource = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    title: string,
+    url: string,
+  },
+};
+
+const calendarExtendedProperties = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    private: stringMap,
+    shared: stringMap,
+  },
+};
+
+const calendarAttachments = {
+  type: "array",
+  minItems: 1,
+  items: {
+    type: "object",
+    additionalProperties: false,
+    required: ["fileUrl"],
+    properties: {
+      fileUrl: string,
+      title: string,
+      mimeType: string,
+      iconLink: string,
+      fileId: string,
+    },
+  },
+};
+
 const jsonValue = {
   anyOf: [
     { type: "string" },
@@ -123,6 +193,16 @@ const calendarReadSchema = {
     pageSize: integer(1, 200),
     timeMin: string,
     timeMax: string,
+    singleEvents: boolean,
+    showDeleted: boolean,
+    orderBy: { type: "string", enum: ["startTime", "updated"] },
+    q: string,
+    timeZone: string,
+    updatedMin: string,
+    pageToken: string,
+    syncToken: string,
+    iCalUID: string,
+    maxAttendees: integer(1, 200),
   },
   allOf: [
     {
@@ -245,20 +325,42 @@ const calendarWriteSchema = {
     location: string,
     start: string,
     end: string,
+    startDate: string,
+    endDate: string,
+    startTimeZone: string,
+    endTimeZone: string,
     attendees: {
       type: "array",
       items: string,
     },
+    recurrence: calendarRecurrenceArray,
+    visibility: { type: "string", enum: ["default", "public", "private", "confidential"] },
+    transparency: { type: "string", enum: ["opaque", "transparent"] },
+    colorId: string,
+    reminders: calendarReminders,
+    source: calendarSource,
+    extendedProperties: calendarExtendedProperties,
+    attachments: calendarAttachments,
+    supportsAttachments: boolean,
+    sendUpdates: { type: "string", enum: ["all", "externalOnly", "none"] },
+    guestsCanInviteOthers: boolean,
+    guestsCanModify: boolean,
+    guestsCanSeeOtherGuests: boolean,
   },
   allOf: [
     {
       if: { properties: { action: { const: "create_event" } } },
-      then: { required: ["summary", "start", "end"] },
+      then: {
+        required: ["summary"],
+        anyOf: [{ required: ["start", "end"] }, { required: ["startDate", "endDate"] }],
+      },
     },
     {
       if: { properties: { action: { const: "update_event" } } },
       then: { required: ["eventId"] },
     },
+    { not: { required: ["start", "startDate"] } },
+    { not: { required: ["end", "endDate"] } },
   ],
 };
 

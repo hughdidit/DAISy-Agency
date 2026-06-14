@@ -169,7 +169,14 @@ export async function executeCommand(params: {
     }, params.config.timeoutMs);
 
     child.once("error", (err) => {
-      fail(new PluginError("EXEC_ERROR", `failed to execute gws command: ${String(err)}`));
+      const spawnError = err as NodeJS.ErrnoException;
+      fail(
+        new PluginError("EXEC_ERROR", `failed to execute gws command: ${String(err)}`, {
+          code: spawnError.code,
+          syscall: spawnError.syscall,
+          path: spawnError.path,
+        }),
+      );
     });
 
     child.once("close", (code, signal) => {
