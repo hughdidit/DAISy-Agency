@@ -87,7 +87,7 @@ function buildAttendees(value: unknown): { email: string }[] | undefined {
     .map((entry) => entry.trim())
     .filter(Boolean)
     .map((email) => ({ email }));
-  return attendees.length > 0 ? attendees : undefined;
+  return attendees;
 }
 
 function appendObject(target: Record<string, unknown>, key: string, value: unknown): void {
@@ -171,7 +171,7 @@ export function buildCalendarEventBody(params: Record<string, unknown>): Record<
   }
 
   const attendees = buildAttendees(params.attendees);
-  if (attendees) {
+  if (attendees !== undefined) {
     body.attendees = attendees;
   }
   appendArray(body, "recurrence", params.recurrence);

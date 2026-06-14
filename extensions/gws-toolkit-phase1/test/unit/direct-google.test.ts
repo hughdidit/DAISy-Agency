@@ -182,6 +182,22 @@ describe("direct Google API transport", () => {
         guestsCanSeeOtherGuests: false,
       },
     });
+
+    expect(
+      buildDirectGoogleRequest({
+        service: "calendar",
+        action: "update_event",
+        payload: {
+          calendarId: "team@example.com",
+          eventId: "event-1",
+          attendees: [],
+        },
+      }),
+    ).toMatchObject({
+      method: "PATCH",
+      url: "https://www.googleapis.com/calendar/v3/calendars/team%40example.com/events/event-1",
+      data: { attendees: [] },
+    });
   });
 
   it("uses action-level scopes for delegated direct calls", () => {

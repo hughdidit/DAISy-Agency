@@ -352,10 +352,7 @@ const calendarWriteSchema = {
       if: { properties: { action: { const: "create_event" } } },
       then: {
         required: ["summary"],
-        anyOf: [
-          { required: ["start", "end"] },
-          { required: ["startDate", "endDate"] },
-        ],
+        anyOf: [{ required: ["start", "end"] }, { required: ["startDate", "endDate"] }],
       },
     },
     {

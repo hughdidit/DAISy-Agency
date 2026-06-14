@@ -337,5 +337,28 @@ describe("integration: command build", () => {
       guestsCanModify: true,
       guestsCanSeeOtherGuests: false,
     });
+
+    const clearAttendees = buildCalendarWriteCommand(
+      {
+        action: "update_event",
+        confirm: true,
+        calendarId: "team@example.com",
+        eventId: "event-1",
+        attendees: [],
+      },
+      [],
+    ).argv;
+
+    expect(clearAttendees.slice(0, 7)).toEqual([
+      "calendar",
+      "events",
+      "patch",
+      "--format",
+      "json",
+      "--params",
+      '{"calendarId":"team@example.com","eventId":"event-1"}',
+    ]);
+    expect(clearAttendees[7]).toBe("--json");
+    expect(JSON.parse(clearAttendees[8] as string)).toEqual({ attendees: [] });
   });
 });

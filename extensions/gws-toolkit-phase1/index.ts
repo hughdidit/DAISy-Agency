@@ -47,7 +47,9 @@ function toToolResult(payload: StructuredEnvelope) {
   };
 }
 
-function withLabel<N extends string>(tool: { name: N } & Record<string, unknown>): AnyAgentTool & { name: N } {
+function withLabel<N extends string>(
+  tool: { name: N } & Record<string, unknown>,
+): AnyAgentTool & { name: N } {
   return {
     ...tool,
     label: tool.name,

@@ -11,7 +11,8 @@ type CacheEntry = {
 
 const cache = new Map<string, CacheEntry>();
 
-const NOT_FOUND_PATTERN = /enoent|not\s+recognized|not\s+found|cannot\s+find\s+module|module_not_found/i;
+const NOT_FOUND_PATTERN =
+  /enoent|not\s+recognized|not\s+found|cannot\s+find\s+module|module_not_found/i;
 
 function isMissingBinaryError(error: PluginError): boolean {
   return error.details?.code === "ENOENT" || NOT_FOUND_PATTERN.test(error.message);

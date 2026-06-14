@@ -762,10 +762,9 @@ export function buildDirectGoogleRequest(params: {
         }
         return {
           method: "PATCH",
-          url:
-            `https://www.googleapis.com/calendar/v3/calendars/${encodeSegment(
-              writeRequest.calendarId,
-            )}/events/${encodeSegment(String(writeRequest.eventId))}`,
+          url: `https://www.googleapis.com/calendar/v3/calendars/${encodeSegment(
+            writeRequest.calendarId,
+          )}/events/${encodeSegment(String(writeRequest.eventId))}`,
           params: compactParams(requestParams),
           data: event,
         };
