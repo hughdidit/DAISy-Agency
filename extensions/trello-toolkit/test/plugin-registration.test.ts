@@ -1,10 +1,13 @@
+import { Command } from "commander";
 import { describe, expect, it } from "vitest";
-import plugin from "../index.js";
 import type { AnyAgentTool } from "../../../src/agents/tools/common.js";
 import type { OpenClawPluginApi, OpenClawPluginToolContext } from "../../../src/plugins/types.js";
+import plugin from "../index.js";
 
 function createHarness(pluginConfig: unknown = {}) {
-  const factories: Array<(ctx: OpenClawPluginToolContext) => AnyAgentTool | AnyAgentTool[] | null | undefined> = [];
+  const factories: Array<
+    (ctx: OpenClawPluginToolContext) => AnyAgentTool | AnyAgentTool[] | null | undefined
+  > = [];
   const cliCommands: string[] = [];
   const api = {
     pluginConfig,
@@ -14,24 +17,20 @@ function createHarness(pluginConfig: unknown = {}) {
       error: () => undefined,
       debug: () => undefined,
     },
-    registerTool: (factory: (ctx: OpenClawPluginToolContext) => AnyAgentTool | AnyAgentTool[] | null | undefined) => {
+    registerTool: (
+      factory: (ctx: OpenClawPluginToolContext) => AnyAgentTool | AnyAgentTool[] | null | undefined,
+    ) => {
       factories.push(factory);
     },
-    registerCli: (register: (ctx: { program: { command: (name: string) => { description: () => unknown } } }) => void) => {
-      const chain = {
-        command: () => chain,
-        description: () => chain,
-        option: () => chain,
-        action: () => chain,
-      };
-      register({
-        program: {
-          command: (name: string) => {
-            cliCommands.push(name);
-            return chain;
-          },
-        },
-      });
+    registerCli: (register: (ctx: { program: Command }) => void) => {
+      const program = new Command();
+      register({ program });
+      for (const command of program.commands) {
+        cliCommands.push(command.name());
+        for (const subcommand of command.commands) {
+          cliCommands.push(`${command.name()} ${subcommand.name()}`);
+        }
+      }
     },
   } as unknown as OpenClawPluginApi;
 
@@ -73,9 +72,13 @@ describe("trello-toolkit plugin registration", () => {
       },
     });
 
-    expect([...harness.tools.keys()].sort()).toEqual(["trello_read", "trello_status", "trello_write"]);
+    expect([...harness.tools.keys()].sort()).toEqual([
+      "trello_read",
+      "trello_status",
+      "trello_write",
+    ]);
     expect(harness.tools.get("trello_read")?.description).toContain("Read Trello");
     expect(harness.tools.get("trello_write")?.description).toContain("Write Trello");
-    expect(harness.cliCommands).toEqual(["trello"]);
+    expect(harness.cliCommands).toEqual(["trello", "trello status"]);
   });
 });

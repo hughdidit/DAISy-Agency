@@ -1,6 +1,12 @@
 import { TrelloClientError, createTrelloClient } from "../client.js";
-import type { PolicyDecision, StructuredEnvelope, TrelloAction, TrelloToolkitConfig, TrelloToolName } from "../types.js";
 import { errorEnvelope } from "../errors.js";
+import type {
+  PolicyDecision,
+  StructuredEnvelope,
+  TrelloAction,
+  TrelloToolkitConfig,
+  TrelloToolName,
+} from "../types.js";
 
 export function nowMs() {
   return Date.now();
@@ -65,8 +71,8 @@ export function deniedEnvelope(params: {
     tool: params.tool,
     action: params.action,
     code: "DENY_POLICY",
-    message: params.decision.allowed ? "allowed" : params.decision.reason,
-    routeName: params.decision.allowed ? params.decision.routeName : params.decision.routeName,
+    message: params.decision.reason,
+    routeName: params.decision.routeName,
     latencyMs: Date.now() - params.startedAt,
   });
 }
@@ -92,12 +98,15 @@ export function exceptionEnvelope(params: {
   return errorEnvelope({
     tool: params.tool,
     action: params.action,
-    code: params.error instanceof Error && params.error.message.startsWith("missing Trello credential env")
-      ? "CONFIG_ERROR"
-      : params.error instanceof Error &&
-          (params.error.message.endsWith(" required") || params.error.message.startsWith("unsupported Trello "))
-        ? "VALIDATION_ERROR"
-        : "INTERNAL_ERROR",
+    code:
+      params.error instanceof Error &&
+      params.error.message.startsWith("missing Trello credential env")
+        ? "CONFIG_ERROR"
+        : params.error instanceof Error &&
+            (params.error.message.endsWith(" required") ||
+              params.error.message.startsWith("unsupported Trello "))
+          ? "VALIDATION_ERROR"
+          : "INTERNAL_ERROR",
     message: params.error instanceof Error ? params.error.message : String(params.error),
     routeName: params.routeName,
     latencyMs: Date.now() - params.startedAt,
@@ -110,10 +119,7 @@ export function resolveCredentials(config: TrelloToolkitConfig, env = process.en
   if (!apiKey || !token) {
     return {
       ok: false as const,
-      missing: [
-        ...(!apiKey ? [config.apiKeyEnvVar] : []),
-        ...(!token ? [config.tokenEnvVar] : []),
-      ],
+      missing: [...(!apiKey ? [config.apiKeyEnvVar] : []), ...(!token ? [config.tokenEnvVar] : [])],
     };
   }
   return {

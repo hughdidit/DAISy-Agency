@@ -56,7 +56,9 @@ describe("trello client", () => {
     ]);
     expect(server.requests[0]?.url).toContain("key=secret-key");
     expect(server.requests[0]?.url).toContain("token=secret-token");
-    expect(decodeURIComponent(server.requests[0]?.url ?? "")).toContain("fields=name,id,closed,url");
+    expect(decodeURIComponent(server.requests[0]?.url ?? "")).toContain(
+      "fields=name,id,closed,url",
+    );
   });
 
   it("maps Trello errors without leaking credentials", async () => {
@@ -79,6 +81,26 @@ describe("trello client", () => {
       expect(error).toBeInstanceOf(TrelloClientError);
       expect(String(error)).not.toContain("secret-token");
       expect(JSON.stringify((error as TrelloClientError).details)).not.toContain("secret-key");
+    });
+  });
+
+  it("maps non-JSON HTTP failures to status-specific errors", async () => {
+    const server = await startServer((_req, res) => {
+      res.statusCode = 401;
+      res.statusMessage = "Unauthorized";
+      res.setHeader("content-type", "text/plain");
+      res.end("invalid token secret-token");
+    });
+    const client = createTrelloClient({
+      apiKey: "secret-key",
+      token: "secret-token",
+      baseUrl: server.baseUrl,
+    });
+
+    await client.listBoards().catch((error: unknown) => {
+      expect(error).toBeInstanceOf(TrelloClientError);
+      expect(error).toMatchObject({ code: "AUTH_ERROR", status: 401 });
+      expect(JSON.stringify((error as TrelloClientError).details)).not.toContain("secret-token");
     });
   });
 
@@ -113,11 +135,15 @@ describe("trello client", () => {
       baseUrl: server.baseUrl,
     });
 
-    await expect(client.createCard({ listId: "list-1", name: "New card", desc: "Details" })).resolves.toMatchObject({
+    await expect(
+      client.createCard({ listId: "list-1", name: "New card", desc: "Details" }),
+    ).resolves.toMatchObject({
       id: "card-1",
       name: "New card",
     });
-    await expect(client.moveCard({ cardId: "card-1", targetListId: "list-2" })).resolves.toMatchObject({
+    await expect(
+      client.moveCard({ cardId: "card-1", targetListId: "list-2" }),
+    ).resolves.toMatchObject({
       id: "card-1",
       idList: "list-2",
     });

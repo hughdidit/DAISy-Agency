@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { evaluatePolicy } from "../src/policy.js";
 import { resolveConfig } from "../src/config.js";
+import { evaluatePolicy } from "../src/policy.js";
 
 describe("trello-toolkit config and policy", () => {
   it("normalizes secure defaults and rejects unknown config keys", () => {
@@ -40,6 +40,16 @@ describe("trello-toolkit config and policy", () => {
     expect(resolveConfig({ unknown: true })).toMatchObject({
       ok: false,
       error: { error: { code: "CONFIG_ERROR", message: "Unknown plugin config keys: unknown" } },
+    });
+
+    expect(resolveConfig("not an object")).toMatchObject({
+      ok: false,
+      error: { error: { code: "CONFIG_ERROR", message: "plugin config must be an object" } },
+      posture: {
+        pluginConfigProvided: true,
+        valid: false,
+        message: "plugin config must be an object",
+      },
     });
   });
 

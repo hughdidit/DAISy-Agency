@@ -7,7 +7,11 @@ export class TrelloClientError extends Error {
   readonly status?: number;
   readonly details?: Record<string, unknown>;
 
-  constructor(code: TrelloResultCode, message: string, params: { status?: number; details?: Record<string, unknown> } = {}) {
+  constructor(
+    code: TrelloResultCode,
+    message: string,
+    params: { status?: number; details?: Record<string, unknown> } = {},
+  ) {
     super(message);
     this.name = "TrelloClientError";
     this.code = code;
@@ -37,7 +41,9 @@ function mapStatusToCode(status: number): TrelloResultCode {
 }
 
 function normalizeRecord(value: unknown): Record<string, unknown> {
-  return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {};
 }
 
 function normalizeBoard(value: unknown): TrelloBoard {
@@ -117,6 +123,13 @@ export function createTrelloClient(params: {
         init.body = form;
       }
       const response = await fetchImpl(url, init);
+      const contentLength = response.headers.get("content-length");
+      if (contentLength && Number(contentLength) > maxResponseBytes) {
+        throw new TrelloClientError("RESPONSE_TOO_LARGE", "Trello response exceeded size limit", {
+          status: response.status,
+          details: { maxResponseBytes },
+        });
+      }
       const bytes = await response.arrayBuffer();
       if (bytes.byteLength > maxResponseBytes) {
         throw new TrelloClientError("RESPONSE_TOO_LARGE", "Trello response exceeded size limit", {
@@ -129,6 +142,16 @@ export function createTrelloClient(params: {
       try {
         parsed = text ? JSON.parse(text) : {};
       } catch {
+        if (!response.ok) {
+          throw new TrelloClientError(
+            mapStatusToCode(response.status),
+            response.statusText || `HTTP ${response.status}`,
+            {
+              status: response.status,
+              details: { body: redactSecrets(text.slice(0, 500), secrets) },
+            },
+          );
+        }
         throw new TrelloClientError("NON_JSON_OUTPUT", "Trello returned non-JSON output", {
           status: response.status,
           details: { body: redactSecrets(text.slice(0, 500), secrets) },
@@ -137,10 +160,14 @@ export function createTrelloClient(params: {
       if (!response.ok) {
         const record = normalizeRecord(parsed);
         const message = typeof record.message === "string" ? record.message : response.statusText;
-        throw new TrelloClientError(mapStatusToCode(response.status), redactSecrets(message, secrets), {
-          status: response.status,
-          details: { status: response.status },
-        });
+        throw new TrelloClientError(
+          mapStatusToCode(response.status),
+          redactSecrets(message, secrets),
+          {
+            status: response.status,
+            details: { status: response.status },
+          },
+        );
       }
       return parsed as T;
     } catch (error) {
@@ -151,7 +178,9 @@ export function createTrelloClient(params: {
         throw new TrelloClientError("EXEC_TIMEOUT", "Trello request timed out");
       }
       throw new TrelloClientError("NETWORK_ERROR", "Trello request failed", {
-        details: { cause: error instanceof Error ? redactSecrets(error.message, secrets) : String(error) },
+        details: {
+          cause: error instanceof Error ? redactSecrets(error.message, secrets) : String(error),
+        },
       });
     } finally {
       clearTimeout(timeout);
@@ -166,15 +195,23 @@ export function createTrelloClient(params: {
       return boards.map(normalizeBoard).filter((board) => board.id);
     },
     async listLists(boardId: string) {
-      const lists = await requestJson<unknown[]>("GET", `boards/${encodeURIComponent(boardId)}/lists`, {
-        fields: "name,id,closed,idBoard",
-      });
+      const lists = await requestJson<unknown[]>(
+        "GET",
+        `boards/${encodeURIComponent(boardId)}/lists`,
+        {
+          fields: "name,id,closed,idBoard",
+        },
+      );
       return lists.map(normalizeList).filter((list) => list.id);
     },
     async listCards(listId: string) {
-      const cards = await requestJson<unknown[]>("GET", `lists/${encodeURIComponent(listId)}/cards`, {
-        fields: "name,id,desc,closed,idBoard,idList,shortUrl,url",
-      });
+      const cards = await requestJson<unknown[]>(
+        "GET",
+        `lists/${encodeURIComponent(listId)}/cards`,
+        {
+          fields: "name,id,desc,closed,idBoard,idList,shortUrl,url",
+        },
+      );
       return cards.map(normalizeCard).filter((card) => card.id);
     },
     async getList(listId: string) {
@@ -211,9 +248,14 @@ export function createTrelloClient(params: {
       );
     },
     async addComment(input: { cardId: string; text: string }) {
-      return await requestJson("POST", `cards/${encodeURIComponent(input.cardId)}/actions/comments`, undefined, {
-        text: input.text,
-      });
+      return await requestJson(
+        "POST",
+        `cards/${encodeURIComponent(input.cardId)}/actions/comments`,
+        undefined,
+        {
+          text: input.text,
+        },
+      );
     },
     async archiveCard(input: { cardId: string }) {
       return normalizeCard(

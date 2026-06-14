@@ -1,6 +1,6 @@
-import type { TrelloWriteAction } from "../types.js";
-import { evaluatePolicy, resolveSubject } from "../policy.js";
 import type { TrelloClient } from "../client.js";
+import { evaluatePolicy, resolveSubject } from "../policy.js";
+import type { TrelloWriteAction } from "../types.js";
 import type { InvocationContext, TrelloToolkitConfig } from "../types.js";
 import {
   deniedEnvelope,
@@ -127,7 +127,8 @@ export async function executeWrite(params: {
         : action === "move_card"
           ? await credentials.client.moveCard({
               cardId: readStringParam(params.rawParams, "cardId", { required: true }) ?? "",
-              targetListId: readStringParam(params.rawParams, "targetListId", { required: true }) ?? "",
+              targetListId:
+                readStringParam(params.rawParams, "targetListId", { required: true }) ?? "",
             })
           : action === "add_comment"
             ? await credentials.client.addComment({

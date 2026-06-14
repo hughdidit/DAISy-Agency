@@ -82,11 +82,11 @@ function normalizeRoute(routeName: string, raw: unknown): TrelloRouteConfig | { 
   if (!obj) {
     return { error: `route ${routeName} must be an object` };
   }
-  const allowedTools = normalizeStringArray(obj.allowedTools).filter((value): value is TrelloToolName =>
-    VALID_TOOLS.has(value as TrelloToolName),
+  const allowedTools = normalizeStringArray(obj.allowedTools).filter(
+    (value): value is TrelloToolName => VALID_TOOLS.has(value as TrelloToolName),
   );
-  const allowedActions = normalizeStringArray(obj.allowedActions).filter((value): value is TrelloAction =>
-    VALID_ACTIONS.has(value as TrelloAction),
+  const allowedActions = normalizeStringArray(obj.allowedActions).filter(
+    (value): value is TrelloAction => VALID_ACTIONS.has(value as TrelloAction),
   );
   if (allowedTools.length === 0) {
     return { error: `route ${routeName} must allow at least one Trello tool` };
@@ -137,13 +137,26 @@ export function resolveConfig(
 ):
   | { ok: true; value: { config: TrelloToolkitConfig; posture: ConfigPosture } }
   | { ok: false; error: StructuredError; posture: ConfigPosture } {
+  const raw = asObject(rawPluginConfig);
+  if (rawPluginConfig !== undefined && raw === null) {
+    return {
+      ok: false,
+      error: buildConfigError("plugin config must be an object"),
+      posture: {
+        pluginConfigProvided: true,
+        valid: false,
+        message: "plugin config must be an object",
+      },
+    };
+  }
+
   const postureBase: ConfigPosture = {
     pluginConfigProvided: rawPluginConfig !== undefined,
     valid: false,
-    message: "plugin config missing",
+    message: rawPluginConfig === undefined ? "plugin config missing" : "plugin config invalid",
   };
-  const raw = asObject(rawPluginConfig) ?? {};
-  const unknownKeys = Object.keys(raw).filter((key) => !ALLOWED_CONFIG_KEYS.has(key));
+  const rawConfig = raw ?? {};
+  const unknownKeys = Object.keys(rawConfig).filter((key) => !ALLOWED_CONFIG_KEYS.has(key));
   if (unknownKeys.length > 0) {
     return {
       ok: false,
@@ -156,26 +169,38 @@ export function resolveConfig(
     };
   }
 
-  const apiKeyEnvVar = normalizeEnvVar(raw.apiKeyEnvVar, "TRELLO_API_KEY");
+  const apiKeyEnvVar = normalizeEnvVar(rawConfig.apiKeyEnvVar, "TRELLO_API_KEY");
   if (typeof apiKeyEnvVar !== "string") {
-    return { ok: false, error: buildConfigError(apiKeyEnvVar.error), posture: postureBase };
+    return {
+      ok: false,
+      error: buildConfigError(apiKeyEnvVar.error),
+      posture: { ...postureBase, message: apiKeyEnvVar.error },
+    };
   }
-  const tokenEnvVar = normalizeEnvVar(raw.tokenEnvVar, "TRELLO_TOKEN");
+  const tokenEnvVar = normalizeEnvVar(rawConfig.tokenEnvVar, "TRELLO_TOKEN");
   if (typeof tokenEnvVar !== "string") {
-    return { ok: false, error: buildConfigError(tokenEnvVar.error), posture: postureBase };
+    return {
+      ok: false,
+      error: buildConfigError(tokenEnvVar.error),
+      posture: { ...postureBase, message: tokenEnvVar.error },
+    };
   }
 
-  const routesRaw = asObject(raw.routes) ?? {};
+  const routesRaw = asObject(rawConfig.routes) ?? {};
   const routes: Record<string, TrelloRouteConfig> = {};
   for (const [routeName, routeRaw] of Object.entries(routesRaw)) {
     const route = normalizeRoute(routeName, routeRaw);
     if ("error" in route) {
-      return { ok: false, error: buildConfigError(route.error), posture: postureBase };
+      return {
+        ok: false,
+        error: buildConfigError(route.error),
+        posture: { ...postureBase, message: route.error },
+      };
     }
     routes[routeName] = route;
   }
 
-  const agentRouteBindingsRaw = asObject(raw.agentRouteBindings) ?? {};
+  const agentRouteBindingsRaw = asObject(rawConfig.agentRouteBindings) ?? {};
   const agentRouteBindings = Object.fromEntries(
     Object.entries(agentRouteBindingsRaw)
       .filter(([, value]) => typeof value === "string" && value.trim())
@@ -183,9 +208,9 @@ export function resolveConfig(
   );
 
   const defaultRoute =
-    typeof raw.defaultRoute === "string" && raw.defaultRoute.trim()
-      ? raw.defaultRoute.trim()
-      : raw.defaultRoute === null
+    typeof rawConfig.defaultRoute === "string" && rawConfig.defaultRoute.trim()
+      ? rawConfig.defaultRoute.trim()
+      : rawConfig.defaultRoute === null
         ? null
         : defaultConfig().defaultRoute;
 
@@ -193,7 +218,10 @@ export function resolveConfig(
     return {
       ok: false,
       error: buildConfigError(`defaultRoute ${defaultRoute} is not present in routes`),
-      posture: postureBase,
+      posture: {
+        ...postureBase,
+        message: `defaultRoute ${defaultRoute} is not present in routes`,
+      },
     };
   }
 
@@ -203,10 +231,10 @@ export function resolveConfig(
       config: {
         apiKeyEnvVar,
         tokenEnvVar,
-        timeoutMs: normalizeNumber(raw.timeoutMs, 15000, 1000, 120000),
-        maxResponseBytes: normalizeNumber(raw.maxResponseBytes, 262144, 1024, 1048576),
-        allowWriteOperations: raw.allowWriteOperations === true,
-        allowUnboundAgents: raw.allowUnboundAgents === true,
+        timeoutMs: normalizeNumber(rawConfig.timeoutMs, 15000, 1000, 120000),
+        maxResponseBytes: normalizeNumber(rawConfig.maxResponseBytes, 262144, 1024, 1048576),
+        allowWriteOperations: rawConfig.allowWriteOperations === true,
+        allowUnboundAgents: rawConfig.allowUnboundAgents === true,
         defaultRoute,
         routes,
         agentRouteBindings,

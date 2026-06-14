@@ -2,7 +2,11 @@
 name: trello
 description: Manage Trello boards, lists, and cards through the brokered Trello toolkit.
 homepage: https://developer.atlassian.com/cloud/trello/rest/
-metadata: { "openclaw": { "emoji": "📋", "requires": { "config": ["plugins.entries.trello-toolkit.enabled"] } } }
+metadata:
+  {
+    "openclaw":
+      { "emoji": "📋", "requires": { "config": ["plugins.entries.trello-toolkit.enabled"] } },
+  }
 ---
 
 # Trello Skill

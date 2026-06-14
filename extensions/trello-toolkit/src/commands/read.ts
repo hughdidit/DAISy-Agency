@@ -1,6 +1,6 @@
-import type { TrelloReadAction } from "../types.js";
-import { evaluatePolicy, resolveSubject } from "../policy.js";
 import type { TrelloClient } from "../client.js";
+import { evaluatePolicy, resolveSubject } from "../policy.js";
+import type { TrelloReadAction } from "../types.js";
 import type { InvocationContext, TrelloToolkitConfig } from "../types.js";
 import {
   deniedEnvelope,
@@ -26,7 +26,11 @@ function readAction(rawParams: Record<string, unknown>): TrelloReadAction {
   return action as TrelloReadAction;
 }
 
-async function resolveScope(client: TrelloClient, action: TrelloReadAction, rawParams: Record<string, unknown>) {
+async function resolveScope(
+  client: TrelloClient,
+  action: TrelloReadAction,
+  rawParams: Record<string, unknown>,
+) {
   if (action === "list_boards") {
     return {};
   }
@@ -84,12 +88,23 @@ export async function executeRead(params: {
       action === "list_boards"
         ? (await credentials.client.listBoards()).filter(
             (board) =>
-              decision.route.allowedBoardIds.length === 0 || decision.route.allowedBoardIds.includes(board.id),
+              decision.route.allowedBoardIds.length === 0 ||
+              decision.route.allowedBoardIds.includes(board.id),
           )
         : action === "list_lists"
-          ? await credentials.client.listLists(readStringParam(params.rawParams, "boardId", { required: true }) ?? "")
+          ? (
+              await credentials.client.listLists(
+                readStringParam(params.rawParams, "boardId", { required: true }) ?? "",
+              )
+            ).filter(
+              (list) =>
+                decision.route.allowedListIds.length === 0 ||
+                decision.route.allowedListIds.includes(list.id),
+            )
           : action === "list_cards"
-            ? await credentials.client.listCards(readStringParam(params.rawParams, "listId", { required: true }) ?? "")
+            ? await credentials.client.listCards(
+                readStringParam(params.rawParams, "listId", { required: true }) ?? "",
+              )
             : scope.card;
     return successEnvelope({ tool: "trello_read", action, data, routeName, startedAt });
   } catch (error) {

@@ -11,11 +11,16 @@ export function resolveSubject(agentId: string | undefined): string {
   return normalized ? `agent:${normalized}` : "agent:cli";
 }
 
-function resolveRoute(params: { config: TrelloToolkitConfig; subject: string }): ResolvedRoute | null {
+function resolveRoute(params: {
+  config: TrelloToolkitConfig;
+  subject: string;
+}): ResolvedRoute | null {
   const explicitRouteName = params.config.agentRouteBindings[params.subject];
   const fallbackRouteName =
     explicitRouteName ??
-    (params.config.allowUnboundAgents && params.config.defaultRoute ? params.config.defaultRoute : undefined);
+    (params.config.allowUnboundAgents && params.config.defaultRoute
+      ? params.config.defaultRoute
+      : undefined);
   if (!fallbackRouteName) {
     return null;
   }

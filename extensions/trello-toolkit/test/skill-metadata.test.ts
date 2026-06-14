@@ -1,11 +1,16 @@
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { parseFrontmatter, resolveOpenClawMetadata } from "../../../src/agents/skills/frontmatter.js";
+import {
+  parseFrontmatter,
+  resolveOpenClawMetadata,
+} from "../../../src/agents/skills/frontmatter.js";
 
 describe("trello skill metadata", () => {
   it("is gated on the brokered plugin instead of sandbox env or jq", () => {
-    const skillPath = path.join(process.cwd(), "skills", "trello", "SKILL.md");
+    const here = path.dirname(fileURLToPath(import.meta.url));
+    const skillPath = path.resolve(here, "../../../skills/trello/SKILL.md");
     const content = fs.readFileSync(skillPath, "utf8");
     const metadata = resolveOpenClawMetadata(parseFrontmatter(content));
 
