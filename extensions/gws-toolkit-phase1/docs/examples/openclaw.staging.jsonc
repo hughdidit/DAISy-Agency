@@ -14,8 +14,8 @@
       "gws-toolkit-phase1": {
         "enabled": true,
         "config": {
-          "enabledServices": ["drive", "gmail", "calendar", "docs", "sheets"],
-          "enabledWriteServices": ["drive", "calendar", "docs"],
+          "enabledServices": ["drive", "gmail", "calendar", "docs", "sheets", "contacts"],
+          "enabledWriteServices": ["drive", "calendar", "docs", "contacts"],
           "allowWriteOperations": true,
           "allowUnboundAgents": false,
           "approvedCredentialDirs": ["/home/node/.openclaw/secrets/gws"],
@@ -24,17 +24,21 @@
             "ops-drive": {
               "mode": "credentials_file",
               "label": "Ops Drive",
-              "allowedServices": ["drive", "calendar"],
+              "allowedServices": ["drive", "calendar", "contacts"],
               "allowedTools": [
                 "gws_drive_read",
                 "gws_calendar_read",
+                "gws_contacts_read",
                 "gws_drive_write",
                 "gws_calendar_write",
+                "gws_contacts_write",
               ],
               "allowedActions": [
                 "drive:create_folder",
                 "drive:upload_file",
                 "calendar:create_event",
+                "contacts:list_contact_groups",
+                "contacts:modify_contact_group_members",
               ],
               "credentialsFile": "/home/node/.openclaw/secrets/gws/ops.json",
               "impersonatedUserEnvVar": "GWS_OPS_IMPERSONATED_USER",

@@ -39,23 +39,25 @@ describe("gws-toolkit-phase1 phase2 acceptance contracts", () => {
     const harness = createHarness({
       pluginConfig: defaultPluginConfig({
         allowWriteOperations: true,
-        enabledServices: ["drive", "gmail", "calendar", "docs", "sheets"],
-        enabledWriteServices: ["drive", "gmail", "calendar", "docs", "sheets"],
+        enabledServices: ["drive", "gmail", "calendar", "docs", "sheets", "contacts"],
+        enabledWriteServices: ["drive", "gmail", "calendar", "docs", "sheets", "contacts"],
         credentialRoutes: {
           writer: {
             mode: "token",
-            allowedServices: ["drive", "gmail", "calendar", "docs", "sheets"],
+            allowedServices: ["drive", "gmail", "calendar", "docs", "sheets", "contacts"],
             allowedTools: [
               "gws_drive_read",
               "gws_gmail_read",
               "gws_calendar_read",
               "gws_docs_read",
               "gws_sheets_read",
+              "gws_contacts_read",
               "gws_drive_write",
               "gws_gmail_write",
               "gws_calendar_write",
               "gws_docs_write",
               "gws_sheets_write",
+              "gws_contacts_write",
             ],
           },
         },
@@ -74,9 +76,21 @@ describe("gws-toolkit-phase1 phase2 acceptance contracts", () => {
       confirm: true,
       title: "Sheet",
     });
+    const contactsRead = await executeTool(harness, "gws_contacts_read", {
+      action: "list_contact_groups",
+      pageSize: 10,
+    });
+    const contactsWrite = await executeTool(harness, "gws_contacts_write", {
+      action: "modify_contact_group_members",
+      confirm: true,
+      resourceName: "contactGroups/friends",
+      resourceNamesToAdd: ["people/contact-1"],
+    });
 
     expect(docsRead.ok).toBe(true);
     expect(sheetsWrite.ok).toBe(true);
+    expect(contactsRead.ok).toBe(true);
+    expect(contactsWrite.ok).toBe(true);
   });
 
   it("registers Calendar recurrence and event configuration parameters", () => {

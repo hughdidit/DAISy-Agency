@@ -5,6 +5,7 @@ import {
   DEFAULT_ALLOWED_CREDENTIAL_MODES,
   DEFAULT_ENABLED_SERVICES,
   READ_TOOLS_BY_SERVICE,
+  READONLY_SCOPES,
   WRITE_SCOPES,
   WRITE_TOOLS_BY_SERVICE,
   type ConfigPosture,
@@ -232,17 +233,7 @@ function resolveScopesProfile(config: {
       scopes.add(WRITE_SCOPES[service]);
       continue;
     }
-    scopes.add(
-      service === "drive"
-        ? "https://www.googleapis.com/auth/drive.readonly"
-        : service === "gmail"
-          ? "https://www.googleapis.com/auth/gmail.readonly"
-          : service === "calendar"
-            ? "https://www.googleapis.com/auth/calendar.readonly"
-            : service === "docs"
-              ? "https://www.googleapis.com/auth/documents.readonly"
-              : "https://www.googleapis.com/auth/spreadsheets.readonly",
-    );
+    scopes.add(READONLY_SCOPES[service]);
   }
   return [...scopes];
 }

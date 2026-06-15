@@ -29,6 +29,8 @@ export const DEFAULT_TOOL_ALLOW = [
   "memory_recallx",
   "memory_capture",
   "memory_ingest_document",
+  "gws_contacts_read",
+  "gws_contacts_write",
 ] as const;
 
 // Provider docking: keep sandbox policy aligned with provider tool names.

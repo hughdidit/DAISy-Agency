@@ -207,12 +207,13 @@ For a brand-new staging VM, the real deploy requires the config file to exist at
            config: {
              workspaceIdentityDomains: ["hughdidit.com"],
              allowUnboundAgents: false,
+             enabledServices: ["calendar", "gmail", "drive", "docs", "sheets", "contacts"],
              approvedCredentialDirs: ["/opt/DAISy/config/secrets/gws"],
              credentialRoutes: {
                "hughdidit-agent-gws": {
                  mode: "credentials_file",
                  credentialsFile: "/opt/DAISy/config/secrets/gws/domain-wide-delegation.json",
-                 allowedServices: ["calendar", "gmail", "drive", "docs", "sheets"],
+                 allowedServices: ["calendar", "gmail", "drive", "docs", "sheets", "contacts"],
                  allowedTools: [
                    "gws_status",
                    "gws_calendar_read",
@@ -220,6 +221,7 @@ For a brand-new staging VM, the real deploy requires the config file to exist at
                    "gws_drive_read",
                    "gws_docs_read",
                    "gws_sheets_read",
+                   "gws_contacts_read",
                  ],
                },
              },

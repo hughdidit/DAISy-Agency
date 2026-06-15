@@ -48,6 +48,8 @@ describe("delegate config helpers", () => {
       sessionToolsVisibility: "spawned",
     });
     expect(preset.tools.allow).toContain("gws_gmail_write");
+    expect(preset.tools.allow).toContain("gws_contacts_read");
+    expect(preset.tools.allow).not.toContain("gws_contacts_write");
     expect(preset.tools.allow).not.toContain("cron");
     expect(preset.tools.deny).toContain("cron");
   });
@@ -58,6 +60,8 @@ describe("delegate config helpers", () => {
     expect(preset.delegate.cron?.allowed).toBe(true);
     expect(preset.tools.allow).toContain("cron");
     expect(preset.tools.allow).toContain("gws_calendar_write");
+    expect(preset.tools.allow).toContain("gws_contacts_read");
+    expect(preset.tools.allow).toContain("gws_contacts_write");
     expect(preset.tools.deny).not.toContain("cron");
   });
 });

@@ -6,11 +6,12 @@ import {
   buildCalendarWriteRequestParams,
 } from "./calendar-event.js";
 import { PluginError } from "./errors.js";
+import type { ServiceFamily } from "./types.js";
 
 export type GwsCommandSpec = {
   argv: string[];
   action: string;
-  service: "drive" | "gmail" | "calendar" | "docs" | "sheets";
+  service: ServiceFamily;
   isWrite: boolean;
   cwd?: string;
 };
@@ -166,6 +167,69 @@ function readString(value: unknown, label: string): string {
     throw new PluginError("VALIDATION_ERROR", `${label} is required`);
   }
   return value.trim();
+}
+
+function maybeString(value: unknown): string | undefined {
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
+function buildContactPersonBody(params: Record<string, unknown>): Record<string, unknown> {
+  const body: Record<string, unknown> = {};
+  const givenName = maybeString(params.givenName);
+  const familyName = maybeString(params.familyName);
+  const displayName = maybeString(params.displayName);
+  if (givenName || familyName || displayName) {
+    body.names = [
+      {
+        ...(givenName ? { givenName } : {}),
+        ...(familyName ? { familyName } : {}),
+        ...(displayName ? { unstructuredName: displayName } : {}),
+      },
+    ];
+  }
+  const emailAddresses = asStringArray(params.emailAddresses);
+  if (emailAddresses) {
+    body.emailAddresses = emailAddresses.map((value) => ({ value }));
+  }
+  const phoneNumbers = asStringArray(params.phoneNumbers);
+  if (phoneNumbers) {
+    body.phoneNumbers = phoneNumbers.map((value) => ({ value }));
+  }
+  if (Array.isArray(params.organizations)) {
+    const organizations = params.organizations
+      .filter((entry) => entry && typeof entry === "object" && !Array.isArray(entry))
+      .map((entry) => {
+        const org = entry as Record<string, unknown>;
+        return {
+          ...(maybeString(org.name) ? { name: maybeString(org.name) } : {}),
+          ...(maybeString(org.title) ? { title: maybeString(org.title) } : {}),
+          ...(maybeString(org.department) ? { department: maybeString(org.department) } : {}),
+        };
+      })
+      .filter((entry) => Object.keys(entry).length > 0);
+    if (organizations.length > 0) {
+      body.organizations = organizations;
+    }
+  }
+  return body;
+}
+
+function contactUpdateFields(params: Record<string, unknown>): string {
+  const explicit = maybeString(params.personFields);
+  if (explicit) {
+    return explicit;
+  }
+  const fields = [
+    maybeString(params.givenName) ||
+    maybeString(params.familyName) ||
+    maybeString(params.displayName)
+      ? "names"
+      : undefined,
+    Array.isArray(params.emailAddresses) ? "emailAddresses" : undefined,
+    Array.isArray(params.phoneNumbers) ? "phoneNumbers" : undefined,
+    Array.isArray(params.organizations) ? "organizations" : undefined,
+  ].filter((field): field is string => Boolean(field));
+  return fields.join(",");
 }
 
 function appendDriveSharedReadParams(
@@ -388,6 +452,54 @@ export function buildSheetsReadCommand(
   throw new PluginError("DENY_POLICY", `Unsupported sheets action: ${String(params.action)}`);
 }
 
+export function buildContactsReadCommand(
+  params: Record<string, unknown>,
+  authArgs: string[],
+): GwsCommandSpec {
+  const argv = ["contacts", ...authArgs];
+  if (params.action === "list_contacts") {
+    argv.push("people", "connections", "list", "--format", "json");
+    const requestParams: Record<string, JsonParamValue> = {
+      personFields: "names,emailAddresses,phoneNumbers,organizations",
+    };
+    appendIfInt(requestParams, "pageSize", params.pageSize);
+    appendIfString(requestParams, "pageToken", params.pageToken);
+    appendIfString(requestParams, "personFields", params.personFields);
+    appendParamsArg(argv, requestParams);
+    return { argv, action: "list_contacts", service: "contacts", isWrite: false };
+  }
+  if (params.action === "get_contact") {
+    argv.push("people", "get", "--format", "json");
+    const requestParams: Record<string, JsonParamValue> = {
+      resourceName: readString(params.resourceName, "resourceName"),
+      personFields: "names,emailAddresses,phoneNumbers,organizations",
+    };
+    appendIfString(requestParams, "personFields", params.personFields);
+    appendParamsArg(argv, requestParams);
+    return { argv, action: "get_contact", service: "contacts", isWrite: false };
+  }
+  if (params.action === "list_contact_groups") {
+    argv.push("contactGroups", "list", "--format", "json");
+    const requestParams: Record<string, JsonParamValue> = {};
+    appendIfInt(requestParams, "pageSize", params.pageSize);
+    appendIfString(requestParams, "pageToken", params.pageToken);
+    appendIfString(requestParams, "groupFields", params.groupFields);
+    appendParamsArg(argv, requestParams);
+    return { argv, action: "list_contact_groups", service: "contacts", isWrite: false };
+  }
+  if (params.action === "get_contact_group") {
+    argv.push("contactGroups", "get", "--format", "json");
+    const requestParams: Record<string, JsonParamValue> = {
+      resourceName: readString(params.resourceName, "resourceName"),
+    };
+    appendIfInt(requestParams, "maxMembers", params.maxMembers);
+    appendIfString(requestParams, "groupFields", params.groupFields);
+    appendParamsArg(argv, requestParams);
+    return { argv, action: "get_contact_group", service: "contacts", isWrite: false };
+  }
+  throw new PluginError("DENY_POLICY", `Unsupported contacts action: ${String(params.action)}`);
+}
+
 export function buildDriveWriteCommand(
   params: Record<string, unknown>,
   authArgs: string[],
@@ -581,4 +693,74 @@ export function buildSheetsWriteCommand(
     return { argv, action: "update_values", service: "sheets", isWrite: true };
   }
   throw new PluginError("DENY_POLICY", `Unsupported sheets write action: ${String(params.action)}`);
+}
+
+export function buildContactsWriteCommand(
+  params: Record<string, unknown>,
+  authArgs: string[],
+): GwsCommandSpec {
+  if (params.action === "create_contact") {
+    const argv = ["contacts", ...authArgs, "people", "createContact", "--format", "json"];
+    appendJsonArg(argv, buildContactPersonBody(params));
+    return { argv, action: "create_contact", service: "contacts", isWrite: true };
+  }
+  if (params.action === "update_contact") {
+    const argv = ["contacts", ...authArgs, "people", "updateContact", "--format", "json"];
+    appendParamsArg(argv, {
+      resourceName: readString(params.resourceName, "resourceName"),
+      updatePersonFields: contactUpdateFields(params),
+    });
+    appendJsonArg(argv, {
+      resourceName: readString(params.resourceName, "resourceName"),
+      metadata: {
+        sources: [{ type: "CONTACT", etag: readString(params.etag, "etag") }],
+      },
+      ...buildContactPersonBody(params),
+    });
+    return { argv, action: "update_contact", service: "contacts", isWrite: true };
+  }
+  if (params.action === "create_contact_group") {
+    const argv = ["contacts", ...authArgs, "contactGroups", "create", "--format", "json"];
+    appendJsonArg(argv, { contactGroup: { name: readString(params.name, "name") } });
+    return { argv, action: "create_contact_group", service: "contacts", isWrite: true };
+  }
+  if (params.action === "update_contact_group") {
+    const argv = ["contacts", ...authArgs, "contactGroups", "update", "--format", "json"];
+    appendParamsArg(argv, {
+      resourceName: readString(params.resourceName, "resourceName"),
+    });
+    appendJsonArg(argv, {
+      contactGroup: {
+        resourceName: readString(params.resourceName, "resourceName"),
+        name: readString(params.name, "name"),
+      },
+      updateGroupFields: "name",
+    });
+    return { argv, action: "update_contact_group", service: "contacts", isWrite: true };
+  }
+  if (params.action === "modify_contact_group_members") {
+    const argv = [
+      "contacts",
+      ...authArgs,
+      "contactGroups",
+      "members",
+      "modify",
+      "--format",
+      "json",
+    ];
+    appendParamsArg(argv, { resourceName: readString(params.resourceName, "resourceName") });
+    appendJsonArg(argv, {
+      ...(asStringArray(params.resourceNamesToAdd)
+        ? { resourceNamesToAdd: asStringArray(params.resourceNamesToAdd) }
+        : {}),
+      ...(asStringArray(params.resourceNamesToRemove)
+        ? { resourceNamesToRemove: asStringArray(params.resourceNamesToRemove) }
+        : {}),
+    });
+    return { argv, action: "modify_contact_group_members", service: "contacts", isWrite: true };
+  }
+  throw new PluginError(
+    "DENY_POLICY",
+    `Unsupported contacts write action: ${String(params.action)}`,
+  );
 }

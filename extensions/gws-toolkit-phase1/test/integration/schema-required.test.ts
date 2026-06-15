@@ -33,6 +33,21 @@ describe("integration: action-specific required params", () => {
     });
     expect(gmailMissingMessageId.ok).toBe(false);
     expect(gmailMissingMessageId.error).toMatchObject({ code: "VALIDATION_ERROR" });
+
+    const contactsMissingResourceName = await executeTool(harness, "gws_contacts_read", {
+      action: "get_contact",
+    });
+    expect(contactsMissingResourceName.ok).toBe(false);
+    expect(contactsMissingResourceName.error).toMatchObject({ code: "VALIDATION_ERROR" });
+
+    const contactsMissingEtag = await executeTool(harness, "gws_contacts_write", {
+      action: "update_contact",
+      confirm: true,
+      resourceName: "people/c123",
+      givenName: "Ada",
+    });
+    expect(contactsMissingEtag.ok).toBe(false);
+    expect(contactsMissingEtag.error).toMatchObject({ code: "VALIDATION_ERROR" });
   });
 
   it("accepts Drive download params but rejects unknown read params", async () => {
@@ -139,5 +154,105 @@ describe("integration: action-specific required params", () => {
     });
     expect(rawBody.ok).toBe(false);
     expect(rawBody.error).toMatchObject({ code: "VALIDATION_ERROR" });
+  });
+
+  it("accepts curated Contacts and contact group params and rejects raw/delete shapes", async () => {
+    process.env.GOOGLE_WORKSPACE_CLI_TOKEN = "token";
+
+    const harness = createHarness({
+      pluginConfig: defaultPluginConfig({
+        allowWriteOperations: true,
+        enabledServices: ["contacts"],
+        enabledWriteServices: ["contacts"],
+        credentialRoutes: {
+          writer: {
+            mode: "token",
+            allowedServices: ["contacts"],
+            allowedTools: ["gws_contacts_read", "gws_contacts_write"],
+          },
+        },
+        agentCredentialBindings: {
+          "agent:main": "writer",
+        },
+      }),
+    });
+
+    const listGroups = await executeTool(harness, "gws_contacts_read", {
+      action: "list_contact_groups",
+      pageSize: 10,
+    });
+    expect(listGroups.ok).toBe(true);
+
+    const wrongContactResource = await executeTool(harness, "gws_contacts_read", {
+      action: "get_contact",
+      resourceName: "contactGroups/friends",
+    });
+    expect(wrongContactResource.ok).toBe(false);
+    expect(wrongContactResource.error).toMatchObject({ code: "VALIDATION_ERROR" });
+
+    const createGroup = await executeTool(harness, "gws_contacts_write", {
+      action: "create_contact_group",
+      confirm: true,
+      name: "Friends",
+    });
+    expect(createGroup.ok).toBe(true);
+
+    const emptyMembershipChange = await executeTool(harness, "gws_contacts_write", {
+      action: "modify_contact_group_members",
+      confirm: true,
+      resourceName: "contactGroups/friends",
+    });
+    expect(emptyMembershipChange.ok).toBe(false);
+    expect(emptyMembershipChange.error).toMatchObject({ code: "VALIDATION_ERROR" });
+
+    const rawContact = await executeTool(harness, "gws_contacts_write", {
+      action: "create_contact",
+      confirm: true,
+      raw: { names: [{ displayName: "Ada" }] },
+    });
+    expect(rawContact.ok).toBe(false);
+    expect(rawContact.error).toMatchObject({ code: "VALIDATION_ERROR" });
+
+    const malformedEmail = await executeTool(harness, "gws_contacts_write", {
+      action: "create_contact",
+      confirm: true,
+      emailAddresses: ["not-an-email"],
+    });
+    expect(malformedEmail.ok).toBe(false);
+    expect(malformedEmail.error).toMatchObject({ code: "VALIDATION_ERROR" });
+
+    const malformedPhone = await executeTool(harness, "gws_contacts_write", {
+      action: "create_contact",
+      confirm: true,
+      phoneNumbers: ["extension-only"],
+    });
+    expect(malformedPhone.ok).toBe(false);
+    expect(malformedPhone.error).toMatchObject({ code: "VALIDATION_ERROR" });
+
+    const malformedGroupMember = await executeTool(harness, "gws_contacts_write", {
+      action: "modify_contact_group_members",
+      confirm: true,
+      resourceName: "contactGroups/friends",
+      resourceNamesToAdd: ["contactGroups/not-a-person"],
+    });
+    expect(malformedGroupMember.ok).toBe(false);
+    expect(malformedGroupMember.error).toMatchObject({ code: "VALIDATION_ERROR" });
+
+    const wrongGroupResource = await executeTool(harness, "gws_contacts_write", {
+      action: "modify_contact_group_members",
+      confirm: true,
+      resourceName: "people/c123",
+      resourceNamesToAdd: ["people/c456"],
+    });
+    expect(wrongGroupResource.ok).toBe(false);
+    expect(wrongGroupResource.error).toMatchObject({ code: "VALIDATION_ERROR" });
+
+    const deleteGroup = await executeTool(harness, "gws_contacts_write", {
+      action: "delete_contact_group",
+      confirm: true,
+      resourceName: "contactGroups/friends",
+    });
+    expect(deleteGroup.ok).toBe(false);
+    expect(deleteGroup.error).toMatchObject({ code: "VALIDATION_ERROR" });
   });
 });

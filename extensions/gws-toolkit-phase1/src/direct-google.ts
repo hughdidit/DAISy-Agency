@@ -62,6 +62,13 @@ function encodeSegment(value: string): string {
   return encodeURIComponent(value);
 }
 
+function encodeResourceNamePath(value: string): string {
+  return value
+    .split("/")
+    .map((segment) => encodeSegment(segment))
+    .join("/");
+}
+
 function compactParams(input: Record<string, unknown>): Record<string, unknown> {
   return Object.fromEntries(Object.entries(input).filter(([, value]) => value !== undefined));
 }
@@ -458,6 +465,18 @@ function commaList(value: unknown): unknown {
   return Array.isArray(value) ? value.map(String).join(",") : value;
 }
 
+function trimmedString(value: unknown): string | undefined {
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
+function readRequiredTrimmed(value: unknown, label: string): string {
+  const normalized = trimmedString(value);
+  if (!normalized) {
+    throw new PluginError("VALIDATION_ERROR", `${label} is required`);
+  }
+  return normalized;
+}
+
 function readServiceAccountJson(credentialsFile: string): ServiceAccountJson {
   try {
     return JSON.parse(fs.readFileSync(credentialsFile, "utf8")) as ServiceAccountJson;
@@ -560,6 +579,76 @@ function buildRawEmail(payload: Record<string, unknown>): string {
     `${headers.join("\r\n")}\r\n\r\n${typeof payload.bodyText === "string" ? payload.bodyText : ""}`,
     "utf8",
   ).toString("base64url");
+}
+
+function stringArray(value: unknown): string[] | undefined {
+  if (!Array.isArray(value)) {
+    return undefined;
+  }
+  const strings = value
+    .filter((entry) => typeof entry === "string")
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+  return strings.length > 0 ? strings : undefined;
+}
+
+function buildContactPersonBody(payload: Record<string, unknown>): Record<string, unknown> {
+  const givenName = trimmedString(payload.givenName);
+  const familyName = trimmedString(payload.familyName);
+  const displayName = trimmedString(payload.displayName);
+  const body: Record<string, unknown> = {};
+  if (givenName || familyName || displayName) {
+    body.names = [
+      compactParams({
+        givenName,
+        familyName,
+        unstructuredName: displayName,
+      }),
+    ];
+  }
+  const emailAddresses = stringArray(payload.emailAddresses);
+  if (emailAddresses) {
+    body.emailAddresses = emailAddresses.map((value) => ({ value }));
+  }
+  const phoneNumbers = stringArray(payload.phoneNumbers);
+  if (phoneNumbers) {
+    body.phoneNumbers = phoneNumbers.map((value) => ({ value }));
+  }
+  if (Array.isArray(payload.organizations)) {
+    const organizations = payload.organizations
+      .filter((entry) => entry && typeof entry === "object" && !Array.isArray(entry))
+      .map((entry) => {
+        const org = entry as Record<string, unknown>;
+        return compactParams({
+          name: trimmedString(org.name),
+          title: trimmedString(org.title),
+          department: trimmedString(org.department),
+        });
+      })
+      .filter((entry) => Object.keys(entry).length > 0);
+    if (organizations.length > 0) {
+      body.organizations = organizations;
+    }
+  }
+  return body;
+}
+
+function buildContactUpdatePersonFields(payload: Record<string, unknown>): string {
+  const explicit = trimmedString(payload.personFields);
+  if (explicit) {
+    return explicit;
+  }
+  const fields = [
+    trimmedString(payload.givenName) ||
+    trimmedString(payload.familyName) ||
+    trimmedString(payload.displayName)
+      ? "names"
+      : undefined,
+    Array.isArray(payload.emailAddresses) ? "emailAddresses" : undefined,
+    Array.isArray(payload.phoneNumbers) ? "phoneNumbers" : undefined,
+    Array.isArray(payload.organizations) ? "organizations" : undefined,
+  ].filter((field): field is string => Boolean(field));
+  return fields.join(",");
 }
 
 export function buildDirectDriveDownloadRequests(fileId: string): {
@@ -828,6 +917,109 @@ export function buildDirectGoogleRequest(params: {
           url: `https://sheets.googleapis.com/v4/spreadsheets/${encodeSegment(String(p.spreadsheetId))}/values/${encodeSegment(String(p.range))}${suffix}`,
           params: { valueInputOption: p.valueInputOption ?? "USER_ENTERED" },
           data: { values: p.values },
+        };
+      }
+      break;
+    }
+    case "contacts": {
+      if (params.action === "list_contacts") {
+        return {
+          method: "GET",
+          url: "https://people.googleapis.com/v1/people/me/connections",
+          params: compactParams({
+            pageSize: p.pageSize,
+            pageToken: p.pageToken,
+            personFields: p.personFields ?? "names,emailAddresses,phoneNumbers,organizations",
+          }),
+        };
+      }
+      if (params.action === "get_contact") {
+        const resourceName = readRequiredTrimmed(p.resourceName, "resourceName");
+        return {
+          method: "GET",
+          url: `https://people.googleapis.com/v1/${encodeResourceNamePath(resourceName)}`,
+          params: compactParams({
+            personFields: p.personFields ?? "names,emailAddresses,phoneNumbers,organizations",
+          }),
+        };
+      }
+      if (params.action === "list_contact_groups") {
+        return {
+          method: "GET",
+          url: "https://people.googleapis.com/v1/contactGroups",
+          params: compactParams({
+            pageSize: p.pageSize,
+            pageToken: p.pageToken,
+            groupFields: p.groupFields,
+          }),
+        };
+      }
+      if (params.action === "get_contact_group") {
+        const resourceName = readRequiredTrimmed(p.resourceName, "resourceName");
+        return {
+          method: "GET",
+          url: `https://people.googleapis.com/v1/${encodeResourceNamePath(resourceName)}`,
+          params: compactParams({
+            maxMembers: p.maxMembers,
+            groupFields: p.groupFields,
+          }),
+        };
+      }
+      if (params.action === "create_contact") {
+        return {
+          method: "POST",
+          url: "https://people.googleapis.com/v1/people:createContact",
+          data: buildContactPersonBody(p),
+        };
+      }
+      if (params.action === "update_contact") {
+        const resourceName = readRequiredTrimmed(p.resourceName, "resourceName");
+        const etag = readRequiredTrimmed(p.etag, "etag");
+        return {
+          method: "PATCH",
+          url: `https://people.googleapis.com/v1/${encodeResourceNamePath(resourceName)}:updateContact`,
+          params: {
+            updatePersonFields: buildContactUpdatePersonFields(p),
+          },
+          data: {
+            resourceName,
+            metadata: {
+              sources: [{ type: "CONTACT", etag }],
+            },
+            ...buildContactPersonBody(p),
+          },
+        };
+      }
+      if (params.action === "create_contact_group") {
+        return {
+          method: "POST",
+          url: "https://people.googleapis.com/v1/contactGroups",
+          data: { contactGroup: { name: p.name } },
+        };
+      }
+      if (params.action === "update_contact_group") {
+        const resourceName = readRequiredTrimmed(p.resourceName, "resourceName");
+        return {
+          method: "PUT",
+          url: `https://people.googleapis.com/v1/${encodeResourceNamePath(resourceName)}`,
+          data: {
+            contactGroup: {
+              resourceName,
+              name: p.name,
+            },
+            updateGroupFields: "name",
+          },
+        };
+      }
+      if (params.action === "modify_contact_group_members") {
+        const resourceName = readRequiredTrimmed(p.resourceName, "resourceName");
+        return {
+          method: "POST",
+          url: `https://people.googleapis.com/v1/${encodeResourceNamePath(resourceName)}/members:modify`,
+          data: compactParams({
+            resourceNamesToAdd: p.resourceNamesToAdd,
+            resourceNamesToRemove: p.resourceNamesToRemove,
+          }),
         };
       }
       break;
@@ -1210,11 +1402,17 @@ export async function executeDirectAuthHealth(params: {
                 url: "https://docs.googleapis.com/v1/documents/daisy_auth_health_probe",
                 acceptNotFoundAsValid: true,
               }
-            : {
-                method: "GET" as const,
-                url: "https://sheets.googleapis.com/v4/spreadsheets/daisy_auth_health_probe",
-                acceptNotFoundAsValid: true,
-              };
+            : service === "sheets"
+              ? {
+                  method: "GET" as const,
+                  url: "https://sheets.googleapis.com/v4/spreadsheets/daisy_auth_health_probe",
+                  acceptNotFoundAsValid: true,
+                }
+              : {
+                  method: "GET" as const,
+                  url: "https://people.googleapis.com/v1/people/me/connections",
+                  params: { personFields: "names", pageSize: 1 },
+                };
   try {
     const response = await client.request(
       buildDirectGoogleClientRequestOptions({

@@ -12,7 +12,8 @@ title: "GWS Toolkit"
 toolkit. The implementation now covers:
 
 - Phase 1 legacy-compatible read tools
-- Phase 2 route-aware writes for Drive, Gmail, Calendar, Docs, and Sheets
+- Phase 2 route-aware writes for Drive, Gmail, Calendar, Docs, Sheets, and
+  Contacts
 - per-agent and per-sub-agent credential routing
 - first-class DAISy agent Google Workspace identities for delegated Google API
   calls
@@ -41,6 +42,8 @@ Read tools:
 - `gws_calendar_read`
 - `gws_docs_read`
 - `gws_sheets_read`
+- `gws_contacts_read` (`list_contacts`, `get_contact`, `list_contact_groups`,
+  `get_contact_group`)
 
 Write tools:
 
@@ -49,6 +52,32 @@ Write tools:
 - `gws_calendar_write`
 - `gws_docs_write`
 - `gws_sheets_write`
+- `gws_contacts_write` (`create_contact`, `update_contact`,
+  `create_contact_group`, `update_contact_group`,
+  `modify_contact_group_members`)
+
+## Contacts And Contact Groups
+
+`gws_contacts_read` and `gws_contacts_write` use the Google People API under
+delegated agent identities. Contacts support a curated person surface: names,
+email addresses, phone numbers, and organizations. Contact groups support
+list/get/create/update plus membership add/remove operations.
+
+Deleting contacts or contact groups is intentionally not part of this rollout.
+Delete-like actions are rejected by schema or policy, and raw People API request
+bodies are not accepted.
+
+Example group membership change:
+
+```json
+{
+  "action": "modify_contact_group_members",
+  "confirm": true,
+  "resourceName": "contactGroups/friends",
+  "resourceNamesToAdd": ["people/c123"],
+  "resourceNamesToRemove": ["people/c456"]
+}
+```
 
 ## Calendar Events
 
@@ -200,15 +229,15 @@ Recommended reusable-route shape:
           workspaceIdentityDomains: ["hughdidit.com"],
           allowUnboundAgents: false,
           allowWriteOperations: true,
-          enabledServices: ["calendar", "gmail", "drive", "docs", "sheets"],
-          enabledWriteServices: ["calendar", "gmail", "drive", "docs", "sheets"],
+          enabledServices: ["calendar", "gmail", "drive", "docs", "sheets", "contacts"],
+          enabledWriteServices: ["calendar", "gmail", "drive", "docs", "sheets", "contacts"],
           approvedCredentialDirs: ["./config/secrets/gws"],
           credentialRoutes: {
             "hughdidit-agent-gws": {
               mode: "credentials_file",
               label: "HughDidIt agent DWD service account",
               credentialsFile: "./config/secrets/gws/domain-wide-delegation.json",
-              allowedServices: ["calendar", "gmail", "drive", "docs", "sheets"],
+              allowedServices: ["calendar", "gmail", "drive", "docs", "sheets", "contacts"],
               allowedTools: [
                 "gws_status",
                 "gws_calendar_read",
@@ -221,6 +250,8 @@ Recommended reusable-route shape:
                 "gws_docs_write",
                 "gws_sheets_read",
                 "gws_sheets_write",
+                "gws_contacts_read",
+                "gws_contacts_write",
               ],
               allowedActions: [
                 "calendar:list_events",
@@ -235,6 +266,8 @@ Recommended reusable-route shape:
                 "docs:append_text",
                 "sheets:get_values",
                 "sheets:update_values",
+                "contacts:list_contact_groups",
+                "contacts:modify_contact_group_members",
               ],
             },
           },

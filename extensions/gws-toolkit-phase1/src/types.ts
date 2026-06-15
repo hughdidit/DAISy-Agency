@@ -1,20 +1,22 @@
 export type CredentialMode = "credentials_file" | "token";
 
-export type ServiceFamily = "drive" | "gmail" | "calendar" | "docs" | "sheets";
+export type ServiceFamily = "drive" | "gmail" | "calendar" | "docs" | "sheets" | "contacts";
 
 export type ReadToolName =
   | "gws_drive_read"
   | "gws_gmail_read"
   | "gws_calendar_read"
   | "gws_docs_read"
-  | "gws_sheets_read";
+  | "gws_sheets_read"
+  | "gws_contacts_read";
 
 export type WriteToolName =
   | "gws_drive_write"
   | "gws_gmail_write"
   | "gws_calendar_write"
   | "gws_docs_write"
-  | "gws_sheets_write";
+  | "gws_sheets_write"
+  | "gws_contacts_write";
 
 export type ToolName = "gws_status" | ReadToolName | WriteToolName;
 
@@ -23,12 +25,23 @@ export type GmailReadAction = "list_messages" | "get_message_metadata";
 export type CalendarReadAction = "list_events" | "get_event";
 export type DocsReadAction = "get_document";
 export type SheetsReadAction = "get_spreadsheet" | "get_values";
+export type ContactsReadAction =
+  | "list_contacts"
+  | "get_contact"
+  | "list_contact_groups"
+  | "get_contact_group";
 
 export type DriveWriteAction = "create_folder" | "upload_file" | "update_file_metadata";
 export type GmailWriteAction = "draft_message" | "send_message" | "mark_message_read";
 export type CalendarWriteAction = "create_event" | "update_event";
 export type DocsWriteAction = "create_document" | "append_text" | "batch_update_document";
 export type SheetsWriteAction = "append_values" | "update_values" | "create_spreadsheet";
+export type ContactsWriteAction =
+  | "create_contact"
+  | "update_contact"
+  | "create_contact_group"
+  | "update_contact_group"
+  | "modify_contact_group_members";
 
 export type AnyAction =
   | DriveReadAction
@@ -36,11 +49,13 @@ export type AnyAction =
   | CalendarReadAction
   | DocsReadAction
   | SheetsReadAction
+  | ContactsReadAction
   | DriveWriteAction
   | GmailWriteAction
   | CalendarWriteAction
   | DocsWriteAction
   | SheetsWriteAction
+  | ContactsWriteAction
   | "status";
 
 export type InvocationContext = {
@@ -243,6 +258,7 @@ export const READONLY_SCOPES: Record<ServiceFamily, string> = {
   calendar: "https://www.googleapis.com/auth/calendar.readonly",
   docs: "https://www.googleapis.com/auth/documents.readonly",
   sheets: "https://www.googleapis.com/auth/spreadsheets.readonly",
+  contacts: "https://www.googleapis.com/auth/contacts.readonly",
 };
 
 export const WRITE_SCOPES: Record<ServiceFamily, string> = {
@@ -251,9 +267,17 @@ export const WRITE_SCOPES: Record<ServiceFamily, string> = {
   calendar: "https://www.googleapis.com/auth/calendar",
   docs: "https://www.googleapis.com/auth/documents",
   sheets: "https://www.googleapis.com/auth/spreadsheets",
+  contacts: "https://www.googleapis.com/auth/contacts",
 };
 
-export const ALL_SERVICES: ServiceFamily[] = ["drive", "gmail", "calendar", "docs", "sheets"];
+export const ALL_SERVICES: ServiceFamily[] = [
+  "drive",
+  "gmail",
+  "calendar",
+  "docs",
+  "sheets",
+  "contacts",
+];
 
 export const READ_TOOLS_BY_SERVICE: Record<ServiceFamily, ReadToolName> = {
   drive: "gws_drive_read",
@@ -261,6 +285,7 @@ export const READ_TOOLS_BY_SERVICE: Record<ServiceFamily, ReadToolName> = {
   calendar: "gws_calendar_read",
   docs: "gws_docs_read",
   sheets: "gws_sheets_read",
+  contacts: "gws_contacts_read",
 };
 
 export const WRITE_TOOLS_BY_SERVICE: Record<ServiceFamily, WriteToolName> = {
@@ -269,6 +294,7 @@ export const WRITE_TOOLS_BY_SERVICE: Record<ServiceFamily, WriteToolName> = {
   calendar: "gws_calendar_write",
   docs: "gws_docs_write",
   sheets: "gws_sheets_write",
+  contacts: "gws_contacts_write",
 };
 
 export const DEFAULT_ENABLED_SERVICES: ServiceFamily[] = ["drive", "gmail", "calendar"];

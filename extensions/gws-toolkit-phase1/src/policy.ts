@@ -13,6 +13,7 @@ const READ_ACTIONS: Record<ServiceFamily, Set<string>> = {
   calendar: new Set(["list_events", "get_event"]),
   docs: new Set(["get_document"]),
   sheets: new Set(["get_spreadsheet", "get_values"]),
+  contacts: new Set(["list_contacts", "get_contact", "list_contact_groups", "get_contact_group"]),
 };
 
 const WRITE_ACTIONS: Record<ServiceFamily, Set<string>> = {
@@ -21,6 +22,13 @@ const WRITE_ACTIONS: Record<ServiceFamily, Set<string>> = {
   calendar: new Set(["create_event", "update_event"]),
   docs: new Set(["create_document", "append_text", "batch_update_document"]),
   sheets: new Set(["append_values", "update_values", "create_spreadsheet"]),
+  contacts: new Set([
+    "create_contact",
+    "update_contact",
+    "create_contact_group",
+    "update_contact_group",
+    "modify_contact_group_members",
+  ]),
 };
 
 const WRITE_HINTS = ["create", "update", "delete", "write", "send", "modify", "move", "upload"];

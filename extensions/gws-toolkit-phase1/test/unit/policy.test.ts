@@ -3,7 +3,7 @@ import { evaluatePolicy } from "../../src/policy.js";
 import type { AuthResolution, GwsToolkitConfig } from "../../src/types.js";
 
 const config: GwsToolkitConfig = {
-  enabledServices: ["drive", "gmail", "calendar", "docs", "sheets"],
+  enabledServices: ["drive", "gmail", "calendar", "docs", "sheets", "contacts"],
   enabledWriteServices: ["drive"],
   approvedCredentialDirs: [],
   tokenEnvVar: "GOOGLE_WORKSPACE_CLI_TOKEN",
@@ -116,6 +116,66 @@ describe("policy", () => {
       confirm: true,
     });
     expect(decision.allowed).toBe(true);
+  });
+
+  it("allows gated Contacts group writes and denies destructive delete actions", () => {
+    const contactsConfig: GwsToolkitConfig = {
+      ...config,
+      enabledWriteServices: ["contacts"],
+    };
+    const contactsAuth: AuthResolution = {
+      ...auth,
+      route: {
+        ...auth.route,
+        allowedServices: ["contacts"],
+        allowedTools: ["gws_contacts_read", "gws_contacts_write"],
+        allowedActions: [
+          "contacts:list_contact_groups",
+          "contacts:create_contact_group",
+          "contacts:modify_contact_group_members",
+        ],
+      },
+    };
+
+    expect(
+      evaluatePolicy({
+        tool: "gws_contacts_write",
+        service: "contacts",
+        action: "modify_contact_group_members",
+        payload: {
+          resourceName: "contactGroups/friends",
+          resourceNamesToAdd: ["people/c123"],
+        },
+        config: contactsConfig,
+        auth: contactsAuth,
+        isWrite: true,
+        confirm: true,
+      }).allowed,
+    ).toBe(true);
+    expect(
+      evaluatePolicy({
+        tool: "gws_contacts_write",
+        service: "contacts",
+        action: "delete_contact_group",
+        payload: { resourceName: "contactGroups/friends" },
+        config: contactsConfig,
+        auth: contactsAuth,
+        isWrite: true,
+        confirm: true,
+      }),
+    ).toMatchObject({ allowed: false });
+    expect(
+      evaluatePolicy({
+        tool: "gws_contacts_write",
+        service: "contacts",
+        action: "create_contact_group",
+        payload: { name: "Friends" },
+        config: contactsConfig,
+        auth: contactsAuth,
+        isWrite: true,
+        confirm: false,
+      }).reason,
+    ).toContain("confirm=true");
   });
 
   it("allows Drive downloads only through the read tool and route action policy", () => {
