@@ -207,6 +207,7 @@ For a brand-new staging VM, the real deploy requires the config file to exist at
            config: {
              workspaceIdentityDomains: ["hughdidit.com"],
              allowUnboundAgents: false,
+             enabledServices: ["calendar", "gmail", "drive", "docs", "sheets", "contacts"],
              approvedCredentialDirs: ["/opt/DAISy/config/secrets/gws"],
              credentialRoutes: {
                "hughdidit-agent-gws": {

@@ -31,9 +31,19 @@ const contactResourceNameArray = {
   type: "array",
   items: {
     ...string,
-    pattern: "^people/[^/]+$",
+    pattern: "^people/[A-Za-z0-9._~-]+$",
   },
   minItems: 1,
+};
+
+const peopleResourceName = {
+  ...string,
+  pattern: "^people/[A-Za-z0-9._~-]+$",
+};
+
+const contactGroupResourceName = {
+  ...string,
+  pattern: "^contactGroups/[A-Za-z0-9._~-]+$",
 };
 
 const stringMap = {
@@ -287,8 +297,22 @@ const contactsReadSchema = {
   },
   allOf: [
     {
-      if: { properties: { action: { enum: ["get_contact", "get_contact_group"] } } },
-      then: { required: ["resourceName"] },
+      if: { properties: { action: { const: "get_contact" } } },
+      then: {
+        required: ["resourceName"],
+        properties: {
+          resourceName: peopleResourceName,
+        },
+      },
+    },
+    {
+      if: { properties: { action: { const: "get_contact_group" } } },
+      then: {
+        required: ["resourceName"],
+        properties: {
+          resourceName: contactGroupResourceName,
+        },
+      },
     },
   ],
 };
@@ -532,6 +556,9 @@ const contactsWriteSchema = {
       if: { properties: { action: { const: "update_contact" } } },
       then: {
         required: ["resourceName", "etag"],
+        properties: {
+          resourceName: peopleResourceName,
+        },
         anyOf: [
           { required: ["givenName"] },
           { required: ["familyName"] },
@@ -548,12 +575,20 @@ const contactsWriteSchema = {
     },
     {
       if: { properties: { action: { const: "update_contact_group" } } },
-      then: { required: ["resourceName", "name"] },
+      then: {
+        required: ["resourceName", "name"],
+        properties: {
+          resourceName: contactGroupResourceName,
+        },
+      },
     },
     {
       if: { properties: { action: { const: "modify_contact_group_members" } } },
       then: {
         required: ["resourceName"],
+        properties: {
+          resourceName: contactGroupResourceName,
+        },
         anyOf: [{ required: ["resourceNamesToAdd"] }, { required: ["resourceNamesToRemove"] }],
       },
     },

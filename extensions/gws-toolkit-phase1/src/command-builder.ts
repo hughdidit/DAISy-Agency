@@ -183,7 +183,7 @@ function buildContactPersonBody(params: Record<string, unknown>): Record<string,
       {
         ...(givenName ? { givenName } : {}),
         ...(familyName ? { familyName } : {}),
-        ...(displayName ? { displayName } : {}),
+        ...(displayName ? { unstructuredName: displayName } : {}),
       },
     ];
   }
@@ -459,7 +459,9 @@ export function buildContactsReadCommand(
   const argv = ["contacts", ...authArgs];
   if (params.action === "list_contacts") {
     argv.push("people", "connections", "list", "--format", "json");
-    const requestParams: Record<string, JsonParamValue> = {};
+    const requestParams: Record<string, JsonParamValue> = {
+      personFields: "names,emailAddresses,phoneNumbers,organizations",
+    };
     appendIfInt(requestParams, "pageSize", params.pageSize);
     appendIfString(requestParams, "pageToken", params.pageToken);
     appendIfString(requestParams, "personFields", params.personFields);
@@ -470,6 +472,7 @@ export function buildContactsReadCommand(
     argv.push("people", "get", "--format", "json");
     const requestParams: Record<string, JsonParamValue> = {
       resourceName: readString(params.resourceName, "resourceName"),
+      personFields: "names,emailAddresses,phoneNumbers,organizations",
     };
     appendIfString(requestParams, "personFields", params.personFields);
     appendParamsArg(argv, requestParams);
@@ -709,7 +712,9 @@ export function buildContactsWriteCommand(
     });
     appendJsonArg(argv, {
       resourceName: readString(params.resourceName, "resourceName"),
-      etag: readString(params.etag, "etag"),
+      metadata: {
+        sources: [{ type: "CONTACT", etag: readString(params.etag, "etag") }],
+      },
       ...buildContactPersonBody(params),
     });
     return { argv, action: "update_contact", service: "contacts", isWrite: true };

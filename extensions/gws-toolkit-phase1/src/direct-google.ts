@@ -469,6 +469,14 @@ function trimmedString(value: unknown): string | undefined {
   return typeof value === "string" && value.trim() ? value.trim() : undefined;
 }
 
+function readRequiredTrimmed(value: unknown, label: string): string {
+  const normalized = trimmedString(value);
+  if (!normalized) {
+    throw new PluginError("VALIDATION_ERROR", `${label} is required`);
+  }
+  return normalized;
+}
+
 function readServiceAccountJson(credentialsFile: string): ServiceAccountJson {
   try {
     return JSON.parse(fs.readFileSync(credentialsFile, "utf8")) as ServiceAccountJson;
@@ -594,7 +602,7 @@ function buildContactPersonBody(payload: Record<string, unknown>): Record<string
       compactParams({
         givenName,
         familyName,
-        displayName,
+        unstructuredName: displayName,
       }),
     ];
   }
@@ -926,9 +934,10 @@ export function buildDirectGoogleRequest(params: {
         };
       }
       if (params.action === "get_contact") {
+        const resourceName = readRequiredTrimmed(p.resourceName, "resourceName");
         return {
           method: "GET",
-          url: `https://people.googleapis.com/v1/${encodeResourceNamePath(String(p.resourceName))}`,
+          url: `https://people.googleapis.com/v1/${encodeResourceNamePath(resourceName)}`,
           params: compactParams({
             personFields: p.personFields ?? "names,emailAddresses,phoneNumbers,organizations",
           }),
@@ -946,9 +955,10 @@ export function buildDirectGoogleRequest(params: {
         };
       }
       if (params.action === "get_contact_group") {
+        const resourceName = readRequiredTrimmed(p.resourceName, "resourceName");
         return {
           method: "GET",
-          url: `https://people.googleapis.com/v1/${encodeResourceNamePath(String(p.resourceName))}`,
+          url: `https://people.googleapis.com/v1/${encodeResourceNamePath(resourceName)}`,
           params: compactParams({
             maxMembers: p.maxMembers,
             groupFields: p.groupFields,
@@ -963,7 +973,8 @@ export function buildDirectGoogleRequest(params: {
         };
       }
       if (params.action === "update_contact") {
-        const resourceName = String(p.resourceName);
+        const resourceName = readRequiredTrimmed(p.resourceName, "resourceName");
+        const etag = readRequiredTrimmed(p.etag, "etag");
         return {
           method: "PATCH",
           url: `https://people.googleapis.com/v1/${encodeResourceNamePath(resourceName)}:updateContact`,
@@ -972,7 +983,9 @@ export function buildDirectGoogleRequest(params: {
           },
           data: {
             resourceName,
-            etag: p.etag,
+            metadata: {
+              sources: [{ type: "CONTACT", etag }],
+            },
             ...buildContactPersonBody(p),
           },
         };
@@ -985,7 +998,7 @@ export function buildDirectGoogleRequest(params: {
         };
       }
       if (params.action === "update_contact_group") {
-        const resourceName = String(p.resourceName);
+        const resourceName = readRequiredTrimmed(p.resourceName, "resourceName");
         return {
           method: "PUT",
           url: `https://people.googleapis.com/v1/${encodeResourceNamePath(resourceName)}`,
@@ -999,11 +1012,10 @@ export function buildDirectGoogleRequest(params: {
         };
       }
       if (params.action === "modify_contact_group_members") {
+        const resourceName = readRequiredTrimmed(p.resourceName, "resourceName");
         return {
           method: "POST",
-          url: `https://people.googleapis.com/v1/${encodeResourceNamePath(
-            String(p.resourceName),
-          )}/members:modify`,
+          url: `https://people.googleapis.com/v1/${encodeResourceNamePath(resourceName)}/members:modify`,
           data: compactParams({
             resourceNamesToAdd: p.resourceNamesToAdd,
             resourceNamesToRemove: p.resourceNamesToRemove,

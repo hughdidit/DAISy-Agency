@@ -267,6 +267,18 @@ describe("direct Google API transport", () => {
     expect(
       buildDirectGoogleRequest({
         service: "contacts",
+        action: "create_contact",
+        payload: { displayName: "Ada Lovelace" },
+      }),
+    ).toMatchObject({
+      data: {
+        names: [{ unstructuredName: "Ada Lovelace" }],
+      },
+    });
+
+    expect(
+      buildDirectGoogleRequest({
+        service: "contacts",
         action: "update_contact",
         payload: {
           resourceName: "people/c123",
@@ -282,7 +294,9 @@ describe("direct Google API transport", () => {
       params: { updatePersonFields: "names,emailAddresses" },
       data: {
         resourceName: "people/c123",
-        etag: "etag-1",
+        metadata: {
+          sources: [{ type: "CONTACT", etag: "etag-1" }],
+        },
         names: [{ givenName: "Ada" }],
         emailAddresses: [{ value: "ada@example.com" }],
       },

@@ -183,6 +183,13 @@ describe("integration: action-specific required params", () => {
     });
     expect(listGroups.ok).toBe(true);
 
+    const wrongContactResource = await executeTool(harness, "gws_contacts_read", {
+      action: "get_contact",
+      resourceName: "contactGroups/friends",
+    });
+    expect(wrongContactResource.ok).toBe(false);
+    expect(wrongContactResource.error).toMatchObject({ code: "VALIDATION_ERROR" });
+
     const createGroup = await executeTool(harness, "gws_contacts_write", {
       action: "create_contact_group",
       confirm: true,
@@ -230,6 +237,15 @@ describe("integration: action-specific required params", () => {
     });
     expect(malformedGroupMember.ok).toBe(false);
     expect(malformedGroupMember.error).toMatchObject({ code: "VALIDATION_ERROR" });
+
+    const wrongGroupResource = await executeTool(harness, "gws_contacts_write", {
+      action: "modify_contact_group_members",
+      confirm: true,
+      resourceName: "people/c123",
+      resourceNamesToAdd: ["people/c456"],
+    });
+    expect(wrongGroupResource.ok).toBe(false);
+    expect(wrongGroupResource.error).toMatchObject({ code: "VALIDATION_ERROR" });
 
     const deleteGroup = await executeTool(harness, "gws_contacts_write", {
       action: "delete_contact_group",
