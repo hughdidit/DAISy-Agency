@@ -21,6 +21,21 @@ const stringArray = {
   minItems: 1,
 };
 
+const emailArray = {
+  type: "array",
+  items: email,
+  minItems: 1,
+};
+
+const contactResourceNameArray = {
+  type: "array",
+  items: {
+    ...string,
+    pattern: "^people/[^/]+$",
+  },
+  minItems: 1,
+};
+
 const stringMap = {
   type: "object",
   additionalProperties: string,
@@ -113,6 +128,21 @@ const valueMatrix = {
     type: "array",
     minItems: 1,
     items: jsonValue,
+  },
+};
+
+const contactOrganizationArray = {
+  type: "array",
+  minItems: 1,
+  items: {
+    type: "object",
+    additionalProperties: false,
+    properties: {
+      name: string,
+      title: string,
+      department: string,
+    },
+    anyOf: [{ required: ["name"] }, { required: ["title"] }, { required: ["department"] }],
   },
 };
 
@@ -235,6 +265,30 @@ const sheetsReadSchema = {
     {
       if: { properties: { action: { const: "get_values" } } },
       then: { required: ["range"] },
+    },
+  ],
+};
+
+const contactsReadSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["action"],
+  properties: {
+    action: {
+      type: "string",
+      enum: ["list_contacts", "get_contact", "list_contact_groups", "get_contact_group"],
+    },
+    resourceName: string,
+    pageSize: integer(1, 200),
+    pageToken: string,
+    personFields: string,
+    groupFields: string,
+    maxMembers: integer(1, 1000),
+  },
+  allOf: [
+    {
+      if: { properties: { action: { enum: ["get_contact", "get_contact_group"] } } },
+      then: { required: ["resourceName"] },
     },
   ],
 };
@@ -424,6 +478,88 @@ const sheetsWriteSchema = {
   ],
 };
 
+const contactsWriteSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["action", "confirm"],
+  properties: {
+    action: {
+      type: "string",
+      enum: [
+        "create_contact",
+        "update_contact",
+        "create_contact_group",
+        "update_contact_group",
+        "modify_contact_group_members",
+      ],
+    },
+    confirm: boolean,
+    resourceName: string,
+    etag: string,
+    givenName: string,
+    familyName: string,
+    displayName: string,
+    emailAddresses: emailArray,
+    phoneNumbers: {
+      type: "array",
+      items: {
+        ...string,
+        pattern: "^[+()0-9][+()0-9 .-]{2,}$",
+      },
+      minItems: 1,
+    },
+    organizations: contactOrganizationArray,
+    personFields: string,
+    name: string,
+    resourceNamesToAdd: contactResourceNameArray,
+    resourceNamesToRemove: contactResourceNameArray,
+  },
+  allOf: [
+    {
+      if: { properties: { action: { const: "create_contact" } } },
+      then: {
+        anyOf: [
+          { required: ["givenName"] },
+          { required: ["familyName"] },
+          { required: ["displayName"] },
+          { required: ["emailAddresses"] },
+          { required: ["phoneNumbers"] },
+          { required: ["organizations"] },
+        ],
+      },
+    },
+    {
+      if: { properties: { action: { const: "update_contact" } } },
+      then: {
+        required: ["resourceName", "etag"],
+        anyOf: [
+          { required: ["givenName"] },
+          { required: ["familyName"] },
+          { required: ["displayName"] },
+          { required: ["emailAddresses"] },
+          { required: ["phoneNumbers"] },
+          { required: ["organizations"] },
+        ],
+      },
+    },
+    {
+      if: { properties: { action: { const: "create_contact_group" } } },
+      then: { required: ["name"] },
+    },
+    {
+      if: { properties: { action: { const: "update_contact_group" } } },
+      then: { required: ["resourceName", "name"] },
+    },
+    {
+      if: { properties: { action: { const: "modify_contact_group_members" } } },
+      then: {
+        required: ["resourceName"],
+        anyOf: [{ required: ["resourceNamesToAdd"] }, { required: ["resourceNamesToRemove"] }],
+      },
+    },
+  ],
+};
+
 const validators = {
   status: ajv.compile(statusSchema),
   driveRead: ajv.compile(driveReadSchema),
@@ -431,11 +567,13 @@ const validators = {
   calendarRead: ajv.compile(calendarReadSchema),
   docsRead: ajv.compile(docsReadSchema),
   sheetsRead: ajv.compile(sheetsReadSchema),
+  contactsRead: ajv.compile(contactsReadSchema),
   driveWrite: ajv.compile(driveWriteSchema),
   gmailWrite: ajv.compile(gmailWriteSchema),
   calendarWrite: ajv.compile(calendarWriteSchema),
   docsWrite: ajv.compile(docsWriteSchema),
   sheetsWrite: ajv.compile(sheetsWriteSchema),
+  contactsWrite: ajv.compile(contactsWriteSchema),
 };
 
 export type ValidationIssue = {
@@ -485,6 +623,10 @@ export function validateSheetsReadParams(value: unknown) {
   return validate(validators.sheetsRead, value);
 }
 
+export function validateContactsReadParams(value: unknown) {
+  return validate(validators.contactsRead, value);
+}
+
 export function validateDriveWriteParams(value: unknown) {
   return validate(validators.driveWrite, value);
 }
@@ -503,4 +645,8 @@ export function validateDocsWriteParams(value: unknown) {
 
 export function validateSheetsWriteParams(value: unknown) {
   return validate(validators.sheetsWrite, value);
+}
+
+export function validateContactsWriteParams(value: unknown) {
+  return validate(validators.contactsWrite, value);
 }

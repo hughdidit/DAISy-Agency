@@ -11,7 +11,7 @@
         "type": "array",
         "items": {
           "type": "string",
-          "enum": ["drive", "gmail", "calendar", "docs", "sheets"]
+          "enum": ["drive", "gmail", "calendar", "docs", "sheets", "contacts"]
         },
         "default": ["drive", "gmail", "calendar"]
       },
@@ -19,7 +19,7 @@
         "type": "array",
         "items": {
           "type": "string",
-          "enum": ["drive", "gmail", "calendar", "docs", "sheets"]
+          "enum": ["drive", "gmail", "calendar", "docs", "sheets", "contacts"]
         },
         "default": []
       },
@@ -127,7 +127,7 @@
               "type": "array",
               "items": {
                 "type": "string",
-                "enum": ["drive", "gmail", "calendar", "docs", "sheets"]
+                "enum": ["drive", "gmail", "calendar", "docs", "sheets", "contacts"]
               }
             },
             "allowedTools": {
@@ -141,11 +141,13 @@
                   "gws_calendar_read",
                   "gws_docs_read",
                   "gws_sheets_read",
+                  "gws_contacts_read",
                   "gws_drive_write",
                   "gws_gmail_write",
                   "gws_calendar_write",
                   "gws_docs_write",
-                  "gws_sheets_write"
+                  "gws_sheets_write",
+                  "gws_contacts_write"
                 ]
               }
             },

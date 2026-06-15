@@ -561,7 +561,13 @@ describe("Agent-specific sandbox config", () => {
     for (const scenario of [
       {
         cfg: createDefaultsSandboxConfig(),
-        expected: ["session_status", "image", "memory_ingest_document"],
+        expected: [
+          "session_status",
+          "image",
+          "memory_ingest_document",
+          "gws_contacts_read",
+          "gws_contacts_write",
+        ],
         unexpected: ["memory_forget", "memory_hygiene", "memory_audit"],
       },
       {

@@ -8,6 +8,8 @@ import type { OpenClawPluginApi, OpenClawPluginToolContext } from "../../src/plu
 import { createAuditLogger } from "./src/audit.js";
 import { executeCalendarRead } from "./src/commands/calendar-read.js";
 import { executeCalendarWrite } from "./src/commands/calendar-write.js";
+import { executeContactsRead } from "./src/commands/contacts-read.js";
+import { executeContactsWrite } from "./src/commands/contacts-write.js";
 import { executeDocsRead } from "./src/commands/docs-read.js";
 import { executeDocsWrite } from "./src/commands/docs-write.js";
 import { executeDriveRead } from "./src/commands/drive-read.js";
@@ -31,6 +33,7 @@ import type {
   ConfigPosture,
   GwsToolkitConfig,
   InvocationContext,
+  ServiceFamily,
   StructuredEnvelope,
   ToolName,
 } from "./src/types.js";
@@ -319,7 +322,7 @@ function createTools(params: {
 
   const guarded = (
     tool: AnyAgentTool & { name: ToolName },
-    service: "drive" | "gmail" | "calendar" | "docs" | "sheets",
+    service: ServiceFamily,
   ): AnyAgentTool => ({
     ...tool,
     async execute(id: string, rawParams: Record<string, unknown>) {
@@ -460,6 +463,30 @@ function createTools(params: {
         },
       }),
       "sheets",
+    ),
+    guarded(
+      withLabel({
+        name: "gws_contacts_read",
+        description: "Read-only Google Contacts and contact group operations.",
+        parameters: Type.Object(
+          {
+            action: Type.String({
+              enum: ["list_contacts", "get_contact", "list_contact_groups", "get_contact_group"],
+            }),
+            resourceName: Type.Optional(Type.String()),
+            pageSize: Type.Optional(Type.Integer({ minimum: 1, maximum: 200 })),
+            pageToken: Type.Optional(Type.String()),
+            personFields: Type.Optional(Type.String()),
+            groupFields: Type.Optional(Type.String()),
+            maxMembers: Type.Optional(Type.Integer({ minimum: 1, maximum: 1000 })),
+          },
+          { additionalProperties: false },
+        ),
+        async execute(_id: string, rawParams: Record<string, unknown>) {
+          return toToolResult(await executeContactsRead({ ctx, deps, rawParams }));
+        },
+      }),
+      "contacts",
     ),
     guarded(
       withLabel({
@@ -655,6 +682,67 @@ function createTools(params: {
       }),
       "sheets",
     ),
+    guarded(
+      withLabel({
+        name: "gws_contacts_write",
+        description: "Write-capable Google Contacts and contact group operations.",
+        parameters: Type.Object(
+          {
+            action: Type.String({
+              enum: [
+                "create_contact",
+                "update_contact",
+                "create_contact_group",
+                "update_contact_group",
+                "modify_contact_group_members",
+              ],
+            }),
+            confirm: Type.Boolean(),
+            resourceName: Type.Optional(Type.String()),
+            etag: Type.Optional(Type.String()),
+            givenName: Type.Optional(Type.String()),
+            familyName: Type.Optional(Type.String()),
+            displayName: Type.Optional(Type.String()),
+            emailAddresses: Type.Optional(
+              Type.Array(Type.String({ pattern: "^[^\\s@<>]+@[^\\s@<>]+\\.[^\\s@<>]+$" }), {
+                minItems: 1,
+              }),
+            ),
+            phoneNumbers: Type.Optional(
+              Type.Array(Type.String({ pattern: "^[+()0-9][+()0-9 .-]{2,}$" }), {
+                minItems: 1,
+              }),
+            ),
+            organizations: Type.Optional(
+              Type.Array(
+                Type.Object(
+                  {
+                    name: Type.Optional(Type.String()),
+                    title: Type.Optional(Type.String()),
+                    department: Type.Optional(Type.String()),
+                  },
+                  { additionalProperties: false },
+                ),
+                { minItems: 1 },
+              ),
+            ),
+            personFields: Type.Optional(Type.String()),
+            name: Type.Optional(Type.String()),
+            resourceNamesToAdd: Type.Optional(
+              Type.Array(Type.String({ pattern: "^people/[^/]+$" }), { minItems: 1 }),
+            ),
+            resourceNamesToRemove: Type.Optional(
+              Type.Array(Type.String({ pattern: "^people/[^/]+$" }), { minItems: 1 }),
+            ),
+          },
+          { additionalProperties: false },
+        ),
+        async execute(_id: string, rawParams: Record<string, unknown>) {
+          return toToolResult(await executeContactsWrite({ ctx, deps, rawParams }));
+        },
+      }),
+      "contacts",
+    ),
   ];
 
   return tools;
@@ -730,11 +818,13 @@ const plugin = {
           "gws_calendar_read",
           "gws_docs_read",
           "gws_sheets_read",
+          "gws_contacts_read",
           "gws_drive_write",
           "gws_gmail_write",
           "gws_calendar_write",
           "gws_docs_write",
           "gws_sheets_write",
+          "gws_contacts_write",
         ],
       },
     );

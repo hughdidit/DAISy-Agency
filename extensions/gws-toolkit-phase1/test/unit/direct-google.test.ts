@@ -14,8 +14,8 @@ import {
 import type { GwsToolkitConfig } from "../../src/types.js";
 
 const config: GwsToolkitConfig = {
-  enabledServices: ["drive", "gmail", "calendar", "docs", "sheets"],
-  enabledWriteServices: ["calendar"],
+  enabledServices: ["drive", "gmail", "calendar", "docs", "sheets", "contacts"],
+  enabledWriteServices: ["calendar", "contacts"],
   approvedCredentialDirs: [],
   tokenEnvVar: "GOOGLE_WORKSPACE_CLI_TOKEN",
   timeoutMs: 1000,
@@ -207,6 +207,143 @@ describe("direct Google API transport", () => {
     expect(resolveDirectGoogleScopes({ config, service: "calendar", write: true })).toEqual([
       "https://www.googleapis.com/auth/calendar",
     ]);
+    expect(resolveDirectGoogleScopes({ config, service: "contacts", write: false })).toEqual([
+      "https://www.googleapis.com/auth/contacts.readonly",
+    ]);
+    expect(resolveDirectGoogleScopes({ config, service: "contacts", write: true })).toEqual([
+      "https://www.googleapis.com/auth/contacts",
+    ]);
+  });
+
+  it("builds Contacts and contact group direct People API requests", () => {
+    expect(
+      buildDirectGoogleRequest({
+        service: "contacts",
+        action: "list_contacts",
+        payload: { pageSize: 25, personFields: "names,emailAddresses" },
+      }),
+    ).toEqual({
+      method: "GET",
+      url: "https://people.googleapis.com/v1/people/me/connections",
+      params: {
+        pageSize: 25,
+        personFields: "names,emailAddresses",
+      },
+    });
+
+    expect(
+      buildDirectGoogleRequest({
+        service: "contacts",
+        action: "get_contact_group",
+        payload: { resourceName: "contactGroups/friends", maxMembers: 10 },
+      }),
+    ).toEqual({
+      method: "GET",
+      url: "https://people.googleapis.com/v1/contactGroups/friends",
+      params: { maxMembers: 10 },
+    });
+
+    expect(
+      buildDirectGoogleRequest({
+        service: "contacts",
+        action: "create_contact",
+        payload: {
+          givenName: "Ada",
+          familyName: "Lovelace",
+          emailAddresses: ["ada@example.com"],
+          phoneNumbers: ["+15551234567"],
+        },
+      }),
+    ).toEqual({
+      method: "POST",
+      url: "https://people.googleapis.com/v1/people:createContact",
+      data: {
+        names: [{ givenName: "Ada", familyName: "Lovelace" }],
+        emailAddresses: [{ value: "ada@example.com" }],
+        phoneNumbers: [{ value: "+15551234567" }],
+      },
+    });
+
+    expect(
+      buildDirectGoogleRequest({
+        service: "contacts",
+        action: "update_contact",
+        payload: {
+          resourceName: "people/c123",
+          etag: "etag-1",
+          givenName: "Ada",
+          emailAddresses: ["ada@example.com"],
+          personFields: "names,emailAddresses",
+        },
+      }),
+    ).toEqual({
+      method: "PATCH",
+      url: "https://people.googleapis.com/v1/people/c123:updateContact",
+      params: { updatePersonFields: "names,emailAddresses" },
+      data: {
+        resourceName: "people/c123",
+        etag: "etag-1",
+        names: [{ givenName: "Ada" }],
+        emailAddresses: [{ value: "ada@example.com" }],
+      },
+    });
+
+    expect(
+      buildDirectGoogleRequest({
+        service: "contacts",
+        action: "create_contact_group",
+        payload: { name: "Friends" },
+      }),
+    ).toEqual({
+      method: "POST",
+      url: "https://people.googleapis.com/v1/contactGroups",
+      data: { contactGroup: { name: "Friends" } },
+    });
+
+    expect(
+      buildDirectGoogleRequest({
+        service: "contacts",
+        action: "update_contact_group",
+        payload: { resourceName: "contactGroups/friends", name: "Close Friends" },
+      }),
+    ).toEqual({
+      method: "PUT",
+      url: "https://people.googleapis.com/v1/contactGroups/friends",
+      data: {
+        contactGroup: {
+          resourceName: "contactGroups/friends",
+          name: "Close Friends",
+        },
+        updateGroupFields: "name",
+      },
+    });
+
+    expect(
+      buildDirectGoogleRequest({
+        service: "contacts",
+        action: "modify_contact_group_members",
+        payload: {
+          resourceName: "contactGroups/friends",
+          resourceNamesToAdd: ["people/c123"],
+          resourceNamesToRemove: ["people/c456"],
+        },
+      }),
+    ).toEqual({
+      method: "POST",
+      url: "https://people.googleapis.com/v1/contactGroups/friends/members:modify",
+      data: {
+        resourceNamesToAdd: ["people/c123"],
+        resourceNamesToRemove: ["people/c456"],
+      },
+    });
+
+    expect(() =>
+      buildDirectGoogleRequest({
+        service: "contacts",
+        action: "delete_contact",
+        payload: { resourceName: "people/c123" },
+      }),
+    ).toThrow(/Unsupported direct Google API action/);
   });
 
   it("omits undefined Google client request options", () => {

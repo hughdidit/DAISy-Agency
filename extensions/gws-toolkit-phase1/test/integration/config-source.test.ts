@@ -87,4 +87,47 @@ describe("integration: OPENCLAW_CONFIG_FILE posture", () => {
     expect(status.data.binary).not.toHaveProperty("version");
     expect(status.data).not.toHaveProperty("auth");
   });
+
+  it("accepts contacts services and route policies in config posture", async () => {
+    process.env.GOOGLE_WORKSPACE_CLI_TOKEN = "token";
+    const harness = createHarness({
+      pluginConfig: defaultPluginConfig({
+        enabledServices: ["contacts"],
+        enabledWriteServices: ["contacts"],
+        allowWriteOperations: true,
+        defaultScopesProfile: "service-set",
+        credentialRoutes: {
+          contacts: {
+            mode: "token",
+            allowedServices: ["contacts"],
+            allowedTools: ["gws_contacts_read", "gws_contacts_write"],
+            allowedActions: [
+              "contacts:list_contact_groups",
+              "contacts:modify_contact_group_members",
+            ],
+          },
+        },
+        agentCredentialBindings: {
+          "agent:main": "contacts",
+        },
+      }),
+    });
+
+    const status = await executeTool(harness, "gws_status", {});
+
+    expect(status.ok).toBe(true);
+    expect(status.data.config.enabledServices).toEqual(["contacts"]);
+    expect(status.data.config.enabledWriteServices).toEqual(["contacts"]);
+    expect(status.data.scopes.scopes).toContain("https://www.googleapis.com/auth/contacts");
+    expect(status.data.routes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: "contacts",
+          allowedServices: ["contacts"],
+          allowedTools: ["gws_contacts_read", "gws_contacts_write"],
+          allowedActions: ["contacts:list_contact_groups", "contacts:modify_contact_group_members"],
+        }),
+      ]),
+    );
+  });
 });

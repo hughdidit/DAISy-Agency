@@ -60,8 +60,8 @@ Example service-account delegated config:
         enabled: true,
         config: {
           workspaceIdentityDomains: ["hughdidit.com"],
-          enabledServices: ["drive", "gmail", "calendar", "docs", "sheets"],
-          enabledWriteServices: ["calendar", "gmail", "docs", "sheets"],
+          enabledServices: ["drive", "gmail", "calendar", "docs", "sheets", "contacts"],
+          enabledWriteServices: ["calendar", "gmail", "docs", "sheets", "contacts"],
           allowWriteOperations: true,
           safeMode: true,
           approvedCredentialDirs: ["./config/secrets/gws"],
@@ -74,7 +74,7 @@ Example service-account delegated config:
               mode: "credentials_file",
               label: "HughDidIt agent DWD service account",
               credentialsFile: "./config/secrets/gws/domain-wide-delegation.json",
-              allowedServices: ["drive", "gmail", "calendar", "docs", "sheets"],
+              allowedServices: ["drive", "gmail", "calendar", "docs", "sheets", "contacts"],
               allowedTools: [
                 "gws_status",
                 "gws_drive_read",
@@ -82,10 +82,12 @@ Example service-account delegated config:
                 "gws_calendar_read",
                 "gws_docs_read",
                 "gws_sheets_read",
+                "gws_contacts_read",
                 "gws_gmail_write",
                 "gws_calendar_write",
                 "gws_docs_write",
                 "gws_sheets_write",
+                "gws_contacts_write",
               ],
               allowedActions: [
                 "gmail:draft_message",
@@ -94,6 +96,8 @@ Example service-account delegated config:
                 "calendar:create_event",
                 "docs:append_text",
                 "sheets:update_values",
+                "contacts:list_contact_groups",
+                "contacts:modify_contact_group_members",
               ],
             },
           },
@@ -199,6 +203,7 @@ Read smoke checks:
 - `gws_drive_read`
 - `gws_docs_read`
 - `gws_sheets_read`
+- `gws_contacts_read`
 
 For Calendar, read the user's `primary` calendar after auth-health passes. A
 404 for `primary` means the delegated subject is still not a valid readable
@@ -236,6 +241,11 @@ start/end values, time zones, attendees, recurrence, visibility, transparency,
 color, reminders, source, extended properties, attachments, `sendUpdates`,
 `supportsAttachments`, and guest permission booleans. Unknown properties remain
 schema errors.
+
+Contacts writes also expose a curated People API surface. Create/update contact
+groups and add/remove group members with `gws_contacts_write`, but do not
+configure delete actions for contacts or groups; they are intentionally out of
+scope and fail validation or policy.
 
 ## 7. Phase 1 migration
 

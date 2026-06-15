@@ -10,6 +10,8 @@ describe("integration: plugin registration", () => {
     expect([...harness.tools.keys()].sort()).toEqual([
       "gws_calendar_read",
       "gws_calendar_write",
+      "gws_contacts_read",
+      "gws_contacts_write",
       "gws_docs_read",
       "gws_docs_write",
       "gws_drive_read",
