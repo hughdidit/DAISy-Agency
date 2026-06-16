@@ -1525,11 +1525,11 @@ export async function executeDirectAuthHealth(params: {
                     url: "https://admin.googleapis.com/admin/directory/v1/groups",
                     params: { customer: "my_customer", maxResults: 1 },
                   }
-              : {
-                  method: "GET" as const,
-                  url: "https://people.googleapis.com/v1/people/me/connections",
-                  params: { personFields: "names", pageSize: 1 },
-                };
+                : {
+                    method: "GET" as const,
+                    url: "https://people.googleapis.com/v1/people/me/connections",
+                    params: { personFields: "names", pageSize: 1 },
+                  };
   try {
     const response = await client.request(
       buildDirectGoogleClientRequestOptions({

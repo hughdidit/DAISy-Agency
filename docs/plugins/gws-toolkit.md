@@ -266,14 +266,30 @@ Recommended reusable-route shape:
           allowUnboundAgents: false,
           allowWriteOperations: true,
           enabledServices: ["calendar", "gmail", "drive", "docs", "sheets", "contacts", "groups"],
-          enabledWriteServices: ["calendar", "gmail", "drive", "docs", "sheets", "contacts", "groups"],
+          enabledWriteServices: [
+            "calendar",
+            "gmail",
+            "drive",
+            "docs",
+            "sheets",
+            "contacts",
+            "groups",
+          ],
           approvedCredentialDirs: ["./config/secrets/gws"],
           credentialRoutes: {
             "hughdidit-agent-gws": {
               mode: "credentials_file",
               label: "HughDidIt agent DWD service account",
               credentialsFile: "./config/secrets/gws/domain-wide-delegation.json",
-              allowedServices: ["calendar", "gmail", "drive", "docs", "sheets", "contacts", "groups"],
+              allowedServices: [
+                "calendar",
+                "gmail",
+                "drive",
+                "docs",
+                "sheets",
+                "contacts",
+                "groups",
+              ],
               allowedTools: [
                 "gws_status",
                 "gws_calendar_read",

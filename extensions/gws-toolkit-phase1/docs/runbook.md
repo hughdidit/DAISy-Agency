@@ -74,7 +74,15 @@ Example service-account delegated config:
               mode: "credentials_file",
               label: "HughDidIt agent DWD service account",
               credentialsFile: "./config/secrets/gws/domain-wide-delegation.json",
-              allowedServices: ["drive", "gmail", "calendar", "docs", "sheets", "contacts", "groups"],
+              allowedServices: [
+                "drive",
+                "gmail",
+                "calendar",
+                "docs",
+                "sheets",
+                "contacts",
+                "groups",
+              ],
               allowedTools: [
                 "gws_status",
                 "gws_drive_read",

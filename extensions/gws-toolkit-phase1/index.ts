@@ -802,9 +802,7 @@ function createTools(params: {
               Type.String({ pattern: "^[^\\s@<>]+@[^\\s@<>]+\\.[^\\s@<>]+$" }),
             ),
             role: Type.Optional(Type.String({ enum: ["OWNER", "MANAGER", "MEMBER"] })),
-            email: Type.Optional(
-              Type.String({ pattern: "^[^\\s@<>]+@[^\\s@<>]+\\.[^\\s@<>]+$" }),
-            ),
+            email: Type.Optional(Type.String({ pattern: "^[^\\s@<>]+@[^\\s@<>]+\\.[^\\s@<>]+$" })),
             name: Type.Optional(Type.String()),
             description: Type.Optional(Type.String()),
           },
