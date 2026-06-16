@@ -286,6 +286,14 @@ describe("integration: action-specific required params", () => {
     expect(listGroups.error).toMatchObject({ code: "AUTH_ERROR" });
     expect(listGroups.error.message).toContain("delegated Google API transport");
 
+    const conflictingListSelectors = await executeTool(harness, "gws_groups_read", {
+      action: "list_groups",
+      customer: "my_customer",
+      domain: "example.com",
+    });
+    expect(conflictingListSelectors.ok).toBe(false);
+    expect(conflictingListSelectors.error).toMatchObject({ code: "VALIDATION_ERROR" });
+
     const missingGroupKey = await executeTool(harness, "gws_groups_read", {
       action: "list_group_members",
     });
@@ -309,6 +317,14 @@ describe("integration: action-specific required params", () => {
     expect(createGroup.ok).toBe(false);
     expect(createGroup.error).toMatchObject({ code: "AUTH_ERROR" });
     expect(createGroup.error.message).toContain("delegated Google API transport");
+
+    const missingGroupName = await executeTool(harness, "gws_groups_write", {
+      action: "create_group",
+      confirm: true,
+      email: "agents@example.com",
+    });
+    expect(missingGroupName.ok).toBe(false);
+    expect(missingGroupName.error).toMatchObject({ code: "VALIDATION_ERROR" });
 
     const missingConfirm = await executeTool(harness, "gws_groups_write", {
       action: "add_group_member",

@@ -24,7 +24,7 @@ export async function executeGroupsWrite(params: {
 
   const value = validated.value as Record<string, unknown> & {
     action: string;
-    confirm?: boolean;
+    confirm: boolean;
   };
 
   return runToolkitCommand({

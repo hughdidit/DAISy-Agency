@@ -110,6 +110,7 @@ Example service-account delegated config:
                 "contacts:modify_contact_group_members",
                 "groups:list_groups",
                 "groups:add_group_member",
+                "groups:remove_group_member",
               ],
             },
           },

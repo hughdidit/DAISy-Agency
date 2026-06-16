@@ -353,6 +353,12 @@ const groupsReadSchema = {
   },
   allOf: [
     {
+      if: { properties: { action: { const: "list_groups" } } },
+      then: {
+        not: { required: ["customer", "domain"] },
+      },
+    },
+    {
       if: { properties: { action: { const: "get_group" } } },
       then: { required: ["groupKey"] },
     },
@@ -672,7 +678,7 @@ const groupsWriteSchema = {
   allOf: [
     {
       if: { properties: { action: { const: "create_group" } } },
-      then: { required: ["email"] },
+      then: { required: ["email", "name"] },
     },
     {
       if: { properties: { action: { const: "update_group" } } },

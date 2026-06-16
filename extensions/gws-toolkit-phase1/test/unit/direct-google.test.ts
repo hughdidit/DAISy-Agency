@@ -389,7 +389,6 @@ describe("direct Google API transport", () => {
         service: "groups",
         action: "list_groups",
         payload: {
-          customer: "my_customer",
           domain: "example.com",
           query: "email:agents*",
           maxResults: 20,
@@ -400,13 +399,23 @@ describe("direct Google API transport", () => {
       method: "GET",
       url: "https://admin.googleapis.com/admin/directory/v1/groups",
       params: {
-        customer: "my_customer",
         domain: "example.com",
         query: "email:agents*",
         maxResults: 20,
         pageToken: "page-1",
       },
     });
+
+    expect(() =>
+      buildDirectGoogleRequest({
+        service: "groups",
+        action: "list_groups",
+        payload: {
+          customer: "my_customer",
+          domain: "example.com",
+        },
+      }),
+    ).toThrow(/customer or domain, not both/);
 
     expect(
       buildDirectGoogleRequest({
@@ -442,6 +451,14 @@ describe("direct Google API transport", () => {
       },
     });
 
+    expect(() =>
+      buildDirectGoogleRequest({
+        service: "groups",
+        action: "create_group",
+        payload: { email: "agents@example.com" },
+      }),
+    ).toThrow(/name is required/);
+
     expect(
       buildDirectGoogleRequest({
         service: "groups",
@@ -472,6 +489,17 @@ describe("direct Google API transport", () => {
         description: "Delegated agent group",
       },
     });
+
+    expect(() =>
+      buildDirectGoogleRequest({
+        service: "groups",
+        action: "update_group_member",
+        payload: {
+          groupKey: "agents@example.com",
+          memberKey: "daisy.ai@example.com",
+        },
+      }),
+    ).toThrow(/role is required/);
 
     expect(
       buildDirectGoogleRequest({

@@ -950,12 +950,20 @@ export function buildDirectGoogleRequest(params: {
     }
     case "groups": {
       if (params.action === "list_groups") {
+        const customer = trimmedString(p.customer);
+        const domain = normalizeDirectoryDomain(p.domain);
+        if (customer && domain) {
+          throw new PluginError(
+            "VALIDATION_ERROR",
+            "groups:list_groups accepts customer or domain, not both.",
+          );
+        }
         return {
           method: "GET",
           url: "https://admin.googleapis.com/admin/directory/v1/groups",
           params: compactParams({
-            customer: p.customer ?? (p.domain ? undefined : "my_customer"),
-            domain: normalizeDirectoryDomain(p.domain),
+            customer: customer ?? (domain ? undefined : "my_customer"),
+            domain,
             query: p.query,
             maxResults: p.maxResults,
             pageToken: p.pageToken,
@@ -991,6 +999,8 @@ export function buildDirectGoogleRequest(params: {
         };
       }
       if (params.action === "create_group") {
+        readRequiredTrimmed(p.email, "email");
+        readRequiredTrimmed(p.name, "name");
         return {
           method: "POST",
           url: "https://admin.googleapis.com/admin/directory/v1/groups",
@@ -1016,10 +1026,11 @@ export function buildDirectGoogleRequest(params: {
       if (params.action === "update_group_member") {
         const groupKey = readRequiredTrimmed(p.groupKey, "groupKey");
         const memberKey = readRequiredTrimmed(p.memberKey, "memberKey");
+        const role = readRequiredTrimmed(p.role, "role");
         return {
           method: "PATCH",
           url: `https://admin.googleapis.com/admin/directory/v1/groups/${encodeSegment(groupKey)}/members/${encodeSegment(memberKey)}`,
-          data: { role: p.role },
+          data: { role },
         };
       }
       if (params.action === "remove_group_member") {
