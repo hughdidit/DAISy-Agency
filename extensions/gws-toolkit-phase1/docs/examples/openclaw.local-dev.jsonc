@@ -33,6 +33,18 @@
               ],
               "tokenEnvVar": "GOOGLE_WORKSPACE_CLI_TOKEN",
             },
+            // Directory Groups require delegated Google API transport. Enable
+            // "groups" in enabledServices / enabledWriteServices and bind this
+            // credentials_file route when testing Workspace group management.
+            // "local-groups": {
+            //   "mode": "credentials_file",
+            //   "label": "Delegated Directory Groups route",
+            //   "credentialsFile": "./config/secrets/gws/domain-wide-delegation.json",
+            //   "allowedServices": ["groups"],
+            //   "allowedTools": ["gws_groups_read", "gws_groups_write"],
+            //   "allowedActions": ["groups:list_groups", "groups:add_group_member"],
+            //   "impersonatedUser": "daisy.ai@example.com",
+            // },
           },
           "agentCredentialBindings": {
             "agent:main": "local-main",

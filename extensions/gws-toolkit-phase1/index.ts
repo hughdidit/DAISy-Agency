@@ -16,6 +16,8 @@ import { executeDriveRead } from "./src/commands/drive-read.js";
 import { executeDriveWrite } from "./src/commands/drive-write.js";
 import { executeGmailRead } from "./src/commands/gmail-read.js";
 import { executeGmailWrite } from "./src/commands/gmail-write.js";
+import { executeGroupsRead } from "./src/commands/groups-read.js";
+import { executeGroupsWrite } from "./src/commands/groups-write.js";
 import { createRuntimeDeps } from "./src/commands/helpers.js";
 import { executeSheetsRead } from "./src/commands/sheets-read.js";
 import { executeSheetsWrite } from "./src/commands/sheets-write.js";
@@ -490,6 +492,40 @@ function createTools(params: {
     ),
     guarded(
       withLabel({
+        name: "gws_groups_read",
+        description: "Read-only Google Workspace Directory Groups and group membership operations.",
+        parameters: Type.Object(
+          {
+            action: Type.String({
+              enum: ["list_groups", "get_group", "list_group_members", "get_group_member"],
+            }),
+            customer: Type.Optional(Type.String()),
+            domain: Type.Optional(
+              Type.String({ pattern: "^@?[A-Za-z0-9][A-Za-z0-9.-]*\\.[A-Za-z]{2,}$" }),
+            ),
+            query: Type.Optional(Type.String()),
+            pageToken: Type.Optional(Type.String()),
+            maxResults: Type.Optional(Type.Integer({ minimum: 1, maximum: 200 })),
+            groupKey: Type.Optional(Type.String({ pattern: "^[^\\s/]+$" })),
+            memberKey: Type.Optional(Type.String({ pattern: "^[^\\s/]+$" })),
+            roles: Type.Optional(
+              Type.Array(Type.String({ enum: ["OWNER", "MANAGER", "MEMBER"] }), {
+                minItems: 1,
+                uniqueItems: true,
+              }),
+            ),
+            includeDerivedMembership: Type.Optional(Type.Boolean()),
+          },
+          { additionalProperties: false },
+        ),
+        async execute(_id: string, rawParams: Record<string, unknown>) {
+          return toToolResult(await executeGroupsRead({ ctx, deps, rawParams }));
+        },
+      }),
+      "groups",
+    ),
+    guarded(
+      withLabel({
         name: "gws_drive_write",
         description: "Write-capable Google Drive operations.",
         parameters: Type.Object(
@@ -743,6 +779,41 @@ function createTools(params: {
       }),
       "contacts",
     ),
+    guarded(
+      withLabel({
+        name: "gws_groups_write",
+        description:
+          "Write-capable Google Workspace Directory Groups and group membership operations.",
+        parameters: Type.Object(
+          {
+            action: Type.String({
+              enum: [
+                "create_group",
+                "update_group",
+                "add_group_member",
+                "update_group_member",
+                "remove_group_member",
+              ],
+            }),
+            confirm: Type.Boolean(),
+            groupKey: Type.Optional(Type.String({ pattern: "^[^\\s/]+$" })),
+            memberKey: Type.Optional(Type.String({ pattern: "^[^\\s/]+$" })),
+            memberEmail: Type.Optional(
+              Type.String({ pattern: "^[^\\s@<>]+@[^\\s@<>]+\\.[^\\s@<>]+$" }),
+            ),
+            role: Type.Optional(Type.String({ enum: ["OWNER", "MANAGER", "MEMBER"] })),
+            email: Type.Optional(Type.String({ pattern: "^[^\\s@<>]+@[^\\s@<>]+\\.[^\\s@<>]+$" })),
+            name: Type.Optional(Type.String()),
+            description: Type.Optional(Type.String()),
+          },
+          { additionalProperties: false },
+        ),
+        async execute(_id: string, rawParams: Record<string, unknown>) {
+          return toToolResult(await executeGroupsWrite({ ctx, deps, rawParams }));
+        },
+      }),
+      "groups",
+    ),
   ];
 
   return tools;
@@ -819,12 +890,14 @@ const plugin = {
           "gws_docs_read",
           "gws_sheets_read",
           "gws_contacts_read",
+          "gws_groups_read",
           "gws_drive_write",
           "gws_gmail_write",
           "gws_calendar_write",
           "gws_docs_write",
           "gws_sheets_write",
           "gws_contacts_write",
+          "gws_groups_write",
         ],
       },
     );

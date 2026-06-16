@@ -230,10 +230,14 @@ function resolveScopesProfile(config: {
       config.defaultScopesProfile === "service-set" &&
       config.enabledWriteServices.includes(service)
     ) {
-      scopes.add(WRITE_SCOPES[service]);
+      for (const scope of WRITE_SCOPES[service]) {
+        scopes.add(scope);
+      }
       continue;
     }
-    scopes.add(READONLY_SCOPES[service]);
+    for (const scope of READONLY_SCOPES[service]) {
+      scopes.add(scope);
+    }
   }
   return [...scopes];
 }
@@ -546,8 +550,8 @@ export function resolveConfig(
   });
   if (defaultScopesProfile === "custom" && !configBase.allowWriteOperations) {
     const containsWriteScope = scopes.some((scope) =>
-      Object.values(WRITE_SCOPES).some(
-        (candidate) => candidate.toLowerCase() === scope.toLowerCase(),
+      Object.values(WRITE_SCOPES).some((candidates) =>
+        candidates.some((candidate) => candidate.toLowerCase() === scope.toLowerCase()),
       ),
     );
     if (containsWriteScope) {

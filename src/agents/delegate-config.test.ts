@@ -49,7 +49,9 @@ describe("delegate config helpers", () => {
     });
     expect(preset.tools.allow).toContain("gws_gmail_write");
     expect(preset.tools.allow).toContain("gws_contacts_read");
+    expect(preset.tools.allow).toContain("gws_groups_read");
     expect(preset.tools.allow).not.toContain("gws_contacts_write");
+    expect(preset.tools.allow).not.toContain("gws_groups_write");
     expect(preset.tools.allow).not.toContain("cron");
     expect(preset.tools.deny).toContain("cron");
   });
@@ -62,6 +64,8 @@ describe("delegate config helpers", () => {
     expect(preset.tools.allow).toContain("gws_calendar_write");
     expect(preset.tools.allow).toContain("gws_contacts_read");
     expect(preset.tools.allow).toContain("gws_contacts_write");
+    expect(preset.tools.allow).toContain("gws_groups_read");
+    expect(preset.tools.allow).toContain("gws_groups_write");
     expect(preset.tools.deny).not.toContain("cron");
   });
 });

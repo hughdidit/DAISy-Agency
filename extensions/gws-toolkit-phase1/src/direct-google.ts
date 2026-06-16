@@ -26,7 +26,7 @@ type ServiceAccountJson = {
 };
 
 export type DirectGoogleRequest = {
-  method: "GET" | "POST" | "PATCH" | "PUT";
+  method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
   url: string;
   params?: Record<string, unknown>;
   data?: unknown;
@@ -496,7 +496,7 @@ export function resolveDirectGoogleScopes(params: {
   if (params.config.defaultScopesProfile === "custom") {
     return params.config.customScopes ?? [];
   }
-  return [params.write ? WRITE_SCOPES[params.service] : READONLY_SCOPES[params.service]];
+  return [...(params.write ? WRITE_SCOPES[params.service] : READONLY_SCOPES[params.service])];
 }
 
 export function createDelegatedGoogleClient(params: {
@@ -590,6 +590,33 @@ function stringArray(value: unknown): string[] | undefined {
     .map((entry) => entry.trim())
     .filter(Boolean);
   return strings.length > 0 ? strings : undefined;
+}
+
+function directoryRolesParam(value: unknown): string | undefined {
+  const roles = stringArray(value);
+  return roles ? roles.join(",") : undefined;
+}
+
+function normalizeDirectoryDomain(value: unknown): string | undefined {
+  if (typeof value !== "string" || !value.trim()) {
+    return undefined;
+  }
+  return value.trim().replace(/^@/, "").toLowerCase();
+}
+
+function buildDirectoryGroupBody(payload: Record<string, unknown>): Record<string, unknown> {
+  return compactParams({
+    email: trimmedString(payload.email),
+    name: trimmedString(payload.name),
+    description: trimmedString(payload.description),
+  });
+}
+
+function buildDirectoryMemberBody(payload: Record<string, unknown>): Record<string, unknown> {
+  return compactParams({
+    email: trimmedString(payload.memberEmail),
+    role: trimmedString(payload.role) ?? "MEMBER",
+  });
 }
 
 function buildContactPersonBody(payload: Record<string, unknown>): Record<string, unknown> {
@@ -917,6 +944,101 @@ export function buildDirectGoogleRequest(params: {
           url: `https://sheets.googleapis.com/v4/spreadsheets/${encodeSegment(String(p.spreadsheetId))}/values/${encodeSegment(String(p.range))}${suffix}`,
           params: { valueInputOption: p.valueInputOption ?? "USER_ENTERED" },
           data: { values: p.values },
+        };
+      }
+      break;
+    }
+    case "groups": {
+      if (params.action === "list_groups") {
+        const customer = trimmedString(p.customer);
+        const domain = normalizeDirectoryDomain(p.domain);
+        if (customer && domain) {
+          throw new PluginError(
+            "VALIDATION_ERROR",
+            "groups:list_groups accepts customer or domain, not both.",
+          );
+        }
+        return {
+          method: "GET",
+          url: "https://admin.googleapis.com/admin/directory/v1/groups",
+          params: compactParams({
+            customer: customer ?? (domain ? undefined : "my_customer"),
+            domain,
+            query: p.query,
+            maxResults: p.maxResults,
+            pageToken: p.pageToken,
+          }),
+        };
+      }
+      if (params.action === "get_group") {
+        const groupKey = readRequiredTrimmed(p.groupKey, "groupKey");
+        return {
+          method: "GET",
+          url: `https://admin.googleapis.com/admin/directory/v1/groups/${encodeSegment(groupKey)}`,
+        };
+      }
+      if (params.action === "list_group_members") {
+        const groupKey = readRequiredTrimmed(p.groupKey, "groupKey");
+        return {
+          method: "GET",
+          url: `https://admin.googleapis.com/admin/directory/v1/groups/${encodeSegment(groupKey)}/members`,
+          params: compactParams({
+            roles: directoryRolesParam(p.roles),
+            includeDerivedMembership: p.includeDerivedMembership,
+            maxResults: p.maxResults,
+            pageToken: p.pageToken,
+          }),
+        };
+      }
+      if (params.action === "get_group_member") {
+        const groupKey = readRequiredTrimmed(p.groupKey, "groupKey");
+        const memberKey = readRequiredTrimmed(p.memberKey, "memberKey");
+        return {
+          method: "GET",
+          url: `https://admin.googleapis.com/admin/directory/v1/groups/${encodeSegment(groupKey)}/members/${encodeSegment(memberKey)}`,
+        };
+      }
+      if (params.action === "create_group") {
+        readRequiredTrimmed(p.email, "email");
+        readRequiredTrimmed(p.name, "name");
+        return {
+          method: "POST",
+          url: "https://admin.googleapis.com/admin/directory/v1/groups",
+          data: buildDirectoryGroupBody(p),
+        };
+      }
+      if (params.action === "update_group") {
+        const groupKey = readRequiredTrimmed(p.groupKey, "groupKey");
+        return {
+          method: "PATCH",
+          url: `https://admin.googleapis.com/admin/directory/v1/groups/${encodeSegment(groupKey)}`,
+          data: buildDirectoryGroupBody(p),
+        };
+      }
+      if (params.action === "add_group_member") {
+        const groupKey = readRequiredTrimmed(p.groupKey, "groupKey");
+        return {
+          method: "POST",
+          url: `https://admin.googleapis.com/admin/directory/v1/groups/${encodeSegment(groupKey)}/members`,
+          data: buildDirectoryMemberBody(p),
+        };
+      }
+      if (params.action === "update_group_member") {
+        const groupKey = readRequiredTrimmed(p.groupKey, "groupKey");
+        const memberKey = readRequiredTrimmed(p.memberKey, "memberKey");
+        const role = readRequiredTrimmed(p.role, "role");
+        return {
+          method: "PATCH",
+          url: `https://admin.googleapis.com/admin/directory/v1/groups/${encodeSegment(groupKey)}/members/${encodeSegment(memberKey)}`,
+          data: { role },
+        };
+      }
+      if (params.action === "remove_group_member") {
+        const groupKey = readRequiredTrimmed(p.groupKey, "groupKey");
+        const memberKey = readRequiredTrimmed(p.memberKey, "memberKey");
+        return {
+          method: "DELETE",
+          url: `https://admin.googleapis.com/admin/directory/v1/groups/${encodeSegment(groupKey)}/members/${encodeSegment(memberKey)}`,
         };
       }
       break;
@@ -1408,11 +1530,17 @@ export async function executeDirectAuthHealth(params: {
                   url: "https://sheets.googleapis.com/v4/spreadsheets/daisy_auth_health_probe",
                   acceptNotFoundAsValid: true,
                 }
-              : {
-                  method: "GET" as const,
-                  url: "https://people.googleapis.com/v1/people/me/connections",
-                  params: { personFields: "names", pageSize: 1 },
-                };
+              : service === "groups"
+                ? {
+                    method: "GET" as const,
+                    url: "https://admin.googleapis.com/admin/directory/v1/groups",
+                    params: { customer: "my_customer", maxResults: 1 },
+                  }
+                : {
+                    method: "GET" as const,
+                    url: "https://people.googleapis.com/v1/people/me/connections",
+                    params: { personFields: "names", pageSize: 1 },
+                  };
   try {
     const response = await client.request(
       buildDirectGoogleClientRequestOptions({

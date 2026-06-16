@@ -18,6 +18,8 @@ describe("integration: plugin registration", () => {
       "gws_drive_write",
       "gws_gmail_read",
       "gws_gmail_write",
+      "gws_groups_read",
+      "gws_groups_write",
       "gws_sheets_read",
       "gws_sheets_write",
       "gws_status",

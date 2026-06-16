@@ -96,7 +96,7 @@ Reusable service-account route for multiple Workspace identities:
               mode: "credentials_file",
               label: "HughDidIt delegated Google API route",
               credentialsFile: "./config/secrets/gws/domain-wide-delegation.json",
-              allowedServices: ["calendar", "gmail", "drive", "contacts"],
+              allowedServices: ["calendar", "gmail", "drive", "contacts", "groups"],
               allowedTools: [
                 "gws_status",
                 "gws_calendar_read",
@@ -104,6 +104,8 @@ Reusable service-account route for multiple Workspace identities:
                 "gws_drive_read",
                 "gws_contacts_read",
                 "gws_contacts_write",
+                "gws_groups_read",
+                "gws_groups_write",
               ],
               allowedActions: [
                 "calendar:list_events",
@@ -111,6 +113,9 @@ Reusable service-account route for multiple Workspace identities:
                 "drive:list_files",
                 "contacts:list_contact_groups",
                 "contacts:modify_contact_group_members",
+                "groups:list_groups",
+                "groups:add_group_member",
+                "groups:remove_group_member",
               ],
             },
           },

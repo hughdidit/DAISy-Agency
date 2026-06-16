@@ -14,8 +14,8 @@
       "gws-toolkit-phase1": {
         "enabled": true,
         "config": {
-          "enabledServices": ["drive", "gmail", "calendar", "docs", "sheets", "contacts"],
-          "enabledWriteServices": ["drive", "calendar", "docs", "contacts"],
+          "enabledServices": ["drive", "gmail", "calendar", "docs", "sheets", "contacts", "groups"],
+          "enabledWriteServices": ["drive", "calendar", "docs", "contacts", "groups"],
           "allowWriteOperations": true,
           "allowUnboundAgents": false,
           "approvedCredentialDirs": ["/home/node/.openclaw/secrets/gws"],
@@ -24,14 +24,16 @@
             "ops-drive": {
               "mode": "credentials_file",
               "label": "Ops Drive",
-              "allowedServices": ["drive", "calendar", "contacts"],
+              "allowedServices": ["drive", "calendar", "contacts", "groups"],
               "allowedTools": [
                 "gws_drive_read",
                 "gws_calendar_read",
                 "gws_contacts_read",
+                "gws_groups_read",
                 "gws_drive_write",
                 "gws_calendar_write",
                 "gws_contacts_write",
+                "gws_groups_write",
               ],
               "allowedActions": [
                 "drive:create_folder",
@@ -39,6 +41,8 @@
                 "calendar:create_event",
                 "contacts:list_contact_groups",
                 "contacts:modify_contact_group_members",
+                "groups:list_groups",
+                "groups:add_group_member",
               ],
               "credentialsFile": "/home/node/.openclaw/secrets/gws/ops.json",
               "impersonatedUserEnvVar": "GWS_OPS_IMPERSONATED_USER",

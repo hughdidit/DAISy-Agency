@@ -12,8 +12,8 @@ title: "GWS Toolkit"
 toolkit. The implementation now covers:
 
 - Phase 1 legacy-compatible read tools
-- Phase 2 route-aware writes for Drive, Gmail, Calendar, Docs, Sheets, and
-  Contacts
+- Phase 2 route-aware writes for Drive, Gmail, Calendar, Docs, Sheets,
+  Contacts, and Workspace Directory Groups
 - per-agent and per-sub-agent credential routing
 - first-class DAISy agent Google Workspace identities for delegated Google API
   calls
@@ -44,6 +44,8 @@ Read tools:
 - `gws_sheets_read`
 - `gws_contacts_read` (`list_contacts`, `get_contact`, `list_contact_groups`,
   `get_contact_group`)
+- `gws_groups_read` (`list_groups`, `get_group`, `list_group_members`,
+  `get_group_member`)
 
 Write tools:
 
@@ -55,6 +57,11 @@ Write tools:
 - `gws_contacts_write` (`create_contact`, `update_contact`,
   `create_contact_group`, `update_contact_group`,
   `modify_contact_group_members`)
+- `gws_groups_write` (`create_group`, `update_group`, `add_group_member`,
+  `update_group_member`, `remove_group_member`)
+
+After deployment, existing agent sessions keep their current tool catalog. Start
+a new session for sandboxed agents to see newly added `gws_groups_*` tools.
 
 ## Contacts And Contact Groups
 
@@ -76,6 +83,35 @@ Example group membership change:
   "resourceName": "contactGroups/friends",
   "resourceNamesToAdd": ["people/c123"],
   "resourceNamesToRemove": ["people/c456"]
+}
+```
+
+## Directory Groups
+
+`gws_groups_read` and `gws_groups_write` manage Google Workspace Directory
+Groups and group memberships through the Admin SDK Directory API. These are
+different from Contact Groups, which remain under `gws_contacts_*` and use the
+People API.
+
+Directory Groups operations require delegated Google API transport. Configure a
+`credentials_file` route, bind each agent and sub-agent explicitly, grant only
+the Admin Directory group and group-member scopes needed by the route, and make
+sure the delegated Workspace subject has the admin privileges required for the
+group operations. Legacy token or CLI transport fails closed for `groups`
+actions.
+
+Group deletion is intentionally not included. Remove individual members with
+`remove_group_member` when membership needs to be revoked.
+
+Example directory group member change:
+
+```json
+{
+  "action": "add_group_member",
+  "confirm": true,
+  "groupKey": "agents@example.com",
+  "memberEmail": "daisy.ai@example.com",
+  "role": "MEMBER"
 }
 ```
 
@@ -229,15 +265,31 @@ Recommended reusable-route shape:
           workspaceIdentityDomains: ["hughdidit.com"],
           allowUnboundAgents: false,
           allowWriteOperations: true,
-          enabledServices: ["calendar", "gmail", "drive", "docs", "sheets", "contacts"],
-          enabledWriteServices: ["calendar", "gmail", "drive", "docs", "sheets", "contacts"],
+          enabledServices: ["calendar", "gmail", "drive", "docs", "sheets", "contacts", "groups"],
+          enabledWriteServices: [
+            "calendar",
+            "gmail",
+            "drive",
+            "docs",
+            "sheets",
+            "contacts",
+            "groups",
+          ],
           approvedCredentialDirs: ["./config/secrets/gws"],
           credentialRoutes: {
             "hughdidit-agent-gws": {
               mode: "credentials_file",
               label: "HughDidIt agent DWD service account",
               credentialsFile: "./config/secrets/gws/domain-wide-delegation.json",
-              allowedServices: ["calendar", "gmail", "drive", "docs", "sheets", "contacts"],
+              allowedServices: [
+                "calendar",
+                "gmail",
+                "drive",
+                "docs",
+                "sheets",
+                "contacts",
+                "groups",
+              ],
               allowedTools: [
                 "gws_status",
                 "gws_calendar_read",
@@ -252,6 +304,8 @@ Recommended reusable-route shape:
                 "gws_sheets_write",
                 "gws_contacts_read",
                 "gws_contacts_write",
+                "gws_groups_read",
+                "gws_groups_write",
               ],
               allowedActions: [
                 "calendar:list_events",
@@ -268,6 +322,8 @@ Recommended reusable-route shape:
                 "sheets:update_values",
                 "contacts:list_contact_groups",
                 "contacts:modify_contact_group_members",
+                "groups:list_groups",
+                "groups:add_group_member",
               ],
             },
           },

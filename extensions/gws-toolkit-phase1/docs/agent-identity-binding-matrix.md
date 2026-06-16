@@ -11,10 +11,14 @@
 Use read-only routes for subjects that do not need writes, even if the plugin
 globally enables write services for other identities.
 
-Contacts follow the same subject binding rules as Drive, Gmail, Calendar, Docs,
-and Sheets. Grant `gws_contacts_read` to read-only routes when agents only need
-to inspect people or contact groups; add `gws_contacts_write` only for routes
-that should create/update contacts or contact groups and modify group members.
+Contacts and Directory Groups follow the same subject binding rules as Drive,
+Gmail, Calendar, Docs, and Sheets. Grant `gws_contacts_read` to read-only routes
+when agents only need to inspect people or Contact Groups; add
+`gws_contacts_write` only for routes that should create/update contacts or
+Contact Groups and modify Contact Group members. Directory Groups are a
+separate Admin SDK Directory API surface: grant `gws_groups_read` for Workspace
+group and member inspection, and `gws_groups_write` only for delegated routes
+whose subject has the required Workspace admin privileges.
 
 Subagents do not inherit route access from their parent. A subagent can use the
 same delegated Workspace email as its parent agent, but it still needs its own

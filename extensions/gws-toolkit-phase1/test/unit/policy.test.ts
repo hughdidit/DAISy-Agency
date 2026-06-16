@@ -3,7 +3,7 @@ import { evaluatePolicy } from "../../src/policy.js";
 import type { AuthResolution, GwsToolkitConfig } from "../../src/types.js";
 
 const config: GwsToolkitConfig = {
-  enabledServices: ["drive", "gmail", "calendar", "docs", "sheets", "contacts"],
+  enabledServices: ["drive", "gmail", "calendar", "docs", "sheets", "contacts", "groups"],
   enabledWriteServices: ["drive"],
   approvedCredentialDirs: [],
   tokenEnvVar: "GOOGLE_WORKSPACE_CLI_TOKEN",
@@ -172,6 +172,69 @@ describe("policy", () => {
         payload: { name: "Friends" },
         config: contactsConfig,
         auth: contactsAuth,
+        isWrite: true,
+        confirm: false,
+      }).reason,
+    ).toContain("confirm=true");
+  });
+
+  it("allows gated Directory Groups member writes and denies group deletion", () => {
+    const groupsConfig: GwsToolkitConfig = {
+      ...config,
+      enabledWriteServices: ["groups"],
+    };
+    const groupsAuth: AuthResolution = {
+      ...auth,
+      route: {
+        ...auth.route,
+        allowedServices: ["groups"],
+        allowedTools: ["gws_groups_read", "gws_groups_write"],
+        allowedActions: [
+          "groups:list_groups",
+          "groups:add_group_member",
+          "groups:remove_group_member",
+        ],
+      },
+    };
+
+    expect(
+      evaluatePolicy({
+        tool: "gws_groups_write",
+        service: "groups",
+        action: "add_group_member",
+        payload: {
+          groupKey: "agents@example.com",
+          memberEmail: "daisy.ai@example.com",
+        },
+        config: groupsConfig,
+        auth: groupsAuth,
+        isWrite: true,
+        confirm: true,
+      }).allowed,
+    ).toBe(true);
+    expect(
+      evaluatePolicy({
+        tool: "gws_groups_write",
+        service: "groups",
+        action: "delete_group",
+        payload: { groupKey: "agents@example.com" },
+        config: groupsConfig,
+        auth: groupsAuth,
+        isWrite: true,
+        confirm: true,
+      }),
+    ).toMatchObject({ allowed: false });
+    expect(
+      evaluatePolicy({
+        tool: "gws_groups_write",
+        service: "groups",
+        action: "remove_group_member",
+        payload: {
+          groupKey: "agents@example.com",
+          memberKey: "daisy.ai@example.com",
+        },
+        config: groupsConfig,
+        auth: groupsAuth,
         isWrite: true,
         confirm: false,
       }).reason,
