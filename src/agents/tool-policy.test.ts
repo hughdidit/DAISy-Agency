@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { OpenClawConfig } from "../config/config.js";
+import { DEFAULT_TOOL_ALLOW } from "./sandbox/constants.js";
 import { isToolAllowed, resolveSandboxToolPolicyForAgent } from "./sandbox/tool-policy.js";
 import type { SandboxToolPolicy } from "./sandbox/types.js";
 import { TOOL_POLICY_CONFORMANCE } from "./tool-policy.conformance.js";
@@ -146,6 +147,12 @@ describe("TOOL_POLICY_CONFORMANCE", () => {
 });
 
 describe("sandbox tool policy", () => {
+  it("exposes Directory Groups tools through explicit sandbox defaults", () => {
+    expect(DEFAULT_TOOL_ALLOW).toContain("gws_groups_read");
+    expect(DEFAULT_TOOL_ALLOW).toContain("gws_groups_write");
+    expect(DEFAULT_TOOL_ALLOW).not.toContain("gws_*");
+  });
+
   it("allows all tools with * allow", () => {
     const policy: SandboxToolPolicy = { allow: ["*"], deny: [] };
     expect(isToolAllowed(policy, "browser")).toBe(true);

@@ -9,8 +9,8 @@ title: "GWS Toolkit Phase 1"
 
 `gws-toolkit-phase1` remains the runtime plugin id and extension path, but the
 plugin is now documented as the unified **GWS Toolkit** covering both the
-original Phase 1 read-only behavior and the Phase 2 route-aware write
-expansion.
+original Phase 1 read-only behavior, the Phase 2 route-aware write expansion,
+and delegated Workspace Directory Groups tooling.
 
 Use the canonical doc instead:
 

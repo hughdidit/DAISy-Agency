@@ -1,6 +1,13 @@
 export type CredentialMode = "credentials_file" | "token";
 
-export type ServiceFamily = "drive" | "gmail" | "calendar" | "docs" | "sheets" | "contacts";
+export type ServiceFamily =
+  | "drive"
+  | "gmail"
+  | "calendar"
+  | "docs"
+  | "sheets"
+  | "contacts"
+  | "groups";
 
 export type ReadToolName =
   | "gws_drive_read"
@@ -8,7 +15,8 @@ export type ReadToolName =
   | "gws_calendar_read"
   | "gws_docs_read"
   | "gws_sheets_read"
-  | "gws_contacts_read";
+  | "gws_contacts_read"
+  | "gws_groups_read";
 
 export type WriteToolName =
   | "gws_drive_write"
@@ -16,7 +24,8 @@ export type WriteToolName =
   | "gws_calendar_write"
   | "gws_docs_write"
   | "gws_sheets_write"
-  | "gws_contacts_write";
+  | "gws_contacts_write"
+  | "gws_groups_write";
 
 export type ToolName = "gws_status" | ReadToolName | WriteToolName;
 
@@ -30,6 +39,11 @@ export type ContactsReadAction =
   | "get_contact"
   | "list_contact_groups"
   | "get_contact_group";
+export type GroupsReadAction =
+  | "list_groups"
+  | "get_group"
+  | "list_group_members"
+  | "get_group_member";
 
 export type DriveWriteAction = "create_folder" | "upload_file" | "update_file_metadata";
 export type GmailWriteAction = "draft_message" | "send_message" | "mark_message_read";
@@ -42,6 +56,12 @@ export type ContactsWriteAction =
   | "create_contact_group"
   | "update_contact_group"
   | "modify_contact_group_members";
+export type GroupsWriteAction =
+  | "create_group"
+  | "update_group"
+  | "add_group_member"
+  | "update_group_member"
+  | "remove_group_member";
 
 export type AnyAction =
   | DriveReadAction
@@ -50,12 +70,14 @@ export type AnyAction =
   | DocsReadAction
   | SheetsReadAction
   | ContactsReadAction
+  | GroupsReadAction
   | DriveWriteAction
   | GmailWriteAction
   | CalendarWriteAction
   | DocsWriteAction
   | SheetsWriteAction
   | ContactsWriteAction
+  | GroupsWriteAction
   | "status";
 
 export type InvocationContext = {
@@ -252,22 +274,30 @@ export const MIN_SUPPORTED_GWS_VERSION = {
   patch: 1,
 } as const;
 
-export const READONLY_SCOPES: Record<ServiceFamily, string> = {
-  drive: "https://www.googleapis.com/auth/drive.readonly",
-  gmail: "https://www.googleapis.com/auth/gmail.readonly",
-  calendar: "https://www.googleapis.com/auth/calendar.readonly",
-  docs: "https://www.googleapis.com/auth/documents.readonly",
-  sheets: "https://www.googleapis.com/auth/spreadsheets.readonly",
-  contacts: "https://www.googleapis.com/auth/contacts.readonly",
+export const READONLY_SCOPES: Record<ServiceFamily, readonly string[]> = {
+  drive: ["https://www.googleapis.com/auth/drive.readonly"],
+  gmail: ["https://www.googleapis.com/auth/gmail.readonly"],
+  calendar: ["https://www.googleapis.com/auth/calendar.readonly"],
+  docs: ["https://www.googleapis.com/auth/documents.readonly"],
+  sheets: ["https://www.googleapis.com/auth/spreadsheets.readonly"],
+  contacts: ["https://www.googleapis.com/auth/contacts.readonly"],
+  groups: [
+    "https://www.googleapis.com/auth/admin.directory.group.readonly",
+    "https://www.googleapis.com/auth/admin.directory.group.member.readonly",
+  ],
 };
 
-export const WRITE_SCOPES: Record<ServiceFamily, string> = {
-  drive: "https://www.googleapis.com/auth/drive",
-  gmail: "https://mail.google.com/",
-  calendar: "https://www.googleapis.com/auth/calendar",
-  docs: "https://www.googleapis.com/auth/documents",
-  sheets: "https://www.googleapis.com/auth/spreadsheets",
-  contacts: "https://www.googleapis.com/auth/contacts",
+export const WRITE_SCOPES: Record<ServiceFamily, readonly string[]> = {
+  drive: ["https://www.googleapis.com/auth/drive"],
+  gmail: ["https://mail.google.com/"],
+  calendar: ["https://www.googleapis.com/auth/calendar"],
+  docs: ["https://www.googleapis.com/auth/documents"],
+  sheets: ["https://www.googleapis.com/auth/spreadsheets"],
+  contacts: ["https://www.googleapis.com/auth/contacts"],
+  groups: [
+    "https://www.googleapis.com/auth/admin.directory.group",
+    "https://www.googleapis.com/auth/admin.directory.group.member",
+  ],
 };
 
 export const ALL_SERVICES: ServiceFamily[] = [
@@ -277,6 +307,7 @@ export const ALL_SERVICES: ServiceFamily[] = [
   "docs",
   "sheets",
   "contacts",
+  "groups",
 ];
 
 export const READ_TOOLS_BY_SERVICE: Record<ServiceFamily, ReadToolName> = {
@@ -286,6 +317,7 @@ export const READ_TOOLS_BY_SERVICE: Record<ServiceFamily, ReadToolName> = {
   docs: "gws_docs_read",
   sheets: "gws_sheets_read",
   contacts: "gws_contacts_read",
+  groups: "gws_groups_read",
 };
 
 export const WRITE_TOOLS_BY_SERVICE: Record<ServiceFamily, WriteToolName> = {
@@ -295,6 +327,7 @@ export const WRITE_TOOLS_BY_SERVICE: Record<ServiceFamily, WriteToolName> = {
   docs: "gws_docs_write",
   sheets: "gws_sheets_write",
   contacts: "gws_contacts_write",
+  groups: "gws_groups_write",
 };
 
 export const DEFAULT_ENABLED_SERVICES: ServiceFamily[] = ["drive", "gmail", "calendar"];

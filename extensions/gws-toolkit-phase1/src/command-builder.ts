@@ -500,6 +500,20 @@ export function buildContactsReadCommand(
   throw new PluginError("DENY_POLICY", `Unsupported contacts action: ${String(params.action)}`);
 }
 
+export function buildGroupsReadCommand(
+  params: Record<string, unknown>,
+  _authArgs: string[],
+): GwsCommandSpec {
+  throw new PluginError(
+    "AUTH_ERROR",
+    "Directory Groups operations require delegated Google API transport; legacy gws CLI transport is not supported for groups.",
+    {
+      action: String(params.action ?? "unknown"),
+      service: "groups",
+    },
+  );
+}
+
 export function buildDriveWriteCommand(
   params: Record<string, unknown>,
   authArgs: string[],
@@ -762,5 +776,19 @@ export function buildContactsWriteCommand(
   throw new PluginError(
     "DENY_POLICY",
     `Unsupported contacts write action: ${String(params.action)}`,
+  );
+}
+
+export function buildGroupsWriteCommand(
+  params: Record<string, unknown>,
+  _authArgs: string[],
+): GwsCommandSpec {
+  throw new PluginError(
+    "AUTH_ERROR",
+    "Directory Groups operations require delegated Google API transport; legacy gws CLI transport is not supported for groups.",
+    {
+      action: String(params.action ?? "unknown"),
+      service: "groups",
+    },
   );
 }

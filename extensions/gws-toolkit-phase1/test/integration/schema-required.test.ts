@@ -255,4 +255,101 @@ describe("integration: action-specific required params", () => {
     expect(deleteGroup.ok).toBe(false);
     expect(deleteGroup.error).toMatchObject({ code: "VALIDATION_ERROR" });
   });
+
+  it("accepts curated Directory Groups params and rejects raw/delete shapes", async () => {
+    process.env.GOOGLE_WORKSPACE_CLI_TOKEN = "token";
+
+    const harness = createHarness({
+      pluginConfig: defaultPluginConfig({
+        allowWriteOperations: true,
+        enabledServices: ["groups"],
+        enabledWriteServices: ["groups"],
+        credentialRoutes: {
+          writer: {
+            mode: "token",
+            allowedServices: ["groups"],
+            allowedTools: ["gws_groups_read", "gws_groups_write"],
+          },
+        },
+        agentCredentialBindings: {
+          "agent:main": "writer",
+        },
+      }),
+    });
+
+    const listGroups = await executeTool(harness, "gws_groups_read", {
+      action: "list_groups",
+      customer: "my_customer",
+      maxResults: 10,
+    });
+    expect(listGroups.ok).toBe(false);
+    expect(listGroups.error).toMatchObject({ code: "AUTH_ERROR" });
+    expect(listGroups.error.message).toContain("delegated Google API transport");
+
+    const missingGroupKey = await executeTool(harness, "gws_groups_read", {
+      action: "list_group_members",
+    });
+    expect(missingGroupKey.ok).toBe(false);
+    expect(missingGroupKey.error).toMatchObject({ code: "VALIDATION_ERROR" });
+
+    const missingMemberKey = await executeTool(harness, "gws_groups_read", {
+      action: "get_group_member",
+      groupKey: "agents@example.com",
+    });
+    expect(missingMemberKey.ok).toBe(false);
+    expect(missingMemberKey.error).toMatchObject({ code: "VALIDATION_ERROR" });
+
+    const createGroup = await executeTool(harness, "gws_groups_write", {
+      action: "create_group",
+      confirm: true,
+      email: "agents@example.com",
+      name: "Agents",
+      description: "Delegated agent group",
+    });
+    expect(createGroup.ok).toBe(false);
+    expect(createGroup.error).toMatchObject({ code: "AUTH_ERROR" });
+    expect(createGroup.error.message).toContain("delegated Google API transport");
+
+    const missingConfirm = await executeTool(harness, "gws_groups_write", {
+      action: "add_group_member",
+      groupKey: "agents@example.com",
+      memberEmail: "daisy.ai@example.com",
+    });
+    expect(missingConfirm.ok).toBe(false);
+    expect(missingConfirm.error).toMatchObject({ code: "VALIDATION_ERROR" });
+
+    const malformedRole = await executeTool(harness, "gws_groups_write", {
+      action: "add_group_member",
+      confirm: true,
+      groupKey: "agents@example.com",
+      memberEmail: "daisy.ai@example.com",
+      role: "ADMIN",
+    });
+    expect(malformedRole.ok).toBe(false);
+    expect(malformedRole.error).toMatchObject({ code: "VALIDATION_ERROR" });
+
+    const emptyUpdate = await executeTool(harness, "gws_groups_write", {
+      action: "update_group",
+      confirm: true,
+      groupKey: "agents@example.com",
+    });
+    expect(emptyUpdate.ok).toBe(false);
+    expect(emptyUpdate.error).toMatchObject({ code: "VALIDATION_ERROR" });
+
+    const rawGroup = await executeTool(harness, "gws_groups_write", {
+      action: "create_group",
+      confirm: true,
+      raw: { email: "agents@example.com" },
+    });
+    expect(rawGroup.ok).toBe(false);
+    expect(rawGroup.error).toMatchObject({ code: "VALIDATION_ERROR" });
+
+    const deleteGroup = await executeTool(harness, "gws_groups_write", {
+      action: "delete_group",
+      confirm: true,
+      groupKey: "agents@example.com",
+    });
+    expect(deleteGroup.ok).toBe(false);
+    expect(deleteGroup.error).toMatchObject({ code: "VALIDATION_ERROR" });
+  });
 });

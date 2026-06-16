@@ -46,6 +46,16 @@ const contactGroupResourceName = {
   pattern: "^contactGroups/[A-Za-z0-9._~-]+$",
 };
 
+const directoryKey = {
+  ...string,
+  pattern: "^[^\\s/]+$",
+};
+
+const directoryGroupRole = {
+  type: "string",
+  enum: ["OWNER", "MANAGER", "MEMBER"],
+};
+
 const stringMap = {
   type: "object",
   additionalProperties: string,
@@ -313,6 +323,46 @@ const contactsReadSchema = {
           resourceName: contactGroupResourceName,
         },
       },
+    },
+  ],
+};
+
+const groupsReadSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["action"],
+  properties: {
+    action: {
+      type: "string",
+      enum: ["list_groups", "get_group", "list_group_members", "get_group_member"],
+    },
+    customer: string,
+    domain: domain,
+    query: string,
+    pageToken: string,
+    maxResults: integer(1, 200),
+    groupKey: directoryKey,
+    memberKey: directoryKey,
+    roles: {
+      type: "array",
+      items: directoryGroupRole,
+      minItems: 1,
+      uniqueItems: true,
+    },
+    includeDerivedMembership: boolean,
+  },
+  allOf: [
+    {
+      if: { properties: { action: { const: "get_group" } } },
+      then: { required: ["groupKey"] },
+    },
+    {
+      if: { properties: { action: { const: "list_group_members" } } },
+      then: { required: ["groupKey"] },
+    },
+    {
+      if: { properties: { action: { const: "get_group_member" } } },
+      then: { required: ["groupKey", "memberKey"] },
     },
   ],
 };
@@ -595,6 +645,57 @@ const contactsWriteSchema = {
   ],
 };
 
+const groupsWriteSchema = {
+  type: "object",
+  additionalProperties: false,
+  required: ["action", "confirm"],
+  properties: {
+    action: {
+      type: "string",
+      enum: [
+        "create_group",
+        "update_group",
+        "add_group_member",
+        "update_group_member",
+        "remove_group_member",
+      ],
+    },
+    confirm: boolean,
+    groupKey: directoryKey,
+    memberKey: directoryKey,
+    memberEmail: email,
+    role: directoryGroupRole,
+    email: email,
+    name: string,
+    description: string,
+  },
+  allOf: [
+    {
+      if: { properties: { action: { const: "create_group" } } },
+      then: { required: ["email"] },
+    },
+    {
+      if: { properties: { action: { const: "update_group" } } },
+      then: {
+        required: ["groupKey"],
+        anyOf: [{ required: ["email"] }, { required: ["name"] }, { required: ["description"] }],
+      },
+    },
+    {
+      if: { properties: { action: { const: "add_group_member" } } },
+      then: { required: ["groupKey", "memberEmail"] },
+    },
+    {
+      if: { properties: { action: { const: "update_group_member" } } },
+      then: { required: ["groupKey", "memberKey", "role"] },
+    },
+    {
+      if: { properties: { action: { const: "remove_group_member" } } },
+      then: { required: ["groupKey", "memberKey"] },
+    },
+  ],
+};
+
 const validators = {
   status: ajv.compile(statusSchema),
   driveRead: ajv.compile(driveReadSchema),
@@ -603,12 +704,14 @@ const validators = {
   docsRead: ajv.compile(docsReadSchema),
   sheetsRead: ajv.compile(sheetsReadSchema),
   contactsRead: ajv.compile(contactsReadSchema),
+  groupsRead: ajv.compile(groupsReadSchema),
   driveWrite: ajv.compile(driveWriteSchema),
   gmailWrite: ajv.compile(gmailWriteSchema),
   calendarWrite: ajv.compile(calendarWriteSchema),
   docsWrite: ajv.compile(docsWriteSchema),
   sheetsWrite: ajv.compile(sheetsWriteSchema),
   contactsWrite: ajv.compile(contactsWriteSchema),
+  groupsWrite: ajv.compile(groupsWriteSchema),
 };
 
 export type ValidationIssue = {
@@ -662,6 +765,10 @@ export function validateContactsReadParams(value: unknown) {
   return validate(validators.contactsRead, value);
 }
 
+export function validateGroupsReadParams(value: unknown) {
+  return validate(validators.groupsRead, value);
+}
+
 export function validateDriveWriteParams(value: unknown) {
   return validate(validators.driveWrite, value);
 }
@@ -684,4 +791,8 @@ export function validateSheetsWriteParams(value: unknown) {
 
 export function validateContactsWriteParams(value: unknown) {
   return validate(validators.contactsWrite, value);
+}
+
+export function validateGroupsWriteParams(value: unknown) {
+  return validate(validators.groupsWrite, value);
 }

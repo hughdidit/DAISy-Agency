@@ -46,9 +46,13 @@ function buildScopesSummary(config: GwsToolkitConfig) {
       config.defaultScopesProfile === "service-set" &&
       config.enabledWriteServices.includes(service)
     ) {
-      scopes.add(WRITE_SCOPES[service]);
+      for (const scope of WRITE_SCOPES[service]) {
+        scopes.add(scope);
+      }
     } else {
-      scopes.add(READONLY_SCOPES[service]);
+      for (const scope of READONLY_SCOPES[service]) {
+        scopes.add(scope);
+      }
     }
   }
   return {

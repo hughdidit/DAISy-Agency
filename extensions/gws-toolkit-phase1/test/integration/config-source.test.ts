@@ -130,4 +130,49 @@ describe("integration: OPENCLAW_CONFIG_FILE posture", () => {
       ]),
     );
   });
+
+  it("accepts directory groups services and route policies in config posture", async () => {
+    process.env.GOOGLE_WORKSPACE_CLI_TOKEN = "token";
+    const harness = createHarness({
+      pluginConfig: defaultPluginConfig({
+        enabledServices: ["groups"],
+        enabledWriteServices: ["groups"],
+        allowWriteOperations: true,
+        defaultScopesProfile: "service-set",
+        credentialRoutes: {
+          groups: {
+            mode: "token",
+            allowedServices: ["groups"],
+            allowedTools: ["gws_groups_read", "gws_groups_write"],
+            allowedActions: ["groups:list_groups", "groups:add_group_member"],
+          },
+        },
+        agentCredentialBindings: {
+          "agent:main": "groups",
+        },
+      }),
+    });
+
+    const status = await executeTool(harness, "gws_status", {});
+
+    expect(status.ok).toBe(true);
+    expect(status.data.config.enabledServices).toEqual(["groups"]);
+    expect(status.data.config.enabledWriteServices).toEqual(["groups"]);
+    expect(status.data.scopes.scopes).toEqual(
+      expect.arrayContaining([
+        "https://www.googleapis.com/auth/admin.directory.group",
+        "https://www.googleapis.com/auth/admin.directory.group.member",
+      ]),
+    );
+    expect(status.data.routes).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: "groups",
+          allowedServices: ["groups"],
+          allowedTools: ["gws_groups_read", "gws_groups_write"],
+          allowedActions: ["groups:list_groups", "groups:add_group_member"],
+        }),
+      ]),
+    );
+  });
 });

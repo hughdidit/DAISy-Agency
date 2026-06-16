@@ -19,6 +19,7 @@ const DELEGATE_WRITE_TOOLS = [
   "gws_docs_write",
   "gws_sheets_write",
   "gws_contacts_write",
+  "gws_groups_write",
 ] as const;
 const DELEGATE_READ_TOOLS = [
   "gws_status",
@@ -28,6 +29,7 @@ const DELEGATE_READ_TOOLS = [
   "gws_docs_read",
   "gws_sheets_read",
   "gws_contacts_read",
+  "gws_groups_read",
 ] as const;
 const DELEGATE_SESSION_TOOLS = [
   "session_status",

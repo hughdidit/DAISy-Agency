@@ -60,8 +60,8 @@ Example service-account delegated config:
         enabled: true,
         config: {
           workspaceIdentityDomains: ["hughdidit.com"],
-          enabledServices: ["drive", "gmail", "calendar", "docs", "sheets", "contacts"],
-          enabledWriteServices: ["calendar", "gmail", "docs", "sheets", "contacts"],
+          enabledServices: ["drive", "gmail", "calendar", "docs", "sheets", "contacts", "groups"],
+          enabledWriteServices: ["calendar", "gmail", "docs", "sheets", "contacts", "groups"],
           allowWriteOperations: true,
           safeMode: true,
           approvedCredentialDirs: ["./config/secrets/gws"],
@@ -74,7 +74,7 @@ Example service-account delegated config:
               mode: "credentials_file",
               label: "HughDidIt agent DWD service account",
               credentialsFile: "./config/secrets/gws/domain-wide-delegation.json",
-              allowedServices: ["drive", "gmail", "calendar", "docs", "sheets", "contacts"],
+              allowedServices: ["drive", "gmail", "calendar", "docs", "sheets", "contacts", "groups"],
               allowedTools: [
                 "gws_status",
                 "gws_drive_read",
@@ -83,11 +83,13 @@ Example service-account delegated config:
                 "gws_docs_read",
                 "gws_sheets_read",
                 "gws_contacts_read",
+                "gws_groups_read",
                 "gws_gmail_write",
                 "gws_calendar_write",
                 "gws_docs_write",
                 "gws_sheets_write",
                 "gws_contacts_write",
+                "gws_groups_write",
               ],
               allowedActions: [
                 "gmail:draft_message",
@@ -98,6 +100,8 @@ Example service-account delegated config:
                 "sheets:update_values",
                 "contacts:list_contact_groups",
                 "contacts:modify_contact_group_members",
+                "groups:list_groups",
+                "groups:add_group_member",
               ],
             },
           },
@@ -204,6 +208,7 @@ Read smoke checks:
 - `gws_docs_read`
 - `gws_sheets_read`
 - `gws_contacts_read`
+- `gws_groups_read`
 
 For Calendar, read the user's `primary` calendar after auth-health passes. A
 404 for `primary` means the delegated subject is still not a valid readable
@@ -246,6 +251,16 @@ Contacts writes also expose a curated People API surface. Create/update contact
 groups and add/remove group members with `gws_contacts_write`, but do not
 configure delete actions for contacts or groups; they are intentionally out of
 scope and fail validation or policy.
+
+Directory Groups use `gws_groups_read` and `gws_groups_write` through delegated
+Google API transport and the Admin SDK Directory API. They are separate from
+Contact Groups. The delegated subject must have the Workspace admin privileges
+required for group and membership management. Legacy token or CLI transport
+fails closed for `groups` actions. Group deletion is intentionally not exposed;
+membership removal uses `remove_group_member`.
+
+After deploying a new gws-toolkit tool surface, create a new agent session for
+sandboxed agents. Existing sessions keep the tool catalog they started with.
 
 ## 7. Phase 1 migration
 

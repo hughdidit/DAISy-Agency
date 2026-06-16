@@ -172,6 +172,57 @@ describe("gws-toolkit-phase1 phase2 acceptance contracts", () => {
     });
   });
 
+  it("registers Directory Groups read and write parameters", () => {
+    const harness = createHarness({
+      pluginConfig: defaultPluginConfig(),
+    });
+
+    const readTool = harness.tools.get("gws_groups_read") as unknown as {
+      parameters: { properties: Record<string, unknown> };
+    };
+    const writeTool = harness.tools.get("gws_groups_write") as unknown as {
+      parameters: { properties: Record<string, unknown> };
+    };
+
+    expect(readTool.parameters.properties.action).toMatchObject({
+      enum: ["list_groups", "get_group", "list_group_members", "get_group_member"],
+    });
+    expect(Object.keys(readTool.parameters.properties)).toEqual(
+      expect.arrayContaining([
+        "customer",
+        "domain",
+        "query",
+        "pageToken",
+        "maxResults",
+        "groupKey",
+        "memberKey",
+        "roles",
+        "includeDerivedMembership",
+      ]),
+    );
+    expect(writeTool.parameters.properties.action).toMatchObject({
+      enum: [
+        "create_group",
+        "update_group",
+        "add_group_member",
+        "update_group_member",
+        "remove_group_member",
+      ],
+    });
+    expect(Object.keys(writeTool.parameters.properties)).toEqual(
+      expect.arrayContaining([
+        "confirm",
+        "groupKey",
+        "memberKey",
+        "memberEmail",
+        "role",
+        "email",
+        "name",
+        "description",
+      ]),
+    );
+  });
+
   it("denies writes without confirm and malformed params", async () => {
     process.env.GOOGLE_WORKSPACE_CLI_TOKEN = "token-for-tests";
 

@@ -14,8 +14,8 @@ import {
 import type { GwsToolkitConfig } from "../../src/types.js";
 
 const config: GwsToolkitConfig = {
-  enabledServices: ["drive", "gmail", "calendar", "docs", "sheets", "contacts"],
-  enabledWriteServices: ["calendar", "contacts"],
+  enabledServices: ["drive", "gmail", "calendar", "docs", "sheets", "contacts", "groups"],
+  enabledWriteServices: ["calendar", "contacts", "groups"],
   approvedCredentialDirs: [],
   tokenEnvVar: "GOOGLE_WORKSPACE_CLI_TOKEN",
   timeoutMs: 1000,
@@ -213,6 +213,14 @@ describe("direct Google API transport", () => {
     expect(resolveDirectGoogleScopes({ config, service: "contacts", write: true })).toEqual([
       "https://www.googleapis.com/auth/contacts",
     ]);
+    expect(resolveDirectGoogleScopes({ config, service: "groups", write: false })).toEqual([
+      "https://www.googleapis.com/auth/admin.directory.group.readonly",
+      "https://www.googleapis.com/auth/admin.directory.group.member.readonly",
+    ]);
+    expect(resolveDirectGoogleScopes({ config, service: "groups", write: true })).toEqual([
+      "https://www.googleapis.com/auth/admin.directory.group",
+      "https://www.googleapis.com/auth/admin.directory.group.member",
+    ]);
   });
 
   it("builds Contacts and contact group direct People API requests", () => {
@@ -372,6 +380,148 @@ describe("direct Google API transport", () => {
       method: "GET",
       url: "https://www.googleapis.com/calendar/v3/users/me/calendarList/primary",
       timeout: 1000,
+    });
+  });
+
+  it("builds Directory Groups direct Admin SDK requests", () => {
+    expect(
+      buildDirectGoogleRequest({
+        service: "groups",
+        action: "list_groups",
+        payload: {
+          customer: "my_customer",
+          domain: "example.com",
+          query: "email:agents*",
+          maxResults: 20,
+          pageToken: "page-1",
+        },
+      }),
+    ).toEqual({
+      method: "GET",
+      url: "https://admin.googleapis.com/admin/directory/v1/groups",
+      params: {
+        customer: "my_customer",
+        domain: "example.com",
+        query: "email:agents*",
+        maxResults: 20,
+        pageToken: "page-1",
+      },
+    });
+
+    expect(
+      buildDirectGoogleRequest({
+        service: "groups",
+        action: "get_group",
+        payload: { groupKey: "agents@example.com" },
+      }),
+    ).toEqual({
+      method: "GET",
+      url: "https://admin.googleapis.com/admin/directory/v1/groups/agents%40example.com",
+    });
+
+    expect(
+      buildDirectGoogleRequest({
+        service: "groups",
+        action: "list_group_members",
+        payload: {
+          groupKey: "agents@example.com",
+          roles: ["OWNER", "MEMBER"],
+          includeDerivedMembership: true,
+          maxResults: 50,
+          pageToken: "page-2",
+        },
+      }),
+    ).toEqual({
+      method: "GET",
+      url: "https://admin.googleapis.com/admin/directory/v1/groups/agents%40example.com/members",
+      params: {
+        roles: "OWNER,MEMBER",
+        includeDerivedMembership: true,
+        maxResults: 50,
+        pageToken: "page-2",
+      },
+    });
+
+    expect(
+      buildDirectGoogleRequest({
+        service: "groups",
+        action: "get_group_member",
+        payload: { groupKey: "agents@example.com", memberKey: "daisy.ai@example.com" },
+      }),
+    ).toEqual({
+      method: "GET",
+      url: "https://admin.googleapis.com/admin/directory/v1/groups/agents%40example.com/members/daisy.ai%40example.com",
+    });
+
+    expect(
+      buildDirectGoogleRequest({
+        service: "groups",
+        action: "create_group",
+        payload: {
+          email: "agents@example.com",
+          name: "Agents",
+          description: "Delegated agent group",
+        },
+      }),
+    ).toEqual({
+      method: "POST",
+      url: "https://admin.googleapis.com/admin/directory/v1/groups",
+      data: {
+        email: "agents@example.com",
+        name: "Agents",
+        description: "Delegated agent group",
+      },
+    });
+
+    expect(
+      buildDirectGoogleRequest({
+        service: "groups",
+        action: "update_group",
+        payload: { groupKey: "agents@example.com", name: "DAISy Agents" },
+      }),
+    ).toEqual({
+      method: "PATCH",
+      url: "https://admin.googleapis.com/admin/directory/v1/groups/agents%40example.com",
+      data: { name: "DAISy Agents" },
+    });
+
+    expect(
+      buildDirectGoogleRequest({
+        service: "groups",
+        action: "add_group_member",
+        payload: { groupKey: "agents@example.com", memberEmail: "daisy.ai@example.com" },
+      }),
+    ).toEqual({
+      method: "POST",
+      url: "https://admin.googleapis.com/admin/directory/v1/groups/agents%40example.com/members",
+      data: { email: "daisy.ai@example.com", role: "MEMBER" },
+    });
+
+    expect(
+      buildDirectGoogleRequest({
+        service: "groups",
+        action: "update_group_member",
+        payload: {
+          groupKey: "agents@example.com",
+          memberKey: "daisy.ai@example.com",
+          role: "MANAGER",
+        },
+      }),
+    ).toEqual({
+      method: "PATCH",
+      url: "https://admin.googleapis.com/admin/directory/v1/groups/agents%40example.com/members/daisy.ai%40example.com",
+      data: { role: "MANAGER" },
+    });
+
+    expect(
+      buildDirectGoogleRequest({
+        service: "groups",
+        action: "remove_group_member",
+        payload: { groupKey: "agents@example.com", memberKey: "daisy.ai@example.com" },
+      }),
+    ).toEqual({
+      method: "DELETE",
+      url: "https://admin.googleapis.com/admin/directory/v1/groups/agents%40example.com/members/daisy.ai%40example.com",
     });
   });
 

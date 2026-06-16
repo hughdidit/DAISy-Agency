@@ -8,6 +8,8 @@ import {
   buildDriveWriteCommand,
   buildGmailReadCommand,
   buildGmailWriteCommand,
+  buildGroupsReadCommand,
+  buildGroupsWriteCommand,
   buildSheetsReadCommand,
   buildSheetsWriteCommand,
 } from "../../src/command-builder.js";
@@ -233,6 +235,23 @@ describe("integration: command build", () => {
     expect(() => buildDriveReadCommand({ action: "download_file", fileId: "file-1" }, [])).toThrow(
       /delegated Google API transport/,
     );
+  });
+
+  it("denies legacy CLI Directory Groups operations before shelling out", () => {
+    expect(() => buildGroupsReadCommand({ action: "list_groups" }, [])).toThrow(
+      /delegated Google API transport/,
+    );
+    expect(() =>
+      buildGroupsWriteCommand(
+        {
+          action: "add_group_member",
+          confirm: true,
+          groupKey: "agents@example.com",
+          memberEmail: "daisy.ai@example.com",
+        },
+        [],
+      ),
+    ).toThrow(/delegated Google API transport/);
   });
 
   it("builds Calendar recurrence and event property request shapes", () => {

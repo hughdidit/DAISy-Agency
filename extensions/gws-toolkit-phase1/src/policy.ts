@@ -14,6 +14,7 @@ const READ_ACTIONS: Record<ServiceFamily, Set<string>> = {
   docs: new Set(["get_document"]),
   sheets: new Set(["get_spreadsheet", "get_values"]),
   contacts: new Set(["list_contacts", "get_contact", "list_contact_groups", "get_contact_group"]),
+  groups: new Set(["list_groups", "get_group", "list_group_members", "get_group_member"]),
 };
 
 const WRITE_ACTIONS: Record<ServiceFamily, Set<string>> = {
@@ -28,6 +29,13 @@ const WRITE_ACTIONS: Record<ServiceFamily, Set<string>> = {
     "create_contact_group",
     "update_contact_group",
     "modify_contact_group_members",
+  ]),
+  groups: new Set([
+    "create_group",
+    "update_group",
+    "add_group_member",
+    "update_group_member",
+    "remove_group_member",
   ]),
 };
 
