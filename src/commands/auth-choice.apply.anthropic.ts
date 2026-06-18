@@ -1,4 +1,5 @@
 import { upsertAuthProfile } from "../agents/auth-profiles.js";
+import type { SecretRef } from "../config/types.secrets.js";
 import { normalizeApiKeyInput, validateApiKeyInput } from "./auth-choice.api-key.js";
 import {
   normalizeSecretInputModeInput,
@@ -40,7 +41,7 @@ export async function applyAuthChoiceAnthropic(
       },
     });
     let token = "";
-    let tokenRef: { source: "env" | "file" | "exec"; provider: string; id: string } | undefined;
+    let tokenRef: SecretRef | undefined;
     if (selectedMode === "ref") {
       const resolved = await promptSecretRefForOnboarding({
         provider: "anthropic-setup-token",

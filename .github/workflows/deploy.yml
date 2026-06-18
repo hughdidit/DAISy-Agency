@@ -59,11 +59,11 @@ on:
         description: PAT with read:packages scope
         required: true
       OPENCLAW_GATEWAY_TOKEN:
-        description: Gateway authentication token
-        required: true
+        description: Gateway authentication token (temporary runtime fallback only)
+        required: false
       DISCORD_BOT_TOKEN:
-        description: Discord bot token
-        required: true
+        description: Discord bot token (temporary runtime fallback only)
+        required: false
       FINN_DISCORD_BOT_TOKEN:
         description: Finn Discord bot token (optional named Discord account)
         required: false
@@ -77,8 +77,8 @@ on:
         description: Sally Discord bot token (optional named Discord account)
         required: false
       ANTHROPIC_API_KEY:
-        description: Anthropic API key for Claude model access
-        required: true
+        description: Anthropic API key for Claude model access (temporary runtime fallback only)
+        required: false
       OPENAI_API_KEY:
         description: OpenAI API key for OpenAI-backed model and tool access
         required: false
@@ -173,25 +173,13 @@ jobs:
           OPENCLAW_BRIDGE_PORT: ${{ vars.OPENCLAW_BRIDGE_PORT }}
           OPENCLAW_GATEWAY_BIND: ${{ vars.OPENCLAW_GATEWAY_BIND || 'loopback' }}
           OPENCLAW_CONFIG_FILE: ${{ vars.OPENCLAW_CONFIG_FILE || 'openclaw.json' }}
+          ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK: ${{ vars.ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK || '0' }}
           # Secrets (credentials)
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-          OPENCLAW_GATEWAY_TOKEN: ${{ secrets.OPENCLAW_GATEWAY_TOKEN }}
-          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
-          FINN_DISCORD_BOT_TOKEN: ${{ secrets.FINN_DISCORD_BOT_TOKEN }}
-          KODY_DISCORD_BOT_TOKEN: ${{ secrets.KODY_DISCORD_BOT_TOKEN }}
-          ART_DISCORD_BOT_TOKEN: ${{ secrets.ART_DISCORD_BOT_TOKEN }}
-          SALLY_DISCORD_BOT_TOKEN: ${{ secrets.SALLY_DISCORD_BOT_TOKEN }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          MONGODB_URI: ${{ secrets.MONGODB_URI }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
-          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
-          TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
-          TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
-          GOOGLE_WORKSPACE_CLI_TOKEN: ${{ secrets.GOOGLE_WORKSPACE_CLI_TOKEN }}
-          GWS_CREDENTIALS: ${{ secrets.GWS_CREDENTIALS }}
+          OPENCLAW_GATEWAY_TOKEN: ${{ vars.ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK == '1' && secrets.OPENCLAW_GATEWAY_TOKEN || '' }}
+          DISCORD_BOT_TOKEN: ${{ vars.ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK == '1' && secrets.DISCORD_BOT_TOKEN || '' }}
+          ANTHROPIC_API_KEY: ${{ vars.ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK == '1' && secrets.ANTHROPIC_API_KEY || '' }}
         run: |
           : "${GCP_WORKLOAD_IDENTITY_PROVIDER:?GCP_WORKLOAD_IDENTITY_PROVIDER is required}"
           : "${GCP_SERVICE_ACCOUNT:?GCP_SERVICE_ACCOUNT is required}"
@@ -202,9 +190,15 @@ jobs:
           : "${OPENCLAW_BRIDGE_PORT:?OPENCLAW_BRIDGE_PORT is required}"
           : "${GHCR_USERNAME:?GHCR_USERNAME is required}"
           : "${GHCR_TOKEN:?GHCR_TOKEN is required}"
-          : "${OPENCLAW_GATEWAY_TOKEN:?OPENCLAW_GATEWAY_TOKEN is required}"
-          : "${DISCORD_BOT_TOKEN:?DISCORD_BOT_TOKEN is required}"
-          : "${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY is required}"
+          case "${ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK}" in
+            0|1) ;;
+            *) echo "ERROR: ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK must be 0 or 1" >&2; exit 1 ;;
+          esac
+          if [[ "${ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK}" == "1" ]]; then
+            : "${OPENCLAW_GATEWAY_TOKEN:?OPENCLAW_GATEWAY_TOKEN is required when fallback is enabled}"
+            : "${DISCORD_BOT_TOKEN:?DISCORD_BOT_TOKEN is required when fallback is enabled}"
+            : "${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY is required when fallback is enabled}"
+          fi
           # Validate OPENCLAW_CONFIG_FILE is a simple filename (no path separators)
           case "${OPENCLAW_CONFIG_FILE}" in
             *"/"*|*".."*) echo "ERROR: OPENCLAW_CONFIG_FILE must be a simple filename (got: ${OPENCLAW_CONFIG_FILE})" >&2; exit 1 ;;
@@ -346,25 +340,26 @@ jobs:
           OPENCLAW_BRIDGE_PORT: ${{ vars.OPENCLAW_BRIDGE_PORT }}
           OPENCLAW_GATEWAY_BIND: ${{ vars.OPENCLAW_GATEWAY_BIND || 'loopback' }}
           OPENCLAW_CONFIG_FILE: ${{ vars.OPENCLAW_CONFIG_FILE || 'openclaw.json' }}
+          ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK: ${{ vars.ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK || '0' }}
           # Secrets (credentials)
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-          OPENCLAW_GATEWAY_TOKEN: ${{ secrets.OPENCLAW_GATEWAY_TOKEN }}
-          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
-          FINN_DISCORD_BOT_TOKEN: ${{ secrets.FINN_DISCORD_BOT_TOKEN }}
-          KODY_DISCORD_BOT_TOKEN: ${{ secrets.KODY_DISCORD_BOT_TOKEN }}
-          ART_DISCORD_BOT_TOKEN: ${{ secrets.ART_DISCORD_BOT_TOKEN }}
-          SALLY_DISCORD_BOT_TOKEN: ${{ secrets.SALLY_DISCORD_BOT_TOKEN }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          MONGODB_URI: ${{ secrets.MONGODB_URI }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
-          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
-          TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
-          TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
-          GOOGLE_WORKSPACE_CLI_TOKEN: ${{ secrets.GOOGLE_WORKSPACE_CLI_TOKEN }}
-          GWS_CREDENTIALS: ${{ secrets.GWS_CREDENTIALS }}
+          OPENCLAW_GATEWAY_TOKEN: ${{ vars.ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK == '1' && secrets.OPENCLAW_GATEWAY_TOKEN || '' }}
+          DISCORD_BOT_TOKEN: ${{ vars.ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK == '1' && secrets.DISCORD_BOT_TOKEN || '' }}
+          FINN_DISCORD_BOT_TOKEN: ${{ vars.ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK == '1' && secrets.FINN_DISCORD_BOT_TOKEN || '' }}
+          KODY_DISCORD_BOT_TOKEN: ${{ vars.ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK == '1' && secrets.KODY_DISCORD_BOT_TOKEN || '' }}
+          ART_DISCORD_BOT_TOKEN: ${{ vars.ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK == '1' && secrets.ART_DISCORD_BOT_TOKEN || '' }}
+          SALLY_DISCORD_BOT_TOKEN: ${{ vars.ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK == '1' && secrets.SALLY_DISCORD_BOT_TOKEN || '' }}
+          ANTHROPIC_API_KEY: ${{ vars.ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK == '1' && secrets.ANTHROPIC_API_KEY || '' }}
+          OPENAI_API_KEY: ${{ vars.ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK == '1' && secrets.OPENAI_API_KEY || '' }}
+          MONGODB_URI: ${{ vars.ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK == '1' && secrets.MONGODB_URI || '' }}
+          GEMINI_API_KEY: ${{ vars.ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK == '1' && secrets.GEMINI_API_KEY || '' }}
+          BRAVE_API_KEY: ${{ vars.ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK == '1' && secrets.BRAVE_API_KEY || '' }}
+          FIRECRAWL_API_KEY: ${{ vars.ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK == '1' && secrets.FIRECRAWL_API_KEY || '' }}
+          TRELLO_API_KEY: ${{ vars.ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK == '1' && secrets.TRELLO_API_KEY || '' }}
+          TRELLO_TOKEN: ${{ vars.ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK == '1' && secrets.TRELLO_TOKEN || '' }}
+          GOOGLE_WORKSPACE_CLI_TOKEN: ${{ vars.ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK == '1' && secrets.GOOGLE_WORKSPACE_CLI_TOKEN || '' }}
+          GWS_CREDENTIALS: ${{ vars.ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK == '1' && secrets.GWS_CREDENTIALS || '' }}
           # Monitoring secrets (credentials)
           GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
           DISCORD_ALERTS_WEBHOOK_URL: ${{ secrets.DISCORD_ALERTS_WEBHOOK_URL }}

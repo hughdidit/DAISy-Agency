@@ -10,7 +10,10 @@ function expectGeneratedTokenFromInput(token: string | undefined, literalToAvoid
   expect(result?.token).toBeDefined();
   expect(result?.token).not.toBe(literalToAvoid);
   expect(typeof result?.token).toBe("string");
-  expect(result?.token?.length).toBeGreaterThan(0);
+  if (typeof result?.token !== "string") {
+    throw new Error("expected generated token to be a string");
+  }
+  expect(result.token.length).toBeGreaterThan(0);
 }
 
 describe("buildGatewayAuthConfig", () => {

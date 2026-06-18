@@ -5,6 +5,10 @@ import { afterEach, describe, expect, it } from "vitest";
 import { ensureAuthProfileStore, type AuthProfileStore } from "../agents/auth-profiles.js";
 import { loadConfig, type OpenClawConfig } from "../config/config.js";
 import {
+  clearGcpSecretManagerAccessSecretVersionForTest,
+  setGcpSecretManagerAccessSecretVersionForTest,
+} from "./gcp-secret-manager-provider.js";
+import {
   activateSecretsRuntimeSnapshot,
   clearSecretsRuntimeSnapshot,
   prepareSecretsRuntimeSnapshot,
@@ -38,6 +42,7 @@ function loadAuthStoreWithProfiles(profiles: AuthProfileStore["profiles"]): Auth
 describe("secrets runtime snapshot", () => {
   afterEach(() => {
     clearSecretsRuntimeSnapshot();
+    clearGcpSecretManagerAccessSecretVersionForTest();
   });
 
   it("resolves env refs for config and auth profiles", async () => {
@@ -203,6 +208,23 @@ describe("secrets runtime snapshot", () => {
     expect(
       (snapshot.authStores[0].store.profiles["openai:inline"] as Record<string, unknown>).keyRef,
     ).toEqual({ source: "env", provider: "default", id: "OPENAI_API_KEY" });
+  });
+
+  it("resolves gateway auth token refs in the active runtime snapshot", async () => {
+    const snapshot = await prepareSecretsRuntimeSnapshot({
+      config: asConfig({
+        gateway: {
+          auth: {
+            mode: "token",
+            token: { source: "env", provider: "default", id: "OPENCLAW_GATEWAY_TOKEN_REF" },
+          },
+        },
+      }),
+      env: { OPENCLAW_GATEWAY_TOKEN_REF: "resolved-gateway-token" } as NodeJS.ProcessEnv,
+    });
+
+    expect(snapshot.config.gateway?.auth?.token).toBe("resolved-gateway-token");
+    expect(snapshot.warnings).toEqual([]);
   });
 
   it("normalizes inline SecretRef object on token to tokenRef", async () => {
@@ -444,6 +466,125 @@ describe("secrets runtime snapshot", () => {
     } finally {
       await fs.rm(root, { recursive: true, force: true });
     }
+  });
+
+  it("materializes GWS credentialsJsonRef into an approved credentials file", async () => {
+    if (process.platform === "win32") {
+      return;
+    }
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gws-materialize-"));
+    const credentialsFile = path.join(root, "credentials.json");
+    const serviceAccountJson = JSON.stringify({
+      type: "service_account",
+      client_email: "svc@example.iam.gserviceaccount.com",
+      private_key: "-----BEGIN PRIVATE KEY-----\nabc\n-----END PRIVATE KEY-----\n",
+    });
+    setGcpSecretManagerAccessSecretVersionForTest(async () => serviceAccountJson);
+
+    const snapshot = await prepareSecretsRuntimeSnapshot({
+      config: asConfig({
+        secrets: {
+          providers: {
+            gcp: {
+              source: "gcpSecretManager",
+              projectId: "daisy-auth-491616",
+              allowedSecrets: ["gws-service-account-json"],
+            },
+          },
+        },
+        plugins: {
+          entries: {
+            "gws-toolkit-phase1": {
+              enabled: true,
+              config: {
+                approvedCredentialDirs: [root],
+                credentialRoutes: {
+                  main: {
+                    mode: "credentials_file",
+                    allowedServices: ["gmail"],
+                    allowedTools: ["gws_gmail_read"],
+                    credentialsFile,
+                    credentialsJsonRef: {
+                      source: "gcpSecretManager",
+                      provider: "gcp",
+                      id: "gws-service-account-json",
+                    },
+                  },
+                },
+                agentCredentialBindings: {
+                  "agent:main": "main",
+                },
+              },
+            },
+          },
+        },
+      }),
+      agentDirs: ["/tmp/openclaw-agent-main"],
+      loadAuthStore: () => ({ version: 1, profiles: {} }),
+    });
+
+    expect(snapshot.warnings).toHaveLength(0);
+    await expect(fs.readFile(credentialsFile, "utf8")).resolves.toBe(serviceAccountJson);
+    const stat = await fs.stat(credentialsFile);
+    expect(stat.mode & 0o777).toBe(0o600);
+  });
+
+  it("rejects GWS credentialsJsonRef materialization through symlink targets", async () => {
+    if (process.platform === "win32") {
+      return;
+    }
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gws-symlink-"));
+    const outside = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-gws-outside-"));
+    const symlinkPath = path.join(root, "credentials.json");
+    await fs.symlink(path.join(outside, "credentials.json"), symlinkPath);
+    setGcpSecretManagerAccessSecretVersionForTest(async () =>
+      JSON.stringify({
+        type: "service_account",
+        client_email: "svc@example.iam.gserviceaccount.com",
+        private_key: "-----BEGIN PRIVATE KEY-----\nabc\n-----END PRIVATE KEY-----\n",
+      }),
+    );
+
+    await expect(
+      prepareSecretsRuntimeSnapshot({
+        config: asConfig({
+          secrets: {
+            providers: {
+              gcp: {
+                source: "gcpSecretManager",
+                projectId: "daisy-auth-491616",
+                allowedSecrets: ["gws-service-account-json"],
+              },
+            },
+          },
+          plugins: {
+            entries: {
+              "gws-toolkit-phase1": {
+                enabled: true,
+                config: {
+                  approvedCredentialDirs: [root],
+                  credentialRoutes: {
+                    main: {
+                      mode: "credentials_file",
+                      allowedServices: ["gmail"],
+                      allowedTools: ["gws_gmail_read"],
+                      credentialsFile: symlinkPath,
+                      credentialsJsonRef: {
+                        source: "gcpSecretManager",
+                        provider: "gcp",
+                        id: "gws-service-account-json",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        }),
+        agentDirs: ["/tmp/openclaw-agent-main"],
+        loadAuthStore: () => ({ version: 1, profiles: {} }),
+      }),
+    ).rejects.toThrow("must not be a symlink");
   });
 
   it("fails when file provider payload is not a JSON object", async () => {

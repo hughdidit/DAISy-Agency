@@ -1,5 +1,6 @@
 import { createHmac } from "node:crypto";
 import { loadConfig } from "../config/config.js";
+import { normalizeSecretInputString } from "../config/types.secrets.js";
 
 const RELAY_TOKEN_CONTEXT = "openclaw-extension-relay-v1";
 const DEFAULT_RELAY_PROBE_TIMEOUT_MS = 500;
@@ -13,7 +14,7 @@ function resolveGatewayAuthToken(): string | null {
   }
   try {
     const cfg = loadConfig();
-    const configToken = cfg.gateway?.auth?.token?.trim();
+    const configToken = normalizeSecretInputString(cfg.gateway?.auth?.token);
     if (configToken) {
       return configToken;
     }

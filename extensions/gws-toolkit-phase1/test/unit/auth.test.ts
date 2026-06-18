@@ -195,6 +195,40 @@ describe("auth resolution", () => {
     ).toThrow(/requires credentialsFile/);
   });
 
+  it("accepts route-level credentialsJsonRef for credentials_file routes", () => {
+    const resolved = resolveConfig({
+      enabledServices: ["drive"],
+      allowedCredentialModes: ["credentials_file"],
+      approvedCredentialDirs: ["/home/node/.openclaw/secrets/gws"],
+      credentialRoutes: {
+        "ops-main": {
+          mode: "credentials_file",
+          allowedServices: ["drive"],
+          allowedTools: ["gws_drive_read"],
+          credentialsFile: "/home/node/.openclaw/secrets/gws/credentials.json",
+          credentialsJsonRef: {
+            source: "gcpSecretManager",
+            provider: "daisy-production",
+            id: "gws-service-account-json",
+          },
+        },
+      },
+      agentCredentialBindings: {
+        "agent:main": "ops-main",
+      },
+    });
+
+    expect(resolved.ok).toBe(true);
+    if (!resolved.ok) {
+      return;
+    }
+    expect(resolved.value.config.credentialRoutes["ops-main"]?.credentialsJsonRef).toEqual({
+      source: "gcpSecretManager",
+      provider: "daisy-production",
+      id: "gws-service-account-json",
+    });
+  });
+
   it("reports route-level auth posture", () => {
     process.env.GOOGLE_WORKSPACE_CLI_TOKEN = "abc";
     const status = getAuthSourceStatus(baseConfig());

@@ -127,6 +127,9 @@ function providerHint(provider: SecretProviderConfig): string {
   if (provider.source === "file") {
     return `file (${provider.mode ?? "json"})`;
   }
+  if (provider.source === "gcpSecretManager") {
+    return "gcpSecretManager";
+  }
   return `exec (${provider.jsonOnly === false ? "json+text" : "json"})`;
 }
 

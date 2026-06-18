@@ -176,6 +176,13 @@ export function resolveGatewayCredentialsFromConfig(params: {
       value: params.cfg.gateway?.auth?.password,
       defaults,
     }).ref;
+    const localTokenRef = resolveSecretInputRef({
+      value: params.cfg.gateway?.auth?.token,
+      defaults,
+    }).ref;
+    if (localTokenRef && !localResolved.token && !envToken && !remoteToken) {
+      throwUnresolvedGatewaySecretInput("gateway.auth.token");
+    }
     if (localPasswordRef && !localResolved.password && !envPassword && localPasswordCanWin) {
       throwUnresolvedGatewaySecretInput("gateway.auth.password");
     }

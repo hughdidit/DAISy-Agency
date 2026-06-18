@@ -1,4 +1,5 @@
 import path from "node:path";
+import { coerceSecretRef } from "../../../src/config/types.secrets.js";
 import { resolveGmailContactPolicy } from "./gmail-policy.js";
 import {
   ALL_SERVICES,
@@ -22,6 +23,7 @@ const ALLOWED_CONFIG_KEYS = new Set([
   "binaryPath",
   "approvedCredentialDirs",
   "credentialsFile",
+  "credentialsJsonRef",
   "tokenEnvVar",
   "timeoutMs",
   "maxStdoutBytes",
@@ -172,6 +174,7 @@ function normalizeRouteConfig(
       typeof obj.credentialsFile === "string" && obj.credentialsFile.trim()
         ? obj.credentialsFile.trim()
         : undefined,
+    credentialsJsonRef: coerceSecretRef(obj.credentialsJsonRef) ?? undefined,
     tokenEnvVar:
       typeof obj.tokenEnvVar === "string" && obj.tokenEnvVar.trim()
         ? obj.tokenEnvVar.trim()
@@ -210,6 +213,7 @@ function synthesizeLegacyRoute(config: Omit<GwsToolkitConfig, "credentialRoutes"
       allowedServices: services.length > 0 ? services : DEFAULT_ENABLED_SERVICES,
       allowedTools,
       credentialsFile: config.credentialsFile,
+      credentialsJsonRef: config.credentialsJsonRef,
       tokenEnvVar: config.tokenEnvVar,
     } satisfies CredentialRouteConfig,
   };
@@ -366,6 +370,7 @@ export function resolveConfig(
       typeof raw.credentialsFile === "string" && raw.credentialsFile.trim()
         ? raw.credentialsFile.trim()
         : undefined,
+    credentialsJsonRef: coerceSecretRef(raw.credentialsJsonRef) ?? undefined,
     tokenEnvVar:
       typeof raw.tokenEnvVar === "string" && raw.tokenEnvVar.trim()
         ? raw.tokenEnvVar.trim()

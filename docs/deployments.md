@@ -94,33 +94,36 @@ If the owning account or organization enforces SSO, authorize `GHCR_TOKEN` for S
 
 Note: Image reference comes from `release-metadata.json`, not a separate secret.
 
-### Application Secrets
+### Runtime Secrets
 
-These secrets are passed to docker compose on the target VM.
+Runtime application secrets are not passed from GitHub by default. Production and staging config should use `SecretRef` values with a Google Secret Manager provider, and the gateway resolves them on the VM through Application Default Credentials.
 
-**Required:**
+Keep these values in Google Secret Manager and reference them from `openclaw.json`:
 
-- `OPENCLAW_GATEWAY_TOKEN` - Authentication token for the gateway API. Generate with `openssl rand -hex 32`. Secures communication between clients and the gateway.
-- `DISCORD_BOT_TOKEN` - Discord bot token required by the current deployment workflow and deploy script for the default Discord account.
-- `ANTHROPIC_API_KEY` - Anthropic API key required by the current deployment workflow and deploy script for real deploys.
+- Gateway auth (`gateway.auth.token` or `gateway.auth.password`)
+- Model provider keys such as Anthropic, OpenAI, Gemini, and embeddings
+- Channel tokens such as Discord default/named accounts
+- Tool credentials such as Brave, Firecrawl, Trello, and MongoDB
+- GWS service-account JSON through `credentialsJsonRef`
 
-**Optional (integrations):**
+Deploy performs a VM-side Secret Manager preflight from the pulled runtime image. It validates that active `gcpSecretManager` refs can be accessed without printing secret values. Grant the VM runtime service account `roles/secretmanager.secretAccessor` only on the exact required secrets. Do not grant the GitHub deploy service account runtime secret read access.
 
-- `OPENAI_API_KEY` - OpenAI-backed models, tools, and embeddings
-- `FINN_DISCORD_BOT_TOKEN` - Finn Discord bot token for `channels.discord.accounts.finn.token` when staging runs Finn as a separate Discord app
-- `KODY_DISCORD_BOT_TOKEN` - Kody Discord bot token for `channels.discord.accounts.kody.token` when staging runs Kody as a separate Discord app
-- `ART_DISCORD_BOT_TOKEN` - Art Discord bot token for `channels.discord.accounts.art.token` when staging runs Art as a separate Discord app
-- `SALLY_DISCORD_BOT_TOKEN` - Sally Discord bot token for `channels.discord.accounts.sally.token` when staging runs Sally as a separate Discord app
-- `MONGODB_URI` - memory-mongodb connection URI
-- `GEMINI_API_KEY` - Gemini embeddings / Google provider access
-- `BRAVE_API_KEY` - Brave web search access
-- `FIRECRAWL_API_KEY` - Firecrawl access
-- `TRELLO_API_KEY` - Trello API key used by the gateway-brokered `trello-toolkit`
-- `TRELLO_TOKEN` - Trello token used by the gateway-brokered `trello-toolkit`
-- `GOOGLE_WORKSPACE_CLI_TOKEN` - optional bearer token for `gws-toolkit-phase1` token mode
-- `GWS_CREDENTIALS` - optional Google Workspace credentials JSON for `gws-toolkit-phase1` `credentials_file` mode (service-account JSON required for delegated agent Workspace identities in staging/production)
+GitHub Secrets remain for deploy plumbing:
 
-Trello secrets are optional and only needed when `plugins.entries.trello-toolkit.enabled` is true. The toolkit runs Trello API calls in the gateway and does not project Trello secrets into sandboxes. Staging currently uses `gws-toolkit-phase1` in `credentials_file` mode, so `GWS_CREDENTIALS` is the active path and `GOOGLE_WORKSPACE_CLI_TOKEN` can remain unset. DAISy agent Workspace users are configured in `agents.list[].googleWorkspace.email`; route-level `impersonatedUser` is only a compatibility/projection check and must match that agent email when present. In enforced runtime environments (`staging`, `production`), delegated agent routes reject `authorized_user`/headless-export credential files and require service-account JSON with Google Workspace Domain-Wide Delegation.
+- `GCP_WORKLOAD_IDENTITY_PROVIDER`
+- `GCP_SERVICE_ACCOUNT`
+- `GHCR_USERNAME`
+- `GHCR_TOKEN`
+- target VM metadata if not stored as variables
+- monitoring/deploy-only credentials that are not runtime app secrets
+
+Temporary migration fallback:
+
+- Set Actions variable `ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK=1` only for an explicit break-glass deploy.
+- When the flag is unset or `0`, GitHub runtime app secrets are passed as blank values and the VM config must resolve active SecretRefs.
+- When the flag is `1`, the workflow can pass legacy GitHub runtime secrets to docker compose. Remove the flag after migration.
+
+Trello secrets are optional and only needed when `plugins.entries.trello-toolkit.enabled` is true. The toolkit runs Trello API calls in the gateway and does not project Trello secrets into sandboxes. Staging uses `gws-toolkit-phase1` in `credentials_file` mode with SecretRef-backed materialization, so `GWS_CREDENTIALS` should stay unset unless the temporary GitHub fallback is explicitly enabled. DAISy agent Workspace users are configured in `agents.list[].googleWorkspace.email`; route-level `impersonatedUser` is only a compatibility/projection check and must match that agent email when present. In enforced runtime environments (`staging`, `production`), delegated agent routes reject `authorized_user`/headless-export credential files and require service-account JSON with Google Workspace Domain-Wide Delegation.
 
 ### Monitoring Secrets
 
