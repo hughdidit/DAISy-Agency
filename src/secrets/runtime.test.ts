@@ -478,7 +478,7 @@ describe("secrets runtime snapshot", () => {
     const serviceAccountJson = JSON.stringify({
       type: "service_account",
       client_email: "svc@example.iam.gserviceaccount.com",
-      private_key: "-----BEGIN PRIVATE KEY-----\nabc\n-----END PRIVATE KEY-----\n",
+      private_key: "test-private-key-material",
     });
     setGcpSecretManagerAccessSecretVersionForTest(async () => serviceAccountJson);
 
@@ -579,7 +579,7 @@ describe("secrets runtime snapshot", () => {
     const serviceAccountJson = JSON.stringify({
       type: "service_account",
       client_email: "svc@example.iam.gserviceaccount.com",
-      private_key: "-----BEGIN PRIVATE KEY-----\nabc\n-----END PRIVATE KEY-----\n",
+      private_key: "test-private-key-material",
     });
     setGcpSecretManagerAccessSecretVersionForTest(async () => serviceAccountJson);
 
@@ -644,7 +644,7 @@ describe("secrets runtime snapshot", () => {
     const serviceAccountJson = JSON.stringify({
       type: "service_account",
       client_email: "svc@example.iam.gserviceaccount.com",
-      private_key: "-----BEGIN PRIVATE KEY-----\nabc\n-----END PRIVATE KEY-----\n",
+      private_key: "test-private-key-material",
     });
     setGcpSecretManagerAccessSecretVersionForTest(async () => serviceAccountJson);
 
@@ -708,7 +708,7 @@ describe("secrets runtime snapshot", () => {
       JSON.stringify({
         type: "service_account",
         client_email: "svc@example.iam.gserviceaccount.com",
-        private_key: "-----BEGIN PRIVATE KEY-----\nabc\n-----END PRIVATE KEY-----\n",
+        private_key: "test-private-key-material",
       }),
     );
 

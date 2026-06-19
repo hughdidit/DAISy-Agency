@@ -2,6 +2,9 @@ import { GoogleAuth } from "google-auth-library";
 
 const SECRET_MANAGER_SCOPE = "https://www.googleapis.com/auth/cloud-platform";
 const SECRET_MANAGER_BASE_URL = "https://secretmanager.googleapis.com/v1";
+const googleAuth = new GoogleAuth({
+  scopes: [SECRET_MANAGER_SCOPE],
+});
 
 export const GCP_SECRET_ID_PATTERN = /^[A-Za-z0-9_-]{1,255}$/;
 export const GCP_SECRET_VERSION_PATTERN = /^[A-Za-z0-9_-]{1,63}$/;
@@ -69,10 +72,7 @@ export async function accessGcpSecretManagerSecretVersion(
     throw new Error(`Google Secret Manager resource name is invalid: ${params.resourceName}`);
   }
 
-  const auth = new GoogleAuth({
-    scopes: [SECRET_MANAGER_SCOPE],
-  });
-  const client = await auth.getClient();
+  const client = await googleAuth.getClient();
   const response = await client.request<SecretManagerAccessResponse>({
     method: "GET",
     url: `${SECRET_MANAGER_BASE_URL}/${params.resourceName}:access`,

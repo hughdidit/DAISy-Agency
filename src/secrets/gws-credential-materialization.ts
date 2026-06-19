@@ -85,8 +85,14 @@ function ensureCredentialTargetPath(params: {
   configPath: string;
 }): string {
   const targetPath = normalizePath(params.credentialsFile);
-  if (fs.existsSync(targetPath) && fs.lstatSync(targetPath).isSymbolicLink()) {
-    throw new Error(`${params.configPath}: credentialsFile must not be a symlink.`);
+  try {
+    if (fs.lstatSync(targetPath).isSymbolicLink()) {
+      throw new Error(`${params.configPath}: credentialsFile must not be a symlink.`);
+    }
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+      throw error;
+    }
   }
   const parentDir = path.dirname(targetPath);
   if (!fs.existsSync(parentDir) || !fs.statSync(parentDir).isDirectory()) {
