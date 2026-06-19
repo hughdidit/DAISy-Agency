@@ -548,6 +548,10 @@ describe("secrets apply", () => {
   it("applies provider upserts and deletes from plan", async () => {
     await writeJsonFile(fixture.configPath, {
       secrets: {
+        defaults: {
+          env: "envmain",
+          file: "fileold",
+        },
         providers: {
           envmain: { source: "env" },
           fileold: { source: "file", path: "/tmp/old-secrets.json", mode: "json" },
@@ -578,9 +582,11 @@ describe("secrets apply", () => {
 
     const nextConfig = await applyPlanAndReadConfig<{
       secrets?: {
+        defaults?: Record<string, unknown>;
         providers?: Record<string, unknown>;
       };
     }>(fixture, plan);
+    expect(nextConfig.secrets?.defaults).toEqual({ env: "envmain" });
     expect(nextConfig.secrets?.providers?.fileold).toBeUndefined();
     expect(nextConfig.secrets?.providers?.filemain).toEqual({
       source: "file",

@@ -295,9 +295,9 @@ export async function gatherDaemonStatus(
     ? await probeGatewayStatus({
         url: probeUrl,
         token:
-          opts.rpc.token ||
-          mergedDaemonEnv.OPENCLAW_GATEWAY_TOKEN ||
-          daemonCfg.gateway?.auth?.token,
+          trimToUndefined(opts.rpc.token) ||
+          readGatewayTokenEnv(mergedDaemonEnv) ||
+          trimToUndefined(daemonCfg.gateway?.auth?.token),
         password: daemonProbePassword,
         tlsFingerprint:
           shouldUseLocalTlsRuntime && tlsRuntime?.enabled

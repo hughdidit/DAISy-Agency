@@ -11,6 +11,7 @@ import {
   writeConfigFile,
 } from "../../config/config.js";
 import { resolveIsNixMode } from "../../config/paths.js";
+import { normalizeSecretInputString } from "../../config/types.secrets.js";
 import { resolveGatewayService } from "../../daemon/service.js";
 import { resolveGatewayAuth } from "../../gateway/auth.js";
 import { defaultRuntime } from "../../runtime.js";
@@ -84,11 +85,14 @@ export async function runDaemonInstall(opts: DaemonInstallOptions) {
   const needsToken =
     resolvedAuth.mode === "token" && !resolvedAuth.token && !resolvedAuth.allowTailscale;
 
-  let token: string | undefined =
-    opts.token ||
-    cfg.gateway?.auth?.token ||
-    process.env.OPENCLAW_GATEWAY_TOKEN ||
-    process.env.CLAWDBOT_GATEWAY_TOKEN;
+  let token = [
+    opts.token,
+    cfg.gateway?.auth?.token,
+    process.env.OPENCLAW_GATEWAY_TOKEN,
+    process.env.CLAWDBOT_GATEWAY_TOKEN,
+  ]
+    .map((candidate) => normalizeSecretInputString(candidate))
+    .find((candidate): candidate is string => candidate !== undefined);
 
   if (!token && needsToken) {
     token = randomToken();
@@ -115,7 +119,8 @@ export async function runDaemonInstall(opts: DaemonInstallOptions) {
         }
       } else {
         const baseConfig = snapshot.exists ? snapshot.config : {};
-        if (!baseConfig.gateway?.auth?.token) {
+        const existingToken = normalizeSecretInputString(baseConfig.gateway?.auth?.token);
+        if (!existingToken) {
           await writeConfigFile({
             ...baseConfig,
             gateway: {
@@ -129,7 +134,7 @@ export async function runDaemonInstall(opts: DaemonInstallOptions) {
           });
         } else {
           // Another process wrote a token between loadConfig() and now.
-          token = baseConfig.gateway.auth.token;
+          token = existingToken;
         }
       }
     } catch (err) {

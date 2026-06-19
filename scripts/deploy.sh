@@ -730,7 +730,11 @@ if [[ -n "${GWS_CREDENTIALS_B64}" ]]; then
   sudo install -m 600 -o 1000 -g 1000 "${GWS_CREDENTIALS_TMP}" "${DEPLOY_DIR}/config/secrets/gws/credentials.json"
   rm -f "${GWS_CREDENTIALS_TMP}"
 else
-  sudo rm -f "${DEPLOY_DIR}/config/secrets/gws/credentials.json"
+  if sudo test -f "${DEPLOY_DIR}/config/secrets/gws/credentials.json"; then
+    echo "No GWS_CREDENTIALS supplied; preserving existing GWS credentials file."
+  else
+    echo "No GWS_CREDENTIALS supplied; no GWS credentials file present."
+  fi
 fi
 unset GWS_CREDENTIALS_B64
 
