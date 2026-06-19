@@ -33,6 +33,16 @@ function parseSessionDeleteParams(command: string) {
   };
 }
 
+function isRuntimeGatewayAuthedCommand(command: string, expectedSubcommand: string) {
+  return (
+    command.includes("secretmanager.googleapis.com") &&
+    command.includes('gateway_token="$(cd /app && node --input-type=module -e') &&
+    command.includes("activeConfig?.gateway?.remote?.token") &&
+    command.includes('export OPENCLAW_GATEWAY_TOKEN="$gateway_token"') &&
+    command.trim().endsWith(expectedSubcommand)
+  );
+}
+
 afterEach(() => {
   vi.restoreAllMocks();
 });
@@ -404,13 +414,23 @@ describe("runSandboxFirstAcceptance", () => {
             2,
           );
         }
-        if (command.includes("node dist/index.js cron add")) {
+        if (
+          command.includes("node dist/index.js cron add") &&
+          command.includes("secretmanager.googleapis.com")
+        ) {
           return JSON.stringify({ id: "job-2" }, null, 2);
         }
-        if (command === "cd /app && node dist/index.js cron run 'job-2'") {
+        if (
+          isRuntimeGatewayAuthedCommand(command, "cd /app && node dist/index.js cron run 'job-2'")
+        ) {
           return JSON.stringify({ ok: true, ran: true }, null, 2);
         }
-        if (command === "cd /app && node dist/index.js cron runs --id 'job-2' --limit 20") {
+        if (
+          isRuntimeGatewayAuthedCommand(
+            command,
+            "cd /app && node dist/index.js cron runs --id 'job-2' --limit 20",
+          )
+        ) {
           return JSON.stringify(
             {
               entries: [
@@ -428,7 +448,12 @@ describe("runSandboxFirstAcceptance", () => {
             2,
           );
         }
-        if (command === "cd /app && node dist/index.js cron rm 'job-2' --json") {
+        if (
+          isRuntimeGatewayAuthedCommand(
+            command,
+            "cd /app && node dist/index.js cron rm 'job-2' --json",
+          )
+        ) {
           return JSON.stringify({ ok: true, removed: false }, null, 2);
         }
         if (command.includes("node dist/index.js gateway call sessions.delete")) {
@@ -637,19 +662,31 @@ describe("runSandboxFirstAcceptance", () => {
             2,
           );
         }
-        if (command.includes("node dist/index.js cron add")) {
+        if (
+          command.includes("node dist/index.js cron add") &&
+          command.includes("secretmanager.googleapis.com")
+        ) {
           if (command.includes("SBX-404 cron isolation")) {
             return JSON.stringify({ id: "job-2" }, null, 2);
           }
           return JSON.stringify({ id: "job-1" }, null, 2);
         }
-        if (command === "cd /app && node dist/index.js cron run 'job-1'") {
+        if (
+          isRuntimeGatewayAuthedCommand(command, "cd /app && node dist/index.js cron run 'job-1'")
+        ) {
           return JSON.stringify({ ok: true, ran: true }, null, 2);
         }
-        if (command === "cd /app && node dist/index.js cron run 'job-2'") {
+        if (
+          isRuntimeGatewayAuthedCommand(command, "cd /app && node dist/index.js cron run 'job-2'")
+        ) {
           return JSON.stringify({ ok: true, ran: true }, null, 2);
         }
-        if (command === "cd /app && node dist/index.js cron runs --id 'job-1' --limit 20") {
+        if (
+          isRuntimeGatewayAuthedCommand(
+            command,
+            "cd /app && node dist/index.js cron runs --id 'job-1' --limit 20",
+          )
+        ) {
           return JSON.stringify(
             {
               entries: [
@@ -667,7 +704,12 @@ describe("runSandboxFirstAcceptance", () => {
             2,
           );
         }
-        if (command === "cd /app && node dist/index.js cron runs --id 'job-2' --limit 20") {
+        if (
+          isRuntimeGatewayAuthedCommand(
+            command,
+            "cd /app && node dist/index.js cron runs --id 'job-2' --limit 20",
+          )
+        ) {
           return JSON.stringify(
             {
               entries: [
@@ -685,10 +727,20 @@ describe("runSandboxFirstAcceptance", () => {
             2,
           );
         }
-        if (command === "cd /app && node dist/index.js cron rm 'job-1' --json") {
+        if (
+          isRuntimeGatewayAuthedCommand(
+            command,
+            "cd /app && node dist/index.js cron rm 'job-1' --json",
+          )
+        ) {
           return JSON.stringify({ ok: true, removed: false }, null, 2);
         }
-        if (command === "cd /app && node dist/index.js cron rm 'job-2' --json") {
+        if (
+          isRuntimeGatewayAuthedCommand(
+            command,
+            "cd /app && node dist/index.js cron rm 'job-2' --json",
+          )
+        ) {
           return JSON.stringify({ ok: true, removed: false }, null, 2);
         }
         if (command.includes("node dist/index.js gateway call sessions.delete")) {
@@ -818,6 +870,19 @@ describe("runSandboxFirstAcceptance", () => {
         },
       ]);
       expect(commands.some((command) => command.includes("cron rm 'job-1' --json"))).toBe(true);
+      const cronCommands = commands.filter((command) =>
+        command.includes("node dist/index.js cron "),
+      );
+      expect(cronCommands.length).toBeGreaterThan(0);
+      expect(
+        cronCommands.every(
+          (command) =>
+            command.includes("secretmanager.googleapis.com") &&
+            command.includes('gateway_token="$(cd /app && node --input-type=module -e') &&
+            command.includes("activeConfig?.gateway?.remote?.token") &&
+            command.includes('export OPENCLAW_GATEWAY_TOKEN="$gateway_token"'),
+        ),
+      ).toBe(true);
       expect(
         commands.some((command) => command.includes('"key":"agent:main:cron:job-1:run:run-1"')),
       ).toBe(true);
@@ -830,15 +895,25 @@ describe("runSandboxFirstAcceptance", () => {
   it("fails the isolated cron scenario when verified cleanup fails", async () => {
     await withTempDir(async (artifactRoot) => {
       const dockerExecBash = vi.fn((command: string) => {
-        if (command.includes("node dist/index.js cron add")) {
+        if (
+          command.includes("node dist/index.js cron add") &&
+          command.includes("secretmanager.googleapis.com")
+        ) {
           return JSON.stringify({ id: "job-cleanup-failure" }, null, 2);
         }
-        if (command === "cd /app && node dist/index.js cron run 'job-cleanup-failure'") {
+        if (
+          isRuntimeGatewayAuthedCommand(
+            command,
+            "cd /app && node dist/index.js cron run 'job-cleanup-failure'",
+          )
+        ) {
           return JSON.stringify({ ok: true, ran: true }, null, 2);
         }
         if (
-          command ===
-          "cd /app && node dist/index.js cron runs --id 'job-cleanup-failure' --limit 20"
+          isRuntimeGatewayAuthedCommand(
+            command,
+            "cd /app && node dist/index.js cron runs --id 'job-cleanup-failure' --limit 20",
+          )
         ) {
           return JSON.stringify(
             {
@@ -855,7 +930,12 @@ describe("runSandboxFirstAcceptance", () => {
             2,
           );
         }
-        if (command === "cd /app && node dist/index.js cron rm 'job-cleanup-failure' --json") {
+        if (
+          isRuntimeGatewayAuthedCommand(
+            command,
+            "cd /app && node dist/index.js cron rm 'job-cleanup-failure' --json",
+          )
+        ) {
           return JSON.stringify({ ok: true, removed: true }, null, 2);
         }
         if (command.includes("node dist/index.js gateway call sessions.delete")) {

@@ -45,13 +45,17 @@ jobs:
           fi
           "$PYTHON_BIN" -m pip install numpy
 
-      - name: Pre-generate SSH key for gcloud
+      - name: Register OS Login SSH key
         run: |
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
           if [[ ! -f ~/.ssh/google_compute_engine ]]; then
             ssh-keygen -t rsa -b 3072 -f ~/.ssh/google_compute_engine -N "" -q
           fi
+          gcloud compute os-login ssh-keys add \
+            --key-file ~/.ssh/google_compute_engine.pub \
+            --ttl 30m \
+            --quiet >/dev/null
 
       - name: Run route-bound GWS auth-health smoke
         env:
