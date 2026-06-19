@@ -1,6 +1,6 @@
 import type { BaseTokenResolution } from "../channels/plugins/types.js";
 import type { OpenClawConfig } from "../config/config.js";
-import { normalizeResolvedSecretInputString } from "../config/types.secrets.js";
+import { coerceSecretRef, normalizeResolvedSecretInputString } from "../config/types.secrets.js";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../routing/session-key.js";
 
 export type DiscordTokenSource = "env" | "config" | "none";
@@ -15,6 +15,10 @@ export function normalizeDiscordToken(raw: unknown, path: string): string | unde
     return undefined;
   }
   return trimmed.replace(/^Bot\s+/i, "");
+}
+
+function hasUnresolvedSecretRefToken(cfg: OpenClawConfig | undefined, raw: unknown): boolean {
+  return coerceSecretRef(raw, cfg?.secrets?.defaults) !== null;
 }
 
 export function resolveDiscordToken(
@@ -40,23 +44,31 @@ export function resolveDiscordToken(
     accountCfg &&
     Object.prototype.hasOwnProperty.call(accountCfg as Record<string, unknown>, "token"),
   );
-  const accountToken = normalizeDiscordToken(
-    (accountCfg as { token?: unknown } | undefined)?.token ?? undefined,
-    `channels.discord.accounts.${accountId}.token`,
-  );
+  const accountTokenRaw = (accountCfg as { token?: unknown } | undefined)?.token ?? undefined;
+  const isAccountTokenUnresolved = hasUnresolvedSecretRefToken(cfg, accountTokenRaw);
+  const accountToken = isAccountTokenUnresolved
+    ? undefined
+    : normalizeDiscordToken(accountTokenRaw, `channels.discord.accounts.${accountId}.token`);
   if (accountToken) {
     return { token: accountToken, source: "config" };
+  }
+  if (isAccountTokenUnresolved) {
+    return { token: "", source: "config" };
   }
   if (hasAccountToken) {
     return { token: "", source: "none" };
   }
 
-  const configToken = normalizeDiscordToken(
-    discordCfg?.token ?? undefined,
-    "channels.discord.token",
-  );
+  const configTokenRaw = discordCfg?.token ?? undefined;
+  const isConfigTokenUnresolved = hasUnresolvedSecretRefToken(cfg, configTokenRaw);
+  const configToken = isConfigTokenUnresolved
+    ? undefined
+    : normalizeDiscordToken(configTokenRaw, "channels.discord.token");
   if (configToken) {
     return { token: configToken, source: "config" };
+  }
+  if (isConfigTokenUnresolved) {
+    return { token: "", source: "config" };
   }
 
   const allowEnv = accountId === DEFAULT_ACCOUNT_ID;

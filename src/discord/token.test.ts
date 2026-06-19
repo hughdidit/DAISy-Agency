@@ -149,7 +149,7 @@ describe("resolveDiscordToken", () => {
     expect(res.source).toBe("config");
   });
 
-  it("throws when token is an unresolved SecretRef object", () => {
+  it("recognizes unresolved SecretRef objects without materializing a token", () => {
     const cfg = {
       channels: {
         discord: {
@@ -158,8 +158,71 @@ describe("resolveDiscordToken", () => {
       },
     } as unknown as OpenClawConfig;
 
-    expect(() => resolveDiscordToken(cfg)).toThrow(
-      /channels\.discord\.token: unresolved SecretRef/i,
-    );
+    const res = resolveDiscordToken(cfg);
+    expect(res.token).toBe("");
+    expect(res.source).toBe("config");
+  });
+
+  it("recognizes unresolved account SecretRef objects without falling back to top-level tokens", () => {
+    const cfg = {
+      channels: {
+        discord: {
+          token: "base-token",
+          accounts: {
+            work: {
+              token: {
+                source: "gcpSecretManager",
+                provider: "daisy-staging",
+                id: "discord-bot-token",
+              },
+            },
+          },
+        },
+      },
+      secrets: {
+        providers: {
+          "daisy-staging": {
+            source: "gcpSecretManager",
+            projectId: "amiable-raceway-472818-m5",
+            allowedSecrets: ["discord-bot-token"],
+          },
+        },
+      },
+    } as unknown as OpenClawConfig;
+
+    const res = resolveDiscordToken(cfg, { accountId: "work" });
+    expect(res.token).toBe("");
+    expect(res.source).toBe("config");
+  });
+
+  it("recognizes unresolved account SecretRef objects without a top-level token", () => {
+    const cfg = {
+      channels: {
+        discord: {
+          accounts: {
+            work: {
+              token: {
+                source: "gcpSecretManager",
+                provider: "daisy-staging",
+                id: "discord-bot-token",
+              },
+            },
+          },
+        },
+      },
+      secrets: {
+        providers: {
+          "daisy-staging": {
+            source: "gcpSecretManager",
+            projectId: "amiable-raceway-472818-m5",
+            allowedSecrets: ["discord-bot-token"],
+          },
+        },
+      },
+    } as unknown as OpenClawConfig;
+
+    const res = resolveDiscordToken(cfg, { accountId: "work" });
+    expect(res.token).toBe("");
+    expect(res.source).toBe("config");
   });
 });
