@@ -1032,7 +1032,25 @@ NODE
 }
 
 validate_gcp_secret_manager_access() {
-  local config_mount config_path
+  local config_mount config_path preflight_entry
+  if ! preflight_entry="$(sudo docker run --rm \
+    --entrypoint node \
+    "${DEPLOY_REF}" \
+    -e 'const fs = require("node:fs"); const candidates = ["/app/dist/deploy/secret-manager-preflight.js", "/app/dist/deploy/secret-manager-preflight.mjs"]; for (const candidate of candidates) { if (fs.existsSync(candidate)) { process.stdout.write(candidate); process.exit(0); } } process.exit(2);')"; then
+    local grep_status
+    if grep -R -I -q -- "gcpSecretManager" "${DEPLOY_DIR}/config"; then
+      echo "ERROR: ${DEPLOY_REF} does not contain the Google Secret Manager preflight entry, but the active config references gcpSecretManager SecretRefs." >&2
+      echo "Use an image built with Secret Manager runtime support, or deploy a rollback config without gcpSecretManager refs." >&2
+      return 1
+    fi
+    grep_status=$?
+    if [[ "${grep_status}" -gt 1 ]]; then
+      echo "ERROR: Failed to inspect ${DEPLOY_DIR}/config for gcpSecretManager references." >&2
+      return 1
+    fi
+    echo "WARN: ${DEPLOY_REF} does not contain the Google Secret Manager preflight entry; skipping because the active config does not reference gcpSecretManager." >&2
+    return 0
+  fi
   config_mount="/home/node/.openclaw"
   config_path="${config_mount}/${OPENCLAW_CONFIG_FILE}"
   sudo docker run --rm \
@@ -1042,7 +1060,7 @@ validate_gcp_secret_manager_access() {
     -e DAISY_ENVIRONMENT="${DAISY_ENVIRONMENT}" \
     -v "${DEPLOY_DIR}/config:${config_mount}:ro" \
     "${DEPLOY_REF}" \
-    /app/dist/deploy/secret-manager-preflight.js
+    "${preflight_entry}"
 }
 
 # Compose file flags: use host networking overlay on Linux VMs

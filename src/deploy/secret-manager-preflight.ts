@@ -44,4 +44,10 @@ async function main() {
   );
 }
 
-await main();
+try {
+  await main();
+} catch (err) {
+  const message = err instanceof Error ? err.message : String(err);
+  process.stderr.write(`Google Secret Manager preflight failed: ${message}\n`);
+  process.exit(1);
+}
