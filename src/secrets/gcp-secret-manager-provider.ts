@@ -73,6 +73,28 @@ function describeError(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
+function remainingTimeoutMs(startedAt: number, timeoutMs: number): number {
+  return Math.max(0, timeoutMs - (Date.now() - startedAt));
+}
+
+async function withTimeout<T>(operation: Promise<T>, timeoutMs: number, description: string): Promise<T> {
+  let timeout: ReturnType<typeof setTimeout> | null = null;
+  try {
+    return await Promise.race([
+      operation,
+      new Promise<never>((_, reject) => {
+        timeout = setTimeout(() => {
+          reject(new Error(`${description} timed out after ${timeoutMs}ms`));
+        }, timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+  }
+}
+
 async function fetchWithTimeout(
   url: string,
   init: RequestInit,
@@ -101,11 +123,11 @@ async function accessTokenFromMetadata(timeoutMs: number): Promise<string> {
     timeoutMs,
   );
   try {
-    if (response.headers.get("metadata-flavor") !== "Google") {
-      throw new Error("metadata response did not include Metadata-Flavor: Google");
-    }
     if (!response.ok) {
       throw new Error(`metadata server returned HTTP ${response.status}`);
+    }
+    if (response.headers.get("metadata-flavor") !== "Google") {
+      throw new Error("metadata response did not include Metadata-Flavor: Google");
     }
     const payload = (await response.json()) as MetadataAccessTokenResponse;
     if (typeof payload.access_token !== "string" || payload.access_token.length === 0) {
@@ -118,15 +140,24 @@ async function accessTokenFromMetadata(timeoutMs: number): Promise<string> {
 }
 
 async function accessTokenFromAdc(timeoutMs: number): Promise<string> {
+  const startedAt = Date.now();
   try {
-    const accessToken = await googleAuth.getAccessToken();
+    const accessToken = await withTimeout(
+      googleAuth.getAccessToken(),
+      timeoutMs,
+      "Google ADC access token refresh",
+    );
     if (typeof accessToken !== "string" || accessToken.length === 0) {
       throw new Error("Google ADC did not return an access token.");
     }
     return accessToken;
   } catch (error) {
     try {
-      return await accessTokenFromMetadata(timeoutMs);
+      const remainingMs = remainingTimeoutMs(startedAt, timeoutMs);
+      if (remainingMs <= 0) {
+        throw new Error(`metadata fallback skipped because ${timeoutMs}ms timeout was exhausted`);
+      }
+      return await accessTokenFromMetadata(remainingMs);
     } catch (metadataError) {
       throw new Error(
         `Google ADC did not return an access token: ${describeError(error)}; ` +
@@ -146,7 +177,12 @@ export async function accessGcpSecretManagerSecretVersion(
     throw new Error(`Google Secret Manager resource name is invalid: ${params.resourceName}`);
   }
 
+  const startedAt = Date.now();
   const accessToken = await accessTokenFromAdc(params.timeoutMs);
+  const secretAccessTimeoutMs = remainingTimeoutMs(startedAt, params.timeoutMs);
+  if (secretAccessTimeoutMs <= 0) {
+    throw new Error(`Google Secret Manager access timed out after ${params.timeoutMs}ms`);
+  }
 
   const response = await fetchWithTimeout(
     `${SECRET_MANAGER_BASE_URL}/${params.resourceName}:access`,
@@ -156,7 +192,7 @@ export async function accessGcpSecretManagerSecretVersion(
         Authorization: `Bearer ${accessToken}`,
       },
     },
-    params.timeoutMs,
+    secretAccessTimeoutMs,
   );
   if (!response.ok) {
     throw new Error(
