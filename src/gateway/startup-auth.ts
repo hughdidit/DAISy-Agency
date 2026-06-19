@@ -123,8 +123,7 @@ function hasGatewayTokenOverrideCandidate(params: {
     return true;
   }
   return Boolean(
-    typeof params.authOverride?.token === "string" &&
-      params.authOverride.token.trim().length > 0,
+    typeof params.authOverride?.token === "string" && params.authOverride.token.trim().length > 0,
   );
 }
 

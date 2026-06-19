@@ -176,10 +176,6 @@
     "@larksuiteoapi/node-sdk": "^1.59.0",
     "@line/bot-sdk": "^10.6.0",
     "@lydell/node-pty": "1.2.0-beta.3",
-    "@mariozechner/pi-agent-core": "0.55.3",
-    "@mariozechner/pi-ai": "0.55.3",
-    "@mariozechner/pi-coding-agent": "0.55.3",
-    "@mariozechner/pi-tui": "0.55.3",
     "@mozilla/readability": "^0.6.0",
     "@sinclair/typebox": "0.34.48",
     "@slack/bolt": "^4.6.0",
@@ -220,7 +216,7 @@
     "strip-ansi": "^7.2.0",
     "tar": "7.5.11",
     "tslog": "^4.10.2",
-    "undici": "^7.24.0",
+    "undici": "^7.28.0",
     "ws": "^8.21.0",
     "yaml": "^2.8.2",
     "zod": "^4.3.6"
@@ -263,7 +259,7 @@
       "mongodb-mcp-server@1.2.0": "patches/mongodb-mcp-server@1.2.0.patch"
     },
     "overrides": {
-      "hono": "4.12.4",
+      "hono": "4.12.26",
       "@larksuiteoapi/node-sdk>axios": "1.16.0",
       "@aws-sdk/client-bedrock>@aws-sdk/core": "3.973.19",
       "@aws-sdk/client-bedrock>@aws-sdk/token-providers": "3.1007.0",
