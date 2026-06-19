@@ -33,6 +33,23 @@ describe("evaluateGatewayAuthSurfaceStates", () => {
     });
   });
 
+  it("marks gateway.auth.token active when token mode is explicit", () => {
+    const states = evaluate({
+      gateway: {
+        auth: {
+          mode: "token",
+          token: envRef("GW_AUTH_TOKEN"),
+        },
+      },
+    } as OpenClawConfig);
+
+    expect(states["gateway.auth.token"]).toMatchObject({
+      hasSecretRef: true,
+      active: true,
+      reason: 'gateway.auth.mode is "token".',
+    });
+  });
+
   it("marks gateway.auth.password inactive when env token is configured", () => {
     const states = evaluate(
       {

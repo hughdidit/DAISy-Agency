@@ -35,6 +35,7 @@ Scope intent:
 - `tools.web.search.grok.apiKey`
 - `tools.web.search.kimi.apiKey`
 - `tools.web.search.perplexity.apiKey`
+- `gateway.auth.token`
 - `gateway.auth.password`
 - `gateway.remote.token`
 - `gateway.remote.password`
@@ -106,7 +107,6 @@ Out-of-scope credentials include:
 
 <!-- secretref-unsupported-list-start -->
 
-- `gateway.auth.token`
 - `commands.ownerDisplaySecret`
 - `channels.matrix.accessToken`
 - `channels.matrix.accounts.*.accessToken`

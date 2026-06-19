@@ -1,4 +1,5 @@
 import type { OpenClawConfig } from "../config/config.js";
+import { collectGwsCredentialMaterializationAssignments } from "./gws-credential-materialization.js";
 import { collectTtsApiKeyAssignments } from "./runtime-config-collectors-tts.js";
 import { evaluateGatewayAuthSurfaceStates } from "./runtime-gateway-auth-surfaces.js";
 import {
@@ -203,6 +204,18 @@ function collectGatewayAssignments(params: {
   });
   if (auth) {
     collectSecretInputAssignment({
+      value: auth.token,
+      path: "gateway.auth.token",
+      expected: "string",
+      defaults: params.defaults,
+      context: params.context,
+      active: gatewaySurfaceStates["gateway.auth.token"].active,
+      inactiveReason: gatewaySurfaceStates["gateway.auth.token"].reason,
+      apply: (value) => {
+        auth.token = value;
+      },
+    });
+    collectSecretInputAssignment({
       value: auth.password,
       path: "gateway.auth.password",
       expected: "string",
@@ -371,4 +384,5 @@ export function collectCoreConfigAssignments(params: {
   collectMessagesTtsAssignments(params);
   collectToolsWebSearchAssignments(params);
   collectCronAssignments(params);
+  collectGwsCredentialMaterializationAssignments(params);
 }

@@ -18,6 +18,12 @@ import {
   hasConfigurePlanChanges,
   type ConfigureCandidate,
 } from "./configure-plan.js";
+import {
+  GCP_PROJECT_ID_PATTERN,
+  GCP_SECRET_ID_PATTERN,
+  GCP_SECRET_VERSION_PATTERN,
+  isGcpSecretManagerResourceName,
+} from "./gcp-secret-manager-provider.js";
 import type { SecretsApplyPlan } from "./plan.js";
 import { PROVIDER_ENV_VARS } from "./provider-env-vars.js";
 import { isValidSecretProviderAlias, resolveDefaultSecretProviderAlias } from "./ref-contract.js";
@@ -108,11 +114,15 @@ function removeSecretProvider(config: OpenClawConfig, providerAlias: string): bo
     if (defaults?.exec === providerAlias) {
       delete defaults.exec;
     }
+    if (defaults?.gcpSecretManager === providerAlias) {
+      delete defaults.gcpSecretManager;
+    }
     if (
       defaults &&
       defaults.env === undefined &&
       defaults.file === undefined &&
-      defaults.exec === undefined
+      defaults.exec === undefined &&
+      defaults.gcpSecretManager === undefined
     ) {
       delete config.secrets?.defaults;
     }
@@ -126,6 +136,9 @@ function providerHint(provider: SecretProviderConfig): string {
   }
   if (provider.source === "file") {
     return `file (${provider.mode ?? "json"})`;
+  }
+  if (provider.source === "gcpSecretManager") {
+    return "gcpSecretManager";
   }
   return `exec (${provider.jsonOnly === false ? "json+text" : "json"})`;
 }
@@ -144,6 +157,9 @@ function toSourceChoices(config: OpenClawConfig): Array<{ value: SecretRefSource
   }
   if (hasSource("exec")) {
     choices.push({ value: "exec", label: "exec" });
+  }
+  if (hasSource("gcpSecretManager")) {
+    choices.push({ value: "gcpSecretManager", label: "gcpSecretManager" });
   }
   return choices;
 }
@@ -401,6 +417,7 @@ async function promptProviderSource(initial?: SecretRefSource): Promise<SecretRe
         { value: "env", label: "env" },
         { value: "file", label: "file" },
         { value: "exec", label: "exec" },
+        { value: "gcpSecretManager", label: "gcpSecretManager" },
       ],
       initialValue: initial,
     }),
@@ -616,6 +633,109 @@ async function promptExecProvider(
   };
 }
 
+function validateGcpShortSecretIdCsv(value: string): string | undefined {
+  for (const entry of parseCsv(value)) {
+    if (!GCP_SECRET_ID_PATTERN.test(entry)) {
+      return `Invalid Google Secret Manager short secret id: ${entry}`;
+    }
+  }
+  return undefined;
+}
+
+function validateGcpResourceNameCsv(value: string): string | undefined {
+  for (const entry of parseCsv(value)) {
+    if (!isGcpSecretManagerResourceName(entry)) {
+      return `Invalid Google Secret Manager resource name: ${entry}`;
+    }
+  }
+  return undefined;
+}
+
+async function promptGcpSecretManagerProvider(
+  base?: Extract<SecretProviderConfig, { source: "gcpSecretManager" }>,
+): Promise<Extract<SecretProviderConfig, { source: "gcpSecretManager" }>> {
+  const projectId = assertNoCancel(
+    await text({
+      message: "Google Cloud project id (blank only when using exact resource names)",
+      initialValue: base?.projectId ?? "",
+      validate: (value) => {
+        const trimmed = String(value ?? "").trim();
+        if (!trimmed) {
+          return undefined;
+        }
+        return GCP_PROJECT_ID_PATTERN.test(trimmed) ? undefined : "Invalid Google Cloud project id";
+      },
+    }),
+    "Secrets configure cancelled.",
+  );
+  const version = assertNoCancel(
+    await text({
+      message: "Default secret version (blank for latest)",
+      initialValue: base?.version ?? "",
+      validate: (value) => {
+        const trimmed = String(value ?? "").trim();
+        if (!trimmed) {
+          return undefined;
+        }
+        return GCP_SECRET_VERSION_PATTERN.test(trimmed)
+          ? undefined
+          : "Invalid Google Secret Manager version";
+      },
+    }),
+    "Secrets configure cancelled.",
+  );
+  const allowedSecretsRaw = assertNoCancel(
+    await text({
+      message: "Allowed short secret ids (comma-separated)",
+      initialValue: base?.allowedSecrets?.join(",") ?? "",
+      validate: (value) => validateGcpShortSecretIdCsv(String(value ?? "")),
+    }),
+    "Secrets configure cancelled.",
+  );
+  const allowedResourceNamesRaw = assertNoCancel(
+    await text({
+      message: "Allowed exact resource names (comma-separated)",
+      initialValue: base?.allowedResourceNames?.join(",") ?? "",
+      validate: (value) => validateGcpResourceNameCsv(String(value ?? "")),
+    }),
+    "Secrets configure cancelled.",
+  );
+  const allowedSecrets = parseCsv(String(allowedSecretsRaw ?? ""));
+  const allowedResourceNames = parseCsv(String(allowedResourceNamesRaw ?? ""));
+  const trimmedProjectId = String(projectId ?? "").trim();
+  const trimmedVersion = String(version ?? "").trim();
+  if (allowedSecrets.length > 0 && !trimmedProjectId) {
+    throw new Error(
+      "Google Secret Manager provider requires projectId when allowed short secret ids are configured.",
+    );
+  }
+  if (allowedSecrets.length === 0 && allowedResourceNames.length === 0) {
+    throw new Error(
+      "Google Secret Manager provider requires at least one allowed short secret id or exact resource name.",
+    );
+  }
+  const timeoutMs = await promptOptionalPositiveInt({
+    message: "Timeout ms (blank for default)",
+    initialValue: base?.timeoutMs,
+    max: 120000,
+  });
+  const maxBytes = await promptOptionalPositiveInt({
+    message: "Max bytes (blank for default)",
+    initialValue: base?.maxBytes,
+    max: 20 * 1024 * 1024,
+  });
+
+  return {
+    source: "gcpSecretManager",
+    ...(trimmedProjectId ? { projectId: trimmedProjectId } : {}),
+    ...(trimmedVersion ? { version: trimmedVersion } : {}),
+    ...(allowedSecrets.length > 0 ? { allowedSecrets } : {}),
+    ...(allowedResourceNames.length > 0 ? { allowedResourceNames } : {}),
+    ...(timeoutMs ? { timeoutMs } : {}),
+    ...(maxBytes ? { maxBytes } : {}),
+  };
+}
+
 async function promptProviderConfig(
   source: SecretRefSource,
   current?: SecretProviderConfig,
@@ -625,6 +745,11 @@ async function promptProviderConfig(
   }
   if (source === "file") {
     return await promptFileProvider(current?.source === "file" ? current : undefined);
+  }
+  if (source === "gcpSecretManager") {
+    return await promptGcpSecretManagerProvider(
+      current?.source === "gcpSecretManager" ? current : undefined,
+    );
   }
   return await promptExecProvider(current?.source === "exec" ? current : undefined);
 }

@@ -28,6 +28,17 @@ const SECRET_TARGET_REGISTRY: SecretTargetRegistryEntry[] = [
     authProfileType: "token",
   },
   {
+    id: "gateway.auth.token",
+    targetType: "gateway.auth.token",
+    configFile: "openclaw.json",
+    pathPattern: "gateway.auth.token",
+    secretShape: "secret_input",
+    expectedResolvedValue: "string",
+    includeInPlan: true,
+    includeInConfigure: true,
+    includeInAudit: true,
+  },
+  {
     id: "agents.defaults.memorySearch.remote.apiKey",
     targetType: "agents.defaults.memorySearch.remote.apiKey",
     configFile: "openclaw.json",

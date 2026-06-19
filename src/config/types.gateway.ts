@@ -139,7 +139,7 @@ export type GatewayAuthConfig = {
   /** Authentication mode for Gateway connections. Defaults to token when unset. */
   mode?: GatewayAuthMode;
   /** Shared token for token mode (stored locally for CLI auth). */
-  token?: string;
+  token?: SecretInput;
   /** Shared password for password mode (consider env instead). */
   password?: SecretInput;
   /** Allow Tailscale identity headers when serve mode is enabled. */

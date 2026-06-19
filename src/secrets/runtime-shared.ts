@@ -19,7 +19,14 @@ export type SecretAssignment = {
   ref: SecretRef;
   path: string;
   expected: "string" | "string-or-object";
-  apply: (value: unknown) => void;
+  apply?: (value: unknown) => void;
+  prepare?: (value: unknown) => PreparedSecretAssignmentEffect;
+};
+
+export type PreparedSecretAssignmentEffect = {
+  commit: () => void;
+  rollback: () => void;
+  finalize?: () => void;
 };
 
 export type ResolverContext = {
@@ -83,7 +90,8 @@ export function collectSecretInputAssignment(params: {
   context: ResolverContext;
   active?: boolean;
   inactiveReason?: string;
-  apply: (value: unknown) => void;
+  apply?: (value: unknown) => void;
+  prepare?: (value: unknown) => PreparedSecretAssignmentEffect;
 }): void {
   const ref = coerceSecretRef(params.value, params.defaults);
   if (!ref) {
@@ -102,6 +110,7 @@ export function collectSecretInputAssignment(params: {
     path: params.path,
     expected: params.expected,
     apply: params.apply,
+    prepare: params.prepare,
   });
 }
 
@@ -109,6 +118,7 @@ export function applyResolvedAssignments(params: {
   assignments: SecretAssignment[];
   resolved: Map<string, unknown>;
 }): void {
+  const resolvedAssignments: Array<{ assignment: SecretAssignment; value: unknown }> = [];
   for (const assignment of params.assignments) {
     const key = secretRefKey(assignment.ref);
     if (!params.resolved.has(key)) {
@@ -123,7 +133,40 @@ export function applyResolvedAssignments(params: {
           ? `${assignment.path} resolved to a non-string or empty value.`
           : `${assignment.path} resolved to an unsupported value type.`,
     });
-    assignment.apply(value);
+    resolvedAssignments.push({ assignment, value });
+  }
+
+  const preparedEffects: PreparedSecretAssignmentEffect[] = [];
+  try {
+    for (const { assignment, value } of resolvedAssignments) {
+      if (assignment.prepare) {
+        preparedEffects.push(assignment.prepare(value));
+      } else if (assignment.apply) {
+        assignment.apply(value);
+      } else {
+        throw new Error(`${assignment.path} has no runtime secret assignment handler.`);
+      }
+    }
+    const committedEffects: PreparedSecretAssignmentEffect[] = [];
+    try {
+      for (const effect of preparedEffects) {
+        effect.commit();
+        committedEffects.push(effect);
+      }
+    } catch (error) {
+      for (const effect of committedEffects.reverse()) {
+        effect.rollback();
+      }
+      throw error;
+    }
+    for (const effect of preparedEffects) {
+      effect.finalize?.();
+    }
+  } catch (error) {
+    for (const effect of preparedEffects.reverse()) {
+      effect.rollback();
+    }
+    throw error;
   }
 }
 

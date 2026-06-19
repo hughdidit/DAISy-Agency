@@ -63,6 +63,39 @@ export async function prepareSecretsRuntimeSnapshot(params: {
   agentDirs?: string[];
   loadAuthStore?: (agentDir?: string) => AuthProfileStore;
 }): Promise<PreparedSecretsRuntimeSnapshot> {
+  const collection = collectSecretsRuntimeAssignments(params);
+  if (collection.context.assignments.length > 0) {
+    const refs = collection.context.assignments.map((assignment) => assignment.ref);
+    const resolved = await resolveSecretRefValues(refs, {
+      config: collection.sourceConfig,
+      env: collection.context.env,
+      cache: collection.context.cache,
+    });
+    applyResolvedAssignments({
+      assignments: collection.context.assignments,
+      resolved,
+    });
+  }
+
+  return {
+    sourceConfig: collection.sourceConfig,
+    config: collection.config,
+    authStores: collection.authStores,
+    warnings: collection.context.warnings,
+  };
+}
+
+export function collectSecretsRuntimeAssignments(params: {
+  config: OpenClawConfig;
+  env?: NodeJS.ProcessEnv;
+  agentDirs?: string[];
+  loadAuthStore?: (agentDir?: string) => AuthProfileStore;
+}): {
+  sourceConfig: OpenClawConfig;
+  config: OpenClawConfig;
+  context: ReturnType<typeof createResolverContext>;
+  authStores: Array<{ agentDir: string; store: AuthProfileStore }>;
+} {
   const sourceConfig = structuredClone(params.config);
   const resolvedConfig = structuredClone(params.config);
   const context = createResolverContext({
@@ -91,24 +124,11 @@ export async function prepareSecretsRuntimeSnapshot(params: {
     authStores.push({ agentDir, store });
   }
 
-  if (context.assignments.length > 0) {
-    const refs = context.assignments.map((assignment) => assignment.ref);
-    const resolved = await resolveSecretRefValues(refs, {
-      config: sourceConfig,
-      env: context.env,
-      cache: context.cache,
-    });
-    applyResolvedAssignments({
-      assignments: context.assignments,
-      resolved,
-    });
-  }
-
   return {
     sourceConfig,
     config: resolvedConfig,
     authStores,
-    warnings: context.warnings,
+    context,
   };
 }
 

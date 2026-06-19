@@ -1,11 +1,16 @@
 #!/usr/bin/env node
 
 import { execFileSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const BULK_ADVISORY_ENDPOINT = "https://registry.npmjs.org/-/npm/v1/security/advisories/bulk";
 const BULK_ADVISORY_TIMEOUT_MS = 30_000;
 const SEVERITY_ORDER = ["low", "moderate", "high", "critical"];
 const DEFAULT_LEVEL = "high";
+const PNPM_BIN = "pnpm";
+const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const TEMPORARY_ADVISORY_ALLOWLIST = [
   {
     packageName: "axios",
@@ -18,6 +23,15 @@ const TEMPORARY_ADVISORY_ALLOWLIST = [
     sourceUrl: "https://github.com/advisories/GHSA-35jp-ww65-95wh",
     expiresOn: "2026-06-14",
     reason: "No axios release outside the vulnerable <1.16.0 range is available on npm.",
+  },
+];
+const PATCHED_ADVISORY_ALLOWLIST = [
+  {
+    packageName: "@mariozechner/pi-coding-agent",
+    sourceUrl: "https://github.com/advisories/GHSA-jfgx-wxx8-mp94",
+    patchFile: "patches/@mariozechner__pi-coding-agent@0.55.3.patch",
+    reason:
+      "DAISy patches temporary extension installs to use a private randomized temp root with 0700 permissions.",
   },
 ];
 
@@ -102,21 +116,25 @@ function walkDependencyNode(node, versionsByPackage) {
  */
 function collectProdDependencyVersions() {
   let rawJson;
+  const pnpmExecOptions = {
+    encoding: "utf8",
+    maxBuffer: 1024 * 1024 * 64,
+  };
+  const runPnpm = (args) => {
+    if (process.platform === "win32") {
+      return execFileSync(
+        "cmd.exe",
+        ["/d", "/s", "/c", [PNPM_BIN, ...args].join(" ")],
+        pnpmExecOptions,
+      );
+    }
+    return execFileSync(PNPM_BIN, args, pnpmExecOptions);
+  };
   try {
-    rawJson = execFileSync(
-      "pnpm",
-      ["list", "--prod", "--json", "--depth=Infinity", "--lockfile-only"],
-      {
-        encoding: "utf8",
-        maxBuffer: 1024 * 1024 * 64,
-      },
-    );
+    rawJson = runPnpm(["list", "--prod", "--json", "--depth=Infinity", "--lockfile-only"]);
   } catch {
     // Fallback for pnpm versions that do not support --lockfile-only on list.
-    rawJson = execFileSync("pnpm", ["list", "--prod", "--json", "--depth=Infinity"], {
-      encoding: "utf8",
-      maxBuffer: 1024 * 1024 * 64,
-    });
+    rawJson = runPnpm(["list", "--prod", "--json", "--depth=Infinity"]);
   }
   const parsed = JSON.parse(rawJson);
   const roots = Array.isArray(parsed) ? parsed : [parsed];
@@ -244,6 +262,18 @@ function findTemporaryAllowlistEntry(finding, now = new Date()) {
 }
 
 /**
+ * @param {AdvisoryFinding} finding
+ */
+function findPatchedAllowlistEntry(finding) {
+  return PATCHED_ADVISORY_ALLOWLIST.find(
+    (entry) =>
+      entry.packageName === finding.packageName &&
+      entry.sourceUrl === finding.sourceUrl &&
+      existsSync(resolve(REPO_ROOT, entry.patchFile)),
+  );
+}
+
+/**
  * @typedef {{
  *   packageName: string;
  *   severity: string;
@@ -327,6 +357,9 @@ async function main() {
   const dependencyPayload = collectProdDependencyVersions();
   const packageCount = Object.keys(dependencyPayload).length;
   console.log(`Collected ${packageCount} unique production packages from pnpm dependency graph.`);
+  if (packageCount === 0) {
+    throw new Error("Collected zero production packages from pnpm dependency graph.");
+  }
 
   const advisoriesByPackage = await fetchBulkAdvisories(dependencyPayload);
   const { findings, bySeverity } = extractFindings(advisoriesByPackage);
@@ -336,17 +369,30 @@ async function main() {
   }
 
   const suppressed = findings
-    .map((finding) => ({ finding, allowlist: findTemporaryAllowlistEntry(finding) }))
-    .filter((entry) => entry.allowlist);
+    .map((finding) => ({
+      finding,
+      patchedAllowlist: findPatchedAllowlistEntry(finding),
+      temporaryAllowlist: findTemporaryAllowlistEntry(finding),
+    }))
+    .filter((entry) => entry.patchedAllowlist || entry.temporaryAllowlist);
   for (const entry of suppressed) {
-    console.warn(
-      `Temporarily allowing ${entry.finding.packageName} advisory ${entry.finding.sourceUrl} until ${entry.allowlist.expiresOn}: ${entry.allowlist.reason}`,
-    );
+    if (entry.temporaryAllowlist) {
+      console.warn(
+        `Temporarily allowing ${entry.finding.packageName} advisory ${entry.finding.sourceUrl} until ${entry.temporaryAllowlist.expiresOn}: ${entry.temporaryAllowlist.reason}`,
+      );
+    }
+    if (entry.patchedAllowlist) {
+      console.warn(
+        `Allowing patched ${entry.finding.packageName} advisory ${entry.finding.sourceUrl} via ${entry.patchedAllowlist.patchFile}: ${entry.patchedAllowlist.reason}`,
+      );
+    }
   }
 
   const matching = findings.filter(
     (finding) =>
-      severityRank(finding.severity) >= threshold && !findTemporaryAllowlistEntry(finding),
+      severityRank(finding.severity) >= threshold &&
+      !findTemporaryAllowlistEntry(finding) &&
+      !findPatchedAllowlistEntry(finding),
   );
   console.log(
     `Advisory totals: low=${bySeverity.low}, moderate=${bySeverity.moderate}, high=${bySeverity.high}, critical=${bySeverity.critical}, unknown=${bySeverity.unknown}.`,
