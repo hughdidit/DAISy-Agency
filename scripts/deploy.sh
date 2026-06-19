@@ -1054,6 +1054,7 @@ validate_gcp_secret_manager_access() {
   config_mount="/home/node/.openclaw"
   config_path="${config_mount}/${OPENCLAW_CONFIG_FILE}"
   sudo docker run --rm \
+    --network host \
     --entrypoint node \
     -e HOME="/home/node" \
     -e OPENCLAW_CONFIG_PATH="${config_path}" \
