@@ -155,7 +155,7 @@ function resolveAuth(cfg: OpenClawConfig, env: NodeJS.ProcessEnv): ResolveAuthRe
   const token =
     env.OPENCLAW_GATEWAY_TOKEN?.trim() ||
     env.CLAWDBOT_GATEWAY_TOKEN?.trim() ||
-    normalizeSecretInputString(cfg.gateway?.auth?.token);
+    cfg.gateway?.auth?.token?.trim();
   const password =
     env.OPENCLAW_GATEWAY_PASSWORD?.trim() ||
     env.CLAWDBOT_GATEWAY_PASSWORD?.trim() ||
@@ -207,7 +207,7 @@ async function resolveGatewayPasswordSecretRef(
   if (mode !== "password") {
     const hasTokenCandidate =
       Boolean(env.OPENCLAW_GATEWAY_TOKEN?.trim() || env.CLAWDBOT_GATEWAY_TOKEN?.trim()) ||
-      Boolean(normalizeSecretInputString(cfg.gateway?.auth?.token));
+      Boolean(cfg.gateway?.auth?.token?.trim());
     if (hasTokenCandidate) {
       return cfg;
     }

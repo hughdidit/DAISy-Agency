@@ -12,7 +12,6 @@ import { formatCliCommand } from "../cli/command-format.js";
 import type { OpenClawConfig } from "../config/config.js";
 import { CONFIG_PATH, readConfigFileSnapshot, writeConfigFile } from "../config/config.js";
 import { logConfigUpdated } from "../config/logging.js";
-import { hasConfiguredSecretInput } from "../config/types.secrets.js";
 import { resolveGatewayService } from "../daemon/service.js";
 import { resolveGatewayAuth } from "../gateway/auth.js";
 import { buildGatewayConnectionDetails } from "../gateway/call.js";
@@ -172,14 +171,10 @@ export async function doctorCommand(
       authConfig: cfg.gateway?.auth,
       tailscaleMode: cfg.gateway?.tailscale?.mode ?? "off",
     });
-    const hasConfiguredToken = hasConfiguredSecretInput(
-      cfg.gateway?.auth?.token,
-      cfg.secrets?.defaults,
-    );
     const needsToken =
       auth.mode !== "password" &&
       auth.mode !== "trusted-proxy" &&
-      (auth.mode !== "token" || (!auth.token && !hasConfiguredToken));
+      (auth.mode !== "token" || !auth.token);
     if (needsToken) {
       note(
         "Gateway auth is off or missing a token. Token auth is now the recommended default (including loopback).",

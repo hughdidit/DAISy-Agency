@@ -149,32 +149,7 @@ function applyProviderPlanMutations(params: {
       delete currentProviders[providerAlias];
       changed = true;
     }
-    const defaults = params.config.secrets?.defaults;
-    if (defaults?.env === providerAlias) {
-      delete defaults.env;
-      changed = true;
-    }
-    if (defaults?.file === providerAlias) {
-      delete defaults.file;
-      changed = true;
-    }
-    if (defaults?.exec === providerAlias) {
-      delete defaults.exec;
-      changed = true;
-    }
-    if (defaults?.gcpSecretManager === providerAlias) {
-      delete defaults.gcpSecretManager;
-      changed = true;
-    }
-    if (
-      defaults &&
-      defaults.env === undefined &&
-      defaults.file === undefined &&
-      defaults.exec === undefined &&
-      defaults.gcpSecretManager === undefined
-    ) {
-      delete params.config.secrets?.defaults;
-    }
+    changed = pruneDeletedProviderDefaults(params.config, providerAlias) || changed;
   }
 
   for (const [providerAlias, providerConfig] of Object.entries(params.upserts ?? {})) {
@@ -199,6 +174,29 @@ function applyProviderPlanMutations(params: {
   }
   params.config.secrets.providers = currentProviders;
   return true;
+}
+
+function pruneDeletedProviderDefaults(config: OpenClawConfig, providerAlias: string): boolean {
+  const defaults = config.secrets?.defaults;
+  if (!defaults) {
+    return false;
+  }
+  let changed = false;
+  for (const key of ["env", "file", "exec"] as const) {
+    if (defaults[key] === providerAlias) {
+      delete defaults[key];
+      changed = true;
+    }
+  }
+  if (
+    changed &&
+    defaults.env === undefined &&
+    defaults.file === undefined &&
+    defaults.exec === undefined
+  ) {
+    delete config.secrets?.defaults;
+  }
+  return changed;
 }
 
 async function projectPlanState(params: {

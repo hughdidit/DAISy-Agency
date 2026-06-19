@@ -11,6 +11,10 @@ const SEVERITY_ORDER = ["low", "moderate", "high", "critical"];
 const DEFAULT_LEVEL = "high";
 const PNPM_BIN = "pnpm";
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const WINDOWS_PNPM_PS1 =
+  process.platform === "win32" && process.env.APPDATA
+    ? resolve(process.env.APPDATA, "npm", "pnpm.ps1")
+    : undefined;
 const TEMPORARY_ADVISORY_ALLOWLIST = [
   {
     packageName: "axios",
@@ -121,10 +125,10 @@ function collectProdDependencyVersions() {
     maxBuffer: 1024 * 1024 * 64,
   };
   const runPnpm = (args) => {
-    if (process.platform === "win32") {
+    if (WINDOWS_PNPM_PS1 && existsSync(WINDOWS_PNPM_PS1)) {
       return execFileSync(
-        "cmd.exe",
-        ["/d", "/s", "/c", [PNPM_BIN, ...args].join(" ")],
+        "powershell.exe",
+        ["-NoLogo", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", WINDOWS_PNPM_PS1, ...args],
         pnpmExecOptions,
       );
     }

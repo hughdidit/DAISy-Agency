@@ -1,5 +1,3 @@
-import type { SecretRef } from "../../../src/config/types.secrets.js";
-
 export type CredentialMode = "credentials_file" | "token";
 
 export type ServiceFamily =
@@ -100,7 +98,6 @@ export type CredentialRouteConfig = {
   allowedTools: ToolName[];
   allowedActions?: string[];
   credentialsFile?: string;
-  credentialsJsonRef?: SecretRef;
   tokenEnvVar?: string;
   impersonatedUser?: string;
   impersonatedUserEnvVar?: string;
@@ -124,7 +121,6 @@ export type GwsToolkitConfig = {
   binaryPath?: string;
   approvedCredentialDirs: string[];
   credentialsFile?: string;
-  credentialsJsonRef?: SecretRef;
   tokenEnvVar: string;
   timeoutMs: number;
   maxStdoutBytes: number;

@@ -33,24 +33,13 @@ describe("config secret refs schema", () => {
             args: ["resolve"],
             allowSymlinkCommand: true,
           },
-          gcp: {
-            source: "gcpSecretManager",
-            projectId: "daisy-auth-491616",
-            version: "latest",
-            allowedSecrets: ["anthropic-api-key"],
-            allowedResourceNames: [
-              "projects/daisy-auth-491616/secrets/openai-api-key/versions/latest",
-            ],
-            timeoutMs: 10_000,
-            maxBytes: 1_048_576,
-          },
         },
       },
       models: {
         providers: {
           openai: {
             baseUrl: "https://api.openai.com/v1",
-            apiKey: { source: "gcpSecretManager", provider: "gcp", id: "anthropic-api-key" },
+            apiKey: { source: "env", provider: "default", id: "OPENAI_API_KEY" },
             models: [{ id: "gpt-5", name: "gpt-5" }],
           },
         },
@@ -85,19 +74,6 @@ describe("config secret refs schema", () => {
             provider: "filemain",
             id: "/channels/googlechat/serviceAccount",
           },
-        },
-      },
-    });
-
-    expect(result.ok).toBe(true);
-  });
-
-  it("accepts gateway auth token refs", () => {
-    const result = validateConfigObjectRaw({
-      gateway: {
-        auth: {
-          mode: "token",
-          token: { source: "gcpSecretManager", provider: "gcp", id: "gateway-token" },
         },
       },
     });
@@ -193,35 +169,6 @@ describe("config secret refs schema", () => {
           (issue) =>
             issue.path.includes("models.providers.openai.apiKey") &&
             issue.message.includes("absolute JSON pointer"),
-        ),
-      ).toBe(true);
-    }
-  });
-
-  it("accepts Google Secret Manager refs with exact resource names", () => {
-    const result = validateOpenAiApiKeyRef({
-      source: "gcpSecretManager",
-      provider: "gcp",
-      id: "projects/daisy-auth-491616/secrets/openai-api-key/versions/latest",
-    });
-
-    expect(result.ok).toBe(true);
-  });
-
-  it("rejects Google Secret Manager refs with malformed ids", () => {
-    const result = validateOpenAiApiKeyRef({
-      source: "gcpSecretManager",
-      provider: "gcp",
-      id: "../openai api key",
-    });
-
-    expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(
-        result.issues.some(
-          (issue) =>
-            issue.path.includes("models.providers.openai.apiKey") &&
-            issue.message.includes("Google Secret Manager"),
         ),
       ).toBe(true);
     }

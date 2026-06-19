@@ -1,17 +1,9 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../config/config.js";
-import {
-  clearGcpSecretManagerAccessSecretVersionForTest,
-  setGcpSecretManagerAccessSecretVersionForTest,
-} from "./gcp-secret-manager-provider.js";
-import {
-  resolveSecretRefString,
-  resolveSecretRefValue,
-  resolveSecretRefValues,
-} from "./resolve.js";
+import { resolveSecretRefString, resolveSecretRefValue } from "./resolve.js";
 
 async function writeSecureFile(filePath: string, content: string, mode = 0o600): Promise<void> {
   await fs.mkdir(path.dirname(filePath), { recursive: true });
@@ -155,10 +147,6 @@ describe("secret ref resolver", () => {
     await fs.rm(fixtureRoot, { recursive: true, force: true });
   });
 
-  afterEach(() => {
-    clearGcpSecretManagerAccessSecretVersionForTest();
-  });
-
   it("resolves env refs via implicit default env provider", async () => {
     const config: OpenClawConfig = {};
     const value = await resolveSecretRefString(
@@ -169,159 +157,6 @@ describe("secret ref resolver", () => {
       },
     );
     expect(value).toBe("sk-env-value");
-  });
-
-  it("resolves Google Secret Manager refs by short secret id", async () => {
-    const calls: string[] = [];
-    setGcpSecretManagerAccessSecretVersionForTest(async ({ resourceName }) => {
-      calls.push(resourceName);
-      return "sk-gcp-value";
-    });
-
-    const value = await resolveSecretRefString(
-      { source: "gcpSecretManager", provider: "gcp", id: "anthropic-api-key" },
-      {
-        config: {
-          secrets: {
-            providers: {
-              gcp: {
-                source: "gcpSecretManager",
-                projectId: "daisy-auth-491616",
-                allowedSecrets: ["anthropic-api-key"],
-              },
-            },
-          },
-        } as OpenClawConfig,
-      },
-    );
-
-    expect(value).toBe("sk-gcp-value");
-    expect(calls).toEqual(["projects/daisy-auth-491616/secrets/anthropic-api-key/versions/latest"]);
-  });
-
-  it("resolves Google Secret Manager refs by exact allowed resource name", async () => {
-    const resourceName = "projects/daisy-auth-491616/secrets/openai-api-key/versions/7";
-    setGcpSecretManagerAccessSecretVersionForTest(async () => "sk-openai");
-
-    const value = await resolveSecretRefString(
-      { source: "gcpSecretManager", provider: "gcp", id: resourceName },
-      {
-        config: {
-          secrets: {
-            providers: {
-              gcp: {
-                source: "gcpSecretManager",
-                allowedResourceNames: [resourceName],
-              },
-            },
-          },
-        } as OpenClawConfig,
-      },
-    );
-
-    expect(value).toBe("sk-openai");
-  });
-
-  it("rejects Google Secret Manager refs not listed in provider allowlists", async () => {
-    setGcpSecretManagerAccessSecretVersionForTest(async () => "should-not-read");
-
-    await expect(
-      resolveSecretRefString(
-        { source: "gcpSecretManager", provider: "gcp", id: "not-allowed" },
-        {
-          config: {
-            secrets: {
-              providers: {
-                gcp: {
-                  source: "gcpSecretManager",
-                  projectId: "daisy-auth-491616",
-                  allowedSecrets: ["anthropic-api-key"],
-                },
-              },
-            },
-          } as OpenClawConfig,
-        },
-      ),
-    ).rejects.toThrow('Secret "not-allowed" is not allowlisted');
-  });
-
-  it("rejects empty Google Secret Manager payloads", async () => {
-    setGcpSecretManagerAccessSecretVersionForTest(async () => "");
-
-    await expect(
-      resolveSecretRefString(
-        { source: "gcpSecretManager", provider: "gcp", id: "anthropic-api-key" },
-        {
-          config: {
-            secrets: {
-              providers: {
-                gcp: {
-                  source: "gcpSecretManager",
-                  projectId: "daisy-auth-491616",
-                  allowedSecrets: ["anthropic-api-key"],
-                },
-              },
-            },
-          } as OpenClawConfig,
-        },
-      ),
-    ).rejects.toThrow("returned an empty payload");
-  });
-
-  it("rejects oversized Google Secret Manager payloads", async () => {
-    setGcpSecretManagerAccessSecretVersionForTest(async () => "123456");
-
-    await expect(
-      resolveSecretRefString(
-        { source: "gcpSecretManager", provider: "gcp", id: "anthropic-api-key" },
-        {
-          config: {
-            secrets: {
-              providers: {
-                gcp: {
-                  source: "gcpSecretManager",
-                  projectId: "daisy-auth-491616",
-                  allowedSecrets: ["anthropic-api-key"],
-                  maxBytes: 5,
-                },
-              },
-            },
-          } as OpenClawConfig,
-        },
-      ),
-    ).rejects.toThrow("exceeded maxBytes");
-  });
-
-  it("deduplicates Google Secret Manager reads within one resolution batch", async () => {
-    let calls = 0;
-    setGcpSecretManagerAccessSecretVersionForTest(async () => {
-      calls += 1;
-      return "shared-secret";
-    });
-
-    const resolved = await resolveSecretRefValues(
-      [
-        { source: "gcpSecretManager", provider: "gcp", id: "anthropic-api-key" },
-        { source: "gcpSecretManager", provider: "gcp", id: "anthropic-api-key" },
-      ],
-      {
-        config: {
-          secrets: {
-            providers: {
-              gcp: {
-                source: "gcpSecretManager",
-                projectId: "daisy-auth-491616",
-                allowedSecrets: ["anthropic-api-key"],
-              },
-            },
-          },
-        } as OpenClawConfig,
-        cache: {},
-      },
-    );
-
-    expect(resolved.get("gcpSecretManager:gcp:anthropic-api-key")).toBe("shared-secret");
-    expect(calls).toBe(1);
   });
 
   itPosix("resolves file refs in json mode", async () => {

@@ -419,149 +419,17 @@ function parseJsonOrThrow(raw, failureClass, message) {
 }
 
 function deleteSessionCommand(sessionKey, opts = {}) {
-  return withRuntimeGatewayToken(
-    [
-      "cd /app && node dist/index.js gateway call sessions.delete",
-      "--json",
-      `--params ${shellQuote(
-        JSON.stringify({
-          key: sessionKey,
-          deleteTranscript: opts.deleteTranscript !== false,
-          emitLifecycleHooks: false,
-        }),
-      )}`,
-    ].join(" "),
-  );
-}
-
-function gatewayTokenResolverScript() {
-  return `
-    import { loadActiveConfig } from "./scripts/gws/active-config.mjs";
-
-    function isSecretRef(value) {
-      return value &&
-        typeof value === "object" &&
-        ["env", "gcpSecretManager"].includes(value.source) &&
-        typeof value.provider === "string" &&
-        typeof value.id === "string";
-    }
-
-    function resolveProvider(config, ref) {
-      const provider = config?.secrets?.providers?.[ref.provider];
-      if (!provider || provider.source !== ref.source) {
-        throw new Error(\`Secret provider "\${ref.provider}" is not configured for \${ref.source}.\`);
-      }
-      return provider;
-    }
-
-    function resolveEnvSecret(config, ref) {
-      const provider = resolveProvider(config, ref);
-      if (Array.isArray(provider.allowlist) && !provider.allowlist.includes(ref.id)) {
-        throw new Error(\`Environment secret "\${ref.id}" is not allowlisted for provider "\${ref.provider}".\`);
-      }
-      return process.env[ref.id] ?? "";
-    }
-
-    function buildGcpResourceName(provider, ref) {
-      if (/^projects\\/[^/]+\\/secrets\\/[^/]+\\/versions\\/[^/]+$/u.test(ref.id)) {
-        if (!Array.isArray(provider.allowedResourceNames) || !provider.allowedResourceNames.includes(ref.id)) {
-          throw new Error("Google Secret Manager full resource name is not allowlisted.");
-        }
-        return ref.id;
-      }
-      if (!/^[A-Za-z0-9_-]{1,255}$/u.test(ref.id)) {
-        throw new Error("Google Secret Manager short secret id is malformed.");
-      }
-      if (!Array.isArray(provider.allowedSecrets) || !provider.allowedSecrets.includes(ref.id)) {
-        throw new Error(\`Google Secret Manager secret "\${ref.id}" is not allowlisted.\`);
-      }
-      const projectId = typeof provider.projectId === "string" ? provider.projectId.trim() : "";
-      if (!projectId) {
-        throw new Error("Google Secret Manager provider requires projectId for short secret ids.");
-      }
-      const version = typeof provider.version === "string" && provider.version.trim() ? provider.version.trim() : "latest";
-      return \`projects/\${projectId}/secrets/\${ref.id}/versions/\${version}\`;
-    }
-
-    async function fetchWithTimeout(url, options, timeoutMs) {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), timeoutMs);
-      try {
-        return await fetch(url, { ...options, signal: controller.signal });
-      } finally {
-        clearTimeout(timeout);
-      }
-    }
-
-    async function metadataAccessToken(timeoutMs) {
-      const url = "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token?scopes=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fsecretmanager";
-      const response = await fetchWithTimeout(url, { headers: { "Metadata-Flavor": "Google" } }, timeoutMs);
-      if (!response.ok || response.headers.get("metadata-flavor") !== "Google") {
-        throw new Error(\`GCE metadata token request failed with HTTP \${response.status}.\`);
-      }
-      const payload = await response.json();
-      if (typeof payload.access_token !== "string" || !payload.access_token.trim()) {
-        throw new Error("GCE metadata token response did not include an access token.");
-      }
-      return payload.access_token.trim();
-    }
-
-    async function resolveGcpSecret(config, ref) {
-      const provider = resolveProvider(config, ref);
-      const timeoutMs = Number.isSafeInteger(provider.timeoutMs) && provider.timeoutMs > 0 ? provider.timeoutMs : 5000;
-      const maxBytes = Number.isSafeInteger(provider.maxBytes) && provider.maxBytes > 0 ? provider.maxBytes : 1048576;
-      const resourceName = buildGcpResourceName(provider, ref);
-      const token = await metadataAccessToken(timeoutMs);
-      const response = await fetchWithTimeout(
-        \`https://secretmanager.googleapis.com/v1/\${resourceName}:access\`,
-        { headers: { Authorization: \`Bearer \${token}\` } },
-        timeoutMs,
-      );
-      if (!response.ok) {
-        throw new Error(\`Google Secret Manager access failed with HTTP \${response.status}.\`);
-      }
-      const payload = await response.json();
-      const encoded = payload?.payload?.data;
-      if (typeof encoded !== "string" || !encoded) {
-        throw new Error("Google Secret Manager response did not include payload data.");
-      }
-      const value = Buffer.from(encoded, "base64").toString("utf8");
-      if (Buffer.byteLength(value, "utf8") > maxBytes) {
-        throw new Error(\`Google Secret Manager secret exceeded maxBytes (\${maxBytes}).\`);
-      }
-      return value;
-    }
-
-    const { activeConfig } = loadActiveConfig();
-    const token = activeConfig?.gateway?.auth?.token ?? activeConfig?.gateway?.remote?.token;
-    let resolved = "";
-    if (typeof token === "string") {
-      resolved = token;
-    } else if (isSecretRef(token)) {
-      resolved = token.source === "env"
-        ? resolveEnvSecret(activeConfig, token)
-        : await resolveGcpSecret(activeConfig, token);
-    } else {
-      throw new Error("gateway.auth.token/gateway.remote.token is missing or is not a supported env/gcpSecretManager token SecretRef.");
-    }
-
-    resolved = String(resolved).trim();
-    if (!resolved || /[\\r\\n\\0]/u.test(resolved)) {
-      throw new Error("gateway.auth.token resolved to an empty or invalid token.");
-    }
-    process.stdout.write(resolved);
-  `.trim();
-}
-
-function withRuntimeGatewayToken(command) {
   return [
-    "set -euo pipefail",
-    `gateway_token="$(cd /app && node --input-type=module -e ${shellQuote(gatewayTokenResolverScript())})"`,
-    'if [ -z "$gateway_token" ]; then echo "Gateway token resolver returned an empty token" >&2; exit 1; fi',
-    'export OPENCLAW_GATEWAY_TOKEN="$gateway_token"',
-    "unset gateway_token",
-    command,
-  ].join("\n");
+    "cd /app && node dist/index.js gateway call sessions.delete",
+    "--json",
+    `--params ${shellQuote(
+      JSON.stringify({
+        key: sessionKey,
+        deleteTranscript: opts.deleteTranscript !== false,
+        emitLifecycleHooks: false,
+      }),
+    )}`,
+  ].join(" ");
 }
 
 async function cleanupAcceptanceCronArtifacts(ctx, params) {
@@ -576,9 +444,7 @@ async function cleanupAcceptanceCronArtifacts(ctx, params) {
   if (params.jobId) {
     try {
       const cleanupRaw = ctx.dockerExecBash(
-        withRuntimeGatewayToken(
-          `cd /app && node dist/index.js cron rm ${shellQuote(params.jobId)} --json`,
-        ),
+        `cd /app && node dist/index.js cron rm ${shellQuote(params.jobId)} --json`,
       );
       outputs.push({ action: "cron.rm", key: params.jobId, raw: cleanupRaw });
     } catch (error) {
@@ -1232,9 +1098,7 @@ async function pollForCronEntry(ctx, jobId) {
   const maxAttempts = 10;
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
     const runsRaw = ctx.dockerExecBash(
-      withRuntimeGatewayToken(
-        `cd /app && node dist/index.js cron runs --id ${shellQuote(jobId)} --limit 20`,
-      ),
+      `cd /app && node dist/index.js cron runs --id ${shellQuote(jobId)} --limit 20`,
     );
     await ctx.writeArtifactText("cron-runs.json", runsRaw);
     const runsPayload = extractLastJsonValue(runsRaw);
@@ -1263,11 +1127,9 @@ export async function runIsolatedCronScenario(ctx) {
 
   try {
     const addRaw = ctx.dockerExecBash(
-      withRuntimeGatewayToken(
-        `cd /app && node dist/index.js cron add --name ${shellQuote(jobName)} --at ${shellQuote(
-          runAt,
-        )} --session isolated --message ${shellQuote(DEFAULT_CRON_PROMPT)} --no-deliver --delete-after-run`,
-      ),
+      `cd /app && node dist/index.js cron add --name ${shellQuote(jobName)} --at ${shellQuote(
+        runAt,
+      )} --session isolated --message ${shellQuote(DEFAULT_CRON_PROMPT)} --no-deliver --delete-after-run`,
     );
     await ctx.writeArtifactText("cron-add.json", addRaw);
     const addPayload = parseJsonOrThrow(
@@ -1281,7 +1143,7 @@ export async function runIsolatedCronScenario(ctx) {
     }
 
     const runRaw = ctx.dockerExecBash(
-      withRuntimeGatewayToken(`cd /app && node dist/index.js cron run ${shellQuote(jobId)}`),
+      `cd /app && node dist/index.js cron run ${shellQuote(jobId)}`,
     );
     await ctx.writeArtifactText("cron-run.json", runRaw);
     const runPayload = parseJsonOrThrow(
@@ -1431,20 +1293,18 @@ export async function runCronIsolationAndSubagentModelScenario(ctx) {
 
   try {
     const addRaw = ctx.dockerExecBash(
-      withRuntimeGatewayToken(
-        [
-          "cd /app && node dist/index.js cron add",
-          `--name ${shellQuote(jobName)}`,
-          `--at ${shellQuote(runAt)}`,
-          "--session isolated",
-          `--message ${shellQuote(DEFAULT_CRON_PROMPT)}`,
-          modelOverride ? `--model ${shellQuote(modelOverride)}` : "",
-          "--no-deliver",
-          "--delete-after-run",
-        ]
-          .filter(Boolean)
-          .join(" "),
-      ),
+      [
+        "cd /app && node dist/index.js cron add",
+        `--name ${shellQuote(jobName)}`,
+        `--at ${shellQuote(runAt)}`,
+        "--session isolated",
+        `--message ${shellQuote(DEFAULT_CRON_PROMPT)}`,
+        modelOverride ? `--model ${shellQuote(modelOverride)}` : "",
+        "--no-deliver",
+        "--delete-after-run",
+      ]
+        .filter(Boolean)
+        .join(" "),
     );
     await ctx.writeArtifactText("cron-add.json", addRaw);
     const addPayload = parseJsonOrThrow(
@@ -1458,7 +1318,7 @@ export async function runCronIsolationAndSubagentModelScenario(ctx) {
     }
 
     const runRaw = ctx.dockerExecBash(
-      withRuntimeGatewayToken(`cd /app && node dist/index.js cron run ${shellQuote(jobId)}`),
+      `cd /app && node dist/index.js cron run ${shellQuote(jobId)}`,
     );
     await ctx.writeArtifactText("cron-run.json", runRaw);
     const runPayload = parseJsonOrThrow(

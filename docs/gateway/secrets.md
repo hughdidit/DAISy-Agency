@@ -39,7 +39,6 @@ Examples of inactive surfaces:
 - Disabled tool/feature surfaces.
 - Web search provider-specific keys that are not selected by `tools.web.search.provider`.
   In auto mode (provider unset), provider-specific keys are also active for provider auto-detection.
-- `gateway.auth.token` SecretRefs are active when token auth can win.
 - `gateway.remote.token` / `gateway.remote.password` SecretRefs are active (when `gateway.remote.enabled` is not `false`) if one of these is true:
   - `gateway.mode=remote`
   - `gateway.remote.url` is configured
@@ -50,7 +49,7 @@ Examples of inactive surfaces:
 
 ## Gateway auth surface diagnostics
 
-When a SecretRef is configured on `gateway.auth.token`, `gateway.auth.password`, `gateway.remote.token`, or
+When a SecretRef is configured on `gateway.auth.password`, `gateway.remote.token`, or
 `gateway.remote.password`, gateway startup/reload logs the surface state explicitly:
 
 - `active`: the SecretRef is part of the effective auth surface and must resolve.
@@ -74,7 +73,7 @@ If validation fails, onboarding shows the error and lets you retry.
 Use one object shape everywhere:
 
 ```json5
-{ source: "env" | "file" | "exec" | "gcpSecretManager", provider: "default", id: "..." }
+{ source: "env" | "file" | "exec", provider: "default", id: "..." }
 ```
 
 ### `source: "env"`
@@ -111,21 +110,6 @@ Validation:
 - `provider` must match `^[a-z][a-z0-9_-]{0,63}$`
 - `id` must match `^[A-Za-z0-9][A-Za-z0-9._:/-]{0,255}$`
 
-### `source: "gcpSecretManager"`
-
-```json5
-{ source: "gcpSecretManager", provider: "daisy-production", id: "anthropic-api-key" }
-```
-
-Validation:
-
-- `provider` must match `^[a-z][a-z0-9_-]{0,63}$`
-- `id` can be a short Secret Manager id, such as `anthropic-api-key`
-- `id` can also be an exact resource name, such as `projects/daisy-auth-491616/secrets/openai-api-key/versions/latest`
-- Short ids must be listed in the provider `allowedSecrets`
-- Exact resource names must be listed in the provider `allowedResourceNames`
-- Wildcard secret access is not supported
-
 ## Provider config
 
 Define providers under `secrets.providers`:
@@ -147,21 +131,11 @@ Define providers under `secrets.providers`:
         passEnv: ["PATH", "VAULT_ADDR"],
         jsonOnly: true,
       },
-      "daisy-production": {
-        source: "gcpSecretManager",
-        projectId: "daisy-auth-491616",
-        version: "latest",
-        allowedSecrets: ["anthropic-api-key", "gws-service-account-json"],
-        allowedResourceNames: ["projects/daisy-auth-491616/secrets/openai-api-key/versions/latest"],
-        timeoutMs: 5000,
-        maxBytes: 1048576,
-      },
     },
     defaults: {
       env: "default",
       file: "filemain",
       exec: "vault",
-      gcpSecretManager: "daisy-production",
     },
     resolution: {
       maxProviderConcurrency: 4,
@@ -215,23 +189,6 @@ Optional per-id errors:
   "errors": { "providers/openai/apiKey": { "message": "not found" } }
 }
 ```
-
-### Google Secret Manager provider
-
-DAISy production uses Google Secret Manager as the runtime backing store. The gateway uses Application Default Credentials on the VM and calls Secret Manager directly during startup/reload. Agents never receive Secret Manager tools, secret values, or enumeration capability.
-
-Required IAM:
-
-- Grant the VM runtime service account `roles/secretmanager.secretAccessor` only on each required secret.
-- Do not grant broad project-level Secret Manager access.
-- The GitHub deploy service account should not receive runtime secret read access. Keep GitHub Secrets for WIF, deploy VM identity, GHCR package access, and monitoring/deploy-only credentials.
-
-Rotation:
-
-1. Add a new Secret Manager version.
-2. Run `openclaw secrets reload` against the live gateway, or redeploy/restart.
-3. Verify `secrets.reload`, gateway health, and any route-specific auth health such as GWS.
-4. Disable the old Secret Manager version after confirmation.
 
 ## Exec integration examples
 

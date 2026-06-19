@@ -140,55 +140,6 @@ describe("resolveGatewayCredentialsFromConfig", () => {
     ).toThrow("gateway.auth.password");
   });
 
-  it("throws when local token auth relies on an unresolved SecretRef", () => {
-    expect(() =>
-      resolveGatewayCredentialsFromConfig({
-        cfg: {
-          gateway: {
-            mode: "local",
-            auth: {
-              mode: "token",
-              token: { source: "env", provider: "default", id: "MISSING_GATEWAY_TOKEN" },
-            },
-          },
-          secrets: {
-            providers: {
-              default: { source: "env" },
-            },
-          },
-        } as unknown as OpenClawConfig,
-        env: {} as NodeJS.ProcessEnv,
-        includeLegacyEnv: false,
-      }),
-    ).toThrow("gateway.auth.token");
-  });
-
-  it("ignores unresolved local token ref when local password auth wins", () => {
-    const resolved = resolveGatewayCredentialsFromConfig({
-      cfg: {
-        gateway: {
-          mode: "local",
-          auth: {
-            mode: "password",
-            token: { source: "env", provider: "default", id: "MISSING_GATEWAY_TOKEN" },
-            password: "local-password",
-          },
-        },
-        secrets: {
-          providers: {
-            default: { source: "env" },
-          },
-        },
-      } as unknown as OpenClawConfig,
-      env: {} as NodeJS.ProcessEnv,
-      includeLegacyEnv: false,
-    });
-    expect(resolved).toEqual({
-      token: undefined,
-      password: "local-password",
-    });
-  });
-
   it("ignores unresolved local password ref when local auth mode is none", () => {
     const resolved = resolveGatewayCredentialsFromConfig({
       cfg: {

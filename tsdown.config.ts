@@ -45,13 +45,6 @@ export default defineConfig([
     platform: "node",
   },
   {
-    entry: "src/deploy/secret-manager-preflight.ts",
-    outDir: "dist/deploy",
-    env,
-    fixedExtension: false,
-    platform: "node",
-  },
-  {
     entry: "src/plugin-sdk/index.ts",
     outDir: "dist/plugin-sdk",
     env,

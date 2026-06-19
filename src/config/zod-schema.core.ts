@@ -9,11 +9,6 @@ import { sensitive } from "./zod-schema.sensitive.js";
 const ENV_SECRET_REF_ID_PATTERN = /^[A-Z][A-Z0-9_]{0,127}$/;
 const SECRET_PROVIDER_ALIAS_PATTERN = /^[a-z][a-z0-9_-]{0,63}$/;
 const EXEC_SECRET_REF_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,255}$/;
-const GCP_SECRET_ID_PATTERN = /^[A-Za-z0-9_-]{1,255}$/;
-const GCP_SECRET_VERSION_PATTERN = /^[A-Za-z0-9_-]{1,63}$/;
-const GCP_PROJECT_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9-:.]{0,127}$/;
-const GCP_SECRET_RESOURCE_NAME_PATTERN =
-  /^projects\/[A-Za-z0-9][A-Za-z0-9-:.]{0,127}\/secrets\/[A-Za-z0-9_-]{1,255}\/versions\/[A-Za-z0-9_-]{1,63}$/;
 const WINDOWS_ABS_PATH_PATTERN = /^[A-Za-z]:[\\/]/;
 const WINDOWS_UNC_PATH_PATTERN = /^\\\\[^\\]+\\[^\\]+/;
 
@@ -79,30 +74,10 @@ const ExecSecretRefSchema = z
   })
   .strict();
 
-const GcpSecretManagerSecretRefSchema = z
-  .object({
-    source: z.literal("gcpSecretManager"),
-    provider: z
-      .string()
-      .regex(
-        SECRET_PROVIDER_ALIAS_PATTERN,
-        'Secret reference provider must match /^[a-z][a-z0-9_-]{0,63}$/ (example: "default").',
-      ),
-    id: z
-      .string()
-      .refine(
-        (value) =>
-          GCP_SECRET_ID_PATTERN.test(value) || GCP_SECRET_RESOURCE_NAME_PATTERN.test(value),
-        'Google Secret Manager secret reference id must be a short secret id (example: "openai-api-key") or exact resource name (example: "projects/my-project/secrets/openai-api-key/versions/latest").',
-      ),
-  })
-  .strict();
-
 export const SecretRefSchema = z.discriminatedUnion("source", [
   EnvSecretRefSchema,
   FileSecretRefSchema,
   ExecSecretRefSchema,
-  GcpSecretManagerSecretRefSchema,
 ]);
 
 export const SecretInputSchema = z.union([z.string(), SecretRefSchema]);
@@ -166,31 +141,10 @@ const SecretsExecProviderSchema = z
   })
   .strict();
 
-const SecretsGcpSecretManagerProviderSchema = z
-  .object({
-    source: z.literal("gcpSecretManager"),
-    projectId: z.string().regex(GCP_PROJECT_ID_PATTERN).optional(),
-    version: z.string().regex(GCP_SECRET_VERSION_PATTERN).optional(),
-    allowedSecrets: z.array(z.string().regex(GCP_SECRET_ID_PATTERN)).max(4096).optional(),
-    allowedResourceNames: z
-      .array(z.string().regex(GCP_SECRET_RESOURCE_NAME_PATTERN))
-      .max(4096)
-      .optional(),
-    timeoutMs: z.number().int().positive().max(120000).optional(),
-    maxBytes: z
-      .number()
-      .int()
-      .positive()
-      .max(20 * 1024 * 1024)
-      .optional(),
-  })
-  .strict();
-
 export const SecretProviderSchema = z.discriminatedUnion("source", [
   SecretsEnvProviderSchema,
   SecretsFileProviderSchema,
   SecretsExecProviderSchema,
-  SecretsGcpSecretManagerProviderSchema,
 ]);
 
 export const SecretsConfigSchema = z
@@ -206,7 +160,6 @@ export const SecretsConfigSchema = z
         env: z.string().regex(SECRET_PROVIDER_ALIAS_PATTERN).optional(),
         file: z.string().regex(SECRET_PROVIDER_ALIAS_PATTERN).optional(),
         exec: z.string().regex(SECRET_PROVIDER_ALIAS_PATTERN).optional(),
-        gcpSecretManager: z.string().regex(SECRET_PROVIDER_ALIAS_PATTERN).optional(),
       })
       .strict()
       .optional(),

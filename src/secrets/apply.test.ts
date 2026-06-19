@@ -549,7 +549,8 @@ describe("secrets apply", () => {
     await writeJsonFile(fixture.configPath, {
       secrets: {
         defaults: {
-          gcpSecretManager: "fileold",
+          env: "envmain",
+          file: "fileold",
         },
         providers: {
           envmain: { source: "env" },
@@ -585,7 +586,7 @@ describe("secrets apply", () => {
         providers?: Record<string, unknown>;
       };
     }>(fixture, plan);
-    expect(nextConfig.secrets?.defaults).toBeUndefined();
+    expect(nextConfig.secrets?.defaults).toEqual({ env: "envmain" });
     expect(nextConfig.secrets?.providers?.fileold).toBeUndefined();
     expect(nextConfig.secrets?.providers?.filemain).toEqual({
       source: "file",

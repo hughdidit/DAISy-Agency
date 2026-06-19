@@ -5,7 +5,6 @@ import path from "node:path";
 import { promisify } from "node:util";
 import type { OpenClawConfig } from "../config/config.js";
 import { resolveGatewayPort, resolveIsNixMode } from "../config/paths.js";
-import { normalizeSecretInputString } from "../config/types.secrets.js";
 import {
   findExtraGatewayServices,
   renderGatewayServiceCleanupHints,
@@ -57,7 +56,7 @@ function normalizeExecutablePath(value: string): string {
 }
 
 function resolveGatewayAuthToken(cfg: OpenClawConfig, env: NodeJS.ProcessEnv): string | undefined {
-  const configToken = normalizeSecretInputString(cfg.gateway?.auth?.token);
+  const configToken = cfg.gateway?.auth?.token?.trim();
   if (configToken) {
     return configToken;
   }
