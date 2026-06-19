@@ -229,6 +229,57 @@ describe("auth resolution", () => {
     });
   });
 
+  it("rejects malformed route-level credentialsJsonRef instead of silently using credentialsFile", () => {
+    const resolved = resolveConfig({
+      enabledServices: ["drive"],
+      allowedCredentialModes: ["credentials_file"],
+      approvedCredentialDirs: ["/home/node/.openclaw/secrets/gws"],
+      credentialRoutes: {
+        "ops-main": {
+          mode: "credentials_file",
+          allowedServices: ["drive"],
+          allowedTools: ["gws_drive_read"],
+          credentialsFile: "/home/node/.openclaw/secrets/gws/credentials.json",
+          credentialsJsonRef: {
+            source: "gcpSecretManager",
+            provider: "",
+            id: "gws-service-account-json",
+          },
+        },
+      },
+      agentCredentialBindings: {
+        "agent:main": "ops-main",
+      },
+    });
+
+    expect(resolved.ok).toBe(false);
+    if (resolved.ok) {
+      return;
+    }
+    expect(resolved.error.error.message).toContain("credential route ops-main");
+    expect(resolved.error.error.message).toContain("credentialsJsonRef");
+  });
+
+  it("rejects malformed top-level credentialsJsonRef instead of synthesizing a legacy route", () => {
+    const resolved = resolveConfig({
+      enabledServices: ["drive"],
+      allowedCredentialModes: ["credentials_file"],
+      approvedCredentialDirs: ["/home/node/.openclaw/secrets/gws"],
+      credentialsFile: "/home/node/.openclaw/secrets/gws/credentials.json",
+      credentialsJsonRef: {
+        source: "gcpSecretManager",
+        provider: "daisy-production",
+        id: "",
+      },
+    });
+
+    expect(resolved.ok).toBe(false);
+    if (resolved.ok) {
+      return;
+    }
+    expect(resolved.error.error.message).toContain("credentialsJsonRef");
+  });
+
   it("reports route-level auth posture", () => {
     process.env.GOOGLE_WORKSPACE_CLI_TOKEN = "abc";
     const status = getAuthSourceStatus(baseConfig());

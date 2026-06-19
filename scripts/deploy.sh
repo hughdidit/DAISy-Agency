@@ -759,12 +759,14 @@ PY
 }
 
 # Materialize optional fallback GWS credentials only when explicitly enabled.
+GWS_CREDENTIALS_FALLBACK_ACTIVE="0"
 if [[ "${ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK}" == "1" && -n "${GWS_CREDENTIALS_B64}" ]]; then
   GWS_CREDENTIALS_TMP="$(mktemp)"
   printf '%s' "${GWS_CREDENTIALS_B64}" | base64 -d > "${GWS_CREDENTIALS_TMP}"
   sudo install -d -m 700 -o 1000 -g 1000 "${DEPLOY_DIR}/config/secrets/gws"
   sudo install -m 600 -o 1000 -g 1000 "${GWS_CREDENTIALS_TMP}" "${DEPLOY_DIR}/config/secrets/gws/credentials.json"
   rm -f "${GWS_CREDENTIALS_TMP}"
+  GWS_CREDENTIALS_FALLBACK_ACTIVE="1"
 elif [[ "${ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK}" == "1" ]]; then
   sudo rm -f "${DEPLOY_DIR}/config/secrets/gws/credentials.json"
 fi
@@ -858,6 +860,7 @@ else
   unset TRELLO_TOKEN
 fi
 export GOOGLE_WORKSPACE_CLI_TOKEN
+export GWS_CREDENTIALS_FALLBACK_ACTIVE
 export OPENCLAW_CONFIG_DIR="${DEPLOY_DIR}/config"
 export OPENCLAW_WORKSPACE_DIR="${DEPLOY_DIR}/workspace"
 export OPENCLAW_GATEWAY_BIND
@@ -1034,22 +1037,16 @@ validate_gcp_secret_manager_access() {
 import { loadConfig } from "/app/dist/config/config.js";
 import { secretRefKey } from "/app/dist/secrets/ref-contract.js";
 import { resolveSecretRefValues } from "/app/dist/secrets/resolve.js";
-import { collectConfigAssignments } from "/app/dist/secrets/runtime-config-collectors.js";
-import { createResolverContext } from "/app/dist/secrets/runtime-shared.js";
+import { collectSecretsRuntimeAssignments } from "/app/dist/secrets/runtime.js";
 
 const config = loadConfig();
-const context = createResolverContext({
-  sourceConfig: config,
+const collection = collectSecretsRuntimeAssignments({
+  config,
   env: process.env,
-});
-const configForCollection = structuredClone(config);
-collectConfigAssignments({
-  config: configForCollection,
-  context,
 });
 
 const refsByKey = new Map();
-for (const assignment of context.assignments) {
+for (const assignment of collection.context.assignments) {
   if (assignment.ref.source !== "gcpSecretManager") {
     continue;
   }
@@ -1065,7 +1062,7 @@ if (refs.length === 0) {
 await resolveSecretRefValues(refs, {
   config,
   env: process.env,
-  cache: context.cache,
+  cache: collection.context.cache,
 });
 
 const providerCounts = new Map();
@@ -1078,10 +1075,11 @@ const summary = [...providerCounts.entries()]
 process.stdout.write(`Validated Google Secret Manager SecretRefs (${refs.length} refs; ${summary}).\n`);
 NODE
 )"
-  config_mount="/tmp/openclaw-config"
+  config_mount="/home/node/.openclaw"
   config_path="${config_mount}/${OPENCLAW_CONFIG_FILE}"
   sudo docker run --rm \
     --entrypoint node \
+    -e HOME="/home/node" \
     -e OPENCLAW_CONFIG_PATH="${config_path}" \
     -e DAISY_ENVIRONMENT="${DAISY_ENVIRONMENT}" \
     -v "${DEPLOY_DIR}/config:${config_mount}:ro" \

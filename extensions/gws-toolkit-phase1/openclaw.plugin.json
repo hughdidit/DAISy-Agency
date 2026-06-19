@@ -46,10 +46,12 @@
             "enum": ["env", "file", "exec", "gcpSecretManager"]
           },
           "provider": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "id": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           }
         }
       },
@@ -189,10 +191,12 @@
                   "enum": ["env", "file", "exec", "gcpSecretManager"]
                 },
                 "provider": {
-                  "type": "string"
+                  "type": "string",
+                  "minLength": 1
                 },
                 "id": {
-                  "type": "string"
+                  "type": "string",
+                  "minLength": 1
                 }
               }
             },

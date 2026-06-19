@@ -3,6 +3,7 @@ import path from "node:path";
 import type { OpenClawConfig } from "../config/config.js";
 import {
   collectSecretInputAssignment,
+  type PreparedSecretAssignmentEffect,
   pushWarning,
   type ResolverContext,
   type SecretDefaults,
@@ -122,10 +123,23 @@ function assertCredentialJson(value: string, configPath: string): void {
   }
 }
 
-function materializeCredentialJson(params: {
+function removeFileBestEffort(pathname: string | undefined): void {
+  if (!pathname) {
+    return;
+  }
+  try {
+    if (fs.existsSync(pathname)) {
+      fs.rmSync(pathname, { force: true });
+    }
+  } catch {
+    // Best-effort cleanup only; subsequent writes use unique temp names.
+  }
+}
+
+function prepareCredentialJsonMaterialization(params: {
   value: string;
   target: GwsMaterializationTarget;
-}): void {
+}): PreparedSecretAssignmentEffect {
   assertCredentialJson(params.value, params.target.path);
   const targetPath = ensureCredentialTargetPath({
     credentialsFile: params.target.credentialsFile,
@@ -137,25 +151,57 @@ function materializeCredentialJson(params: {
     parentDir,
     `.${path.basename(targetPath)}.${process.pid}.${Date.now()}.tmp`,
   );
-  try {
-    fs.writeFileSync(tempPath, params.value, { encoding: "utf8", mode: 0o600 });
-    fs.chmodSync(tempPath, 0o600);
-    if (process.platform !== "win32" && typeof process.getuid === "function") {
-      if (process.getuid() === 0) {
-        fs.chownSync(tempPath, 1000, 1000);
-      }
-    }
-    fs.renameSync(tempPath, targetPath);
-    fs.chmodSync(targetPath, 0o600);
-  } finally {
-    try {
-      if (fs.existsSync(tempPath)) {
-        fs.rmSync(tempPath, { force: true });
-      }
-    } catch {
-      // Best-effort cleanup only; the next write uses a unique temp name.
+  const backupPath = path.join(
+    parentDir,
+    `.${path.basename(targetPath)}.${process.pid}.${Date.now()}.bak`,
+  );
+  let committed = false;
+  let hadOriginal = false;
+  fs.writeFileSync(tempPath, params.value, { encoding: "utf8", mode: 0o600 });
+  fs.chmodSync(tempPath, 0o600);
+  if (process.platform !== "win32" && typeof process.getuid === "function") {
+    if (process.getuid() === 0) {
+      fs.chownSync(tempPath, 1000, 1000);
     }
   }
+  return {
+    commit: () => {
+      ensureCredentialTargetPath({
+        credentialsFile: params.target.credentialsFile,
+        approvedCredentialDirs: params.target.approvedCredentialDirs,
+        configPath: params.target.path,
+      });
+      hadOriginal = fs.existsSync(targetPath);
+      if (hadOriginal) {
+        fs.renameSync(targetPath, backupPath);
+      }
+      try {
+        fs.renameSync(tempPath, targetPath);
+        fs.chmodSync(targetPath, 0o600);
+        committed = true;
+      } catch (error) {
+        if (hadOriginal && fs.existsSync(backupPath) && !fs.existsSync(targetPath)) {
+          fs.renameSync(backupPath, targetPath);
+        }
+        throw error;
+      }
+    },
+    rollback: () => {
+      if (committed) {
+        removeFileBestEffort(targetPath);
+        if (hadOriginal && fs.existsSync(backupPath)) {
+          fs.renameSync(backupPath, targetPath);
+        }
+        committed = false;
+      }
+      removeFileBestEffort(tempPath);
+      removeFileBestEffort(backupPath);
+    },
+    finalize: () => {
+      removeFileBestEffort(backupPath);
+      removeFileBestEffort(tempPath);
+    },
+  };
 }
 
 function collectTarget(params: {
@@ -173,14 +219,17 @@ function collectTarget(params: {
     context: params.context,
     active: params.active,
     inactiveReason: params.inactiveReason,
-    apply: (value) => {
-      materializeCredentialJson({
+    prepare: (value) =>
+      prepareCredentialJsonMaterialization({
         value: String(value),
         target: params.target,
-      });
-    },
+      }),
   });
-  if (params.active && typeof params.context.env.GWS_CREDENTIALS === "string") {
+  if (
+    params.active &&
+    (typeof params.context.env.GWS_CREDENTIALS === "string" ||
+      params.context.env.GWS_CREDENTIALS_FALLBACK_ACTIVE === "1")
+  ) {
     pushWarning(params.context, {
       code: "SECRETS_REF_OVERRIDES_PLAINTEXT",
       path: params.target.path,
