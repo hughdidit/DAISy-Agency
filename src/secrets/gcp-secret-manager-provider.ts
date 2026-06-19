@@ -1,7 +1,10 @@
 import { GoogleAuth } from "google-auth-library";
 
-const SECRET_MANAGER_SCOPE = "https://www.googleapis.com/auth/cloud-platform";
+const SECRET_MANAGER_SCOPE = "https://www.googleapis.com/auth/secretmanager";
 const SECRET_MANAGER_BASE_URL = "https://secretmanager.googleapis.com/v1";
+const GCE_METADATA_ACCESS_TOKEN_URL =
+  `http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token` +
+  `?scopes=${encodeURIComponent(SECRET_MANAGER_SCOPE)}`;
 const googleAuth = new GoogleAuth({
   scopes: [SECRET_MANAGER_SCOPE],
 });
@@ -21,6 +24,10 @@ type SecretManagerAccessResponse = {
   payload?: {
     data?: string;
   };
+};
+
+type MetadataAccessTokenResponse = {
+  access_token?: unknown;
 };
 
 type AccessSecretVersion = (params: GcpSecretAccessParams) => Promise<string>;
@@ -62,6 +69,73 @@ export function buildGcpSecretManagerResourceName(params: {
   return `projects/${params.projectId}/secrets/${params.secretId}/versions/${params.version}`;
 }
 
+function describeError(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+async function fetchWithTimeout(
+  url: string,
+  init: RequestInit,
+  timeoutMs: number,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, {
+      ...init,
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function accessTokenFromMetadata(timeoutMs: number): Promise<string> {
+  const response = await fetchWithTimeout(
+    GCE_METADATA_ACCESS_TOKEN_URL,
+    {
+      headers: {
+        "Metadata-Flavor": "Google",
+      },
+    },
+    timeoutMs,
+  );
+  try {
+    if (response.headers.get("metadata-flavor") !== "Google") {
+      throw new Error("metadata response did not include Metadata-Flavor: Google");
+    }
+    if (!response.ok) {
+      throw new Error(`metadata server returned HTTP ${response.status}`);
+    }
+    const payload = (await response.json()) as MetadataAccessTokenResponse;
+    if (typeof payload.access_token !== "string" || payload.access_token.length === 0) {
+      throw new Error("metadata response did not include access_token");
+    }
+    return payload.access_token;
+  } catch (error) {
+    throw new Error(`failed to read metadata access token: ${describeError(error)}`);
+  }
+}
+
+async function accessTokenFromAdc(timeoutMs: number): Promise<string> {
+  try {
+    const accessToken = await googleAuth.getAccessToken();
+    if (typeof accessToken !== "string" || accessToken.length === 0) {
+      throw new Error("Google ADC did not return an access token.");
+    }
+    return accessToken;
+  } catch (error) {
+    try {
+      return await accessTokenFromMetadata(timeoutMs);
+    } catch (metadataError) {
+      throw new Error(
+        `Google ADC did not return an access token: ${describeError(error)}; ` +
+          `metadata fallback failed: ${describeError(metadataError)}`,
+      );
+    }
+  }
+}
+
 export async function accessGcpSecretManagerSecretVersion(
   params: GcpSecretAccessParams,
 ): Promise<string> {
@@ -72,13 +146,26 @@ export async function accessGcpSecretManagerSecretVersion(
     throw new Error(`Google Secret Manager resource name is invalid: ${params.resourceName}`);
   }
 
-  const client = await googleAuth.getClient();
-  const response = await client.request<SecretManagerAccessResponse>({
-    method: "GET",
-    url: `${SECRET_MANAGER_BASE_URL}/${params.resourceName}:access`,
-    timeout: params.timeoutMs,
-  });
-  const encoded = response.data?.payload?.data;
+  const accessToken = await accessTokenFromAdc(params.timeoutMs);
+
+  const response = await fetchWithTimeout(
+    `${SECRET_MANAGER_BASE_URL}/${params.resourceName}:access`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+    params.timeoutMs,
+  );
+  if (!response.ok) {
+    throw new Error(
+      `Google Secret Manager access failed for ${params.resourceName}: HTTP ${response.status}`,
+    );
+  }
+
+  const payload = (await response.json()) as SecretManagerAccessResponse;
+  const encoded = payload.payload?.data;
   if (typeof encoded !== "string" || encoded.length === 0) {
     throw new Error("Google Secret Manager response did not include payload.data.");
   }
