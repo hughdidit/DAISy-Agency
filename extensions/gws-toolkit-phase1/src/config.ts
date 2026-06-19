@@ -1,5 +1,4 @@
 import path from "node:path";
-import { coerceSecretRef } from "../../../src/config/types.secrets.js";
 import { resolveGmailContactPolicy } from "./gmail-policy.js";
 import {
   ALL_SERVICES,
@@ -23,7 +22,6 @@ const ALLOWED_CONFIG_KEYS = new Set([
   "binaryPath",
   "approvedCredentialDirs",
   "credentialsFile",
-  "credentialsJsonRef",
   "tokenEnvVar",
   "timeoutMs",
   "maxStdoutBytes",
@@ -100,22 +98,6 @@ function hasConfiguredToken(envVar: string): boolean {
   return typeof value === "string" && value.trim().length > 0;
 }
 
-function normalizeCredentialsJsonRef(
-  value: unknown,
-  pathLabel: string,
-): NonNullable<CredentialRouteConfig["credentialsJsonRef"]> | { error: string } | undefined {
-  if (value === undefined) {
-    return undefined;
-  }
-  const ref = coerceSecretRef(value);
-  if (!ref) {
-    return {
-      error: `${pathLabel} must be a valid SecretRef with non-empty source, provider, and id.`,
-    };
-  }
-  return ref;
-}
-
 function buildConfigError(message: string): StructuredError {
   return {
     ok: false,
@@ -179,13 +161,6 @@ function normalizeRouteConfig(
       error: `credential route ${routeName} has invalid impersonatedUserEnvVar "${impersonatedUserEnvVar}". Use an uppercase environment variable name like ORG_DELEGATE_USER.`,
     };
   }
-  const credentialsJsonRef = normalizeCredentialsJsonRef(
-    obj.credentialsJsonRef,
-    `credential route ${routeName} credentialsJsonRef`,
-  );
-  if (credentialsJsonRef && "error" in credentialsJsonRef) {
-    return credentialsJsonRef;
-  }
 
   return {
     mode,
@@ -197,7 +172,6 @@ function normalizeRouteConfig(
       typeof obj.credentialsFile === "string" && obj.credentialsFile.trim()
         ? obj.credentialsFile.trim()
         : undefined,
-    credentialsJsonRef,
     tokenEnvVar:
       typeof obj.tokenEnvVar === "string" && obj.tokenEnvVar.trim()
         ? obj.tokenEnvVar.trim()
@@ -236,7 +210,6 @@ function synthesizeLegacyRoute(config: Omit<GwsToolkitConfig, "credentialRoutes"
       allowedServices: services.length > 0 ? services : DEFAULT_ENABLED_SERVICES,
       allowedTools,
       credentialsFile: config.credentialsFile,
-      credentialsJsonRef: config.credentialsJsonRef,
       tokenEnvVar: config.tokenEnvVar,
     } satisfies CredentialRouteConfig,
   };
@@ -380,21 +353,6 @@ export function resolveConfig(
       },
     };
   }
-  const topLevelCredentialsJsonRef = normalizeCredentialsJsonRef(
-    raw.credentialsJsonRef,
-    "credentialsJsonRef",
-  );
-  if (topLevelCredentialsJsonRef && "error" in topLevelCredentialsJsonRef) {
-    return {
-      ok: false,
-      error: buildConfigError(topLevelCredentialsJsonRef.error),
-      posture: {
-        ...postureBase,
-        pluginConfigProvided: true,
-        message: "credentialsJsonRef invalid",
-      },
-    };
-  }
 
   const configBase: Omit<GwsToolkitConfig, "credentialRoutes" | "warnings"> = {
     enabledServices: enabledServices.length > 0 ? enabledServices : [...DEFAULT_ENABLED_SERVICES],
@@ -408,7 +366,6 @@ export function resolveConfig(
       typeof raw.credentialsFile === "string" && raw.credentialsFile.trim()
         ? raw.credentialsFile.trim()
         : undefined,
-    credentialsJsonRef: topLevelCredentialsJsonRef,
     tokenEnvVar:
       typeof raw.tokenEnvVar === "string" && raw.tokenEnvVar.trim()
         ? raw.tokenEnvVar.trim()

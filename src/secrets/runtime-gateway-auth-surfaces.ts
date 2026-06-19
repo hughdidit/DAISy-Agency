@@ -10,7 +10,6 @@ const GATEWAY_PASSWORD_ENV_KEYS = [
 ] as const;
 
 export const GATEWAY_AUTH_SURFACE_PATHS = [
-  "gateway.auth.token",
   "gateway.auth.password",
   "gateway.remote.token",
   "gateway.remote.password",
@@ -92,12 +91,6 @@ export function evaluateGatewayAuthSurfaceStates(params: {
         reason: "gateway configuration is not set.",
         hasSecretRef: false,
       }),
-      "gateway.auth.token": createState({
-        path: "gateway.auth.token",
-        active: false,
-        reason: "gateway configuration is not set.",
-        hasSecretRef: false,
-      }),
       "gateway.remote.token": createState({
         path: "gateway.remote.token",
         active: false,
@@ -116,7 +109,6 @@ export function evaluateGatewayAuthSurfaceStates(params: {
   const remote = isRecord(gateway?.remote) ? gateway.remote : undefined;
   const authMode = auth && typeof auth.mode === "string" ? auth.mode : undefined;
 
-  const hasAuthTokenRef = coerceSecretRef(auth?.token, defaults) !== null;
   const hasAuthPasswordRef = coerceSecretRef(auth?.password, defaults) !== null;
   const hasRemoteTokenRef = coerceSecretRef(remote?.token, defaults) !== null;
   const hasRemotePasswordRef = coerceSecretRef(remote?.password, defaults) !== null;
@@ -171,16 +163,6 @@ export function evaluateGatewayAuthSurfaceStates(params: {
       return "gateway.remote.token is configured.";
     }
     return "token auth can win.";
-  })();
-
-  const authTokenReason = (() => {
-    if (!auth) {
-      return "gateway.auth is not configured.";
-    }
-    if (localTokenCanWin) {
-      return authMode === "token" ? 'gateway.auth.mode is "token".' : "token auth can win.";
-    }
-    return `token auth cannot win with gateway.auth.mode="${formatAuthMode(authMode)}".`;
   })();
 
   const remoteSurfaceReason = describeRemoteConfiguredSurface({
@@ -243,12 +225,6 @@ export function evaluateGatewayAuthSurfaceStates(params: {
   })();
 
   return {
-    "gateway.auth.token": createState({
-      path: "gateway.auth.token",
-      active: localTokenCanWin,
-      reason: authTokenReason,
-      hasSecretRef: hasAuthTokenRef,
-    }),
     "gateway.auth.password": createState({
       path: "gateway.auth.password",
       active: passwordCanWin,

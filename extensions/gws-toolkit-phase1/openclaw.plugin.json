@@ -36,25 +36,6 @@
       "credentialsFile": {
         "type": "string"
       },
-      "credentialsJsonRef": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["source", "provider", "id"],
-        "properties": {
-          "source": {
-            "type": "string",
-            "enum": ["env", "file", "exec", "gcpSecretManager"]
-          },
-          "provider": {
-            "type": "string",
-            "minLength": 1
-          },
-          "id": {
-            "type": "string",
-            "minLength": 1
-          }
-        }
-      },
       "tokenEnvVar": {
         "type": "string",
         "default": "GOOGLE_WORKSPACE_CLI_TOKEN"
@@ -181,25 +162,6 @@
             "credentialsFile": {
               "type": "string"
             },
-            "credentialsJsonRef": {
-              "type": "object",
-              "additionalProperties": false,
-              "required": ["source", "provider", "id"],
-              "properties": {
-                "source": {
-                  "type": "string",
-                  "enum": ["env", "file", "exec", "gcpSecretManager"]
-                },
-                "provider": {
-                  "type": "string",
-                  "minLength": 1
-                },
-                "id": {
-                  "type": "string",
-                  "minLength": 1
-                }
-              }
-            },
             "tokenEnvVar": {
               "type": "string"
             },
@@ -247,11 +209,6 @@
     "credentialsFile": {
       "label": "Legacy Credentials File",
       "help": "Phase 1 compatibility credential path reference only; prefer explicit credentials_file routes.",
-      "sensitive": true
-    },
-    "credentialsJsonRef": {
-      "label": "Credentials JSON SecretRef",
-      "help": "Optional SecretRef whose resolved service-account JSON is materialized to the configured credentials file.",
       "sensitive": true
     },
     "tokenEnvVar": {

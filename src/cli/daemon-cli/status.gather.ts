@@ -297,7 +297,7 @@ export async function gatherDaemonStatus(
         token:
           opts.rpc.token ||
           mergedDaemonEnv.OPENCLAW_GATEWAY_TOKEN ||
-          normalizeSecretInputString(daemonCfg.gateway?.auth?.token),
+          daemonCfg.gateway?.auth?.token,
         password: daemonProbePassword,
         tlsFingerprint:
           shouldUseLocalTlsRuntime && tlsRuntime?.enabled

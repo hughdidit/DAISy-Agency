@@ -71,14 +71,6 @@ fi
 echo "DEPLOY_ENV: ${DEPLOY_ENV:-<unset>}"
 echo "DRY_RUN:    ${DRY_RUN:-<unset>}"
 echo "DEPLOY_REF: ${RESOLVED_REF}"
-ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK="${ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK:-0}"
-case "${ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK}" in
-  0|1) ;;
-  *)
-    echo "ERROR: ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK must be 0 or 1." >&2
-    exit 1
-    ;;
-esac
 
 if [[ "${DRY_RUN:-true}" == "true" ]]; then
   echo "Dry-run enabled: no deployment performed."
@@ -99,32 +91,30 @@ OPENCLAW_GATEWAY_BIND="${OPENCLAW_GATEWAY_BIND:-${CLAWDBOT_GATEWAY_BIND:-loopbac
 : "${GHCR_TOKEN:?GHCR_TOKEN is required for real deploy}"
 : "${DAISY_ENVIRONMENT:?DAISY_ENVIRONMENT is required for real deploy}"
 
-# Runtime app secrets are resolved by the Gateway from SecretRefs in the VM config.
-# GitHub may temporarily ship runtime secrets only when the explicit fallback flag is set.
-OPENCLAW_GATEWAY_TOKEN="${OPENCLAW_GATEWAY_TOKEN:-}"
-DISCORD_BOT_TOKEN="${DISCORD_BOT_TOKEN:-}"
+# App secrets (passed to docker compose on the VM)
+: "${OPENCLAW_GATEWAY_TOKEN:?OPENCLAW_GATEWAY_TOKEN is required for real deploy}"
+: "${DISCORD_BOT_TOKEN:?DISCORD_BOT_TOKEN is required for real deploy}"
 FINN_DISCORD_BOT_TOKEN="${FINN_DISCORD_BOT_TOKEN:-}"
 KODY_DISCORD_BOT_TOKEN="${KODY_DISCORD_BOT_TOKEN:-}"
 ART_DISCORD_BOT_TOKEN="${ART_DISCORD_BOT_TOKEN:-}"
 SALLY_DISCORD_BOT_TOKEN="${SALLY_DISCORD_BOT_TOKEN:-}"
-ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-}"
+: "${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY is required for real deploy}"
+# OPENAI_API_KEY is optional (OpenAI-backed model/tool access)
 OPENAI_API_KEY="${OPENAI_API_KEY:-}"
+# MONGODB_URI and GEMINI_API_KEY are optional (memory-mongodb plugin only)
 MONGODB_URI="${MONGODB_URI:-}"
 GEMINI_API_KEY="${GEMINI_API_KEY:-}"
+# BRAVE_API_KEY is optional (web-search tool)
 BRAVE_API_KEY="${BRAVE_API_KEY:-}"
+# FIRECRAWL_API_KEY is optional (firecrawl tool)
 FIRECRAWL_API_KEY="${FIRECRAWL_API_KEY:-}"
+# Trello integration secrets are optional
 TRELLO_API_KEY="${TRELLO_API_KEY:-}"
 TRELLO_TOKEN="${TRELLO_TOKEN:-}"
+# GOOGLE_WORKSPACE_CLI_TOKEN is optional (gws-toolkit-phase1 token auth mode)
 GOOGLE_WORKSPACE_CLI_TOKEN="${GOOGLE_WORKSPACE_CLI_TOKEN:-}"
+# GWS_CREDENTIALS is optional (gws-toolkit-phase1 credentials_file mode, JSON payload)
 GWS_CREDENTIALS="${GWS_CREDENTIALS:-}"
-if [[ "${ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK}" == "1" ]]; then
-  echo "WARNING: GitHub runtime secret fallback is enabled for this deploy." >&2
-  : "${OPENCLAW_GATEWAY_TOKEN:?OPENCLAW_GATEWAY_TOKEN is required when fallback is enabled}"
-  : "${DISCORD_BOT_TOKEN:?DISCORD_BOT_TOKEN is required when fallback is enabled}"
-  : "${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY is required when fallback is enabled}"
-else
-  echo "Runtime application secrets will be resolved from SecretRefs on the VM."
-fi
 
 DEPLOY_DIR="${DEPLOY_DIR:-/opt/DAISy}"
 : "${OPENCLAW_GATEWAY_PORT:?OPENCLAW_GATEWAY_PORT is required for real deploy}"
@@ -511,7 +501,6 @@ POST_DEPLOY_SESSION_REFRESH_ACTIVE_MINUTES="${9:-1440}"
 POST_DEPLOY_SESSION_REFRESH_MAX_SESSIONS="${10:-10}"
 POST_DEPLOY_SESSION_REFRESH_HEALTH_TIMEOUT_SECONDS="${11:-180}"
 DAISY_ENVIRONMENT="${12:-}"
-ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK="${13:-0}"
 
 : "${OPENCLAW_GATEWAY_PORT:?OPENCLAW_GATEWAY_PORT is required}"
 : "${OPENCLAW_BRIDGE_PORT:?OPENCLAW_BRIDGE_PORT is required}"
@@ -543,28 +532,6 @@ read -r TRELLO_TOKEN || TRELLO_TOKEN=""
 read -r GOOGLE_WORKSPACE_CLI_TOKEN || GOOGLE_WORKSPACE_CLI_TOKEN=""
 read -r GWS_CREDENTIALS_B64 || GWS_CREDENTIALS_B64=""
 
-if [[ "${ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK}" != "1" ]]; then
-  OPENCLAW_GATEWAY_TOKEN=""
-  DISCORD_BOT_TOKEN=""
-  FINN_DISCORD_BOT_TOKEN=""
-  KODY_DISCORD_BOT_TOKEN=""
-  ART_DISCORD_BOT_TOKEN=""
-  SALLY_DISCORD_BOT_TOKEN=""
-  ANTHROPIC_API_KEY=""
-  OPENAI_API_KEY=""
-  MONGODB_URI=""
-  GEMINI_API_KEY=""
-  BRAVE_API_KEY=""
-  FIRECRAWL_API_KEY=""
-  TRELLO_API_KEY=""
-  TRELLO_TOKEN=""
-  GOOGLE_WORKSPACE_CLI_TOKEN=""
-  GWS_CREDENTIALS_B64=""
-  echo "GitHub runtime secret fallback disabled; app secrets must resolve from SecretRefs."
-else
-  echo "WARNING: GitHub runtime secret fallback enabled; deploy-shipped app secrets may be exposed to container env." >&2
-fi
-
 echo "Deploy ref: ${DEPLOY_REF}"
 
 if ! command -v docker >/dev/null 2>&1; then
@@ -592,9 +559,6 @@ if [[ ! -f "${OPENCLAW_CONFIG_PATH}" ]]; then
   echo "Set OPENCLAW_CONFIG_FILE to the correct filename, or create the file." >&2
   exit 6
 fi
-
-# Standard SecretRef materialization directory for gws-toolkit-phase1 credentials_file routes.
-sudo install -d -m 700 -o 1000 -g 1000 "${DEPLOY_DIR}/config/secrets/gws"
 
 cleanup_anthropic_token_profiles() {
   sudo python3 - "${DEPLOY_DIR}/config/agents" <<'PY'
@@ -758,16 +722,14 @@ print(json.dumps(summary, indent=2))
 PY
 }
 
-# Materialize optional fallback GWS credentials only when explicitly enabled.
-GWS_CREDENTIALS_FALLBACK_ACTIVE="0"
-if [[ "${ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK}" == "1" && -n "${GWS_CREDENTIALS_B64}" ]]; then
+# Materialize optional gws credentials for credentials_file auth mode.
+if [[ -n "${GWS_CREDENTIALS_B64}" ]]; then
   GWS_CREDENTIALS_TMP="$(mktemp)"
   printf '%s' "${GWS_CREDENTIALS_B64}" | base64 -d > "${GWS_CREDENTIALS_TMP}"
   sudo install -d -m 700 -o 1000 -g 1000 "${DEPLOY_DIR}/config/secrets/gws"
   sudo install -m 600 -o 1000 -g 1000 "${GWS_CREDENTIALS_TMP}" "${DEPLOY_DIR}/config/secrets/gws/credentials.json"
   rm -f "${GWS_CREDENTIALS_TMP}"
-  GWS_CREDENTIALS_FALLBACK_ACTIVE="1"
-elif [[ "${ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK}" == "1" ]]; then
+else
   sudo rm -f "${DEPLOY_DIR}/config/secrets/gws/credentials.json"
 fi
 unset GWS_CREDENTIALS_B64
@@ -860,7 +822,6 @@ else
   unset TRELLO_TOKEN
 fi
 export GOOGLE_WORKSPACE_CLI_TOKEN
-export GWS_CREDENTIALS_FALLBACK_ACTIVE
 export OPENCLAW_CONFIG_DIR="${DEPLOY_DIR}/config"
 export OPENCLAW_WORKSPACE_DIR="${DEPLOY_DIR}/workspace"
 export OPENCLAW_GATEWAY_BIND
@@ -1029,39 +990,6 @@ NODE
     "${DEPLOY_REF}" \
     --input-type=module \
     -e "${probe_script}"
-}
-
-validate_gcp_secret_manager_access() {
-  local config_mount config_path preflight_entry
-  if ! preflight_entry="$(sudo docker run --rm \
-    --entrypoint node \
-    "${DEPLOY_REF}" \
-    -e 'const fs = require("node:fs"); const candidates = ["/app/dist/deploy/secret-manager-preflight.js", "/app/dist/deploy/secret-manager-preflight.mjs"]; for (const candidate of candidates) { if (fs.existsSync(candidate)) { process.stdout.write(candidate); process.exit(0); } } process.exit(2);')"; then
-    local grep_status
-    if grep -R -I -q -- "gcpSecretManager" "${DEPLOY_DIR}/config"; then
-      echo "ERROR: ${DEPLOY_REF} does not contain the Google Secret Manager preflight entry, but the active config references gcpSecretManager SecretRefs." >&2
-      echo "Use an image built with Secret Manager runtime support, or deploy a rollback config without gcpSecretManager refs." >&2
-      return 1
-    fi
-    grep_status=$?
-    if [[ "${grep_status}" -gt 1 ]]; then
-      echo "ERROR: Failed to inspect ${DEPLOY_DIR}/config for gcpSecretManager references." >&2
-      return 1
-    fi
-    echo "WARN: ${DEPLOY_REF} does not contain the Google Secret Manager preflight entry; skipping because the active config does not reference gcpSecretManager." >&2
-    return 0
-  fi
-  config_mount="/home/node/.openclaw"
-  config_path="${config_mount}/${OPENCLAW_CONFIG_FILE}"
-  sudo docker run --rm \
-    --network host \
-    --entrypoint node \
-    -e HOME="/home/node" \
-    -e OPENCLAW_CONFIG_PATH="${config_path}" \
-    -e DAISY_ENVIRONMENT="${DAISY_ENVIRONMENT}" \
-    -v "${DEPLOY_DIR}/config:${config_mount}:ro" \
-    "${DEPLOY_REF}" \
-    "${preflight_entry}"
 }
 
 # Compose file flags: use host networking overlay on Linux VMs
@@ -1242,11 +1170,6 @@ unset GHCR_TOKEN
 
 require_ghcr_image "${DEPLOY_REF}" "app image"
 
-if ! validate_gcp_secret_manager_access; then
-  echo "ERROR: Google Secret Manager preflight failed. Grant the VM runtime service account secretAccessor on the exact required secrets, or fix the active SecretRefs." >&2
-  exit 1
-fi
-
 if ! browser_enabled="$(resolve_sandbox_browser_enabled)"; then
   echo "ERROR: Failed to read sandbox browser enablement from ${DEPLOY_DIR}/${OPENCLAW_CONFIG_PATH} using ${DEPLOY_REF}." >&2
   exit 1
@@ -1343,9 +1266,8 @@ printf -v SESSION_REFRESH_ACTIVE_MINUTES_ESCAPED '%q' "${POST_DEPLOY_SESSION_REF
 printf -v SESSION_REFRESH_MAX_SESSIONS_ESCAPED '%q' "${POST_DEPLOY_SESSION_REFRESH_MAX_SESSIONS:-10}"
 printf -v SESSION_REFRESH_HEALTH_TIMEOUT_ESCAPED '%q' "${POST_DEPLOY_SESSION_REFRESH_HEALTH_TIMEOUT_SECONDS:-180}"
 printf -v DAISY_ENVIRONMENT_ESCAPED '%q' "${DAISY_ENVIRONMENT:-}"
-printf -v RUNTIME_SECRET_FALLBACK_ESCAPED '%q' "${ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK:-0}"
 REMOTE_SCRIPT_B64="$(printf '%s' "${REMOTE_SCRIPT}" | base64 | tr -d '\n')"
-REMOTE_COMMAND="set -euo pipefail; REMOTE_SCRIPT_PATH=\$(mktemp); trap 'rm -f \"\$REMOTE_SCRIPT_PATH\"' EXIT; printf '%s' '${REMOTE_SCRIPT_B64}' | base64 -d > \"\$REMOTE_SCRIPT_PATH\"; bash \"\$REMOTE_SCRIPT_PATH\" ${RESOLVED_REF_ESCAPED} ${DEPLOY_DIR_ESCAPED} ${GHCR_USERNAME_ESCAPED} ${GATEWAY_PORT_ESCAPED} ${BRIDGE_PORT_ESCAPED} ${GATEWAY_BIND_ESCAPED} ${CONFIG_FILE_ESCAPED} ${MIN_FREE_SPACE_MB_ESCAPED} ${SESSION_REFRESH_ACTIVE_MINUTES_ESCAPED} ${SESSION_REFRESH_MAX_SESSIONS_ESCAPED} ${SESSION_REFRESH_HEALTH_TIMEOUT_ESCAPED} ${DAISY_ENVIRONMENT_ESCAPED} ${RUNTIME_SECRET_FALLBACK_ESCAPED}"
+REMOTE_COMMAND="set -euo pipefail; REMOTE_SCRIPT_PATH=\$(mktemp); trap 'rm -f \"\$REMOTE_SCRIPT_PATH\"' EXIT; printf '%s' '${REMOTE_SCRIPT_B64}' | base64 -d > \"\$REMOTE_SCRIPT_PATH\"; bash \"\$REMOTE_SCRIPT_PATH\" ${RESOLVED_REF_ESCAPED} ${DEPLOY_DIR_ESCAPED} ${GHCR_USERNAME_ESCAPED} ${GATEWAY_PORT_ESCAPED} ${BRIDGE_PORT_ESCAPED} ${GATEWAY_BIND_ESCAPED} ${CONFIG_FILE_ESCAPED} ${MIN_FREE_SPACE_MB_ESCAPED} ${SESSION_REFRESH_ACTIVE_MINUTES_ESCAPED} ${SESSION_REFRESH_MAX_SESSIONS_ESCAPED} ${SESSION_REFRESH_HEALTH_TIMEOUT_ESCAPED} ${DAISY_ENVIRONMENT_ESCAPED}"
 printf -v REMOTE_COMMAND_ESCAPED '%q' "${REMOTE_COMMAND}"
 
 # Base64-wrap multiline credentials payload so stdin remains one-value-per-line.

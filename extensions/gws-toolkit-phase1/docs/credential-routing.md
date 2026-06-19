@@ -73,7 +73,6 @@ want to update route bindings without changing the agent's Workspace identity.
 - `allowedTools`
 - optional `allowedActions`
 - credential pointer field for the chosen auth mode
-- optional `credentialsJsonRef` for `credentials_file` routes
 - optional impersonation field (`impersonatedUser` or `impersonatedUserEnvVar`)
   for `credentials_file` routes
 - optional `workspaceIdentityDomains` allowlist at plugin config level
@@ -96,12 +95,7 @@ Reusable service-account route for multiple Workspace identities:
             "hughdidit-agent-gws": {
               mode: "credentials_file",
               label: "HughDidIt delegated Google API route",
-              credentialsFile: "/home/node/.openclaw/secrets/gws/credentials.json",
-              credentialsJsonRef: {
-                source: "gcpSecretManager",
-                provider: "daisy-production",
-                id: "gws-service-account-json",
-              },
+              credentialsFile: "./config/secrets/gws/domain-wide-delegation.json",
               allowedServices: ["calendar", "gmail", "drive", "contacts", "groups"],
               allowedTools: [
                 "gws_status",
@@ -137,21 +131,6 @@ Reusable service-account route for multiple Workspace identities:
   },
 }
 ```
-
-## SecretRef materialization
-
-`credentials_file` routes can set `credentialsJsonRef` next to `credentialsFile`. At gateway startup/reload, the active SecretRef resolves before route auth checks and is written atomically to `credentialsFile`.
-
-Security rules:
-
-- `credentialsFile` must be inside one of `approvedCredentialDirs`
-- symlink targets are rejected
-- the parent directory must already exist
-- the materialized file is written with mode `0600`
-- Linux deploys running as root set owner `1000:1000`
-- staging/production service-account JSON enforcement still rejects `authorized_user` and exported user OAuth credential material
-
-Route-level `credentialsJsonRef` takes precedence over deploy-shipped `GWS_CREDENTIALS`. If both are present, the gateway emits a warning and uses the SecretRef-backed materialization.
 
 Use a per-user route only when route policy or compatibility projection must be
 different:

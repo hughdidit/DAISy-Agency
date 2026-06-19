@@ -229,10 +229,9 @@ Google Workspace user such as `daisy.ai@hughdidit.com`.
 
 1. In Google Workspace Admin, authorize the service account for Domain-Wide
    Delegation with only the scopes required by the enabled services.
-2. Store the service-account JSON in Google Secret Manager and configure
-   `credentialsJsonRef` for deploy-managed environments, or place it inside an
-   approved credential directory for manual environments. Use `GWS_CREDENTIALS`
-   only as a temporary fallback.
+2. Store the service-account JSON as `GWS_CREDENTIALS` for deploy-managed
+   environments, or place it inside an approved credential directory for manual
+   environments.
 3. Configure `workspaceIdentityDomains` so only expected Workspace domains are
    accepted.
 4. Create named `credentials_file` routes that point at the service-account JSON
@@ -258,17 +257,6 @@ Recommended reusable-route shape:
       },
     ],
   },
-  secrets: {
-    providers: {
-      "daisy-production": {
-        source: "gcpSecretManager",
-        projectId: "daisy-auth-491616",
-        version: "latest",
-        allowedSecrets: ["gws-service-account-json"],
-      },
-    },
-    defaults: { gcpSecretManager: "daisy-production" },
-  },
   plugins: {
     entries: {
       "gws-toolkit-phase1": {
@@ -287,17 +275,12 @@ Recommended reusable-route shape:
             "contacts",
             "groups",
           ],
-          approvedCredentialDirs: ["/home/node/.openclaw/secrets/gws"],
+          approvedCredentialDirs: ["./config/secrets/gws"],
           credentialRoutes: {
             "hughdidit-agent-gws": {
               mode: "credentials_file",
               label: "HughDidIt agent DWD service account",
-              credentialsFile: "/home/node/.openclaw/secrets/gws/credentials.json",
-              credentialsJsonRef: {
-                source: "gcpSecretManager",
-                provider: "daisy-production",
-                id: "gws-service-account-json",
-              },
+              credentialsFile: "./config/secrets/gws/domain-wide-delegation.json",
               allowedServices: [
                 "calendar",
                 "gmail",

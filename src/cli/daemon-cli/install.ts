@@ -11,7 +11,6 @@ import {
   writeConfigFile,
 } from "../../config/config.js";
 import { resolveIsNixMode } from "../../config/paths.js";
-import { normalizeSecretInputString } from "../../config/types.secrets.js";
 import { resolveGatewayService } from "../../daemon/service.js";
 import { resolveGatewayAuth } from "../../gateway/auth.js";
 import { defaultRuntime } from "../../runtime.js";
@@ -87,7 +86,7 @@ export async function runDaemonInstall(opts: DaemonInstallOptions) {
 
   let token: string | undefined =
     opts.token ||
-    normalizeSecretInputString(cfg.gateway?.auth?.token) ||
+    cfg.gateway?.auth?.token ||
     process.env.OPENCLAW_GATEWAY_TOKEN ||
     process.env.CLAWDBOT_GATEWAY_TOKEN;
 
@@ -130,7 +129,7 @@ export async function runDaemonInstall(opts: DaemonInstallOptions) {
           });
         } else {
           // Another process wrote a token between loadConfig() and now.
-          token = normalizeSecretInputString(baseConfig.gateway.auth.token);
+          token = baseConfig.gateway.auth.token;
         }
       }
     } catch (err) {

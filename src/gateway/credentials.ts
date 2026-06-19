@@ -172,23 +172,10 @@ export function resolveGatewayCredentialsFromConfig(params: {
         authMode !== "none" &&
         authMode !== "trusted-proxy" &&
         !localResolved.token);
-    const localTokenCanWin =
-      authMode === "token" ||
-      (authMode !== "password" &&
-        authMode !== "none" &&
-        authMode !== "trusted-proxy" &&
-        !localResolved.password);
     const localPasswordRef = resolveSecretInputRef({
       value: params.cfg.gateway?.auth?.password,
       defaults,
     }).ref;
-    const localTokenRef = resolveSecretInputRef({
-      value: params.cfg.gateway?.auth?.token,
-      defaults,
-    }).ref;
-    if (localTokenRef && !localResolved.token && !envToken && !remoteToken && localTokenCanWin) {
-      throwUnresolvedGatewaySecretInput("gateway.auth.token");
-    }
     if (localPasswordRef && !localResolved.password && !envPassword && localPasswordCanWin) {
       throwUnresolvedGatewaySecretInput("gateway.auth.password");
     }

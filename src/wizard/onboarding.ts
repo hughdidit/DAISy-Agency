@@ -201,7 +201,7 @@ export async function runOnboardingWizard(
       baseConfig.gateway?.auth?.mode === "password"
     ) {
       authMode = baseConfig.gateway.auth.mode;
-    } else if (normalizeSecretInputString(baseConfig.gateway?.auth?.token)) {
+    } else if (baseConfig.gateway?.auth?.token) {
       authMode = "token";
     } else if (baseConfig.gateway?.auth?.password) {
       authMode = "password";
@@ -219,7 +219,7 @@ export async function runOnboardingWizard(
       bind,
       authMode,
       tailscaleMode,
-      token: normalizeSecretInputString(baseConfig.gateway?.auth?.token),
+      token: baseConfig.gateway?.auth?.token,
       password: baseConfig.gateway?.auth?.password,
       customBindHost: baseConfig.gateway?.customBindHost,
       tailscaleResetOnExit: baseConfig.gateway?.tailscale?.resetOnExit ?? false,
@@ -306,9 +306,7 @@ export async function runOnboardingWizard(
 
   const localProbe = await onboardHelpers.probeGatewayReachable({
     url: localUrl,
-    token:
-      normalizeSecretInputString(baseConfig.gateway?.auth?.token) ??
-      process.env.OPENCLAW_GATEWAY_TOKEN,
+    token: baseConfig.gateway?.auth?.token ?? process.env.OPENCLAW_GATEWAY_TOKEN,
     password: localGatewayPassword,
   });
   const remoteUrl = baseConfig.gateway?.remote?.url?.trim() ?? "";

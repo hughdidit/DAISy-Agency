@@ -145,36 +145,11 @@ function applyProviderPlanMutations(params: {
   let changed = false;
 
   for (const providerAlias of params.deletes ?? []) {
-    if (Object.prototype.hasOwnProperty.call(currentProviders, providerAlias)) {
-      delete currentProviders[providerAlias];
-      changed = true;
+    if (!Object.prototype.hasOwnProperty.call(currentProviders, providerAlias)) {
+      continue;
     }
-    const defaults = params.config.secrets?.defaults;
-    if (defaults?.env === providerAlias) {
-      delete defaults.env;
-      changed = true;
-    }
-    if (defaults?.file === providerAlias) {
-      delete defaults.file;
-      changed = true;
-    }
-    if (defaults?.exec === providerAlias) {
-      delete defaults.exec;
-      changed = true;
-    }
-    if (defaults?.gcpSecretManager === providerAlias) {
-      delete defaults.gcpSecretManager;
-      changed = true;
-    }
-    if (
-      defaults &&
-      defaults.env === undefined &&
-      defaults.file === undefined &&
-      defaults.exec === undefined &&
-      defaults.gcpSecretManager === undefined
-    ) {
-      delete params.config.secrets?.defaults;
-    }
+    delete currentProviders[providerAlias];
+    changed = true;
   }
 
   for (const [providerAlias, providerConfig] of Object.entries(params.upserts ?? {})) {

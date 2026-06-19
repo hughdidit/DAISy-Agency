@@ -160,18 +160,29 @@ The easiest way to set up the deployment directory and start services is via the
 
 For a brand-new staging VM, the real deploy requires the config file to exist at `/opt/DAISy/config/openclaw.json` before `scripts/deploy.sh` runs. Use the workflow with `provision: true` to create `/opt/DAISy`, then create or copy the config file onto the VM before the first non-dry-run deployment.
 
-1. **Add staging deploy plumbing secrets** in GitHub:
+1. **Add staging environment secrets** in GitHub:
    - `GHCR_USERNAME`
    - `GHCR_TOKEN`
+   - `OPENCLAW_GATEWAY_TOKEN` - Generate with `openssl rand -hex 32`
+   - `DISCORD_BOT_TOKEN` - Required by the current deploy workflow and deploy script for real deploys; use the DAISy staging bot for the default Discord account
+   - `FINN_DISCORD_BOT_TOKEN` - Optional until the staging config references `channels.discord.accounts.finn.token`; required when Finn runs as its own Discord app
+   - `KODY_DISCORD_BOT_TOKEN` - Optional until the staging config references `channels.discord.accounts.kody.token`; required when Kody runs as its own Discord app
+   - `ART_DISCORD_BOT_TOKEN` - Optional until the staging config references `channels.discord.accounts.art.token`; required when Art runs as its own Discord app
+   - `SALLY_DISCORD_BOT_TOKEN` - Optional until the staging config references `channels.discord.accounts.sally.token`; required when Sally runs as its own Discord app
+   - `ANTHROPIC_API_KEY` - Required by the current deploy workflow and deploy script for real deploys
+   - `OPENAI_API_KEY` - Optional, for OpenAI-backed models, tools, and embeddings
+   - `MONGODB_URI` - Optional, for memory-mongodb
+   - `GEMINI_API_KEY` - Optional, for Gemini-backed embeddings/providers
+   - `BRAVE_API_KEY` - Optional, for Brave search
+   - `FIRECRAWL_API_KEY` - Optional, for firecrawl-enabled environments
+   - `TRELLO_API_KEY` / `TRELLO_TOKEN` - Optional, for gateway-brokered `trello-toolkit`
+   - `GWS_CREDENTIALS` - Optional, for `gws-toolkit-phase1` `credentials_file` mode (service-account JSON required for delegated agent Workspace identities)
+   - `GOOGLE_WORKSPACE_CLI_TOKEN` - Optional, only if staging switches to token mode
    - `GRAFANA_ADMIN_PASSWORD` - Required when monitoring `.env.monitoring` should be regenerated
    - `DISCORD_ALERTS_WEBHOOK_URL` - Sensitive Discord webhook for Alertmanager; store as a secret, not a variable
    - `ALERT_SMTP_USERNAME` / `ALERT_SMTP_PASSWORD` - Optional SMTP auth for email alerts
 
-   Runtime app secrets belong in Google Secret Manager, not GitHub Secrets. Keep Actions variable `ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK` unset or `0` for normal deploys. Set it to `1` only for an explicit temporary fallback while migrating old GitHub runtime secrets.
-
-   Grant the staging VM runtime service account `roles/secretmanager.secretAccessor` only on the exact staging secrets referenced by `openclaw.json`. The GitHub deploy service account should not have runtime secret read access.
-
-   Staging currently runs `gws-toolkit-phase1` in `credentials_file` mode with `credentialsJsonRef`, so `GWS_CREDENTIALS` and `GOOGLE_WORKSPACE_CLI_TOKEN` should stay empty unless the temporary fallback is explicitly enabled. Trello runs through `trello-toolkit` in the gateway; do not add Trello secrets to sandbox Docker env. For DAISy agent identities, configure `agents.list[].googleWorkspace.email` with the real Workspace user and bind the agent to a `credentials_file` GWS route; the toolkit uses direct Google API calls with service-account domain-wide delegation instead of relying on `gws` CLI impersonation. Verify checks both file presence and route-bound auth health inside the live gateway container. For delegated routes in enforced environments, credentials must be service-account JSON; exported user OAuth credentials are rejected. Delegated sandbox containers do not receive `/opt/DAISy/config`; they only receive explicit capability projections, so GWS availability in sandboxed delegated runs depends on the route-authorized credential file being derived into the sandbox at container creation time. The sandbox capability-mount resolver is the delegated secret-delivery surface, and GWS is currently the only capability wired through it.
+   Staging currently runs `gws-toolkit-phase1` in `credentials_file` mode, so `GWS_CREDENTIALS` is the active path and `GOOGLE_WORKSPACE_CLI_TOKEN` is expected to stay empty unless the config changes. Trello runs through `trello-toolkit` in the gateway; do not add Trello secrets to sandbox Docker env. For DAISy agent identities, configure `agents.list[].googleWorkspace.email` with the real Workspace user and bind the agent to a `credentials_file` GWS route; the toolkit uses direct Google API calls with service-account domain-wide delegation instead of relying on `gws` CLI impersonation. Verify checks both file presence and route-bound auth health inside the live gateway container. For delegated routes in enforced environments, credentials must be service-account JSON; exported user OAuth credentials are rejected. Delegated sandbox containers do not receive `/opt/DAISy/config`; they only receive explicit capability projections, so GWS availability in sandboxed delegated runs depends on the route-authorized credential file being derived into the sandbox at container creation time. The sandbox capability-mount resolver is the delegated secret-delivery surface, and GWS is currently the only capability wired through it.
 
    Minimal staging GWS config fragment:
 
@@ -189,17 +200,6 @@ For a brand-new staging VM, the real deploy requires the config file to exist at
          },
        ],
      },
-     secrets: {
-       providers: {
-         "daisy-staging": {
-           source: "gcpSecretManager",
-           projectId: "daisy-auth-491616",
-           version: "latest",
-           allowedSecrets: ["gws-service-account-json"],
-         },
-       },
-       defaults: { gcpSecretManager: "daisy-staging" },
-     },
      plugins: {
        entries: {
          "gws-toolkit-phase1": {
@@ -216,16 +216,11 @@ For a brand-new staging VM, the real deploy requires the config file to exist at
                "contacts",
                "groups",
              ],
-             approvedCredentialDirs: ["/home/node/.openclaw/secrets/gws"],
+             approvedCredentialDirs: ["/opt/DAISy/config/secrets/gws"],
              credentialRoutes: {
                "hughdidit-agent-gws": {
                  mode: "credentials_file",
-                 credentialsFile: "/home/node/.openclaw/secrets/gws/credentials.json",
-                 credentialsJsonRef: {
-                   source: "gcpSecretManager",
-                   provider: "daisy-staging",
-                   id: "gws-service-account-json",
-                 },
+                 credentialsFile: "/opt/DAISy/config/secrets/gws/domain-wide-delegation.json",
                  allowedServices: [
                    "calendar",
                    "gmail",
@@ -330,16 +325,22 @@ sudo chown "$(whoami):$(whoami)" /opt/DAISy
 
 #### Staging Secrets Checklist
 
-- [ ] Runtime app secrets are stored in Google Secret Manager, not GitHub Secrets
-- [ ] `openclaw.json` defines a `gcpSecretManager` provider with explicit `allowedSecrets` / `allowedResourceNames`
-- [ ] Gateway auth, model keys, channel tokens, tools, and GWS credentials use active SecretRefs
-- [ ] VM runtime service account has `roles/secretmanager.secretAccessor` only on exact required secrets
-- [ ] GitHub deploy service account does not have runtime secret read access
-- [ ] `ALLOW_GITHUB_RUNTIME_SECRET_FALLBACK` is unset or `0` for normal deploys
+- [ ] `OPENCLAW_GATEWAY_TOKEN` - Generate new random token
+- [ ] `DISCORD_BOT_TOKEN` - Required by the current deploy workflow/script; use the DAISy staging bot for the default Discord account, not production
+- [ ] `FINN_DISCORD_BOT_TOKEN` - Required when `channels.discord.accounts.finn.token` references `${FINN_DISCORD_BOT_TOKEN}`; use Finn's real Discord bot token, not the DAISy staging token
+- [ ] `KODY_DISCORD_BOT_TOKEN` - Required when `channels.discord.accounts.kody.token` references `${KODY_DISCORD_BOT_TOKEN}`; use Kody's real Discord bot token, not the DAISy staging token
+- [ ] `ART_DISCORD_BOT_TOKEN` - Required when `channels.discord.accounts.art.token` references `${ART_DISCORD_BOT_TOKEN}`; use Art's real Discord bot token, not the DAISy staging token
+- [ ] `SALLY_DISCORD_BOT_TOKEN` - Required when `channels.discord.accounts.sally.token` references `${SALLY_DISCORD_BOT_TOKEN}`; use Sally's real Discord bot token, not the DAISy staging token
+- [ ] `ANTHROPIC_API_KEY` - Required by the current deploy workflow/script for real deploys
+- [ ] `OPENAI_API_KEY` - Optional; set when staging should use OpenAI-backed features
+- [ ] `MONGODB_URI` - Optional; set when memory-mongodb is enabled
+- [ ] `GEMINI_API_KEY` - Optional; set when Gemini-backed embeddings/providers are enabled
+- [ ] `BRAVE_API_KEY` - Optional; set when Brave search is enabled
 - [ ] Discord allowlist - **Staging-only channels/users**
 - [ ] API keys - Use staging keys or shared keys with tracking
-- [ ] `credentialsJsonRef` points at the GWS service-account JSON Secret Manager secret
-- [ ] `GWS_CREDENTIALS` and `GOOGLE_WORKSPACE_CLI_TOKEN` are unset unless temporary fallback is explicitly enabled
+- [ ] `FIRECRAWL_API_KEY` - Optional; set only for firecrawl-enabled environments
+- [ ] `TRELLO_API_KEY` / `TRELLO_TOKEN` - Optional; set when `trello-toolkit` is enabled
+- [ ] `GWS_CREDENTIALS` - Required for the current staging `gws-toolkit-phase1` `credentials_file` path (service-account JSON with Domain-Wide Delegation for delegated agent Workspace identities); must pass route-bound `openclaw gws auth-health` after deploy
 - [ ] `workspaceIdentityDomains` - Includes only approved Workspace domains, for example `hughdidit.com`
 - [ ] Agent Workspace identities - Each GWS-capable agent has `agents.list[].googleWorkspace.email`
 - [ ] GWS route bindings - Each GWS-capable `agent:<id>` and `subagent:<id>` has an explicit `agentCredentialBindings` entry

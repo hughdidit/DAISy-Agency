@@ -1,4 +1,4 @@
-export type SecretRefSource = "env" | "file" | "exec" | "gcpSecretManager";
+export type SecretRefSource = "env" | "file" | "exec";
 
 /**
  * Stable identifier for a secret in a configured source.
@@ -20,7 +20,6 @@ type SecretDefaults = {
   env?: string;
   file?: string;
   exec?: string;
-  gcpSecretManager?: string;
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -35,10 +34,7 @@ export function isSecretRef(value: unknown): value is SecretRef {
     return false;
   }
   return (
-    (value.source === "env" ||
-      value.source === "file" ||
-      value.source === "exec" ||
-      value.source === "gcpSecretManager") &&
+    (value.source === "env" || value.source === "file" || value.source === "exec") &&
     typeof value.provider === "string" &&
     value.provider.trim().length > 0 &&
     typeof value.id === "string" &&
@@ -53,10 +49,7 @@ function isLegacySecretRefWithoutProvider(
     return false;
   }
   return (
-    (value.source === "env" ||
-      value.source === "file" ||
-      value.source === "exec" ||
-      value.source === "gcpSecretManager") &&
+    (value.source === "env" || value.source === "file" || value.source === "exec") &&
     typeof value.id === "string" &&
     value.id.trim().length > 0 &&
     value.provider === undefined
@@ -91,9 +84,7 @@ export function coerceSecretRef(value: unknown, defaults?: SecretDefaults): Secr
         ? (defaults?.env ?? DEFAULT_SECRET_PROVIDER_ALIAS)
         : value.source === "file"
           ? (defaults?.file ?? DEFAULT_SECRET_PROVIDER_ALIAS)
-          : value.source === "exec"
-            ? (defaults?.exec ?? DEFAULT_SECRET_PROVIDER_ALIAS)
-            : (defaults?.gcpSecretManager ?? DEFAULT_SECRET_PROVIDER_ALIAS);
+          : (defaults?.exec ?? DEFAULT_SECRET_PROVIDER_ALIAS);
     return {
       source: value.source,
       provider,
@@ -208,21 +199,10 @@ export type ExecSecretProviderConfig = {
   allowSymlinkCommand?: boolean;
 };
 
-export type GcpSecretManagerProviderConfig = {
-  source: "gcpSecretManager";
-  projectId?: string;
-  version?: string;
-  allowedSecrets?: string[];
-  allowedResourceNames?: string[];
-  timeoutMs?: number;
-  maxBytes?: number;
-};
-
 export type SecretProviderConfig =
   | EnvSecretProviderConfig
   | FileSecretProviderConfig
-  | ExecSecretProviderConfig
-  | GcpSecretManagerProviderConfig;
+  | ExecSecretProviderConfig;
 
 export type SecretsConfig = {
   providers?: Record<string, SecretProviderConfig>;
@@ -230,7 +210,6 @@ export type SecretsConfig = {
     env?: string;
     file?: string;
     exec?: string;
-    gcpSecretManager?: string;
   };
   resolution?: {
     maxProviderConcurrency?: number;
