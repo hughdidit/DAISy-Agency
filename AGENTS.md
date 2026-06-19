@@ -21,6 +21,18 @@ Fork of OpenClaw. Branded as **DAISy**.
 - Do not weaken real or integration coverage into mocked coverage to make tests pass; if mocks appear necessary, stop and ask before changing tests or adding mock infrastructure.
 - The anti-mock CI gate may only be bypassed with explicit maintainer approval via the `allow-new-mock-files` PR label.
 
+## Fork discipline
+
+- Do not propose branch sync, rebase-on-upstream, or bulk cherry-pick strategies unless explicitly requested for a candidate-review task.
+- This repository is an independent fork. Do not optimize changes for upstream contribution.
+- Do not prepare, suggest, or assume pushback to OpenClaw upstream unless explicitly requested.
+- DAISy-Agency is expected to diverge independently from OpenClaw over time.
+- Treat upstream OpenClaw changes as a source of selective candidate improvements only.
+- When reviewing upstream changes, identify useful candidates for adoption based on DAISy’s needs, security, maintainability, and compatibility with existing fork-specific behavior.
+- Do not merge or mimic upstream behavior by default.
+- Preserve DAISy-specific architecture, workflows, and product decisions unless the current task explicitly changes them.
+- When adopting an upstream-derived idea or patch, minimize the imported surface area and document any intentional adaptation to DAISy’s divergent design.
+
 ## Branch Model
 
 - `daisy/dev` — integration/staging (protected, PRs required)
