@@ -42,6 +42,7 @@ const DEFAULT_EXEC_TIMEOUT_MS = 5_000;
 const DEFAULT_EXEC_MAX_OUTPUT_BYTES = 1024 * 1024;
 const DEFAULT_GCP_SECRET_MANAGER_TIMEOUT_MS = 5_000;
 const DEFAULT_GCP_SECRET_MANAGER_MAX_BYTES = 1024 * 1024;
+const GCP_SECRET_MANAGER_RESOLVE_CONCURRENCY = 5;
 const WINDOWS_ABS_PATH_PATTERN = /^[A-Za-z]:[\\/]/;
 const WINDOWS_UNC_PATH_PATTERN = /^\\\\[^\\]+\\[^\\]+/;
 
@@ -254,47 +255,62 @@ async function resolveGcpSecretManagerRefs(params: {
     params.providerConfig.maxBytes,
     DEFAULT_GCP_SECRET_MANAGER_MAX_BYTES,
   );
+  const tasks = ids.map(
+    (id) =>
+      async (): Promise<readonly [string, string]> => {
+        const resourceName = resolveGcpSecretManagerResourceName({
+          providerName: params.providerName,
+          providerConfig: params.providerConfig,
+          refId: id,
+        });
+        let value: string;
+        try {
+          value = await accessGcpSecretManagerSecretVersion({
+            resourceName,
+            timeoutMs,
+          });
+        } catch (err) {
+          if (isSecretResolutionError(err)) {
+            throw err;
+          }
+          throw refResolutionError({
+            source: "gcpSecretManager",
+            provider: params.providerName,
+            refId: id,
+            message: describeUnknownError(err),
+            cause: err,
+          });
+        }
+        if (!isNonEmptyString(value)) {
+          throw refResolutionError({
+            source: "gcpSecretManager",
+            provider: params.providerName,
+            refId: id,
+            message: `Google Secret Manager secret "${id}" returned an empty payload.`,
+          });
+        }
+        if (Buffer.byteLength(value, "utf8") > maxBytes) {
+          throw refResolutionError({
+            source: "gcpSecretManager",
+            provider: params.providerName,
+            refId: id,
+            message: `Google Secret Manager secret "${id}" exceeded maxBytes (${maxBytes}).`,
+          });
+        }
+        return [id, value];
+      },
+  );
+  const taskResults = await runTasksWithConcurrency({
+    tasks,
+    limit: GCP_SECRET_MANAGER_RESOLVE_CONCURRENCY,
+    errorMode: "stop",
+  });
+  if (taskResults.hasError) {
+    throw taskResults.firstError;
+  }
+
   const resolved = new Map<string, unknown>();
-  for (const id of ids) {
-    const resourceName = resolveGcpSecretManagerResourceName({
-      providerName: params.providerName,
-      providerConfig: params.providerConfig,
-      refId: id,
-    });
-    let value: string;
-    try {
-      value = await accessGcpSecretManagerSecretVersion({
-        resourceName,
-        timeoutMs,
-      });
-    } catch (err) {
-      if (isSecretResolutionError(err)) {
-        throw err;
-      }
-      throw refResolutionError({
-        source: "gcpSecretManager",
-        provider: params.providerName,
-        refId: id,
-        message: describeUnknownError(err),
-        cause: err,
-      });
-    }
-    if (!isNonEmptyString(value)) {
-      throw refResolutionError({
-        source: "gcpSecretManager",
-        provider: params.providerName,
-        refId: id,
-        message: `Google Secret Manager secret "${id}" returned an empty payload.`,
-      });
-    }
-    if (Buffer.byteLength(value, "utf8") > maxBytes) {
-      throw refResolutionError({
-        source: "gcpSecretManager",
-        provider: params.providerName,
-        refId: id,
-        message: `Google Secret Manager secret "${id}" exceeded maxBytes (${maxBytes}).`,
-      });
-    }
+  for (const [id, value] of taskResults.results) {
     resolved.set(id, value);
   }
   return resolved;
