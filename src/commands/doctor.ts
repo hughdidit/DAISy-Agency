@@ -9,6 +9,8 @@ import {
   resolveHooksGmailModel,
 } from "../agents/model-selection.js";
 import { formatCliCommand } from "../cli/command-format.js";
+import { resolveCommandSecretRefsViaGateway } from "../cli/command-secret-gateway.js";
+import { getDoctorCommandSecretTargetIds } from "../cli/command-secret-targets.js";
 import type { OpenClawConfig } from "../config/config.js";
 import { CONFIG_PATH, readConfigFileSnapshot, writeConfigFile } from "../config/config.js";
 import { logConfigUpdated } from "../config/logging.js";
@@ -90,6 +92,25 @@ function validateDoctorOptions(options: DoctorOptions) {
   throw new Error(`--dry-run cannot be combined with ${conflicts.join(", ")}.`);
 }
 
+async function resolveDoctorDiagnosticConfig(cfg: OpenClawConfig): Promise<OpenClawConfig> {
+  try {
+    const { resolvedConfig } = await resolveCommandSecretRefsViaGateway({
+      config: cfg,
+      commandName: "doctor",
+      targetIds: getDoctorCommandSecretTargetIds(),
+    });
+    return resolvedConfig;
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    note(
+      `SecretRef resolution skipped for doctor diagnostics: ${message}\n` +
+        "Doctor will continue with raw config; some auth-dependent warnings may be less precise.",
+      "Doctor warnings",
+    );
+    return cfg;
+  }
+}
+
 export async function doctorCommand(
   runtime: RuntimeEnv = defaultRuntime,
   options: DoctorOptions = {},
@@ -157,8 +178,9 @@ export async function doctorCommand(
 
   cfg = await maybeRepairAnthropicOAuthProfileId(cfg, prompter);
   cfg = await maybeRemoveDeprecatedCliAuthProfiles(cfg, prompter);
+  let diagnosticCfg = await resolveDoctorDiagnosticConfig(cfg);
   await noteAuthProfileHealth({
-    cfg,
+    cfg: diagnosticCfg,
     prompter,
     allowKeychainPrompt: options.nonInteractive !== true && Boolean(process.stdin.isTTY),
   });
@@ -168,8 +190,8 @@ export async function doctorCommand(
   }
   if (resolveMode(cfg) === "local" && sourceConfigValid) {
     const auth = resolveGatewayAuth({
-      authConfig: cfg.gateway?.auth,
-      tailscaleMode: cfg.gateway?.tailscale?.mode ?? "off",
+      authConfig: diagnosticCfg.gateway?.auth,
+      tailscaleMode: diagnosticCfg.gateway?.tailscale?.mode ?? "off",
     });
     const needsToken =
       auth.mode !== "password" &&
@@ -205,6 +227,7 @@ export async function doctorCommand(
             },
           },
         };
+        diagnosticCfg = await resolveDoctorDiagnosticConfig(cfg);
         note("Gateway token configured.", "Gateway auth");
       }
     }
@@ -255,7 +278,7 @@ export async function doctorCommand(
   await noteMacLaunchAgentOverrides();
   await noteMacLaunchctlGatewayEnvOverrides(cfg);
 
-  await noteSecurityWarnings(cfg);
+  await noteSecurityWarnings(diagnosticCfg);
   await noteOpenAIOAuthTlsPrerequisites({
     cfg,
     deep: options.deep === true,
@@ -347,16 +370,16 @@ export async function doctorCommand(
 
   const { healthOk } = await checkGatewayHealth({
     runtime,
-    cfg,
+    cfg: diagnosticCfg,
     timeoutMs: options.nonInteractive === true ? 3000 : 10_000,
   });
   const gatewayMemoryProbe = healthOk
     ? await probeGatewayMemoryStatus({
-        cfg,
+        cfg: diagnosticCfg,
         timeoutMs: options.nonInteractive === true ? 3000 : 10_000,
       })
     : { checked: false, ready: false };
-  await noteMemorySearchHealth(cfg, { gatewayMemoryProbe });
+  await noteMemorySearchHealth(diagnosticCfg, { gatewayMemoryProbe });
   await maybeRepairGatewayDaemon({
     cfg,
     runtime,
