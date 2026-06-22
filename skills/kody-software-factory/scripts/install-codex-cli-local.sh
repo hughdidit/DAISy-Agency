@@ -1,17 +1,42 @@
 #!/usr/bin/env sh
 set -eu
 
-workspace="${1:-${KODY_WORKSPACE:-$(pwd)}}"
+workspace="${1:-${KODY_WORKSPACE:-}}"
+if [ -z "$workspace" ]; then
+  workspace="$(pwd)"
+fi
 
 case "$workspace" in
   /*) ;;
   *) workspace="$(cd "$workspace" && pwd -P)" ;;
 esac
+workspace="$(cd "$workspace" && pwd -P)"
 
-tool_prefix="${KODY_CODEX_TOOL_PREFIX:-$workspace/.kody-tools}"
+raw_tool_prefix="${KODY_CODEX_TOOL_PREFIX:-$workspace/.kody-tools}"
+
+case "$raw_tool_prefix" in
+  /*) candidate_tool_prefix="$raw_tool_prefix" ;;
+  *) candidate_tool_prefix="$workspace/$raw_tool_prefix" ;;
+esac
+
+if [ -e "$candidate_tool_prefix" ]; then
+  if [ ! -d "$candidate_tool_prefix" ]; then
+    echo "Codex tool prefix exists but is not a directory: $candidate_tool_prefix" >&2
+    exit 2
+  fi
+  tool_prefix="$(cd "$candidate_tool_prefix" && pwd -P)"
+else
+  candidate_parent="$(dirname "$candidate_tool_prefix")"
+  candidate_name="$(basename "$candidate_tool_prefix")"
+  if [ ! -d "$candidate_parent" ]; then
+    echo "Codex tool prefix parent does not exist: $candidate_parent" >&2
+    exit 2
+  fi
+  tool_prefix="$(cd "$candidate_parent" && pwd -P)/$candidate_name"
+fi
 
 case "$tool_prefix" in
-  "$workspace"/*) ;;
+  "$workspace" | "$workspace"/*) ;;
   *)
     echo "Refusing to install outside Kody workspace: $tool_prefix" >&2
     exit 2
