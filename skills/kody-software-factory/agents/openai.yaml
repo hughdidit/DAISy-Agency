@@ -1,0 +1,4 @@
+interface:
+  display_name: "Kody Software Factory"
+  short_description: "Run project-scoped software-factory workflows for Kody."
+  default_prompt: "Use Kody Software Factory to turn my product request into specs, PRDs, Codex CLI implementation runs, review, smoke testing, and closeout."
