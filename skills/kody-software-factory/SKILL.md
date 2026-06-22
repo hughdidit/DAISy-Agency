@@ -29,7 +29,12 @@ Before factory work starts:
 
    ```bash
    sh skills/kody-software-factory/scripts/install-codex-cli-local.sh "$KODY_WORKSPACE"
-   . "${KODY_CODEX_TOOL_PREFIX:-$KODY_WORKSPACE/.kody-tools}/codex-env.sh"
+   kody_codex_prefix="${KODY_CODEX_TOOL_PREFIX:-.kody-tools}"
+   case "$kody_codex_prefix" in
+     /*) ;;
+     *) kody_codex_prefix="$KODY_WORKSPACE/$kody_codex_prefix" ;;
+   esac
+   . "$kody_codex_prefix/codex-env.sh"
    codex --version
    ```
 
