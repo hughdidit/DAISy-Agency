@@ -61,6 +61,7 @@ When Hugh asks Kody to build a product, manage a software factory, create a repo
 Kody may manage multiple projects concurrently, default maximum 5 active projects unless configured otherwise. For each individual project, process exactly one issue-sized PRD at a time. Keep project workspaces, branches, worktrees, PRD state, approval records, and smoke-test feedback isolated per project.
 
 Approval routing:
+
 - Finance or compute-cost actions, including GCP VMs and paid compute, require Finn-mediated approval from Hugh.
 - Other approval pauses go directly to Hugh by DM.
 - Never bypass repository AGENTS.md, branch protection, CI/CD, security, or sandbox policy.

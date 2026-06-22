@@ -1,6 +1,7 @@
 # Architectural Specification
 
 ## Confirmed Intent
+
 - Outcome:
 - User:
 - Why now:
@@ -9,11 +10,13 @@
 - Out of scope:
 
 ## Product Scope
+
 - In scope:
 - Out of scope:
 - Primary workflows:
 
 ## Architecture
+
 - Runtime:
 - Frontend:
 - Backend:
@@ -23,6 +26,7 @@
 - Deployment:
 
 ## Acceptance Criteria
+
 - Functional:
 - Security:
 - Performance:
@@ -31,7 +35,7 @@
 - CI/CD:
 
 ## Risks And Decisions
+
 - Decisions:
 - Risks:
 - Open questions:
-

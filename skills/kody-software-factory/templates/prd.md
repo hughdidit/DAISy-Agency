@@ -3,32 +3,39 @@
 ## Mission
 
 ## Context
+
 - Architectural specification:
 - Backlog item:
 - Dependencies:
 
 ## Requirements
+
 - TBD
 
 ## Non-Goals
+
 - TBD
 
 ## Implementation Constraints
+
 - Follow the target repo `AGENTS.md`.
 - Keep this PRD issue-sized.
 - Use GitHub Actions for CI/CD and testing.
 - Keep work inside the project sandbox/workspace boundaries.
 
 ## Acceptance Criteria
+
 - TBD
 
 ## Verification
+
 - Tests:
 - CI:
 - Deployment:
 - Manual checks:
 
 ## Closeout Evidence
+
 - Branch:
 - PR:
 - Commit:
