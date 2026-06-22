@@ -29,7 +29,7 @@ Before factory work starts:
 
    ```bash
    sh skills/kody-software-factory/scripts/install-codex-cli-local.sh "$KODY_WORKSPACE"
-   . "$KODY_WORKSPACE/.kody-tools/codex-env.sh"
+   . "${KODY_CODEX_TOOL_PREFIX:-$KODY_WORKSPACE/.kody-tools}/codex-env.sh"
    codex --version
    ```
 
@@ -169,4 +169,3 @@ Kody's factory workflow is acceptable only when:
 - CI/CD, testing, staging deploys, production deploys, and GCP provisioning run through GitHub Actions as the normal path.
 - Cost-bearing compute actions are approved through Finn; other approvals go by DM to Hugh.
 - Missing sandbox capabilities produce a clear blocker with the exact missing capability or approval path.
-

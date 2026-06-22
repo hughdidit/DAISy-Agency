@@ -8,10 +8,10 @@
 - Dependencies:
 
 ## Requirements
-- 
+- TBD
 
 ## Non-Goals
-- 
+- TBD
 
 ## Implementation Constraints
 - Follow the target repo `AGENTS.md`.
@@ -20,7 +20,7 @@
 - Keep work inside the project sandbox/workspace boundaries.
 
 ## Acceptance Criteria
-- 
+- TBD
 
 ## Verification
 - Tests:
@@ -36,4 +36,3 @@
 - Deploy run:
 - Verify run:
 - Notes:
-
