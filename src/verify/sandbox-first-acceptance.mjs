@@ -107,6 +107,7 @@ export class ExecError extends Error {
     this.command = details.command ?? null;
     this.args = details.args ?? [];
     this.status = details.status ?? null;
+    this.signal = details.signal ?? null;
     this.stdout = details.stdout ?? "";
     this.stderr = details.stderr ?? "";
   }
@@ -127,6 +128,7 @@ function serializeScenarioError(error) {
     command: typeof error?.command === "string" ? error.command : null,
     args: Array.isArray(error?.args) ? error.args.map((value) => String(value)) : [],
     status: typeof error?.status === "number" ? error.status : null,
+    signal: typeof error?.signal === "string" ? error.signal : null,
     stdout: typeof error?.stdout === "string" ? error.stdout : "",
     stderr: typeof error?.stderr === "string" ? error.stderr : "",
   };
@@ -232,6 +234,7 @@ function spawnCommandCapture(command, args, options = {}) {
       command,
       args,
       status: typeof result.status === "number" ? result.status : null,
+      signal: null,
       stdout: result.stdout ?? "",
       stderr: result.stderr ?? "",
       errorMessage: `Failed to execute ${command}: ${result.error.message}`,
@@ -239,14 +242,18 @@ function spawnCommandCapture(command, args, options = {}) {
   }
 
   if (result.status !== 0) {
+    const status = typeof result.status === "number" ? result.status : null;
+    const signal = typeof result.signal === "string" ? result.signal : null;
+    const exitReason = signal ? `signal ${signal}` : `status ${String(status)}`;
     return {
       ok: false,
       command,
       args,
-      status: result.status,
+      status,
+      signal,
       stdout: result.stdout ?? "",
       stderr: result.stderr ?? "",
-      errorMessage: `${command} exited with status ${result.status}`,
+      errorMessage: `${command} exited with ${exitReason}`,
     };
   }
 
@@ -255,6 +262,7 @@ function spawnCommandCapture(command, args, options = {}) {
     command,
     args,
     status: 0,
+    signal: null,
     stdout: result.stdout ?? "",
     stderr: result.stderr ?? "",
     errorMessage: null,
@@ -272,12 +280,13 @@ function spawnCommand(command, args, options = {}) {
   };
 }
 
-function captureFromThrownError(error) {
+function captureFromThrownError(error, fallbackCommand = null) {
   return {
     ok: false,
-    command: typeof error?.command === "string" ? error.command : null,
+    command: typeof error?.command === "string" ? error.command : fallbackCommand,
     args: Array.isArray(error?.args) ? error.args.map((value) => String(value)) : [],
     status: typeof error?.status === "number" ? error.status : null,
+    signal: typeof error?.signal === "string" ? error.signal : null,
     stdout: typeof error?.stdout === "string" ? error.stdout : "",
     stderr: typeof error?.stderr === "string" ? error.stderr : "",
     errorMessage: typeof error?.message === "string" ? error.message : String(error),
@@ -292,15 +301,16 @@ function captureDockerExecBash(ctx, command) {
   try {
     return {
       ok: true,
-      command: null,
+      command,
       args: [],
       status: 0,
+      signal: null,
       stdout: ctx.dockerExecBash(command),
       stderr: "",
       errorMessage: null,
     };
   } catch (error) {
-    return captureFromThrownError(error);
+    return captureFromThrownError(error, command);
   }
 }
 
@@ -1589,7 +1599,13 @@ export async function runScenarioSet(params) {
           reason,
           error: serializeScenarioError(error),
         });
-      } catch {}
+      } catch (artifactError) {
+        params.log(
+          `Warning: failed to write scenario-error.json for ${meta.scenarioId}: ${
+            artifactError instanceof Error ? artifactError.message : String(artifactError)
+          }`,
+        );
+      }
       results.push(
         buildScenarioSummaryEntry({
           ...meta,

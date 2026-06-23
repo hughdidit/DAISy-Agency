@@ -71,6 +71,7 @@ export interface SandboxFirstAcceptanceCommandResult {
   command: string | null;
   args: string[];
   status: number | null;
+  signal: string | null;
   stdout: string;
   stderr: string;
   errorMessage: string | null;
