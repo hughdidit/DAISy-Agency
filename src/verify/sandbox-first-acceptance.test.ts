@@ -7,6 +7,7 @@ import {
   analyzeReadonlyDiagnostics,
   buildScenarioSummaryEntry,
   isValidAgentCronRunSessionKey,
+  runScenarioSet,
   runSandboxFirstAcceptance,
   SANDBOX_FIRST_ACCEPTANCE_SCENARIOS,
   selectIntegrationPath,
@@ -284,7 +285,15 @@ describe("runSandboxFirstAcceptance", () => {
           );
         }
         if (command === "cd /app && node dist/index.js doctor --non-interactive") {
-          return "doctor ok\n";
+          const error = new Error("gcloud exited with status 1") as Error & {
+            status?: number;
+            stdout?: string;
+            stderr?: string;
+          };
+          error.status = 1;
+          error.stdout = "doctor warned about a non-fatal staging issue\n";
+          error.stderr = "doctor stderr detail\n";
+          throw error;
         }
         if (command === "cd /app && node dist/index.js skills check --json") {
           return JSON.stringify(
@@ -502,6 +511,166 @@ describe("runSandboxFirstAcceptance", () => {
       );
       expect(hostPathProbeCommand).toContain("sudo -n sh -c 'if [ -f ");
       expect(hostPathProbeCommand).toContain("/opt/DAISy/config/google-workspace/credentials.json");
+
+      const statusCalls = dockerExecBash.mock.calls.filter(
+        ([command]) => command === "cd /app && node dist/index.js status --json",
+      );
+      expect(statusCalls).toHaveLength(1);
+
+      const doctorText = await fs.readFile(
+        path.join(
+          artifactRoot,
+          "sandbox-first-acceptance",
+          "sbx-401-02-runtime-profile-sanity",
+          "doctor.txt",
+        ),
+        "utf8",
+      );
+      expect(doctorText).toContain("doctor warned about a non-fatal staging issue");
+    });
+  });
+
+  it("fails runtime sanity when doctor recommends disabling sandboxing", async () => {
+    await withTempDir(async (artifactRoot) => {
+      const dockerExecBash = vi.fn((command: string) => {
+        if (command === "cd /app && node dist/index.js status --json") {
+          return JSON.stringify(
+            {
+              capabilities: {
+                counts: {
+                  byClass: {
+                    "sandbox-local": 1,
+                    "gateway-brokered": 1,
+                  },
+                },
+              },
+            },
+            null,
+            2,
+          );
+        }
+        if (command === "cd /app && node dist/index.js sandbox explain --json") {
+          return JSON.stringify(
+            {
+              sandbox: {
+                mode: "all",
+                profile: "ops-readonly",
+              },
+              capabilities: {
+                counts: {
+                  byClass: {
+                    "sandbox-local": 1,
+                    "gateway-brokered": 1,
+                  },
+                },
+              },
+            },
+            null,
+            2,
+          );
+        }
+        if (command === "cd /app && node dist/index.js doctor --non-interactive") {
+          return "Fix: set agents.defaults.sandbox.mode=off\n";
+        }
+        throw new Error(`Unhandled docker command: ${command}`);
+      });
+
+      const result = await runSandboxFirstAcceptance({
+        artifactRoot,
+        env: {
+          VERIFY_ENV: "staging",
+          GCE_INSTANCE_NAME: "daisy-staging-1",
+          GCP_PROJECT_ID: "proj",
+          GCP_ZONE: "us-west1-b",
+          VERIFY_GCE_CONTAINER: "openclaw-gateway",
+        },
+        commandContext: {
+          container: "openclaw-gateway",
+          runSsh: vi.fn(() => ""),
+          dockerExecBash,
+          dockerExecSh: vi.fn(() => ""),
+        },
+        log: vi.fn(),
+        now: () => new Date("2026-04-25T20:10:00.000Z"),
+      });
+
+      expect(result.hasRequiredFailure).toBe(true);
+      expect(
+        result.results.find(
+          (entry: { scenarioId: string }) =>
+            entry.scenarioId === "sbx-401-02-runtime-profile-sanity",
+        ),
+      ).toEqual(
+        expect.objectContaining({
+          status: "failed",
+          failureClass: "doctor-usefulness-gap",
+        }),
+      );
+    });
+  });
+
+  it("writes scenario error artifacts with command failure diagnostics", async () => {
+    await withTempDir(async (artifactRoot) => {
+      const results = await runScenarioSet({
+        runtime: {
+          artifactRoot,
+          acceptanceRoot: artifactRoot,
+        },
+        scenarios: [
+          {
+            scenarioId: "sbx-test-command-failure",
+            manualChecklistId: "SBX-TEST",
+            required: true,
+            automatedScope: "unit",
+            primaryFailureClass: "runtime-profile-mismatch",
+          },
+        ],
+        log: vi.fn(),
+        runScenario: async () => {
+          const error = new Error("gcloud exited with status 1") as Error & {
+            command?: string;
+            args?: string[];
+            status?: number;
+            stdout?: string;
+            stderr?: string;
+          };
+          error.command = "gcloud";
+          error.args = ["compute", "ssh"];
+          error.status = 1;
+          error.stdout = "remote stdout";
+          error.stderr = "remote stderr";
+          throw error;
+        },
+      });
+
+      expect(results).toEqual([
+        expect.objectContaining({
+          status: "failed",
+          artifacts: ["sbx-test-command-failure/scenario-error.json"],
+        }),
+      ]);
+
+      const scenarioError = JSON.parse(
+        await fs.readFile(
+          path.join(artifactRoot, "sbx-test-command-failure", "scenario-error.json"),
+          "utf8",
+        ),
+      ) as {
+        error: {
+          command: string;
+          status: number;
+          stdout: string;
+          stderr: string;
+        };
+      };
+      expect(scenarioError.error).toEqual(
+        expect.objectContaining({
+          command: "gcloud",
+          status: 1,
+          stdout: "remote stdout",
+          stderr: "remote stderr",
+        }),
+      );
     });
   });
 
