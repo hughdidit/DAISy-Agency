@@ -107,6 +107,7 @@ export class ExecError extends Error {
     this.command = details.command ?? null;
     this.args = details.args ?? [];
     this.status = details.status ?? null;
+    this.signal = details.signal ?? null;
     this.stdout = details.stdout ?? "";
     this.stderr = details.stderr ?? "";
   }
@@ -118,6 +119,19 @@ export class ScenarioError extends Error {
     this.name = "ScenarioError";
     this.failureClass = failureClass;
   }
+}
+
+function serializeScenarioError(error) {
+  return {
+    name: typeof error?.name === "string" ? error.name : "Error",
+    message: typeof error?.message === "string" ? error.message : String(error),
+    command: typeof error?.command === "string" ? error.command : null,
+    args: Array.isArray(error?.args) ? error.args.map((value) => String(value)) : [],
+    status: typeof error?.status === "number" ? error.status : null,
+    signal: typeof error?.signal === "string" ? error.signal : null,
+    stdout: typeof error?.stdout === "string" ? error.stdout : "",
+    stderr: typeof error?.stderr === "string" ? error.stderr : "",
+  };
 }
 
 function stripAnsi(value) {
@@ -207,7 +221,7 @@ function assertSandboxedSessionExplain(payload, params) {
   );
 }
 
-function spawnCommand(command, args, options = {}) {
+function spawnCommandCapture(command, args, options = {}) {
   const result = spawnSync(command, args, {
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
@@ -215,28 +229,98 @@ function spawnCommand(command, args, options = {}) {
   });
 
   if (result.error) {
-    throw new ExecError(`Failed to execute ${command}: ${result.error.message}`, {
+    return {
+      ok: false,
       command,
       args,
-      stdout: result.stdout,
-      stderr: result.stderr,
-    });
+      status: typeof result.status === "number" ? result.status : null,
+      signal: null,
+      stdout: result.stdout ?? "",
+      stderr: result.stderr ?? "",
+      errorMessage: `Failed to execute ${command}: ${result.error.message}`,
+    };
   }
 
   if (result.status !== 0) {
-    throw new ExecError(`${command} exited with status ${result.status}`, {
+    const status = typeof result.status === "number" ? result.status : null;
+    const signal = typeof result.signal === "string" ? result.signal : null;
+    const exitReason = signal ? `signal ${signal}` : `status ${String(status)}`;
+    return {
+      ok: false,
       command,
       args,
-      status: result.status,
-      stdout: result.stdout,
-      stderr: result.stderr,
-    });
+      status,
+      signal,
+      stdout: result.stdout ?? "",
+      stderr: result.stderr ?? "",
+      errorMessage: `${command} exited with ${exitReason}`,
+    };
   }
 
   return {
+    ok: true,
+    command,
+    args,
+    status: 0,
+    signal: null,
     stdout: result.stdout ?? "",
     stderr: result.stderr ?? "",
+    errorMessage: null,
   };
+}
+
+function spawnCommand(command, args, options = {}) {
+  const result = spawnCommandCapture(command, args, options);
+  if (!result.ok) {
+    throw new ExecError(result.errorMessage ?? `${command} failed`, result);
+  }
+  return {
+    stdout: result.stdout,
+    stderr: result.stderr,
+  };
+}
+
+function captureFromThrownError(error, fallbackCommand = null) {
+  return {
+    ok: false,
+    command: typeof error?.command === "string" ? error.command : fallbackCommand,
+    args: Array.isArray(error?.args) ? error.args.map((value) => String(value)) : [],
+    status: typeof error?.status === "number" ? error.status : null,
+    signal: typeof error?.signal === "string" ? error.signal : null,
+    stdout: typeof error?.stdout === "string" ? error.stdout : "",
+    stderr: typeof error?.stderr === "string" ? error.stderr : "",
+    errorMessage: typeof error?.message === "string" ? error.message : String(error),
+  };
+}
+
+function captureDockerExecBash(ctx, command) {
+  if (typeof ctx.dockerExecBashCapture === "function") {
+    return ctx.dockerExecBashCapture(command);
+  }
+
+  try {
+    return {
+      ok: true,
+      command,
+      args: [],
+      status: 0,
+      signal: null,
+      stdout: ctx.dockerExecBash(command),
+      stderr: "",
+      errorMessage: null,
+    };
+  } catch (error) {
+    return captureFromThrownError(error, command);
+  }
+}
+
+function combineCommandOutput(result) {
+  const stdout = result?.stdout ?? "";
+  const stderr = result?.stderr ?? "";
+  if (stdout && stderr) {
+    return stdout.endsWith("\n") ? `${stdout}${stderr}` : `${stdout}\n${stderr}`;
+  }
+  return stdout || stderr;
 }
 
 function createGceCommandContext(env) {
@@ -260,17 +344,31 @@ function createGceCommandContext(env) {
     return response.stdout;
   };
 
+  const runSshCapture = (command) =>
+    spawnCommandCapture("gcloud", [...gcloudBaseArgs, "--command", command], {
+      env,
+    });
+
   const dockerExecBash = (command) =>
     runSsh(`sudo docker exec ${shellQuote(container)} bash -lc ${shellQuote(command)}`);
+
+  const dockerExecBashCapture = (command) =>
+    runSshCapture(`sudo docker exec ${shellQuote(container)} bash -lc ${shellQuote(command)}`);
 
   const dockerExecSh = (command) =>
     runSsh(`sudo docker exec ${shellQuote(container)} sh -lc ${shellQuote(command)}`);
 
+  const dockerExecShCapture = (command) =>
+    runSshCapture(`sudo docker exec ${shellQuote(container)} sh -lc ${shellQuote(command)}`);
+
   return {
     container,
     runSsh,
+    runSshCapture,
     dockerExecBash,
+    dockerExecBashCapture,
     dockerExecSh,
+    dockerExecShCapture,
   };
 }
 
@@ -296,11 +394,7 @@ export function buildScenarioSummaryEntry(params) {
 }
 
 export function selectIntegrationPath(params) {
-  const pluginIds = new Set(
-    (
-      (params.pluginsPayload?.plugins ?? []).filter((entry) => entry?.status === "loaded") ?? []
-    ).map((entry) => entry.id),
-  );
+  const pluginIds = loadedPluginIdsFrom(params.pluginsPayload);
 
   if (pluginIds.has("gws-toolkit-phase1")) {
     return { kind: "gws", reason: "gws-toolkit-phase1 is loaded in staging" };
@@ -319,6 +413,14 @@ export function selectIntegrationPath(params) {
     reason:
       "Neither gws-toolkit-phase1 nor memory-mongodb is active for staging acceptance automation.",
   };
+}
+
+function loadedPluginIdsFrom(pluginsPayload) {
+  return new Set(
+    ((pluginsPayload?.plugins ?? []).filter((entry) => entry?.status === "loaded") ?? []).map(
+      (entry) => entry.id,
+    ),
+  );
 }
 
 export function analyzeReadonlyDiagnostics(params) {
@@ -600,8 +702,20 @@ async function runRuntimeProfileSanityScenario(ctx) {
     "sandbox explain --json did not return a parseable JSON payload",
   );
 
-  const doctorText = ctx.dockerExecBash("cd /app && node dist/index.js doctor --non-interactive");
+  const doctorResult = captureDockerExecBash(
+    ctx,
+    "cd /app && node dist/index.js doctor --non-interactive",
+  );
+  const doctorText = combineCommandOutput(doctorResult);
   await ctx.writeArtifactText("doctor.txt", doctorText);
+  if (!doctorText.trim()) {
+    throw new ScenarioError(
+      "doctor-usefulness-gap",
+      doctorResult.errorMessage
+        ? `doctor produced no inspectable output: ${doctorResult.errorMessage}`
+        : "doctor produced no inspectable output",
+    );
+  }
 
   if ((sandboxExplainPayload?.sandbox?.mode ?? "off") === "off") {
     throw new ScenarioError(
@@ -1063,18 +1177,26 @@ async function runIntegrationPathScenario(ctx) {
     "plugins list --json did not return a parseable JSON payload",
   );
 
-  const statusRaw = ctx.dockerExecBash("cd /app && node dist/index.js status --json");
-  await ctx.writeArtifactText("status.json", statusRaw);
-  const statusPayload = parseJsonOrThrow(
-    statusRaw,
-    "integration-config-gap",
-    "status --json did not return a parseable JSON payload for integration-path selection",
-  );
-
-  const selection = selectIntegrationPath({
+  let selection = selectIntegrationPath({
     pluginsPayload,
-    memoryPluginSlot: statusPayload?.memoryPlugin?.slot ?? null,
+    memoryPluginSlot: null,
   });
+  const loadedPluginIds = loadedPluginIdsFrom(pluginsPayload);
+
+  if (selection.kind === "none" && loadedPluginIds.has("memory-mongodb")) {
+    const statusRaw = ctx.dockerExecBash("cd /app && node dist/index.js status --json");
+    await ctx.writeArtifactText("status.json", statusRaw);
+    const statusPayload = parseJsonOrThrow(
+      statusRaw,
+      "integration-config-gap",
+      "status --json did not return a parseable JSON payload for integration-path selection",
+    );
+
+    selection = selectIntegrationPath({
+      pluginsPayload,
+      memoryPluginSlot: statusPayload?.memoryPlugin?.slot ?? null,
+    });
+  }
 
   if (selection.kind === "none") {
     return {
@@ -1471,6 +1593,19 @@ export async function runScenarioSet(params) {
         typeof error?.message === "string" && error.message
           ? error.message
           : `Scenario ${meta.scenarioId} failed`;
+      try {
+        await ctx.writeArtifactJson("scenario-error.json", {
+          failureClass,
+          reason,
+          error: serializeScenarioError(error),
+        });
+      } catch (artifactError) {
+        params.log(
+          `Warning: failed to write scenario-error.json for ${meta.scenarioId}: ${
+            artifactError instanceof Error ? artifactError.message : String(artifactError)
+          }`,
+        );
+      }
       results.push(
         buildScenarioSummaryEntry({
           ...meta,
