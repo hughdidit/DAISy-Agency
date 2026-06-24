@@ -8,6 +8,7 @@ import {
 } from "./calendar-event.js";
 import { buildGmailReadQuery, extractWildcardFromDomainFilters } from "./command-builder.js";
 import { PluginError } from "./errors.js";
+import { buildRawGmailMimeMessage } from "./gmail-mime.js";
 import {
   READONLY_SCOPES,
   WRITE_SCOPES,
@@ -457,10 +458,6 @@ export function writeDriveBytesToWorkspace(params: {
   return target;
 }
 
-function sanitizeHeaderValue(value: string): string {
-  return value.replace(/[\r\n]/g, "").trim();
-}
-
 function commaList(value: unknown): unknown {
   return Array.isArray(value) ? value.map(String).join(",") : value;
 }
@@ -548,37 +545,6 @@ function getCredentialsFile(auth: AuthResolution): string {
     });
   }
   return credentialsFile;
-}
-
-function buildRawEmail(payload: Record<string, unknown>): string {
-  const values = (value: unknown): string[] =>
-    Array.isArray(value)
-      ? value
-          .map(String)
-          .map((entry) => sanitizeHeaderValue(entry))
-          .filter(Boolean)
-      : typeof value === "string" && value.trim()
-        ? [sanitizeHeaderValue(value)]
-        : [];
-  const replyTo = values(payload.replyTo);
-  const headers = [
-    `To: ${values(payload.to).join(", ")}`,
-    ...(values(payload.cc).length ? [`Cc: ${values(payload.cc).join(", ")}`] : []),
-    ...(values(payload.bcc).length ? [`Bcc: ${values(payload.bcc).join(", ")}`] : []),
-    ...(replyTo.length ? [`Reply-To: ${replyTo.join(", ")}`] : []),
-    `Subject: ${typeof payload.subject === "string" ? sanitizeHeaderValue(payload.subject) : ""}`,
-    "MIME-Version: 1.0",
-  ];
-  const html = typeof payload.bodyHtml === "string" ? payload.bodyHtml : undefined;
-  if (html) {
-    headers.push("Content-Type: text/html; charset=UTF-8");
-    return Buffer.from(`${headers.join("\r\n")}\r\n\r\n${html}`, "utf8").toString("base64url");
-  }
-  headers.push("Content-Type: text/plain; charset=UTF-8");
-  return Buffer.from(
-    `${headers.join("\r\n")}\r\n\r\n${typeof payload.bodyText === "string" ? payload.bodyText : ""}`,
-    "utf8",
-  ).toString("base64url");
 }
 
 function stringArray(value: unknown): string[] | undefined {
@@ -820,14 +786,28 @@ export function buildDirectGoogleRequest(params: {
         return {
           method: "POST",
           url: "https://gmail.googleapis.com/gmail/v1/users/me/drafts",
-          data: { message: { raw: buildRawEmail(p) } },
+          data: {
+            message: {
+              raw: buildRawGmailMimeMessage(p, {
+                workspaceDir: params.ctx?.workspaceDir,
+                bodyPreference: "html-first",
+                headerNewlineMode: "strip",
+              }),
+            },
+          },
         };
       }
       if (params.action === "send_message") {
         return {
           method: "POST",
           url: "https://gmail.googleapis.com/gmail/v1/users/me/messages/send",
-          data: { raw: buildRawEmail(p) },
+          data: {
+            raw: buildRawGmailMimeMessage(p, {
+              workspaceDir: params.ctx?.workspaceDir,
+              bodyPreference: "html-first",
+              headerNewlineMode: "strip",
+            }),
+          },
         };
       }
       if (params.action === "mark_message_read") {

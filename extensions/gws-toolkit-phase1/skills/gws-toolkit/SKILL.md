@@ -25,6 +25,9 @@ tool and workflow.
    For unread Gmail inbox checks by sender, prefer structured filters such as
    `fromEmail`, `fromDomain`, `unread`, and `inbox` over wildcard Gmail search
    strings like `from:*@example.com`.
+   For Gmail drafts or sends with files, use `attachments` entries shaped as
+   `{ filePath, filename?, mimeType? }`; `filePath` must point inside the active
+   workspace, and raw MIME passthrough is not supported.
    For Drive PDFs or other ordinary files, use `gws_drive_read` with
    `action: "download_file"` and an `outputPath` inside the workspace; for
    shared Drive folders, list with `includeItemsFromAllDrives: true`,

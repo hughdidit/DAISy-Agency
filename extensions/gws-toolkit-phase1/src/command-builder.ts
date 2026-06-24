@@ -6,6 +6,7 @@ import {
   buildCalendarWriteRequestParams,
 } from "./calendar-event.js";
 import { PluginError } from "./errors.js";
+import { buildRawGmailMimeMessage } from "./gmail-mime.js";
 import type { ServiceFamily } from "./types.js";
 
 export type GwsCommandSpec = {
@@ -283,56 +284,6 @@ function asStringArray(value: unknown): string[] | undefined {
   return values.length > 0 ? values : undefined;
 }
 
-function sanitizeHeaderValue(value: string, label: string): string {
-  if (/[\r\n]/.test(value)) {
-    throw new PluginError("VALIDATION_ERROR", `${label} cannot contain newlines`);
-  }
-  return value.trim();
-}
-
-function sanitizeAddressList(value: unknown, label: string): string[] | undefined {
-  const values = asStringArray(value);
-  return values?.map((entry) => sanitizeHeaderValue(entry, label));
-}
-
-function createMimeMessage(params: Record<string, unknown>): string {
-  const to = sanitizeAddressList(params.to, "to");
-  if (!to || to.length === 0) {
-    throw new PluginError("VALIDATION_ERROR", "to is required");
-  }
-
-  const cc = sanitizeAddressList(params.cc, "cc");
-  const bcc = sanitizeAddressList(params.bcc, "bcc");
-  const replyTo =
-    typeof params.replyTo === "string" && params.replyTo.trim()
-      ? sanitizeHeaderValue(params.replyTo, "replyTo")
-      : undefined;
-  const subject =
-    typeof params.subject === "string" && params.subject.trim()
-      ? sanitizeHeaderValue(params.subject, "subject")
-      : "";
-  const bodyText =
-    typeof params.bodyText === "string" && params.bodyText.trim() ? params.bodyText : "";
-  const bodyHtml =
-    typeof params.bodyHtml === "string" && params.bodyHtml.trim() ? params.bodyHtml : "";
-  const contentType =
-    bodyText || !bodyHtml ? "text/plain; charset=UTF-8" : "text/html; charset=UTF-8";
-  const body = bodyText || bodyHtml;
-
-  const headers = [
-    `To: ${to.join(", ")}`,
-    ...(cc?.length ? [`Cc: ${cc.join(", ")}`] : []),
-    ...(bcc?.length ? [`Bcc: ${bcc.join(", ")}`] : []),
-    ...(replyTo ? [`Reply-To: ${replyTo}`] : []),
-    `Subject: ${subject}`,
-    "MIME-Version: 1.0",
-    `Content-Type: ${contentType}`,
-    "",
-    body,
-  ];
-  return Buffer.from(headers.join("\r\n"), "utf8").toString("base64url");
-}
-
 export function buildDriveReadCommand(
   params: Record<string, unknown>,
   authArgs: string[],
@@ -580,16 +531,25 @@ export function buildDriveWriteCommand(
 export function buildGmailWriteCommand(
   params: Record<string, unknown>,
   authArgs: string[],
+  options: { workspaceDir?: string } = {},
 ): GwsCommandSpec {
   if (params.action === "draft_message") {
-    const raw = createMimeMessage(params);
+    const raw = buildRawGmailMimeMessage(params, {
+      workspaceDir: options.workspaceDir,
+      bodyPreference: "text-first",
+      headerNewlineMode: "reject",
+    });
     const argv = ["gmail", ...authArgs, "users", "drafts", "create", "--format", "json"];
     appendParamsArg(argv, { userId: "me" });
     appendJsonArg(argv, { message: { raw } });
     return { argv, action: "draft_message", service: "gmail", isWrite: true };
   }
   if (params.action === "send_message") {
-    const raw = createMimeMessage(params);
+    const raw = buildRawGmailMimeMessage(params, {
+      workspaceDir: options.workspaceDir,
+      bodyPreference: "text-first",
+      headerNewlineMode: "reject",
+    });
     const argv = ["gmail", ...authArgs, "users", "messages", "send", "--format", "json"];
     appendParamsArg(argv, { userId: "me" });
     appendJsonArg(argv, { raw });

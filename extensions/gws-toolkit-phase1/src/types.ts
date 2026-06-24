@@ -80,6 +80,12 @@ export type AnyAction =
   | GroupsWriteAction
   | "status";
 
+export type GmailWriteAttachment = {
+  filePath: string;
+  filename?: string;
+  mimeType?: string;
+};
+
 export type InvocationContext = {
   agentId?: string;
   sessionId?: string;

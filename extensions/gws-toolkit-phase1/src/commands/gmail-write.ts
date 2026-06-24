@@ -36,6 +36,7 @@ export async function executeGmailWrite(params: {
     payload: value,
     readOnly: false,
     confirm: value.confirm,
-    buildCommand: (auth) => buildGmailWriteCommand(value, auth.args),
+    buildCommand: (auth) =>
+      buildGmailWriteCommand(value, auth.args, { workspaceDir: params.ctx.workspaceDir }),
   });
 }
