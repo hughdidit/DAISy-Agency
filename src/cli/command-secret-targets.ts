@@ -24,6 +24,13 @@ const COMMAND_SECRET_TARGETS = {
     "messages.tts.",
     "tools.web.search",
   ]),
+  doctor: idsByPrefix([
+    "channels.",
+    "agents.defaults.memorySearch.remote.",
+    "agents.list[].memorySearch.remote.",
+    "gateway.auth.",
+    "gateway.remote.",
+  ]),
   status: idsByPrefix([
     "channels.",
     "agents.defaults.memorySearch.remote.",
@@ -53,6 +60,10 @@ export function getModelsCommandSecretTargetIds(): Set<string> {
 
 export function getAgentRuntimeCommandSecretTargetIds(): Set<string> {
   return toTargetIdSet(COMMAND_SECRET_TARGETS.agentRuntime);
+}
+
+export function getDoctorCommandSecretTargetIds(): Set<string> {
+  return toTargetIdSet(COMMAND_SECRET_TARGETS.doctor);
 }
 
 export function getStatusCommandSecretTargetIds(): Set<string> {
