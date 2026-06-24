@@ -426,6 +426,21 @@ const gmailWriteSchema = {
     bodyText: string,
     bodyHtml: string,
     messageId: string,
+    attachments: {
+      type: "array",
+      minItems: 1,
+      maxItems: 10,
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["filePath"],
+        properties: {
+          filePath: string,
+          filename: string,
+          mimeType: string,
+        },
+      },
+    },
   },
   allOf: [
     {
@@ -441,6 +456,10 @@ const gmailWriteSchema = {
     {
       if: { properties: { action: { const: "mark_message_read" } } },
       then: { required: ["messageId"] },
+    },
+    {
+      if: { properties: { action: { const: "mark_message_read" } } },
+      then: { not: { required: ["attachments"] } },
     },
   ],
 };

@@ -36,6 +36,10 @@ RUN apt-get update \
     jq \
     python3 \
     ripgrep \
+    unzip \
+    zip \
+  && zip --version >/dev/null \
+  && unzip -v >/dev/null \
   && rm -rf /var/lib/apt/lists/*
 COPY scripts/docker/install-runtime-binaries.sh /tmp/install-runtime-binaries.sh
 COPY scripts/docker/runtime-binaries.json /tmp/runtime-binaries.json

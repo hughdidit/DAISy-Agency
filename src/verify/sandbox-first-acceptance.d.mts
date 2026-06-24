@@ -59,8 +59,22 @@ export interface SandboxFirstAcceptanceIntegrationPathSelection {
 export interface SandboxFirstAcceptanceCommandContext {
   container?: string;
   runSsh?: (command: string) => string;
+  runSshCapture?: (command: string) => SandboxFirstAcceptanceCommandResult;
   dockerExecBash?: (command: string) => string;
+  dockerExecBashCapture?: (command: string) => SandboxFirstAcceptanceCommandResult;
   dockerExecSh?: (command: string) => string;
+  dockerExecShCapture?: (command: string) => SandboxFirstAcceptanceCommandResult;
+}
+
+export interface SandboxFirstAcceptanceCommandResult {
+  ok: boolean;
+  command: string | null;
+  args: string[];
+  status: number | null;
+  signal: string | null;
+  stdout: string;
+  stderr: string;
+  errorMessage: string | null;
 }
 
 export interface SandboxFirstAcceptanceRunParams {
@@ -95,6 +109,16 @@ export function analyzeReadonlyDiagnostics(
 ): string[];
 
 export function isValidAgentCronRunSessionKey(value: unknown): boolean;
+
+export function runScenarioSet(params: {
+  runtime: {
+    artifactRoot: string;
+    acceptanceRoot: string;
+  };
+  scenarios: SandboxFirstAcceptanceScenario[];
+  log: (message: string) => void;
+  runScenario: (ctx: unknown) => Promise<unknown>;
+}): Promise<SandboxFirstAcceptanceSummaryEntry[]>;
 
 export function runSandboxFirstAcceptance(
   params?: SandboxFirstAcceptanceRunParams,

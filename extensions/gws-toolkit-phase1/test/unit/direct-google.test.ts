@@ -597,6 +597,52 @@ describe("direct Google API transport", () => {
     expect(decoded).not.toContain("\r\nInjected: yes");
   });
 
+  it("builds Gmail multipart MIME attachments from the active workspace", async () => {
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "gws-gmail-direct-"));
+    await fs.writeFile(path.join(workspaceDir, "invoice.pdf"), "pdf bytes", "utf8");
+
+    const request = buildDirectGoogleRequest({
+      service: "gmail",
+      action: "draft_message",
+      payload: {
+        to: ["user@example.com"],
+        subject: "Invoice",
+        bodyHtml: "<p>Attached.</p>",
+        attachments: [{ filePath: "invoice.pdf", mimeType: "application/pdf" }],
+      },
+      ctx: { workspaceDir },
+    });
+
+    const raw = (request.data as { message: { raw: string } }).message.raw;
+    const decoded = Buffer.from(raw, "base64url").toString("utf8");
+    expect(decoded).toContain("Content-Type: multipart/mixed; boundary=");
+    expect(decoded).toContain("Content-Type: text/html; charset=UTF-8");
+    expect(decoded).toContain("<p>Attached.</p>");
+    expect(decoded).toContain('Content-Type: application/pdf; name="invoice.pdf"');
+    expect(decoded).toContain('Content-Disposition: attachment; filename="invoice.pdf"');
+    expect(decoded).toContain(Buffer.from("pdf bytes", "utf8").toString("base64"));
+  });
+
+  it("rejects Gmail attachments outside the active workspace", async () => {
+    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "gws-gmail-direct-"));
+    const outsideDir = await fs.mkdtemp(path.join(os.tmpdir(), "gws-gmail-outside-"));
+    const outsidePath = path.join(outsideDir, "secret.txt");
+    await fs.writeFile(outsidePath, "secret", "utf8");
+
+    expect(() =>
+      buildDirectGoogleRequest({
+        service: "gmail",
+        action: "send_message",
+        payload: {
+          to: ["user@example.com"],
+          bodyText: "Attached.",
+          attachments: [{ filePath: outsidePath }],
+        },
+        ctx: { workspaceDir },
+      }),
+    ).toThrow(/Gmail attachment filePath must remain inside/);
+  });
+
   it("builds Gmail mark-read modify requests", () => {
     const request = buildDirectGoogleRequest({
       service: "gmail",

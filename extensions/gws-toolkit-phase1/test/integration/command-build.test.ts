@@ -193,6 +193,23 @@ describe("integration: command build", () => {
     expect(decodeBase64Url(payload.raw)).toContain("<b>Hi</b>");
   });
 
+  it("rejects Gmail attachments for legacy CLI transport", () => {
+    expect(() =>
+      buildGmailWriteCommand(
+        {
+          action: "send_message",
+          confirm: true,
+          to: ["person@example.com"],
+          subject: "Report",
+          bodyText: "Attached.",
+          attachments: [{ filePath: "report.txt", filename: "q1-report.txt" }],
+        },
+        [],
+        { workspaceDir: process.cwd() },
+      ),
+    ).toThrow(/delegated Google API transport/);
+  });
+
   it("preserves negative gmail domain filters while extracting positive wildcard filters", () => {
     const gmail = buildGmailReadCommand(
       {

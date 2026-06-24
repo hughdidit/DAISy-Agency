@@ -146,18 +146,22 @@ to `coding-extended`. Browser support is a separate official profile:
 `browser-automation` requires the dedicated sandbox browser runtime and is not
 implied by packages present in the base or common image.
 
+The default image includes standard ZIP archive tooling (`zip` and `unzip`) for
+sandbox-local archive creation and extraction.
+
 Build it once:
 
 ```bash
 scripts/sandbox-setup.sh
 ```
 
-Note: the default image does **not** include Node. If a skill needs Node (or
-other runtimes), either bake a custom image or install via
-`sandbox.docker.setupCommand` (requires network egress + writable root +
-root user). Custom images and `setupCommand` can help a runtime satisfy one of
-the official profiles, but they do not create a new official supported profile
-by themselves.
+Note: the default image includes the Node.js runtime from the pinned base image
+plus the runtime binaries maintained by `scripts/docker/runtime-binaries.json`.
+If a skill needs other runtimes, either bake a custom image or install via
+`sandbox.docker.setupCommand` (requires network egress + writable root + root
+user). Custom images and `setupCommand` can help a runtime satisfy one of the
+official profiles, but they do not create a new official supported profile by
+themselves.
 
 ### `openclaw-readonly` sandbox skill
 

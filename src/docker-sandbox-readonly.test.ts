@@ -9,6 +9,8 @@ const dockerfilePath = join(repoRoot, "Dockerfile.sandbox");
 describe("Dockerfile.sandbox", () => {
   it("installs the openclaw-readonly runtime wrapper into the sandbox image", async () => {
     const dockerfile = await readFile(dockerfilePath, "utf8");
+    expect(dockerfile).toContain("zip --version >/dev/null");
+    expect(dockerfile).toContain("unzip -v >/dev/null");
     expect(dockerfile).toContain(
       "COPY scripts/docker/openclaw-readonly-wrapper.mjs /usr/local/bin/openclaw-readonly",
     );

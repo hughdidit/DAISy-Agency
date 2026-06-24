@@ -76,6 +76,53 @@ describe("integration: action-specific required params", () => {
     expect(unknown.error).toMatchObject({ code: "VALIDATION_ERROR" });
   });
 
+  it("accepts curated Gmail attachments and rejects malformed/raw attachment shapes", async () => {
+    process.env.GOOGLE_WORKSPACE_CLI_TOKEN = "token";
+
+    const harness = createHarness({
+      pluginConfig: defaultPluginConfig(),
+    });
+
+    const validAttachmentShape = await executeTool(harness, "gws_gmail_write", {
+      action: "draft_message",
+      confirm: true,
+      to: "person@example.com",
+      bodyText: "Attached.",
+      attachments: [{ filePath: "report.txt", filename: "report.txt", mimeType: "text/plain" }],
+    });
+    expect(validAttachmentShape.ok).toBe(false);
+    expect(validAttachmentShape.error.code).not.toBe("VALIDATION_ERROR");
+
+    const nonArrayAttachments = await executeTool(harness, "gws_gmail_write", {
+      action: "draft_message",
+      confirm: true,
+      to: "person@example.com",
+      bodyText: "Attached.",
+      attachments: { filePath: "report.txt" },
+    });
+    expect(nonArrayAttachments.ok).toBe(false);
+    expect(nonArrayAttachments.error).toMatchObject({ code: "VALIDATION_ERROR" });
+
+    const rawAttachment = await executeTool(harness, "gws_gmail_write", {
+      action: "send_message",
+      confirm: true,
+      to: "person@example.com",
+      bodyText: "Attached.",
+      attachments: [{ raw: "base64-passthrough", filename: "report.txt" }],
+    });
+    expect(rawAttachment.ok).toBe(false);
+    expect(rawAttachment.error).toMatchObject({ code: "VALIDATION_ERROR" });
+
+    const markReadAttachment = await executeTool(harness, "gws_gmail_write", {
+      action: "mark_message_read",
+      confirm: true,
+      messageId: "msg-1",
+      attachments: [{ filePath: "report.txt" }],
+    });
+    expect(markReadAttachment.ok).toBe(false);
+    expect(markReadAttachment.error).toMatchObject({ code: "VALIDATION_ERROR" });
+  });
+
   it("accepts curated Calendar recurrence fields and rejects unsafe event shapes", async () => {
     process.env.GOOGLE_WORKSPACE_CLI_TOKEN = "token";
 

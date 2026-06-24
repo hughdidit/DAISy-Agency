@@ -26,6 +26,14 @@ describe("integration: plugin registration", () => {
     ]);
     expect(harness.tools.get("gws_gmail_read")?.description).toContain("gmail-triage");
     expect(harness.tools.get("gws_gmail_write")?.description).toContain("gmail-triage");
+    const gmailWrite = harness.tools.get("gws_gmail_write") as
+      | { parameters?: { properties?: Record<string, unknown> } }
+      | undefined;
+    expect(gmailWrite?.parameters?.properties?.attachments).toMatchObject({
+      type: "array",
+      minItems: 1,
+      maxItems: 10,
+    });
     expect(harness.cliCommands).toContain("gws");
   });
 });
