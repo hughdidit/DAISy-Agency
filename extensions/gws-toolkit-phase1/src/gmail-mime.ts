@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { PluginError } from "./errors.js";
@@ -261,9 +262,7 @@ export function buildRawGmailMimeMessage(
     ).toString("base64url");
   }
 
-  const boundary = `daisy-mixed-${Date.now().toString(36)}-${Math.random()
-    .toString(36)
-    .slice(2)}`;
+  const boundary = `daisy-mixed-${randomUUID()}`;
   const parts = [
     ...headers,
     `Content-Type: multipart/mixed; boundary="${boundary}"`,
