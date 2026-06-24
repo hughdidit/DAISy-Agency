@@ -49,6 +49,10 @@ function isPathInside(parent: string, child: string): boolean {
   );
 }
 
+function sameFileIdentity(left: fs.Stats, right: fs.Stats): boolean {
+  return left.dev === right.dev && left.ino === right.ino;
+}
+
 function resolveWorkspaceRoot(workspaceDir: string | undefined): string {
   const rawWorkspaceDir = workspaceDir?.trim();
   if (!rawWorkspaceDir) {
@@ -85,6 +89,7 @@ function readWorkspaceAttachmentFile(params: { filePath: unknown; workspaceDir?:
     );
   }
 
+  let fd: number | undefined;
   try {
     const resolvedFilePath = fs.realpathSync(candidate);
     if (!isPathInside(workspaceRoot, resolvedFilePath)) {
@@ -94,11 +99,19 @@ function readWorkspaceAttachmentFile(params: { filePath: unknown; workspaceDir?:
         { workspaceDir: workspaceRoot },
       );
     }
-    const stat = fs.statSync(resolvedFilePath);
+    const stat = fs.lstatSync(resolvedFilePath);
     if (!stat.isFile()) {
       throw new PluginError("VALIDATION_ERROR", "Gmail attachment filePath must be a file.");
     }
-    return { filePath: resolvedFilePath, bytes: fs.readFileSync(resolvedFilePath) };
+    const openReadFlags =
+      fs.constants.O_RDONLY |
+      (typeof fs.constants.O_NOFOLLOW === "number" ? fs.constants.O_NOFOLLOW : 0);
+    fd = fs.openSync(resolvedFilePath, openReadFlags);
+    const openedStat = fs.fstatSync(fd);
+    if (!openedStat.isFile() || !sameFileIdentity(stat, openedStat)) {
+      throw new PluginError("VALIDATION_ERROR", "Gmail attachment filePath must be a file.");
+    }
+    return { filePath: resolvedFilePath, bytes: fs.readFileSync(fd) };
   } catch (error) {
     if (error instanceof PluginError) {
       throw error;
@@ -106,6 +119,10 @@ function readWorkspaceAttachmentFile(params: { filePath: unknown; workspaceDir?:
     throw new PluginError("VALIDATION_ERROR", "Gmail attachment filePath could not be read.", {
       cause: error instanceof Error ? error.message : String(error),
     });
+  } finally {
+    if (fd !== undefined) {
+      fs.closeSync(fd);
+    }
   }
 }
 
