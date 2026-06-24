@@ -146,6 +146,9 @@ to `coding-extended`. Browser support is a separate official profile:
 `browser-automation` requires the dedicated sandbox browser runtime and is not
 implied by packages present in the base or common image.
 
+The default image includes standard ZIP archive tooling (`zip` and `unzip`) for
+sandbox-local archive creation and extraction.
+
 Build it once:
 
 ```bash

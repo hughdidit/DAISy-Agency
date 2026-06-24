@@ -655,7 +655,9 @@ Multi-agent: override `agents.defaults.sandbox.{docker,browser,prune}.*` per age
 scripts/sandbox-setup.sh
 ```
 
-This builds `openclaw-sandbox:bookworm-slim` using `Dockerfile.sandbox`.
+This builds `openclaw-sandbox:bookworm-slim` using `Dockerfile.sandbox`. The
+default image includes standard ZIP archive tooling (`zip` and `unzip`) for
+sandbox-local archive creation and extraction.
 
 ### Sandbox common image (optional)
 
