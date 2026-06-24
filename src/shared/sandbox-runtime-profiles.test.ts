@@ -91,9 +91,7 @@ describe("sandbox runtime profiles", () => {
     for (const id of ["coding-base", "coding-extended", "browser-automation"] as const) {
       const profile = getSandboxRuntimeProfile(id);
       expect(profile).toBeDefined();
-      expect(profile!.expectedBinaries).toEqual(
-        expect.arrayContaining(["zip", "unzip"]),
-      );
+      expect(profile!.expectedBinaries).toEqual(expect.arrayContaining(["zip", "unzip"]));
     }
   });
 
