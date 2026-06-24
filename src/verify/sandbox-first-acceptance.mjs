@@ -323,6 +323,28 @@ function combineCommandOutput(result) {
   return stdout || stderr;
 }
 
+function combineCommandDiagnosticOutput(result) {
+  const output = combineCommandOutput(result);
+  const errorMessage = result?.errorMessage ?? "";
+  if (!errorMessage) {
+    return output;
+  }
+  if (!output.trim()) {
+    return `${errorMessage}\n`;
+  }
+  return output.endsWith("\n") ? `${output}${errorMessage}\n` : `${output}\n${errorMessage}\n`;
+}
+
+function isOptionalIntegrationSecretRefFailure(result) {
+  const combined = stripAnsi(combineCommandDiagnosticOutput(result));
+  return (
+    /\bunresolved SecretRef\b/i.test(combined) &&
+    /\bchannels\.(?:discord|telegram|slack|signal|irc|imessage|bluebubbles|msteams)\b[^\n:]*:\s+unresolved SecretRef\b/i.test(
+      combined,
+    )
+  );
+}
+
 function createGceCommandContext(env) {
   const container = env.VERIFY_GCE_CONTAINER || "openclaw-gateway";
   const gcloudBaseArgs = [
@@ -684,13 +706,22 @@ async function readCredentialSourceType(ctx, credentialsPath) {
 }
 
 async function runRuntimeProfileSanityScenario(ctx) {
-  const statusRaw = ctx.dockerExecBash("cd /app && node dist/index.js status --json");
+  const statusResult = captureDockerExecBash(ctx, "cd /app && node dist/index.js status --json");
+  const statusRaw = combineCommandDiagnosticOutput(statusResult);
   await ctx.writeArtifactText("status.json", statusRaw);
-  const statusPayload = parseJsonOrThrow(
-    statusRaw,
-    "capability-consistency-gap",
-    "status --json did not return a parseable JSON payload",
-  );
+  let statusPayload = null;
+  if (statusResult.ok) {
+    statusPayload = parseJsonOrThrow(
+      statusRaw,
+      "capability-consistency-gap",
+      "status --json did not return a parseable JSON payload",
+    );
+  } else if (!isOptionalIntegrationSecretRefFailure(statusResult)) {
+    throw new ScenarioError(
+      "capability-consistency-gap",
+      `status --json failed: ${statusResult.errorMessage ?? "unknown command failure"}`,
+    );
+  }
 
   const sandboxExplainRaw = ctx.dockerExecBash(
     "cd /app && node dist/index.js sandbox explain --json",
@@ -729,25 +760,34 @@ async function runRuntimeProfileSanityScenario(ctx) {
     "sandbox explain did not report an effective runtime profile",
   );
 
-  const statusCounts = statusPayload?.capabilities?.counts?.byClass;
   const explainCounts = sandboxExplainPayload?.capabilities?.counts?.byClass;
-  if (
-    !statusCounts ||
-    !explainCounts ||
-    typeof statusCounts !== "object" ||
-    typeof explainCounts !== "object"
-  ) {
-    throw new ScenarioError(
-      "capability-consistency-gap",
-      "status and sandbox explain did not both expose capability-class counts",
-    );
-  }
+  if (statusPayload === null) {
+    if (!explainCounts || typeof explainCounts !== "object") {
+      throw new ScenarioError(
+        "capability-consistency-gap",
+        "sandbox explain did not expose capability-class counts",
+      );
+    }
+  } else {
+    const statusCounts = statusPayload?.capabilities?.counts?.byClass;
+    if (
+      !statusCounts ||
+      !explainCounts ||
+      typeof statusCounts !== "object" ||
+      typeof explainCounts !== "object"
+    ) {
+      throw new ScenarioError(
+        "capability-consistency-gap",
+        "status and sandbox explain did not both expose capability-class counts",
+      );
+    }
 
-  if (!areCapabilityCountsEqual(statusCounts, explainCounts)) {
-    throw new ScenarioError(
-      "capability-consistency-gap",
-      "status and sandbox explain disagreed on capability-class counts",
-    );
+    if (!areCapabilityCountsEqual(statusCounts, explainCounts)) {
+      throw new ScenarioError(
+        "capability-consistency-gap",
+        "status and sandbox explain disagreed on capability-class counts",
+      );
+    }
   }
 
   if (/agents\.defaults\.sandbox\.mode=off|sandbox\.mode=off/i.test(stripAnsi(doctorText))) {
