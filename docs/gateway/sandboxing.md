@@ -155,12 +155,13 @@ Build it once:
 scripts/sandbox-setup.sh
 ```
 
-Note: the default image does **not** include Node. If a skill needs Node (or
-other runtimes), either bake a custom image or install via
-`sandbox.docker.setupCommand` (requires network egress + writable root +
-root user). Custom images and `setupCommand` can help a runtime satisfy one of
-the official profiles, but they do not create a new official supported profile
-by themselves.
+Note: the default image includes the Node.js runtime from the pinned base image
+plus the runtime binaries maintained by `scripts/docker/runtime-binaries.json`.
+If a skill needs other runtimes, either bake a custom image or install via
+`sandbox.docker.setupCommand` (requires network egress + writable root + root
+user). Custom images and `setupCommand` can help a runtime satisfy one of the
+official profiles, but they do not create a new official supported profile by
+themselves.
 
 ### `openclaw-readonly` sandbox skill
 

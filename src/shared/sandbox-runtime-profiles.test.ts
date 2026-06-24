@@ -87,9 +87,11 @@ describe("sandbox runtime profiles", () => {
     expect(isSandboxRuntimeProfileId("data-processing")).toBe(false);
   });
 
-  it("declares zip tooling in sandbox profiles backed by the default runtime image", () => {
+  it("declares zip tooling in sandbox profiles that include the standard archive baseline", () => {
     for (const id of ["coding-base", "coding-extended", "browser-automation"] as const) {
-      expect(getSandboxRuntimeProfile(id)?.expectedBinaries).toEqual(
+      const profile = getSandboxRuntimeProfile(id);
+      expect(profile).toBeDefined();
+      expect(profile!.expectedBinaries).toEqual(
         expect.arrayContaining(["zip", "unzip"]),
       );
     }
