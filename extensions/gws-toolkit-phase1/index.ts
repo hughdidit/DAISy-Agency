@@ -564,6 +564,19 @@ function createTools(params: {
             subject: Type.Optional(Type.String()),
             bodyText: Type.Optional(Type.String()),
             bodyHtml: Type.Optional(Type.String()),
+            attachments: Type.Optional(
+              Type.Array(
+                Type.Object(
+                  {
+                    filePath: Type.String(),
+                    filename: Type.Optional(Type.String()),
+                    mimeType: Type.Optional(Type.String()),
+                  },
+                  { additionalProperties: false },
+                ),
+                { minItems: 1, maxItems: 10 },
+              ),
+            ),
             messageId: Type.Optional(Type.String()),
           },
           { additionalProperties: false },

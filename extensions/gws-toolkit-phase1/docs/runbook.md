@@ -157,6 +157,12 @@ Agents receive the `gmail-triage` workflow automatically when Gmail email is
 read through `gws_gmail_read` or delivered via a `hook:gmail:*` webhook session.
 The automatic skill requirement is guidance; whitelist/blacklist and write
 permission decisions are still enforced by the GWS toolkit.
+For `draft_message` and `send_message`, Gmail file attachments use
+`attachments: [{ filePath, filename?, mimeType? }]`. The `filePath` must resolve
+inside the active agent workspace; raw MIME passthrough is intentionally not
+available. Attachments require delegated Google API transport; legacy gws CLI
+transport rejects attachment requests instead of embedding attachment bytes in
+argv.
 
 Staging route pattern:
 
