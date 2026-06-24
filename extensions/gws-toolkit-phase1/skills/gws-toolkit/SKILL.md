@@ -27,7 +27,8 @@ tool and workflow.
    strings like `from:*@example.com`.
    For Gmail drafts or sends with files, use `attachments` entries shaped as
    `{ filePath, filename?, mimeType? }`; `filePath` must point inside the active
-   workspace, and raw MIME passthrough is not supported.
+   workspace, raw MIME passthrough is not supported, and attachments require
+   delegated Google API transport rather than legacy gws CLI transport.
    For Drive PDFs or other ordinary files, use `gws_drive_read` with
    `action: "download_file"` and an `outputPath` inside the workspace; for
    shared Drive folders, list with `includeItemsFromAllDrives: true`,

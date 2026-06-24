@@ -1,6 +1,3 @@
-import fs from "node:fs/promises";
-import os from "node:os";
-import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   buildCalendarReadCommand,
@@ -196,31 +193,21 @@ describe("integration: command build", () => {
     expect(decodeBase64Url(payload.raw)).toContain("<b>Hi</b>");
   });
 
-  it("builds multipart Gmail MIME with workspace attachments for CLI transport", async () => {
-    const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "gws-gmail-cli-"));
-    await fs.writeFile(path.join(workspaceDir, "report.txt"), "Quarterly report", "utf8");
-
-    const gmail = buildGmailWriteCommand(
-      {
-        action: "send_message",
-        confirm: true,
-        to: ["person@example.com"],
-        subject: "Report",
-        bodyText: "Attached.",
-        attachments: [{ filePath: "report.txt", filename: "q1-report.txt" }],
-      },
-      [],
-      { workspaceDir },
-    ).argv;
-
-    const payload = JSON.parse(gmail[gmail.indexOf("--json") + 1] as string) as { raw: string };
-    const decoded = decodeBase64Url(payload.raw);
-    expect(decoded).toContain("Content-Type: multipart/mixed; boundary=");
-    expect(decoded).toContain("Content-Type: text/plain; charset=UTF-8");
-    expect(decoded).toContain("Attached.");
-    expect(decoded).toContain('Content-Type: text/plain; name="q1-report.txt"');
-    expect(decoded).toContain('Content-Disposition: attachment; filename="q1-report.txt"');
-    expect(decoded).toContain(Buffer.from("Quarterly report", "utf8").toString("base64"));
+  it("rejects Gmail attachments for legacy CLI transport", () => {
+    expect(() =>
+      buildGmailWriteCommand(
+        {
+          action: "send_message",
+          confirm: true,
+          to: ["person@example.com"],
+          subject: "Report",
+          bodyText: "Attached.",
+          attachments: [{ filePath: "report.txt", filename: "q1-report.txt" }],
+        },
+        [],
+        { workspaceDir: process.cwd() },
+      ),
+    ).toThrow(/delegated Google API transport/);
   });
 
   it("preserves negative gmail domain filters while extracting positive wildcard filters", () => {

@@ -85,13 +85,7 @@ function readWorkspaceAttachmentFile(params: { filePath: unknown; workspaceDir?:
     );
   }
 
-  let fd: number | undefined;
   try {
-    fd = fs.openSync(candidate, "r");
-    const stat = fs.fstatSync(fd);
-    if (!stat.isFile()) {
-      throw new PluginError("VALIDATION_ERROR", "Gmail attachment filePath must be a file.");
-    }
     const resolvedFilePath = fs.realpathSync(candidate);
     if (!isPathInside(workspaceRoot, resolvedFilePath)) {
       throw new PluginError(
@@ -100,7 +94,11 @@ function readWorkspaceAttachmentFile(params: { filePath: unknown; workspaceDir?:
         { workspaceDir: workspaceRoot },
       );
     }
-    return { filePath: resolvedFilePath, bytes: fs.readFileSync(fd) };
+    const stat = fs.statSync(resolvedFilePath);
+    if (!stat.isFile()) {
+      throw new PluginError("VALIDATION_ERROR", "Gmail attachment filePath must be a file.");
+    }
+    return { filePath: resolvedFilePath, bytes: fs.readFileSync(resolvedFilePath) };
   } catch (error) {
     if (error instanceof PluginError) {
       throw error;
@@ -108,10 +106,6 @@ function readWorkspaceAttachmentFile(params: { filePath: unknown; workspaceDir?:
     throw new PluginError("VALIDATION_ERROR", "Gmail attachment filePath could not be read.", {
       cause: error instanceof Error ? error.message : String(error),
     });
-  } finally {
-    if (fd !== undefined) {
-      fs.closeSync(fd);
-    }
   }
 }
 
@@ -208,6 +202,9 @@ function resolveAttachments(
   if (!Array.isArray(payload.attachments)) {
     throw new PluginError("VALIDATION_ERROR", "attachments must be an array");
   }
+  if (payload.attachments.length === 0 || payload.attachments.length > 10) {
+    throw new PluginError("VALIDATION_ERROR", "attachments must include 1 to 10 files");
+  }
   return payload.attachments.map((entry) => {
     if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
       throw new PluginError("VALIDATION_ERROR", "attachment entries must be objects");
@@ -269,7 +266,7 @@ export function buildRawGmailMimeMessage(
     "",
     `--${boundary}`,
     `Content-Type: ${body.contentType}`,
-    "Content-Transfer-Encoding: 7bit",
+    "Content-Transfer-Encoding: 8bit",
     "",
     body.body,
     ...attachments.flatMap((attachment) => {

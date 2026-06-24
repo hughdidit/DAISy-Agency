@@ -534,6 +534,12 @@ export function buildGmailWriteCommand(
   options: { workspaceDir?: string } = {},
 ): GwsCommandSpec {
   if (params.action === "draft_message") {
+    if (params.attachments !== undefined) {
+      throw new PluginError(
+        "AUTH_ERROR",
+        "Gmail file attachments require delegated Google API transport; legacy gws CLI transport cannot safely pass attachment MIME through argv.",
+      );
+    }
     const raw = buildRawGmailMimeMessage(params, {
       workspaceDir: options.workspaceDir,
       bodyPreference: "text-first",
@@ -545,6 +551,12 @@ export function buildGmailWriteCommand(
     return { argv, action: "draft_message", service: "gmail", isWrite: true };
   }
   if (params.action === "send_message") {
+    if (params.attachments !== undefined) {
+      throw new PluginError(
+        "AUTH_ERROR",
+        "Gmail file attachments require delegated Google API transport; legacy gws CLI transport cannot safely pass attachment MIME through argv.",
+      );
+    }
     const raw = buildRawGmailMimeMessage(params, {
       workspaceDir: options.workspaceDir,
       bodyPreference: "text-first",
