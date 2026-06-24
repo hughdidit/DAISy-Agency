@@ -87,6 +87,14 @@ describe("sandbox runtime profiles", () => {
     expect(isSandboxRuntimeProfileId("data-processing")).toBe(false);
   });
 
+  it("declares zip tooling in sandbox profiles that include the standard archive baseline", () => {
+    for (const id of ["coding-base", "coding-extended", "browser-automation"] as const) {
+      const profile = getSandboxRuntimeProfile(id);
+      expect(profile).toBeDefined();
+      expect(profile!.expectedBinaries).toEqual(expect.arrayContaining(["zip", "unzip"]));
+    }
+  });
+
   it("uses a generic core-tool fallback instead of classifying unknown core tools as plugin-brokered", () => {
     expect(resolveCoreToolCapabilityFamily("read")).toBe("filesystem-read");
     expect(resolveCoreToolCapabilityFamily("some-future-core-tool")).toBe("automation");

@@ -467,6 +467,26 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
     gce_ssh "sudo docker run --rm --entrypoint sh ${sandbox_image_escaped} -lc 'gws --version >/dev/null'" \
       || fail "gws --version failed in sandbox image ${sandbox_image} on ${GCE_INSTANCE_NAME}"
     log "Sandbox image exposes gws at ${sandbox_gws_bin}."
+    sandbox_zip_bin="$(
+      gce_ssh_lastline "sudo docker run --rm --entrypoint sh ${sandbox_image_escaped} -lc 'command -v zip'"
+    )" || fail "zip binary is not available in sandbox image ${sandbox_image} on ${GCE_INSTANCE_NAME}"
+    sandbox_zip_bin="$(echo "${sandbox_zip_bin}" | tr -d '[:space:]')"
+    if [[ -z "${sandbox_zip_bin}" ]]; then
+      fail "zip binary is not available in sandbox image ${sandbox_image} on ${GCE_INSTANCE_NAME}"
+    fi
+    gce_ssh "sudo docker run --rm --entrypoint sh ${sandbox_image_escaped} -lc 'zip --version >/dev/null'" \
+      || fail "zip --version failed in sandbox image ${sandbox_image} on ${GCE_INSTANCE_NAME}"
+    log "Sandbox image exposes zip at ${sandbox_zip_bin}."
+    sandbox_unzip_bin="$(
+      gce_ssh_lastline "sudo docker run --rm --entrypoint sh ${sandbox_image_escaped} -lc 'command -v unzip'"
+    )" || fail "unzip binary is not available in sandbox image ${sandbox_image} on ${GCE_INSTANCE_NAME}"
+    sandbox_unzip_bin="$(echo "${sandbox_unzip_bin}" | tr -d '[:space:]')"
+    if [[ -z "${sandbox_unzip_bin}" ]]; then
+      fail "unzip binary is not available in sandbox image ${sandbox_image} on ${GCE_INSTANCE_NAME}"
+    fi
+    gce_ssh "sudo docker run --rm --entrypoint sh ${sandbox_image_escaped} -lc 'unzip -v >/dev/null'" \
+      || fail "unzip -v failed in sandbox image ${sandbox_image} on ${GCE_INSTANCE_NAME}"
+    log "Sandbox image exposes unzip at ${sandbox_unzip_bin}."
   else
     log "Sandboxing is disabled; skipping sandbox image runtime binary smoke."
   fi
