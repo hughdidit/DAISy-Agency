@@ -276,6 +276,44 @@ import {
   SessionsResolveParamsSchema,
   type SessionsUsageParams,
   SessionsUsageParamsSchema,
+  type KanbanBoardGetParams,
+  KanbanBoardGetParamsSchema,
+  type KanbanBoardSnapshot,
+  KanbanBoardSnapshotSchema,
+  type KanbanCardDetail,
+  KanbanCardDetailSchema,
+  type KanbanCardsCreateParams,
+  KanbanCardsCreateParamsSchema,
+  type KanbanCardsGetParams,
+  KanbanCardsGetParamsSchema,
+  type KanbanCardsListParams,
+  KanbanCardsListParamsSchema,
+  type KanbanCardsListResult,
+  KanbanCardsListResultSchema,
+  type KanbanCardsMoveParams,
+  KanbanCardsMoveParamsSchema,
+  type KanbanCardsUpdateParams,
+  KanbanCardsUpdateParamsSchema,
+  type KanbanChecklistsAddItemParams,
+  KanbanChecklistsAddItemParamsSchema,
+  type KanbanChecklistsAddItemResult,
+  KanbanChecklistsAddItemResultSchema,
+  type KanbanChecklistsDeleteItemParams,
+  KanbanChecklistsDeleteItemParamsSchema,
+  type KanbanChecklistsDeleteItemResult,
+  KanbanChecklistsDeleteItemResultSchema,
+  type KanbanChecklistsUpdateItemParams,
+  KanbanChecklistsUpdateItemParamsSchema,
+  type KanbanChecklistsUpdateItemResult,
+  KanbanChecklistsUpdateItemResultSchema,
+  type KanbanCommentsAddParams,
+  KanbanCommentsAddParamsSchema,
+  type KanbanCommentsAddResult,
+  KanbanCommentsAddResultSchema,
+  type KanbanCommentsListParams,
+  KanbanCommentsListParamsSchema,
+  type KanbanCommentsListResult,
+  KanbanCommentsListResultSchema,
   type ShutdownEvent,
   ShutdownEventSchema,
   type SkillsBinsParams,
@@ -420,6 +458,56 @@ export const validateSessionsCompactParams = ajv.compile<SessionsCompactParams>(
 );
 export const validateSessionsUsageParams =
   ajv.compile<SessionsUsageParams>(SessionsUsageParamsSchema);
+export const validateKanbanBoardGetParams = ajv.compile<KanbanBoardGetParams>(
+  KanbanBoardGetParamsSchema,
+);
+export const validateKanbanBoardSnapshot =
+  ajv.compile<KanbanBoardSnapshot>(KanbanBoardSnapshotSchema);
+export const validateKanbanCardsListParams = ajv.compile<KanbanCardsListParams>(
+  KanbanCardsListParamsSchema,
+);
+export const validateKanbanCardsListResult = ajv.compile<KanbanCardsListResult>(
+  KanbanCardsListResultSchema,
+);
+export const validateKanbanCardsGetParams = ajv.compile<KanbanCardsGetParams>(
+  KanbanCardsGetParamsSchema,
+);
+export const validateKanbanCardDetail = ajv.compile<KanbanCardDetail>(KanbanCardDetailSchema);
+export const validateKanbanCardsCreateParams = ajv.compile<KanbanCardsCreateParams>(
+  KanbanCardsCreateParamsSchema,
+);
+export const validateKanbanCardsUpdateParams = ajv.compile<KanbanCardsUpdateParams>(
+  KanbanCardsUpdateParamsSchema,
+);
+export const validateKanbanCardsMoveParams = ajv.compile<KanbanCardsMoveParams>(
+  KanbanCardsMoveParamsSchema,
+);
+export const validateKanbanChecklistsAddItemParams = ajv.compile<KanbanChecklistsAddItemParams>(
+  KanbanChecklistsAddItemParamsSchema,
+);
+export const validateKanbanChecklistsAddItemResult = ajv.compile<KanbanChecklistsAddItemResult>(
+  KanbanChecklistsAddItemResultSchema,
+);
+export const validateKanbanChecklistsUpdateItemParams =
+  ajv.compile<KanbanChecklistsUpdateItemParams>(KanbanChecklistsUpdateItemParamsSchema);
+export const validateKanbanChecklistsUpdateItemResult =
+  ajv.compile<KanbanChecklistsUpdateItemResult>(KanbanChecklistsUpdateItemResultSchema);
+export const validateKanbanChecklistsDeleteItemParams =
+  ajv.compile<KanbanChecklistsDeleteItemParams>(KanbanChecklistsDeleteItemParamsSchema);
+export const validateKanbanChecklistsDeleteItemResult =
+  ajv.compile<KanbanChecklistsDeleteItemResult>(KanbanChecklistsDeleteItemResultSchema);
+export const validateKanbanCommentsListParams = ajv.compile<KanbanCommentsListParams>(
+  KanbanCommentsListParamsSchema,
+);
+export const validateKanbanCommentsListResult = ajv.compile<KanbanCommentsListResult>(
+  KanbanCommentsListResultSchema,
+);
+export const validateKanbanCommentsAddParams = ajv.compile<KanbanCommentsAddParams>(
+  KanbanCommentsAddParamsSchema,
+);
+export const validateKanbanCommentsAddResult = ajv.compile<KanbanCommentsAddResult>(
+  KanbanCommentsAddResultSchema,
+);
 export const validateConfigGetParams = ajv.compile<ConfigGetParams>(ConfigGetParamsSchema);
 export const validateConfigSetParams = ajv.compile<ConfigSetParams>(ConfigSetParamsSchema);
 export const validateConfigApplyParams = ajv.compile<ConfigApplyParams>(ConfigApplyParamsSchema);
