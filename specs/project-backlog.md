@@ -5,13 +5,13 @@
 - Name: Agent Kanban Board for DAISy Control UI
 - Repo: `hughdidit/DAISy-Agency`
 - Base branch: `daisy/dev`
-- Feature branch pattern: `kody/kanban-PRD-###-*`
+- Feature branch pattern: `kody/kanban-prd-###-*`
 - Staging: Existing DAISy-Agency staging workflow from `daisy/dev`
 - Production: Existing DAISy-Agency production promotion from `daisy/main`
 - Active project cap setting: `${KODY_MAX_ACTIVE_PROJECTS:-5}`
-- Architecture: `specs/architectural-specification.md`
+- Architecture: [Architectural specification](architectural-specification.md)
 - Ownership note: DAISy is responsible for Kanban operations and due-date calendar sync ownership; default Discord channel/webhook is the notification destination.
-- Agent/API docs: `docs/agent-kanban/api-and-agent-operations.md`
+- Agent/API docs: [API and agent operations](../docs/agent-kanban/api-and-agent-operations.md)
 
 ## PRD Queue
 

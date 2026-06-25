@@ -107,9 +107,11 @@ describe("kanban gateway handlers", () => {
       method: "kanban.checklists.addItem",
       params: { cardId: card.id, text: "RPC checklist item" },
     });
-    const item = (checklistItem.payload as {
-      item: { id: string; text: string; checked: boolean; version: number };
-    }).item;
+    const item = (
+      checklistItem.payload as {
+        item: { id: string; text: string; checked: boolean; version: number };
+      }
+    ).item;
     expect(checklistItem.ok).toBe(true);
     expect(item.text).toBe("RPC checklist item");
     expect(item.checked).toBe(false);
@@ -133,9 +135,11 @@ describe("kanban gateway handlers", () => {
       },
     });
     expect(
-      (updatedChecklistItem.payload as {
-        item: { text: string; checked: boolean; version: number };
-      }).item,
+      (
+        updatedChecklistItem.payload as {
+          item: { text: string; checked: boolean; version: number };
+        }
+      ).item,
     ).toMatchObject({ text: "RPC checklist done", checked: true, version: 2 });
 
     const deletedChecklistItem = await invoke({

@@ -108,7 +108,9 @@ Minimum entities:
 
 - `KanbanBoard`: `id`, `name`, `scope`, `createdAt`, `updatedAt`, `settings`.
 - `KanbanLane`: `id`, `boardId`, `name`, `order`, `kind`, `wipLimit?`, `color?`.
-- `KanbanCard`: `id`, `boardId`, `laneId`, `title`, `description`, `position`, `status`, `labels`, `assigneeIds`, `dueDate`, `dueTimeZone`, `calendarEventId?`, `autoComplete`, `archivedAt?`, `createdBy`, `createdAt`, `updatedAt`, `version`.
+- `KanbanCard`: `id`, `boardId`, `laneId`, `title`, `description`, `position`, `labels`, `assigneeIds`, `dueDate`, `dueTimeZone`, `calendarEventId?`, `autoComplete`, `archivedAt?`, `createdBy`, `createdAt`, `updatedAt`, `version`.
+- Card status is derived from the card's `laneId` and lane metadata for display/filtering. `laneId`
+  is the persisted source of truth; a separate card `status` field is not persisted.
 - `KanbanChecklistItem`: `id`, `cardId`, `title`, `checked`, `order`, `assigneeId?`, `dueDate?`, `createdAt`, `updatedAt`.
 - `KanbanComment`: `id`, `cardId`, `authorId`, `body`, `createdAt`, `updatedAt?`.
 - `KanbanActivity`: `id`, `cardId`, `actorId`, `type`, `summary`, `metadata`, `createdAt`.

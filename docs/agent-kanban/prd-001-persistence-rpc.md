@@ -11,7 +11,8 @@ store under the OpenClaw state directory, written atomically with owner-only fil
 - Default board: `hughdidit-agent-kanban`, lazily created with Backlog, Todo, In Progress,
   Blocked, For Review, Integration, and Completed lanes.
 
-Initial gateway RPC methods:
+PRD-001 implements the domain model, JSON persistence, gateway handlers, and generated protocol
+schema for these initial gateway RPC methods:
 
 - `kanban.board.get`
 - `kanban.cards.list`
@@ -19,11 +20,15 @@ Initial gateway RPC methods:
 - `kanban.cards.create`
 - `kanban.cards.update`
 - `kanban.cards.move`
+- `kanban.checklists.addItem`
+- `kanban.checklists.updateItem`
+- `kanban.checklists.deleteItem`
 - `kanban.comments.list`
 - `kanban.comments.add`
 
-Card mutation RPCs require `expectedVersion` for optimistic concurrency. A stale version returns a
-retryable invalid-request error so clients can reload and retry intentionally.
+Card and checklist mutation RPCs require `expectedVersion` for optimistic concurrency where they
+update existing records. A stale version returns a retryable invalid-request error so clients can
+reload and retry intentionally.
 
 Notification delivery, Google Calendar sync, agent tools, archive/delete operations, and UI views are
 reserved for later PRDs.

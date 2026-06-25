@@ -13,7 +13,7 @@ This document describes the intended operator and agent-facing contract for the 
 
 Agents should never read or write the Kanban datastore directly. They use gateway-scoped methods/tools.
 
-Planned gateway RPC methods:
+PRD-001 implemented gateway RPC methods:
 
 - `kanban.board.get`
 - `kanban.cards.list`
@@ -21,13 +21,16 @@ Planned gateway RPC methods:
 - `kanban.cards.create`
 - `kanban.cards.update`
 - `kanban.cards.move`
-- `kanban.cards.archive`
-- `kanban.cards.delete` — admin-only and confirmation-gated
 - `kanban.checklists.addItem`
 - `kanban.checklists.updateItem`
 - `kanban.checklists.deleteItem`
 - `kanban.comments.add`
 - `kanban.comments.list`
+
+Future PRD gateway RPC methods:
+
+- `kanban.cards.archive`
+- `kanban.cards.delete` — admin-only and confirmation-gated
 - `kanban.notifications.list`
 - `kanban.automation.runDueReminders`
 
