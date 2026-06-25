@@ -162,9 +162,7 @@ function sortByPosition<T extends { position: number; createdAt: string; id: str
 ): T[] {
   return items.toSorted(
     (a, b) =>
-      a.position - b.position ||
-      a.createdAt.localeCompare(b.createdAt) ||
-      a.id.localeCompare(b.id),
+      a.position - b.position || a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id),
   );
 }
 
