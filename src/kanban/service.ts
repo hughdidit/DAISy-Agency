@@ -160,14 +160,12 @@ function assertExpectedVersion(current: number, expected: number): void {
 function sortByPosition<T extends { position: number; createdAt: string; id: string }>(
   items: T[],
 ): T[] {
-  return items
-    .slice()
-    .sort(
-      (a, b) =>
-        a.position - b.position ||
-        a.createdAt.localeCompare(b.createdAt) ||
-        a.id.localeCompare(b.id),
-    );
+  return items.toSorted(
+    (a, b) =>
+      a.position - b.position ||
+      a.createdAt.localeCompare(b.createdAt) ||
+      a.id.localeCompare(b.id),
+  );
 }
 
 function nextPosition(items: Array<{ position: number }>): number {
@@ -602,13 +600,13 @@ function checklistForCard(store: KanbanStoreFile, card: KanbanCard): KanbanCheck
 function commentsForCard(store: KanbanStoreFile, cardId: string): KanbanComment[] {
   return Object.values(store.comments)
     .filter((comment) => comment.cardId === cardId && !comment.deletedAt)
-    .sort((a, b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id));
+    .toSorted((a, b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id));
 }
 
 function activitiesForCard(store: KanbanStoreFile, cardId: string): KanbanActivity[] {
   return store.activities
     .filter((activity) => activity.cardId === cardId)
-    .sort((a, b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id));
+    .toSorted((a, b) => a.createdAt.localeCompare(b.createdAt) || a.id.localeCompare(b.id));
 }
 
 function cardDetail(store: KanbanStoreFile, card: KanbanCard): KanbanCardDetail {
