@@ -68,7 +68,9 @@ export function createExecApprovalHandlers(
         twoPhase?: boolean;
       };
       const twoPhase = p.twoPhase === true;
-      const category = isSensitiveApprovalCategory(p.category) ? p.category : "exec";
+      const category: "exec" | "financial" | "deletion" = isSensitiveApprovalCategory(p.category)
+        ? p.category
+        : "exec";
       const operationHash =
         typeof p.operationHash === "string" && p.operationHash.trim().length > 0
           ? p.operationHash.trim()
