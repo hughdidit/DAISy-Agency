@@ -23,6 +23,8 @@ const MAX_STRING_CHARS = 240;
 const MAX_ARRAY_ITEMS = 16;
 const MAX_OBJECT_KEYS = 32;
 const MAX_PREVIEW_CHARS = 2_000;
+const CAMEL_CASE_BOUNDARY = /([a-z])([A-Z])/g;
+const PASCAL_CASE_BOUNDARY = /([A-Z])([A-Z][a-z])/g;
 
 const DELETION_TERMS = [
   "delete",
@@ -89,6 +91,41 @@ function redactOrBound(value: unknown, depth = 0): unknown {
   return result;
 }
 
+function redactForFingerprint(value: unknown, seen = new WeakSet<object>()): unknown {
+  if (value === null || typeof value === "boolean" || typeof value === "number") {
+    return value;
+  }
+  if (typeof value === "string") {
+    return value;
+  }
+  if (Array.isArray(value)) {
+    if (seen.has(value)) {
+      return "[circular]";
+    }
+    seen.add(value);
+    const result = value.map((entry) => redactForFingerprint(entry, seen));
+    seen.delete(value);
+    return result;
+  }
+  if (!value || typeof value !== "object") {
+    return typeof value;
+  }
+  if (seen.has(value)) {
+    return "[circular]";
+  }
+  seen.add(value);
+  const result: Record<string, unknown> = {};
+  for (const [key, raw] of Object.entries(value as Record<string, unknown>)) {
+    if (/token|secret|password|credential|api[_-]?key|authorization/i.test(key)) {
+      result[key] = "[redacted]";
+    } else {
+      result[key] = redactForFingerprint(raw, seen);
+    }
+  }
+  seen.delete(value);
+  return result;
+}
+
 function stableStringify(value: unknown): string {
   if (Array.isArray(value)) {
     return `[${value.map((entry) => stableStringify(entry)).join(",")}]`;
@@ -105,7 +142,10 @@ function stableStringify(value: unknown): string {
 }
 
 function termsMatch(haystack: string, terms: readonly string[]): string | null {
-  const normalized = haystack.toLowerCase();
+  const normalized = haystack
+    .replace(CAMEL_CASE_BOUNDARY, "$1 $2")
+    .replace(PASCAL_CASE_BOUNDARY, "$1 $2")
+    .toLowerCase();
   for (const term of terms) {
     const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const pattern = term.includes("-")
@@ -136,6 +176,15 @@ export function classifySensitiveAction(
   params: ClassifySensitiveActionParams,
 ): SensitiveActionClassification | null {
   const preview = buildPreview(params);
+  const fingerprint = stableStringify({
+    surface: params.surface,
+    toolName: params.toolName ?? null,
+    method: params.method ?? null,
+    actionName: params.actionName ?? null,
+    agentId: params.agentId ?? null,
+    sessionKey: params.sessionKey ?? null,
+    payload: redactForFingerprint(params.payload),
+  });
   const haystack = [
     params.toolName,
     params.method,
@@ -157,18 +206,7 @@ export function classifySensitiveAction(
   }
   const operationHash = crypto
     .createHash("sha256")
-    .update(
-      stableStringify({
-        category,
-        surface: params.surface,
-        toolName: params.toolName ?? null,
-        method: params.method ?? null,
-        actionName: params.actionName ?? null,
-        agentId: params.agentId ?? null,
-        sessionKey: params.sessionKey ?? null,
-        preview,
-      }),
-    )
+    .update(stableStringify({ category, fingerprint }))
     .digest("hex");
   return {
     category,

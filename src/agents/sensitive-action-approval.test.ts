@@ -61,5 +61,11 @@ describe("requireSensitiveToolApproval", () => {
       }),
       { expectFinal: false },
     );
+    expect(callGatewayToolMock).toHaveBeenNthCalledWith(
+      2,
+      "exec.approval.waitDecision",
+      expect.anything(),
+      { id: "approval-id" },
+    );
   });
 });

@@ -723,6 +723,29 @@ describe("exec approval handlers", () => {
     );
   });
 
+  it("rejects sensitive approval requests with non-canonical operation hashes", async () => {
+    const { handlers, respond, context } = createExecApprovalFixture();
+
+    await requestExecApproval({
+      handlers,
+      respond,
+      context,
+      params: {
+        host: "gateway",
+        category: "deletion",
+        operationHash: "A".repeat(64),
+      },
+    });
+
+    expect(respond).toHaveBeenCalledWith(
+      false,
+      undefined,
+      expect.objectContaining({
+        message: "operationHash is required for financial and deletion approvals",
+      }),
+    );
+  });
+
   it("rejects allow-always and mismatched hashes for sensitive approvals", async () => {
     const { handlers, broadcasts, respond, context } = createExecApprovalFixture();
     const operationHash = "a".repeat(64);
@@ -731,7 +754,6 @@ describe("exec approval handlers", () => {
       respond,
       context,
       params: {
-        id: operationHash,
         host: "gateway",
         category: "financial",
         operationHash,
@@ -742,7 +764,8 @@ describe("exec approval handlers", () => {
 
     const requested = broadcasts.find((entry) => entry.event === "exec.approval.requested");
     const id = (requested?.payload as { id?: string })?.id ?? "";
-    expect(id).toBe(operationHash);
+    expect(id).not.toBe("");
+    expect(id).not.toBe(operationHash);
 
     const alwaysRespond = vi.fn();
     await resolveExecApproval({
@@ -802,7 +825,6 @@ describe("exec approval handlers", () => {
       respond,
       context,
       params: {
-        id: operationHash,
         host: "gateway",
         category: "deletion",
         operationHash,

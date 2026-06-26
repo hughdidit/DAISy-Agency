@@ -51,7 +51,6 @@ async function requestSensitiveApproval(params: {
     "exec.approval.request",
     { timeoutMs: DEFAULT_EXEC_APPROVAL_TIMEOUT_MS + 5_000 },
     {
-      id: params.classification.operationHash,
       command: `[${params.classification.category}] ${params.toolName}\n${params.classification.operationPreview}`,
       host: "gateway",
       category: params.classification.category,
@@ -68,7 +67,11 @@ async function requestSensitiveApproval(params: {
   if (preResolvedDecision) {
     return preResolvedDecision;
   }
-  return waitForSensitiveApprovalDecision(params.classification.operationHash);
+  const approvalId =
+    typeof registration.id === "string" && registration.id.trim().length > 0
+      ? registration.id.trim()
+      : null;
+  return approvalId ? waitForSensitiveApprovalDecision(approvalId) : null;
 }
 
 export async function requireSensitiveToolApproval(

@@ -82,6 +82,27 @@ async function recordLoopOutcome(args: {
   }
 }
 
+async function requireSensitiveApprovalOrBlock(args: {
+  toolName: string;
+  params: unknown;
+  ctx?: HookContext;
+}): Promise<HookOutcome | null> {
+  try {
+    await requireSensitiveToolApproval({
+      toolName: args.toolName,
+      params: args.params,
+      agentId: args.ctx?.agentId,
+      sessionKey: args.ctx?.sessionKey,
+    });
+    return null;
+  } catch (err) {
+    return {
+      blocked: true,
+      reason: err instanceof Error ? err.message : String(err),
+    };
+  }
+}
+
 export async function runBeforeToolCallHook(args: {
   toolName: string;
   params: unknown;
@@ -143,22 +164,16 @@ export async function runBeforeToolCallHook(args: {
     recordToolCall(sessionState, toolName, params, args.toolCallId, args.ctx.loopDetection);
   }
 
-  try {
-    await requireSensitiveToolApproval({
-      toolName,
-      params,
-      agentId: args.ctx?.agentId,
-      sessionKey: args.ctx?.sessionKey,
-    });
-  } catch (err) {
-    return {
-      blocked: true,
-      reason: err instanceof Error ? err.message : String(err),
-    };
-  }
-
   const hookRunner = getGlobalHookRunner();
   if (!hookRunner?.hasHooks("before_tool_call")) {
+    const sensitiveBlock = await requireSensitiveApprovalOrBlock({
+      toolName,
+      params: args.params,
+      ctx: args.ctx,
+    });
+    if (sensitiveBlock) {
+      return sensitiveBlock;
+    }
     return { blocked: false, params: args.params };
   }
 
@@ -190,16 +205,35 @@ export async function runBeforeToolCallHook(args: {
     }
 
     if (hookResult?.params && isPlainObject(hookResult.params)) {
-      if (isPlainObject(params)) {
-        return { blocked: false, params: { ...params, ...hookResult.params } };
+      const finalParams = isPlainObject(params)
+        ? { ...params, ...hookResult.params }
+        : hookResult.params;
+      const sensitiveBlock = await requireSensitiveApprovalOrBlock({
+        toolName,
+        params: finalParams,
+        ctx: args.ctx,
+      });
+      if (sensitiveBlock) {
+        return sensitiveBlock;
       }
-      return { blocked: false, params: hookResult.params };
+      if (isPlainObject(params)) {
+        return { blocked: false, params: finalParams };
+      }
+      return { blocked: false, params: finalParams };
     }
   } catch (err) {
     const toolCallId = args.toolCallId ? ` toolCallId=${args.toolCallId}` : "";
     log.warn(`before_tool_call hook failed: tool=${toolName}${toolCallId} error=${String(err)}`);
   }
 
+  const sensitiveBlock = await requireSensitiveApprovalOrBlock({
+    toolName,
+    params,
+    ctx: args.ctx,
+  });
+  if (sensitiveBlock) {
+    return sensitiveBlock;
+  }
   return { blocked: false, params };
 }
 

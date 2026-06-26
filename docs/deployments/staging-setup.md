@@ -212,7 +212,7 @@ For a brand-new staging VM, the real deploy requires the config file to exist at
              credentialRoutes: {
                "hughdidit-agent-gws": {
                  mode: "credentials_file",
-                 credentialsFile: "/opt/DAISy/config/secrets/gws/domain-wide-delegation.json",
+                 credentialsFile: "/opt/DAISy/config/secrets/gws/credentials.json",
                  allowedServices: [
                    "calendar",
                    "gmail",

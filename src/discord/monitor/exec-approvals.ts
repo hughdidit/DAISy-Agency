@@ -342,6 +342,11 @@ function createExpiredContainer(params: {
   });
 }
 
+function resolveSensitiveApprovers(approvers: readonly string[] | undefined): string[] {
+  const normalized = (approvers ?? []).map((id) => String(id).trim()).filter((id) => id.length > 0);
+  return normalized.length === 1 ? normalized : [];
+}
+
 export type DiscordExecApprovalHandlerOpts = {
   token: string;
   accountId: string;
@@ -384,6 +389,9 @@ export class DiscordExecApprovalHandler {
     }
 
     const sensitive = isSensitiveApprovalCategory(request.request.category);
+    if (sensitive && resolveSensitiveApprovers(config.approvers).length !== 1) {
+      return false;
+    }
 
     // Check agent filter
     if (!sensitive && config.agentFilter?.length) {
@@ -788,6 +796,14 @@ export class DiscordExecApprovalHandler {
   getApprovers(): string[] {
     return this.opts.config.approvers ?? [];
   }
+
+  getApproversForApproval(approvalId: string): string[] {
+    const request = this.requestCache.get(approvalId);
+    if (isSensitiveApprovalCategory(request?.request.category)) {
+      return resolveSensitiveApprovers(this.opts.config.approvers);
+    }
+    return this.getApprovers();
+  }
 }
 
 export type ExecApprovalButtonContext = {
@@ -820,7 +836,7 @@ export class ExecApprovalButton extends Button {
     }
 
     // Verify the user is an authorized approver
-    const approvers = this.ctx.handler.getApprovers();
+    const approvers = this.ctx.handler.getApproversForApproval(parsed.approvalId);
     const userId = interaction.userId;
     if (!approvers.some((id) => String(id) === userId)) {
       try {

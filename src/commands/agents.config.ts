@@ -274,7 +274,7 @@ export function pruneAgentConfig(
         }
       : cfg.plugins;
   const nextChannels =
-    cfg.channels && nextDiscordAccounts !== discordAccounts
+    cfg.channels && removedDiscordAccounts > 0
       ? {
           ...cfg.channels,
           discord: {

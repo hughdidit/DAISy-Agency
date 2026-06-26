@@ -33,6 +33,39 @@ describe("classifySensitiveAction", () => {
     expect(result?.reason).toContain("checkout");
   });
 
+  it("classifies camelCase and PascalCase sensitive names", () => {
+    expect(
+      classifySensitiveAction({
+        surface: "gateway",
+        method: "deleteWorkspaceAccount",
+        payload: {},
+      })?.category,
+    ).toBe("deletion");
+    expect(
+      classifySensitiveAction({
+        surface: "tool",
+        toolName: "SpendBudget",
+        payload: {},
+      })?.category,
+    ).toBe("financial");
+  });
+
+  it("hashes full redacted operation identity, not only the bounded preview", () => {
+    const first = classifySensitiveAction({
+      surface: "tool",
+      toolName: "browser",
+      payload: { action: "checkout", note: `${"x".repeat(300)}a` },
+    });
+    const second = classifySensitiveAction({
+      surface: "tool",
+      toolName: "browser",
+      payload: { action: "checkout", note: `${"x".repeat(300)}b` },
+    });
+
+    expect(first?.operationPreview).toBe(second?.operationPreview);
+    expect(first?.operationHash).not.toBe(second?.operationHash);
+  });
+
   it("does not classify ordinary reads", () => {
     expect(
       classifySensitiveAction({

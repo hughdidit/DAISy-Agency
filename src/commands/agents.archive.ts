@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { resolveStateDir } from "../config/paths.js";
+import { normalizeAgentId } from "../routing/session-key.js";
 
 type AgentArchiveManifestParams = {
   agentId: string;
@@ -33,15 +34,17 @@ function timestampForPath(now = new Date()): string {
 export async function writeAgentArchiveManifest(
   params: AgentArchiveManifestParams,
 ): Promise<string> {
+  const now = new Date();
   const archiveDir = path.join(resolveStateDir(process.env), "archives", "agents");
   await fs.mkdir(archiveDir, { recursive: true, mode: 0o700 });
+  const safeAgentId = normalizeAgentId(params.agentId);
   const manifestPath = path.join(
     archiveDir,
-    `${timestampForPath()}-${params.agentId}-retirement-manifest.json`,
+    `${timestampForPath(now)}-${safeAgentId}-retirement-manifest.json`,
   );
   const manifest = {
     version: 1,
-    createdAt: new Date().toISOString(),
+    createdAt: now.toISOString(),
     agentId: params.agentId,
     reason: params.reason ?? "agent-retirement",
     paths: {

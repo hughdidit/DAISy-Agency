@@ -16,6 +16,16 @@ import {
 } from "../protocol/index.js";
 import type { GatewayRequestHandlers } from "./types.js";
 
+const SHA256_HEX_RE = /^[a-f0-9]{64}$/;
+
+function normalizeOperationHash(value: unknown): string | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+  const trimmed = value.trim();
+  return SHA256_HEX_RE.test(trimmed) ? trimmed : null;
+}
+
 export function createExecApprovalHandlers(
   manager: ExecApprovalManager,
   opts?: { forwarder?: ExecApprovalForwarder },
@@ -71,10 +81,7 @@ export function createExecApprovalHandlers(
       const category: "exec" | "financial" | "deletion" = isSensitiveApprovalCategory(p.category)
         ? p.category
         : "exec";
-      const operationHash =
-        typeof p.operationHash === "string" && p.operationHash.trim().length > 0
-          ? p.operationHash.trim()
-          : null;
+      const operationHash = normalizeOperationHash(p.operationHash);
       if (isSensitiveApprovalCategory(category) && !operationHash) {
         respond(
           false,
@@ -332,7 +339,7 @@ export function createExecApprovalHandlers(
           );
           return;
         }
-        const suppliedHash = typeof p.operationHash === "string" ? p.operationHash.trim() : "";
+        const suppliedHash = normalizeOperationHash(p.operationHash);
         if (!snapshot.request.operationHash || suppliedHash !== snapshot.request.operationHash) {
           respond(
             false,

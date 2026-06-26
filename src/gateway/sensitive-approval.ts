@@ -38,7 +38,6 @@ async function awaitSensitiveGatewayApproval(params: {
       operationPreview: params.classification.operationPreview,
     },
     DEFAULT_EXEC_APPROVAL_TIMEOUT_MS,
-    params.classification.operationHash,
   );
   record.requestedByConnId = params.client?.connId ?? null;
   record.requestedByDeviceId = params.client?.connect?.device?.id ?? null;
