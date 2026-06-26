@@ -4384,6 +4384,9 @@ public struct ExecApprovalsSnapshot: Codable, Sendable {
 public struct ExecApprovalRequestParams: Codable, Sendable {
     public let id: String?
     public let command: String
+    public let category: AnyCodable?
+    public let operationhash: AnyCodable?
+    public let operationpreview: AnyCodable?
     public let commandargv: [String]?
     public let systemrunplan: [String: AnyCodable]?
     public let env: [String: AnyCodable]?
@@ -4405,6 +4408,9 @@ public struct ExecApprovalRequestParams: Codable, Sendable {
     public init(
         id: String?,
         command: String,
+        category: AnyCodable?,
+        operationhash: AnyCodable?,
+        operationpreview: AnyCodable?,
         commandargv: [String]?,
         systemrunplan: [String: AnyCodable]?,
         env: [String: AnyCodable]?,
@@ -4425,6 +4431,9 @@ public struct ExecApprovalRequestParams: Codable, Sendable {
     {
         self.id = id
         self.command = command
+        self.category = category
+        self.operationhash = operationhash
+        self.operationpreview = operationpreview
         self.commandargv = commandargv
         self.systemrunplan = systemrunplan
         self.env = env
@@ -4447,6 +4456,9 @@ public struct ExecApprovalRequestParams: Codable, Sendable {
     private enum CodingKeys: String, CodingKey {
         case id
         case command
+        case category
+        case operationhash = "operationHash"
+        case operationpreview = "operationPreview"
         case commandargv = "commandArgv"
         case systemrunplan = "systemRunPlan"
         case env
@@ -4470,18 +4482,22 @@ public struct ExecApprovalRequestParams: Codable, Sendable {
 public struct ExecApprovalResolveParams: Codable, Sendable {
     public let id: String
     public let decision: String
+    public let operationhash: AnyCodable?
 
     public init(
         id: String,
-        decision: String)
+        decision: String,
+        operationhash: AnyCodable?)
     {
         self.id = id
         self.decision = decision
+        self.operationhash = operationhash
     }
 
     private enum CodingKeys: String, CodingKey {
         case id
         case decision
+        case operationhash = "operationHash"
     }
 }
 

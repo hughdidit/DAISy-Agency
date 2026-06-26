@@ -251,10 +251,6 @@ Recommended reusable-route shape:
         id: "daisy",
         googleWorkspace: { email: "daisy.ai@hughdidit.com" },
       },
-      {
-        id: "finn",
-        googleWorkspace: { email: "finn.ai@hughdidit.com" },
-      },
     ],
   },
   plugins: {
@@ -330,8 +326,6 @@ Recommended reusable-route shape:
           agentCredentialBindings: {
             "agent:daisy": "hughdidit-agent-gws",
             "subagent:daisy": "hughdidit-agent-gws",
-            "agent:finn": "hughdidit-agent-gws",
-            "subagent:finn": "hughdidit-agent-gws",
           },
         },
       },

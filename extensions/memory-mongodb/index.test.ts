@@ -690,14 +690,14 @@ describe("memory-mongodb plugin", () => {
       },
       {
         _id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
-        text: "Finn scoped memory must not be injected into Daisy runs.",
+        text: "Ops scoped memory must not be injected into Daisy runs.",
         vector: [0.1, 0.2],
         importance: 0.8,
         category: "fact",
         type: "semantic",
         metadata: {
           source: "memory_capture",
-          ops: { scopeSubject: "agent:finn", kind: "fact" },
+          ops: { scopeSubject: "agent:ops", kind: "fact" },
         },
         createdAt: now,
         updatedAt: now,
@@ -737,7 +737,7 @@ describe("memory-mongodb plugin", () => {
     );
 
     expect(result?.prependContext).toContain("Daisy prefers memory continuity checks");
-    expect(result?.prependContext).not.toContain("Finn scoped memory");
+    expect(result?.prependContext).not.toContain("Ops scoped memory");
     expect(logger.warn).not.toHaveBeenCalledWith(
       "memory-mongodb: auto-recall skipped due to missing scope",
     );
@@ -782,7 +782,7 @@ describe("memory-mongodb plugin", () => {
         success: true,
         messages: [{ role: "user", content: "I prefer concise memory status updates." }],
       },
-      { agentId: "finn", sessionKey: "agent:finn:main" },
+      { agentId: "ops", sessionKey: "agent:ops:main" },
     );
 
     expect(memoryInsertCalls()).toHaveLength(1);
@@ -790,7 +790,7 @@ describe("memory-mongodb plugin", () => {
     const insertedDocuments = insertCall?.[2] as
       | Array<{ metadata?: { ops?: { scopeSubject?: string } } }>
       | undefined;
-    expect(insertedDocuments?.[0]?.metadata?.ops?.scopeSubject).toBe("agent:finn");
+    expect(insertedDocuments?.[0]?.metadata?.ops?.scopeSubject).toBe("agent:ops");
     expect(logger.warn).not.toHaveBeenCalledWith(
       "memory-mongodb: auto-capture skipped due to missing scope",
     );
@@ -840,7 +840,7 @@ describe("memory-mongodb plugin", () => {
           },
         ],
       },
-      { agentId: "finn", sessionKey: "agent:finn:main" },
+      { agentId: "ops", sessionKey: "agent:ops:main" },
     );
 
     expect(memoryInsertCalls()).toHaveLength(0);

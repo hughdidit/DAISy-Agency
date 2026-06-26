@@ -1,6 +1,6 @@
 # Deployments (GCP VM: DAISy)
 
-This repository deploys the Moltbot-forked version of DAISy to a **Debian 12 Google Compute Engine (GCE) VM** using GitHub Actions **Environments** for gating (staging vs production) and a release artifact (`release-metadata`) for deterministic, rollbackable deployments.
+This repository deploys the Moltbot-forked version of DAISy to a **Debian 12 Google Compute Engine (GCE) VM** using GitHub Actions **Environments** for gating (staging vs production) and a release artifact (`release-metadata`) for deterministic, rollbackable deployments. DAISy-Agency now uses the [DAISy single-agent operating model](./concepts/daisy-single-agent.md).
 
 This document is written for the **IAP-only** access model (preferred): the VM does **not** need a public SSH endpoint; GitHub Actions reaches it through **IAP TCP forwarding** using `gcloud compute ssh --tunnel-through-iap`.
 
@@ -107,10 +107,6 @@ These secrets are passed to docker compose on the target VM.
 **Optional (integrations):**
 
 - `OPENAI_API_KEY` - OpenAI-backed models, tools, and embeddings
-- `FINN_DISCORD_BOT_TOKEN` - Finn Discord bot token for `channels.discord.accounts.finn.token` when staging runs Finn as a separate Discord app
-- `KODY_DISCORD_BOT_TOKEN` - Kody Discord bot token for `channels.discord.accounts.kody.token` when staging runs Kody as a separate Discord app
-- `ART_DISCORD_BOT_TOKEN` - Art Discord bot token for `channels.discord.accounts.art.token` when staging runs Art as a separate Discord app
-- `SALLY_DISCORD_BOT_TOKEN` - Sally Discord bot token for `channels.discord.accounts.sally.token` when staging runs Sally as a separate Discord app
 - `MONGODB_URI` - memory-mongodb connection URI
 - `GEMINI_API_KEY` - Gemini embeddings / Google provider access
 - `BRAVE_API_KEY` - Brave web search access
@@ -120,7 +116,7 @@ These secrets are passed to docker compose on the target VM.
 - `GOOGLE_WORKSPACE_CLI_TOKEN` - optional bearer token for `gws-toolkit-phase1` token mode
 - `GWS_CREDENTIALS` - optional Google Workspace credentials JSON for `gws-toolkit-phase1` `credentials_file` mode (service-account JSON required for delegated agent Workspace identities in staging/production)
 
-Trello secrets are optional and only needed when `plugins.entries.trello-toolkit.enabled` is true. The toolkit runs Trello API calls in the gateway and does not project Trello secrets into sandboxes. Staging currently uses `gws-toolkit-phase1` in `credentials_file` mode, so `GWS_CREDENTIALS` is the active path and `GOOGLE_WORKSPACE_CLI_TOKEN` can remain unset. DAISy agent Workspace users are configured in `agents.list[].googleWorkspace.email`; route-level `impersonatedUser` is only a compatibility/projection check and must match that agent email when present. In enforced runtime environments (`staging`, `production`), delegated agent routes reject `authorized_user`/headless-export credential files and require service-account JSON with Google Workspace Domain-Wide Delegation.
+Trello secrets are optional and only needed when `plugins.entries.trello-toolkit.enabled` is true. The toolkit runs Trello API calls in the gateway and does not project Trello secrets into sandboxes. Staging currently uses `gws-toolkit-phase1` in `credentials_file` mode, so `GWS_CREDENTIALS` is the active path and `GOOGLE_WORKSPACE_CLI_TOKEN` can remain unset. DAISy is the only active DAISy-Agency agent; retire Finn, Kody, Art, and Sally runtime bindings instead of provisioning separate Discord bot tokens for them. DAISy Workspace identity is configured in `agents.list[].googleWorkspace.email`; route-level `impersonatedUser` is only a compatibility/projection check and must match that agent email when present. In enforced runtime environments (`staging`, `production`), delegated agent routes reject `authorized_user`/headless-export credential files and require service-account JSON with Google Workspace Domain-Wide Delegation.
 
 ### Monitoring Secrets
 

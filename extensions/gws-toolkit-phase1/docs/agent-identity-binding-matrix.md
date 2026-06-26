@@ -5,7 +5,6 @@
 | `agent:main`     | default top-level agent     | `agents.list[id="main"].googleWorkspace.email`       | explicit binding recommended              |
 | `agent:daisy`    | DAISy Workspace agent       | `agents.list[id="daisy"].googleWorkspace.email`      | explicit binding required for production  |
 | `subagent:daisy` | subagent spawned from Daisy | same `agents.list[id="daisy"].googleWorkspace.email` | separate explicit binding; no inheritance |
-| `agent:finn`     | Finn Workspace agent        | `agents.list[id="finn"].googleWorkspace.email`       | explicit binding required for production  |
 | `agent:research` | read-focused agent          | agent-specific Workspace email when GWS is enabled   | bind to read-only route                   |
 
 Use read-only routes for subjects that do not need writes, even if the plugin
@@ -29,10 +28,7 @@ Recommended HughDidIt bindings:
 ```json5
 {
   agents: {
-    list: [
-      { id: "daisy", googleWorkspace: { email: "daisy.ai@hughdidit.com" } },
-      { id: "finn", googleWorkspace: { email: "finn.ai@hughdidit.com" } },
-    ],
+    list: [{ id: "daisy", googleWorkspace: { email: "daisy.ai@hughdidit.com" } }],
   },
   plugins: {
     entries: {
@@ -42,8 +38,6 @@ Recommended HughDidIt bindings:
           agentCredentialBindings: {
             "agent:daisy": "hughdidit-agent-gws",
             "subagent:daisy": "hughdidit-agent-gws",
-            "agent:finn": "hughdidit-agent-gws",
-            "subagent:finn": "hughdidit-agent-gws",
           },
         },
       },

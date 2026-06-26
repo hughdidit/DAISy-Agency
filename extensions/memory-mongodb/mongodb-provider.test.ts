@@ -1206,13 +1206,13 @@ describe("mongodb provider via MCP", () => {
       .fn()
       .mockResolvedValueOnce([
         {
-          _id: "legacy-finn",
-          text: "Finn prefers compact issue summaries.",
+          _id: "legacy-ops",
+          text: "Ops prefers compact issue summaries.",
           category: "preference",
           type: "semantic",
-          tenantId: "tenant-finn",
-          workspaceId: "workspace-finn",
-          scopeSubject: "agent:finn",
+          tenantId: "tenant-ops",
+          workspaceId: "workspace-ops",
+          scopeSubject: "agent:ops",
           subjectType: "agent",
           visibility: "project",
           kind: "preference",
@@ -1257,9 +1257,9 @@ describe("mongodb provider via MCP", () => {
     expect(update.$set.workspaceId).toBeUndefined();
     expect(update.$set["metadata.ops"]).toEqual(
       expect.objectContaining({
-        tenantId: "tenant-finn",
-        workspaceId: "workspace-finn",
-        scopeSubject: "agent:finn",
+        tenantId: "tenant-ops",
+        workspaceId: "workspace-ops",
+        scopeSubject: "agent:ops",
         subjectType: "agent",
         visibility: "project",
         kind: "preference",

@@ -122,8 +122,6 @@ Reusable service-account route for multiple Workspace identities:
           agentCredentialBindings: {
             "agent:daisy": "hughdidit-agent-gws",
             "subagent:daisy": "hughdidit-agent-gws",
-            "agent:finn": "hughdidit-agent-gws",
-            "subagent:finn": "hughdidit-agent-gws",
           },
         },
       },

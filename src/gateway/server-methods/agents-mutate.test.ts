@@ -10,7 +10,14 @@ const mocks = vi.hoisted(() => ({
   listAgentEntries: vi.fn(() => [] as Array<{ agentId: string }>),
   findAgentEntryIndex: vi.fn(() => -1),
   applyAgentConfig: vi.fn((_cfg: unknown, _opts: unknown) => ({})),
-  pruneAgentConfig: vi.fn(() => ({ config: {}, removedBindings: 0 })),
+  pruneAgentConfig: vi.fn(() => ({
+    config: {},
+    removedBindings: 0,
+    removedAllow: 0,
+    removedCredentialBindings: 0,
+    removedDiscordAccounts: 0,
+  })),
+  writeAgentArchiveManifest: vi.fn(async () => "/archives/test-agent-retirement-manifest.json"),
   writeConfigFile: vi.fn(async () => {}),
   ensureAgentWorkspace: vi.fn(async () => {}),
   resolveAgentDir: vi.fn(() => "/agents/test-agent"),
@@ -43,6 +50,10 @@ vi.mock("../../commands/agents.config.js", () => ({
   findAgentEntryIndex: mocks.findAgentEntryIndex,
   listAgentEntries: mocks.listAgentEntries,
   pruneAgentConfig: mocks.pruneAgentConfig,
+}));
+
+vi.mock("../../commands/agents.archive.js", () => ({
+  writeAgentArchiveManifest: mocks.writeAgentArchiveManifest,
 }));
 
 vi.mock("../../agents/agent-scope.js", () => ({
@@ -421,7 +432,13 @@ describe("agents.delete", () => {
     vi.clearAllMocks();
     mocks.loadConfigReturn = {};
     mocks.findAgentEntryIndex.mockReturnValue(0);
-    mocks.pruneAgentConfig.mockReturnValue({ config: {}, removedBindings: 2 });
+    mocks.pruneAgentConfig.mockReturnValue({
+      config: {},
+      removedBindings: 2,
+      removedAllow: 0,
+      removedCredentialBindings: 0,
+      removedDiscordAccounts: 0,
+    });
   });
 
   it("deletes an existing agent and trashes files by default", async () => {
@@ -432,9 +449,15 @@ describe("agents.delete", () => {
 
     expect(respond).toHaveBeenCalledWith(
       true,
-      { ok: true, agentId: "test-agent", removedBindings: 2 },
+      expect.objectContaining({
+        ok: true,
+        agentId: "test-agent",
+        archiveManifestPath: "/archives/test-agent-retirement-manifest.json",
+        removedBindings: 2,
+      }),
       undefined,
     );
+    expect(mocks.writeAgentArchiveManifest).toHaveBeenCalled();
     expect(mocks.writeConfigFile).toHaveBeenCalled();
     // moveToTrashBestEffort calls fs.access then movePathToTrash for each dir
     expect(mocks.movePathToTrash).toHaveBeenCalled();

@@ -187,6 +187,8 @@ export function pruneAgentConfig(
   config: OpenClawConfig;
   removedBindings: number;
   removedAllow: number;
+  removedCredentialBindings: number;
+  removedDiscordAccounts: number;
 } {
   const id = normalizeAgentId(agentId);
   const agents = listAgentEntries(cfg);
@@ -197,7 +199,58 @@ export function pruneAgentConfig(
   const filteredBindings = bindings.filter((binding) => normalizeAgentId(binding.agentId) !== id);
 
   const allow = cfg.tools?.agentToAgent?.allow ?? [];
-  const filteredAllow = allow.filter((entry) => entry !== id);
+  const filteredAllow = allow.filter((entry) => {
+    const raw = String(entry).trim().toLowerCase();
+    return normalizeAgentId(raw) !== id && raw !== `agent:${id}` && raw !== `subagent:${id}`;
+  });
+
+  const gwsSubjectsToRemove = new Set([`agent:${id}`, `subagent:${id}`]);
+  let removedCredentialBindings = 0;
+  let pluginEntriesChanged = false;
+  const nextPluginEntries = cfg.plugins?.entries
+    ? Object.fromEntries(
+        Object.entries(cfg.plugins.entries).map(([pluginId, entry]) => {
+          const rawConfig = entry.config;
+          const rawBindings =
+            rawConfig && typeof rawConfig === "object" && !Array.isArray(rawConfig)
+              ? rawConfig.agentCredentialBindings
+              : undefined;
+          if (!rawBindings || typeof rawBindings !== "object" || Array.isArray(rawBindings)) {
+            return [pluginId, entry];
+          }
+          const nextBindings = { ...(rawBindings as Record<string, unknown>) };
+          for (const subject of gwsSubjectsToRemove) {
+            if (Object.hasOwn(nextBindings, subject)) {
+              delete nextBindings[subject];
+              removedCredentialBindings += 1;
+              pluginEntriesChanged = true;
+            }
+          }
+          if (Object.keys(nextBindings).length === Object.keys(rawBindings).length) {
+            return [pluginId, entry];
+          }
+          return [
+            pluginId,
+            {
+              ...entry,
+              config: {
+                ...rawConfig,
+                agentCredentialBindings:
+                  Object.keys(nextBindings).length > 0 ? nextBindings : undefined,
+              },
+            },
+          ];
+        }),
+      )
+    : cfg.plugins?.entries;
+
+  let removedDiscordAccounts = 0;
+  const discordAccounts = cfg.channels?.discord?.accounts;
+  const nextDiscordAccounts = discordAccounts ? { ...discordAccounts } : undefined;
+  if (nextDiscordAccounts && Object.hasOwn(nextDiscordAccounts, id)) {
+    delete nextDiscordAccounts[id];
+    removedDiscordAccounts = 1;
+  }
 
   const nextAgentsConfig = cfg.agents
     ? { ...cfg.agents, list: nextAgents }
@@ -213,6 +266,24 @@ export function pruneAgentConfig(
         },
       }
     : cfg.tools;
+  const nextPlugins =
+    cfg.plugins && pluginEntriesChanged
+      ? {
+          ...cfg.plugins,
+          entries: nextPluginEntries,
+        }
+      : cfg.plugins;
+  const nextChannels =
+    cfg.channels && removedDiscordAccounts > 0
+      ? {
+          ...cfg.channels,
+          discord: {
+            ...cfg.channels.discord,
+            accounts:
+              Object.keys(nextDiscordAccounts ?? {}).length > 0 ? nextDiscordAccounts : undefined,
+          },
+        }
+      : cfg.channels;
 
   return {
     config: {
@@ -220,8 +291,12 @@ export function pruneAgentConfig(
       agents: nextAgentsConfig,
       bindings: filteredBindings.length > 0 ? filteredBindings : undefined,
       tools: nextTools,
+      plugins: nextPlugins,
+      channels: nextChannels,
     },
     removedBindings: bindings.length - filteredBindings.length,
     removedAllow: allow.length - filteredAllow.length,
+    removedCredentialBindings,
+    removedDiscordAccounts,
   };
 }

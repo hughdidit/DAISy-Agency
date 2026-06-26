@@ -3,6 +3,7 @@ import { consumeControlPlaneWriteBudget } from "./control-plane-rate-limit.js";
 import { ADMIN_SCOPE, authorizeOperatorScopesForMethod } from "./method-scopes.js";
 import { ErrorCodes, errorShape } from "./protocol/index.js";
 import { isRoleAuthorizedForMethod, parseGatewayRole } from "./role-policy.js";
+import { requireSensitiveGatewayApprovalIfNeeded } from "./sensitive-approval.js";
 import { agentHandlers } from "./server-methods/agent.js";
 import { agentsHandlers } from "./server-methods/agents.js";
 import { browserHandlers } from "./server-methods/browser.js";
@@ -141,6 +142,16 @@ export async function handleGatewayRequest(
       undefined,
       errorShape(ErrorCodes.INVALID_REQUEST, `unknown method: ${req.method}`),
     );
+    return;
+  }
+  const approved = await requireSensitiveGatewayApprovalIfNeeded({
+    method: req.method,
+    requestParams: req.params ?? {},
+    client,
+    context,
+    respond,
+  });
+  if (!approved) {
     return;
   }
   await handler({

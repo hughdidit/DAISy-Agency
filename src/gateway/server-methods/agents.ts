@@ -19,6 +19,7 @@ import {
   isWorkspaceOnboardingCompleted,
 } from "../../agents/workspace.js";
 import { movePathToTrash } from "../../browser/trash.js";
+import { writeAgentArchiveManifest } from "../../commands/agents.archive.js";
 import {
   applyAgentConfig,
   findAgentEntryIndex,
@@ -667,6 +668,16 @@ export const agentsHandlers: GatewayRequestHandlers = {
     const sessionsDir = resolveSessionTranscriptsDirForAgent(agentId);
 
     const result = pruneAgentConfig(cfg, agentId);
+    const archiveManifestPath = await writeAgentArchiveManifest({
+      agentId,
+      workspaceDir,
+      agentDir,
+      sessionsDir,
+      removedBindings: result.removedBindings,
+      removedAllow: result.removedAllow,
+      removedCredentialBindings: result.removedCredentialBindings,
+      removedDiscordAccounts: result.removedDiscordAccounts,
+    });
     await writeConfigFile(result.config);
 
     if (deleteFiles) {
@@ -677,7 +688,19 @@ export const agentsHandlers: GatewayRequestHandlers = {
       ]);
     }
 
-    respond(true, { ok: true, agentId, removedBindings: result.removedBindings }, undefined);
+    respond(
+      true,
+      {
+        ok: true,
+        agentId,
+        archiveManifestPath,
+        removedBindings: result.removedBindings,
+        removedAllow: result.removedAllow,
+        removedCredentialBindings: result.removedCredentialBindings,
+        removedDiscordAccounts: result.removedDiscordAccounts,
+      },
+      undefined,
+    );
   },
   "agents.files.list": async ({ params, respond }) => {
     if (!validateAgentsFilesListParams(params)) {

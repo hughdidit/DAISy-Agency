@@ -170,29 +170,16 @@ Token resolution is account-aware. Config token values win over env fallback. `D
 
 ## Multiple Discord bots
 
-Run each Discord bot as a named account with its own token and allowlist. The default account may use `DISCORD_BOT_TOKEN`, but named accounts should use explicit token config, typically with account-specific environment references:
+DAISy-Agency uses a single DAISy Discord bot. The default account may use `DISCORD_BOT_TOKEN`. Named accounts remain available for other deployments that truly need separate bots, but do not configure Finn, Kody, Art, or Sally as DAISy-Agency Discord accounts.
 
 ```json5
 {
-  bindings: [
-    { agentId: "daisy", match: { channel: "discord", accountId: "default" } },
-    { agentId: "finn", match: { channel: "discord", accountId: "finn" } },
-  ],
+  bindings: [{ agentId: "daisy", match: { channel: "discord", accountId: "default" } }],
   channels: {
     discord: {
       accounts: {
         default: {
           token: "${DISCORD_BOT_TOKEN}",
-        },
-        finn: {
-          token: "${FINN_DISCORD_BOT_TOKEN}",
-          guilds: {
-            "123456789012345678": {
-              channels: {
-                "234567890123456789": { allow: true, requireMention: false },
-              },
-            },
-          },
         },
       },
     },
@@ -882,7 +869,7 @@ Default slash command settings:
     - `channels.discord.execApprovals.target` (`dm` | `channel` | `both`, default: `dm`)
     - `agentFilter`, `sessionFilter`, `cleanupAfterResolve`
 
-    When `target` is `channel` or `both`, the approval prompt is visible in the channel. Only configured approvers can use the buttons; other users receive an ephemeral denial. Approval prompts include the command text, so only enable channel delivery in trusted channels. If the channel ID cannot be derived from the session key, OpenClaw falls back to DM delivery.
+    When `target` is `channel` or `both`, the approval prompt is visible in the channel. Only configured approvers can use the buttons; other users receive an ephemeral denial. Approval prompts include the command text, so only enable channel delivery in trusted channels. If the channel ID cannot be derived from the session key, OpenClaw falls back to DM delivery. DAISy-Agency also uses this path for financial and deletion approvals; those prompts require one-time approval and never offer "Always allow".
 
     If approvals fail with unknown approval IDs, verify approver list and feature enablement.
 

@@ -165,10 +165,6 @@ For a brand-new staging VM, the real deploy requires the config file to exist at
    - `GHCR_TOKEN`
    - `OPENCLAW_GATEWAY_TOKEN` - Generate with `openssl rand -hex 32`
    - `DISCORD_BOT_TOKEN` - Required by the current deploy workflow and deploy script for real deploys; use the DAISy staging bot for the default Discord account
-   - `FINN_DISCORD_BOT_TOKEN` - Optional until the staging config references `channels.discord.accounts.finn.token`; required when Finn runs as its own Discord app
-   - `KODY_DISCORD_BOT_TOKEN` - Optional until the staging config references `channels.discord.accounts.kody.token`; required when Kody runs as its own Discord app
-   - `ART_DISCORD_BOT_TOKEN` - Optional until the staging config references `channels.discord.accounts.art.token`; required when Art runs as its own Discord app
-   - `SALLY_DISCORD_BOT_TOKEN` - Optional until the staging config references `channels.discord.accounts.sally.token`; required when Sally runs as its own Discord app
    - `ANTHROPIC_API_KEY` - Required by the current deploy workflow and deploy script for real deploys
    - `OPENAI_API_KEY` - Optional, for OpenAI-backed models, tools, and embeddings
    - `MONGODB_URI` - Optional, for memory-mongodb
@@ -182,7 +178,7 @@ For a brand-new staging VM, the real deploy requires the config file to exist at
    - `DISCORD_ALERTS_WEBHOOK_URL` - Sensitive Discord webhook for Alertmanager; store as a secret, not a variable
    - `ALERT_SMTP_USERNAME` / `ALERT_SMTP_PASSWORD` - Optional SMTP auth for email alerts
 
-   Staging currently runs `gws-toolkit-phase1` in `credentials_file` mode, so `GWS_CREDENTIALS` is the active path and `GOOGLE_WORKSPACE_CLI_TOKEN` is expected to stay empty unless the config changes. Trello runs through `trello-toolkit` in the gateway; do not add Trello secrets to sandbox Docker env. For DAISy agent identities, configure `agents.list[].googleWorkspace.email` with the real Workspace user and bind the agent to a `credentials_file` GWS route; the toolkit uses direct Google API calls with service-account domain-wide delegation instead of relying on `gws` CLI impersonation. Verify checks both file presence and route-bound auth health inside the live gateway container. For delegated routes in enforced environments, credentials must be service-account JSON; exported user OAuth credentials are rejected. Delegated sandbox containers do not receive `/opt/DAISy/config`; they only receive explicit capability projections, so GWS availability in sandboxed delegated runs depends on the route-authorized credential file being derived into the sandbox at container creation time. The sandbox capability-mount resolver is the delegated secret-delivery surface, and GWS is currently the only capability wired through it.
+   Staging currently runs `gws-toolkit-phase1` in `credentials_file` mode, so `GWS_CREDENTIALS` is the active path and `GOOGLE_WORKSPACE_CLI_TOKEN` is expected to stay empty unless the config changes. Trello runs through `trello-toolkit` in the gateway; do not add Trello secrets to sandbox Docker env. DAISy is the only active DAISy-Agency agent. Configure only DAISy's `agents.list[].googleWorkspace.email` and remove retired Finn, Kody, Art, and Sally agent bindings after archiving their data. Verify checks both file presence and route-bound auth health inside the live gateway container. Credentials must be service-account JSON in enforced environments; exported user OAuth credentials are rejected. Sandbox containers do not receive `/opt/DAISy/config`; they only receive explicit capability projections, so GWS availability in sandboxed runs depends on the route-authorized credential file being derived into the sandbox at container creation time. The sandbox capability-mount resolver is the delegated secret-delivery surface, and GWS is currently the only capability wired through it.
 
    Minimal staging GWS config fragment:
 
@@ -193,10 +189,6 @@ For a brand-new staging VM, the real deploy requires the config file to exist at
          {
            id: "daisy",
            googleWorkspace: { email: "daisy.ai@hughdidit.com" },
-         },
-         {
-           id: "finn",
-           googleWorkspace: { email: "finn.ai@hughdidit.com" },
          },
        ],
      },
@@ -220,7 +212,7 @@ For a brand-new staging VM, the real deploy requires the config file to exist at
              credentialRoutes: {
                "hughdidit-agent-gws": {
                  mode: "credentials_file",
-                 credentialsFile: "/opt/DAISy/config/secrets/gws/domain-wide-delegation.json",
+                 credentialsFile: "/opt/DAISy/config/secrets/gws/credentials.json",
                  allowedServices: [
                    "calendar",
                    "gmail",
@@ -245,8 +237,6 @@ For a brand-new staging VM, the real deploy requires the config file to exist at
              agentCredentialBindings: {
                "agent:daisy": "hughdidit-agent-gws",
                "subagent:daisy": "hughdidit-agent-gws",
-               "agent:finn": "hughdidit-agent-gws",
-               "subagent:finn": "hughdidit-agent-gws",
              },
            },
          },
@@ -327,10 +317,6 @@ sudo chown "$(whoami):$(whoami)" /opt/DAISy
 
 - [ ] `OPENCLAW_GATEWAY_TOKEN` - Generate new random token
 - [ ] `DISCORD_BOT_TOKEN` - Required by the current deploy workflow/script; use the DAISy staging bot for the default Discord account, not production
-- [ ] `FINN_DISCORD_BOT_TOKEN` - Required when `channels.discord.accounts.finn.token` references `${FINN_DISCORD_BOT_TOKEN}`; use Finn's real Discord bot token, not the DAISy staging token
-- [ ] `KODY_DISCORD_BOT_TOKEN` - Required when `channels.discord.accounts.kody.token` references `${KODY_DISCORD_BOT_TOKEN}`; use Kody's real Discord bot token, not the DAISy staging token
-- [ ] `ART_DISCORD_BOT_TOKEN` - Required when `channels.discord.accounts.art.token` references `${ART_DISCORD_BOT_TOKEN}`; use Art's real Discord bot token, not the DAISy staging token
-- [ ] `SALLY_DISCORD_BOT_TOKEN` - Required when `channels.discord.accounts.sally.token` references `${SALLY_DISCORD_BOT_TOKEN}`; use Sally's real Discord bot token, not the DAISy staging token
 - [ ] `ANTHROPIC_API_KEY` - Required by the current deploy workflow/script for real deploys
 - [ ] `OPENAI_API_KEY` - Optional; set when staging should use OpenAI-backed features
 - [ ] `MONGODB_URI` - Optional; set when memory-mongodb is enabled
@@ -413,46 +399,18 @@ sudo docker-compose -f docker-compose.yml -f docker-compose.host.yml restart
 
 See [Gateway Configuration](/gateway/configuration#daisy-deployment-config-management) for the full config format reference and Discord allowlist structure.
 
-#### Delegate Discord named accounts
+#### Retired Delegate Accounts
 
-When staging connects delegate agents to Discord, keep each delegate as a named Discord account with a separate token. Do not reuse `${DISCORD_BOT_TOKEN}` for Finn, Kody, Art, or Sally; that value is the DAISy staging bot.
+Finn, Kody, Art, and Sally are retired DAISy-Agency agents. Do not configure `channels.discord.accounts.finn`, `channels.discord.accounts.kody`, `channels.discord.accounts.art`, or `channels.discord.accounts.sally` in staging. Keep the default DAISy Discord account and route all DAISy-Agency work to the DAISy agent.
 
 ```json5
 {
-  bindings: [
-    { agentId: "daisy", match: { channel: "discord", accountId: "default" } },
-    { agentId: "finn", match: { channel: "discord", accountId: "finn" } },
-    { agentId: "kody", match: { channel: "discord", accountId: "kody" } },
-    { agentId: "art", match: { channel: "discord", accountId: "art" } },
-    { agentId: "sally", match: { channel: "discord", accountId: "sally" } },
-  ],
+  bindings: [{ agentId: "daisy", match: { channel: "discord", accountId: "default" } }],
   channels: {
     discord: {
       accounts: {
         default: {
           token: "${DISCORD_BOT_TOKEN}",
-        },
-        finn: {
-          token: "${FINN_DISCORD_BOT_TOKEN}",
-          guilds: {
-            FINN_GUILD_ID: {
-              channels: {
-                FINN_CHANNEL_ID: { allow: true, requireMention: false },
-              },
-            },
-          },
-        },
-        kody: {
-          token: "${KODY_DISCORD_BOT_TOKEN}",
-          dmPolicy: "pairing",
-        },
-        art: {
-          token: "${ART_DISCORD_BOT_TOKEN}",
-          dmPolicy: "pairing",
-        },
-        sally: {
-          token: "${SALLY_DISCORD_BOT_TOKEN}",
-          dmPolicy: "pairing",
         },
       },
     },
@@ -460,7 +418,7 @@ When staging connects delegate agents to Discord, keep each delegate as a named 
 }
 ```
 
-After editing the locked VM config and deploying with the named-account token present, restart the gateway and verify logs show a separate Discord startup for the delegate account. Run `/reset` or `/new` in the relevant Discord channel after the deploy so channel session snapshots refresh. Do not run a delegate's `BOOTSTRAP.md` as part of this connection step.
+Before removing the retired Workspace users, archive each account's mail into the restricted Shared Drive archive, record export timestamps/file checksums in the manifest, suspend sign-in, verify Hugh-controlled access to the archive, then delete the Workspace users through Admin Console/Admin SDK operational tooling. Do not grant DAISy broad permanent Workspace-user-deletion capability for this cleanup.
 
 ### 6. Start Services (Manual only)
 
