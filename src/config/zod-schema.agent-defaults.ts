@@ -82,6 +82,22 @@ export const AgentDefaultsSchema = z
       })
       .strict()
       .optional(),
+    spendBudget: z
+      .object({
+        enabled: z.boolean().optional(),
+        currency: z.literal("USD").optional(),
+        monthlyLimitUsd: z.number().positive().optional(),
+        timezone: z.literal("UTC").optional(),
+        warnAtUsd: z.number().nonnegative().optional(),
+        degradeAtUsd: z.number().nonnegative().optional(),
+        hardStopAtUsd: z.number().nonnegative().optional(),
+        ownerEmergencyReserveUsd: z.number().nonnegative().optional(),
+        maxProjectedCostPerAttemptUsd: z.number().positive().optional(),
+        maxProjectedCostPerRunUsd: z.number().positive().optional(),
+        blockMessage: z.string().optional(),
+      })
+      .strict()
+      .optional(),
     compaction: z
       .object({
         mode: z.union([z.literal("default"), z.literal("safeguard")]).optional(),

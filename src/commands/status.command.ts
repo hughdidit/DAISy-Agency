@@ -1,4 +1,11 @@
 import { formatSandboxFailureMessage } from "../agents/sandbox/failure-messaging.js";
+import {
+  currentBudgetMonth,
+  loadMonthlyBudgetLedger,
+  resolveBudgetStage,
+  resolveSpendBudgetConfig,
+  summarizeMonthlyBudgetLedger,
+} from "../agents/spend-budget.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import { withProgress } from "../cli/progress.js";
 import { resolveGatewayPort } from "../config/config.js";
@@ -20,6 +27,7 @@ import { runSecurityAudit } from "../security/audit.js";
 import { RESOLVED_CAPABILITY_CLASSES } from "../shared/resolved-capability-manifest.js";
 import { renderTable } from "../terminal/table.js";
 import { theme } from "../terminal/theme.js";
+import { formatUsd } from "../utils/usage-format.js";
 import {
   formatCapabilityClassLabel,
   formatCommandCapabilityFindingFailureMessage,
@@ -211,6 +219,33 @@ export async function statusCommand(
     gitTag: update.git?.tag ?? null,
     gitBranch: update.git?.branch ?? null,
   });
+  const spendBudget = resolveSpendBudgetConfig(cfg);
+  const resolvedSpendBudgetStatus = spendBudget.enabled
+    ? await (async () => {
+        const budgetSummary = summarizeMonthlyBudgetLedger(
+          await loadMonthlyBudgetLedger(),
+          currentBudgetMonth(),
+        );
+        const stage = resolveBudgetStage(spendBudget, budgetSummary.monthToDateUsd).stage;
+        const remainingUsd = Math.max(
+          0,
+          spendBudget.monthlyLimitUsd - budgetSummary.monthToDateUsd,
+        );
+        return {
+          enabled: true,
+          currency: spendBudget.currency,
+          month: budgetSummary.month,
+          monthToDateUsd: budgetSummary.monthToDateUsd,
+          estimatedUsd: budgetSummary.estimatedUsd,
+          actualUsd: budgetSummary.actualUsd,
+          monthlyLimitUsd: spendBudget.monthlyLimitUsd,
+          remainingUsd,
+          stage,
+          topAgents: budgetSummary.topAgents,
+          topModels: budgetSummary.topModels,
+        };
+      })()
+    : undefined;
 
   if (opts.json) {
     const [daemon, nodeDaemon] = await Promise.all([
@@ -245,6 +280,7 @@ export async function statusCommand(
           agents: agentStatus,
           securityAudit,
           capabilities,
+          ...(resolvedSpendBudgetStatus ? { spendBudget: resolvedSpendBudgetStatus } : {}),
           ...(health || usage || lastHeartbeat ? { health, usage, lastHeartbeat } : {}),
         },
         null,
@@ -743,6 +779,24 @@ export async function statusCommand(
     runtime.log(theme.heading("Usage"));
     for (const line of formatUsageReportLines(usage)) {
       runtime.log(line);
+    }
+  }
+  if (resolvedSpendBudgetStatus) {
+    runtime.log("");
+    runtime.log(theme.heading("Spend Budget"));
+    runtime.log(
+      `Month-to-date: ${formatUsd(resolvedSpendBudgetStatus.monthToDateUsd) ?? "$0.00"} / ${formatUsd(
+        resolvedSpendBudgetStatus.monthlyLimitUsd,
+      )} (${resolvedSpendBudgetStatus.stage})`,
+    );
+    runtime.log(`Remaining: ${formatUsd(resolvedSpendBudgetStatus.remainingUsd) ?? "$0.00"}`);
+    const topAgent = resolvedSpendBudgetStatus.topAgents[0];
+    const topModel = resolvedSpendBudgetStatus.topModels[0];
+    if (topAgent) {
+      runtime.log(`Top agent: ${topAgent.key} ${formatUsd(topAgent.costUsd) ?? "$0.00"}`);
+    }
+    if (topModel) {
+      runtime.log(`Top model: ${topModel.key} ${formatUsd(topModel.costUsd) ?? "$0.00"}`);
     }
   }
 

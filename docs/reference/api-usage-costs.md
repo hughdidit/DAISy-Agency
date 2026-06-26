@@ -29,6 +29,15 @@ OpenClaw features that can generate provider usage or paid API calls.
 - `openclaw status --usage` and `openclaw channels list` show provider **usage windows**
   (quota snapshots, not per-message costs).
 
+**Monthly spend budget**
+
+- `agents.defaults.spendBudget.enabled=true` enforces a configured monthly USD cap before embedded
+  runner model provider traffic is sent.
+- `/usage cost` and `openclaw status` show month-to-date budget ledger spend, remaining budget,
+  current stage, and top agents/models.
+- The budget ledger lives at `~/.openclaw/usage/monthly-budget.json` unless `OPENCLAW_STATE_DIR`
+  changes the gateway state directory.
+
 See [Token use & costs](/reference/token-use) for details and examples.
 
 ## How keys are discovered

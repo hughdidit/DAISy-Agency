@@ -269,6 +269,11 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
       usage.total ??
       (usage.input ?? 0) + (usage.output ?? 0) + (usage.cacheRead ?? 0) + (usage.cacheWrite ?? 0);
     usageTotals.total += usageTotal;
+    try {
+      void params.onUsage?.(getUsageTotals() ?? usage);
+    } catch (err) {
+      log.warn(`usage observer failed runId=${params.runId}: ${String(err)}`);
+    }
   };
   const getUsageTotals = () => {
     const hasUsage =

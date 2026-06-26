@@ -44,6 +44,31 @@ export type AgentContextPruningConfig = {
   };
 };
 
+export type AgentSpendBudgetConfig = {
+  /** Enable fail-closed monthly spend enforcement for paid model calls. */
+  enabled?: boolean;
+  /** Budget currency. Only USD is currently supported. */
+  currency?: "USD";
+  /** Calendar-month spend ceiling in USD. */
+  monthlyLimitUsd?: number;
+  /** Budget rollover timezone. Only UTC is currently supported. */
+  timezone?: "UTC";
+  /** Emit warning budget events at or above this month-to-date spend. */
+  warnAtUsd?: number;
+  /** Degrade to cheaper/default-safe behavior at or above this spend. */
+  degradeAtUsd?: number;
+  /** Stop non-owner calls at or above this spend. */
+  hardStopAtUsd?: number;
+  /** Reserve held back for owner-only recovery/status calls. */
+  ownerEmergencyReserveUsd?: number;
+  /** Reject a single provider attempt projected above this USD cost. */
+  maxProjectedCostPerAttemptUsd?: number;
+  /** Reject a run whose cumulative projected provider attempts exceed this USD cost. */
+  maxProjectedCostPerRunUsd?: number;
+  /** User-facing message when budget enforcement blocks a model call. */
+  blockMessage?: string;
+};
+
 export type CliBackendConfig = {
   /** CLI command to execute (absolute path or on PATH). */
   command: string;
@@ -164,6 +189,8 @@ export type AgentDefaultsConfig = {
   cliBackends?: Record<string, CliBackendConfig>;
   /** Opt-in: prune old tool results from the LLM context to reduce token usage. */
   contextPruning?: AgentContextPruningConfig;
+  /** Monthly paid-provider budget enforcement. */
+  spendBudget?: AgentSpendBudgetConfig;
   /** Compaction tuning and pre-compaction memory flush behavior. */
   compaction?: AgentCompactionConfig;
   /** Embedded Pi runner hardening and compatibility controls. */

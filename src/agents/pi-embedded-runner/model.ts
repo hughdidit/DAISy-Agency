@@ -105,7 +105,7 @@ export function resolveModel(
         baseUrl: providerCfg?.baseUrl,
         reasoning: configuredModel?.reasoning ?? false,
         input: ["text"],
-        cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+        cost: configuredModel?.cost ?? { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
         contextWindow:
           configuredModel?.contextWindow ??
           providerCfg?.models?.[0]?.contextWindow ??

@@ -779,6 +779,29 @@ export const FIELD_HELP: Record<string, string> = {
     'Include absolute timestamps in message envelopes ("on" or "off").',
   "agents.defaults.envelopeElapsed": 'Include elapsed time in message envelopes ("on" or "off").',
   "agents.defaults.models": "Configured model catalog (keys are full provider/model IDs).",
+  "agents.defaults.spendBudget":
+    "Monthly paid-provider budget enforcement for embedded runner provider attempts. When enabled, paid model calls fail closed if pricing or remaining budget cannot be determined.",
+  "agents.defaults.spendBudget.enabled":
+    "Enable monthly budget enforcement for embedded runner paid provider attempts.",
+  "agents.defaults.spendBudget.currency": 'Budget currency. Currently only "USD" is supported.',
+  "agents.defaults.spendBudget.monthlyLimitUsd":
+    "Calendar-month spend ceiling in USD for gateway-originated model calls.",
+  "agents.defaults.spendBudget.timezone":
+    'Budget rollover timezone. Currently only "UTC" is supported.',
+  "agents.defaults.spendBudget.warnAtUsd":
+    "Month-to-date spend threshold that emits warning budget events while still allowing calls.",
+  "agents.defaults.spendBudget.degradeAtUsd":
+    "Month-to-date spend threshold where the gateway should prefer cheaper model behavior and suppress nonessential LLM calls.",
+  "agents.defaults.spendBudget.hardStopAtUsd":
+    "Month-to-date spend threshold where non-owner paid model calls are blocked before provider traffic.",
+  "agents.defaults.spendBudget.ownerEmergencyReserveUsd":
+    "USD reserve between hardStopAtUsd and monthlyLimitUsd reserved for owner diagnostics and recovery.",
+  "agents.defaults.spendBudget.maxProjectedCostPerAttemptUsd":
+    "Maximum projected USD cost allowed for a single provider attempt.",
+  "agents.defaults.spendBudget.maxProjectedCostPerRunUsd":
+    "Maximum cumulative projected USD cost allowed for one agent run across attempts.",
+  "agents.defaults.spendBudget.blockMessage":
+    "User-facing message included when the gateway blocks a model call for budget reasons.",
   "agents.defaults.memorySearch":
     "Vector search over MEMORY.md and memory/*.md (per-agent overrides supported).",
   "agents.defaults.memorySearch.enabled":

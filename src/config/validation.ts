@@ -21,7 +21,10 @@ import { findDuplicateAgentDirs, formatDuplicateAgentDirError } from "./agent-di
 import { appendAllowedValuesHint, summarizeAllowedValues } from "./allowed-values.js";
 import { applyAgentDefaults, applyModelDefaults, applySessionDefaults } from "./defaults.js";
 import { findLegacyConfigIssues } from "./legacy.js";
+import { resolveAgentModelFallbackValues, resolveAgentModelPrimaryValue } from "./model-input.js";
+import type { AgentModelConfig } from "./types.agents-shared.js";
 import type { OpenClawConfig, ConfigValidationIssue } from "./types.js";
+import type { ModelProviderConfig } from "./types.models.js";
 import { OpenClawSchema } from "./zod-schema.js";
 
 const LEGACY_REMOVED_PLUGIN_IDS = new Set(["google-antigravity-auth"]);
@@ -222,6 +225,110 @@ function validateGatewayTailscaleBind(config: OpenClawConfig): ConfigValidationI
   ];
 }
 
+function collectModelRefs(model: AgentModelConfig | undefined, refs: Set<string>): void {
+  const primary = resolveAgentModelPrimaryValue(model);
+  if (primary) {
+    refs.add(primary);
+  }
+  for (const fallback of resolveAgentModelFallbackValues(model)) {
+    const trimmed = fallback.trim();
+    if (trimmed) {
+      refs.add(trimmed);
+    }
+  }
+}
+
+function hasNonzeroCost(cost: unknown): boolean {
+  if (!cost || typeof cost !== "object") {
+    return false;
+  }
+  const record = cost as Record<string, unknown>;
+  return ["input", "output"].some((key) => {
+    const value = record[key];
+    return typeof value === "number" && Number.isFinite(value) && value > 0;
+  });
+}
+
+function isSpendBudgetCostRequiredForProvider(
+  providerId: string,
+  provider: ModelProviderConfig | undefined,
+): boolean {
+  const normalizedProviderId = providerId.trim().toLowerCase();
+  if (normalizedProviderId === "local" || normalizedProviderId === "ollama") {
+    return false;
+  }
+  return provider?.api !== "ollama";
+}
+
+function validateSpendBudget(config: OpenClawConfig): ConfigValidationIssue[] {
+  const budget = config.agents?.defaults?.spendBudget;
+  if (budget?.enabled !== true) {
+    return [];
+  }
+
+  const issues: ConfigValidationIssue[] = [];
+  const monthlyLimitUsd = budget.monthlyLimitUsd ?? 300;
+  const ownerEmergencyReserveUsd = Math.min(
+    monthlyLimitUsd,
+    Math.max(0, budget.ownerEmergencyReserveUsd ?? 5),
+  );
+  const hardStopAtUsd =
+    budget.hardStopAtUsd ?? Math.max(0, monthlyLimitUsd - ownerEmergencyReserveUsd);
+  const degradeAtUsd = budget.degradeAtUsd ?? Math.min(monthlyLimitUsd * 0.9, hardStopAtUsd);
+  const warnAtUsd = budget.warnAtUsd ?? Math.min(monthlyLimitUsd * 0.8, degradeAtUsd);
+  if (warnAtUsd > degradeAtUsd || degradeAtUsd > hardStopAtUsd || hardStopAtUsd > monthlyLimitUsd) {
+    issues.push({
+      path: "agents.defaults.spendBudget",
+      message:
+        "spendBudget thresholds must satisfy warnAtUsd <= degradeAtUsd <= hardStopAtUsd <= monthlyLimitUsd",
+    });
+  }
+
+  const refs = new Set<string>();
+  const defaults = config.agents?.defaults;
+  collectModelRefs(defaults?.model, refs);
+  collectModelRefs(defaults?.imageModel, refs);
+  collectModelRefs(defaults?.pdfModel, refs);
+  collectModelRefs(defaults?.subagents?.model, refs);
+  for (const key of Object.keys(defaults?.models ?? {})) {
+    refs.add(key);
+  }
+  for (const agent of config.agents?.list ?? []) {
+    collectModelRefs(agent.model, refs);
+    collectModelRefs(agent.subagents?.model, refs);
+  }
+
+  const configWithModelDefaults = applyModelDefaults(config);
+  for (const ref of refs) {
+    const parts = ref.split("/");
+    if (parts.length !== 2 || !parts[0] || !parts[1]) {
+      issues.push({
+        path: "agents.defaults.spendBudget",
+        message: `invalid reachable model ref ${ref}`,
+      });
+      continue;
+    }
+    const [providerId, modelId] = parts;
+    const provider = configWithModelDefaults.models?.providers?.[providerId];
+    const modelIndex = provider?.models?.findIndex((entry) => entry.id === modelId) ?? -1;
+    if (!provider || modelIndex < 0) {
+      continue;
+    }
+    if (!isSpendBudgetCostRequiredForProvider(providerId, provider)) {
+      continue;
+    }
+    const model = provider.models[modelIndex];
+    if (!hasNonzeroCost(model?.cost)) {
+      issues.push({
+        path: `models.providers.${providerId}.models.${modelIndex}.cost`,
+        message: `agents.defaults.spendBudget.enabled requires nonzero cost for reachable paid model ${ref}`,
+      });
+    }
+  }
+
+  return issues;
+}
+
 /**
  * Validates config without applying runtime defaults.
  * Use this when you need the raw validated config (e.g., for writing back to file).
@@ -265,6 +372,10 @@ export function validateConfigObjectRaw(
   const gatewayTailscaleBindIssues = validateGatewayTailscaleBind(validated.data as OpenClawConfig);
   if (gatewayTailscaleBindIssues.length > 0) {
     return { ok: false, issues: gatewayTailscaleBindIssues };
+  }
+  const spendBudgetIssues = validateSpendBudget(validated.data as OpenClawConfig);
+  if (spendBudgetIssues.length > 0) {
+    return { ok: false, issues: spendBudgetIssues };
   }
   return {
     ok: true,
