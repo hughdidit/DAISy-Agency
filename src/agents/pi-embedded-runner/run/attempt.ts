@@ -562,10 +562,10 @@ function summarizeSessionContext(messages: AgentMessage[]): {
 
 function estimateBudgetPromptTokens(params: {
   messages: AgentMessage[];
-  prompt: string;
+  prompt?: string;
   systemPrompt?: string;
 }): number {
-  let tokens = Math.ceil(((params.systemPrompt?.length ?? 0) + params.prompt.length) / 4);
+  let tokens = Math.ceil(((params.systemPrompt?.length ?? 0) + (params.prompt?.length ?? 0)) / 4);
   for (const message of params.messages) {
     try {
       tokens += estimateTokens(message);
@@ -1384,7 +1384,7 @@ export async function runEmbeddedAttempt(
       let promptErrorSource: "prompt" | "compaction" | null = null;
       let providerRequestSent = false;
       let budgetProjectedCostUsd: number | undefined;
-      let budgetRecord:
+      let budgetRecords:
         | {
             id: string;
             month: string;
@@ -1392,7 +1392,7 @@ export async function runEmbeddedAttempt(
             projectedCostUsd: number;
             promptTokens: number;
             maxOutputTokens: number;
-          }
+          }[]
         | undefined;
       try {
         const promptStartedAt = Date.now();
@@ -1531,94 +1531,108 @@ export async function runEmbeddedAttempt(
 
           const spendBudget = resolveSpendBudgetConfig(params.config);
           if (spendBudget.enabled) {
-            if (imageResult.images.length > 0) {
-              const decision = {
-                allowed: false,
-                stage: resolveBudgetStage(spendBudget, 0).stage,
-                reason: "projected_attempt_exceeds_cap" as const,
-                monthToDateUsd: 0,
-                projectedCostUsd: spendBudget.maxProjectedCostPerAttemptUsd,
-                projectedRunCostUsd: params.runProjectedCostUsd ?? 0,
-                projectedMonthToDateUsd: 0,
-                message: `${spendBudget.blockMessage} Image inputs are not budget-safe because image token pricing is not configured.`,
-              };
-              log.warn(
-                formatBudgetEventLog("budget_block", {
-                  decision,
+            const inner = activeSession.agent.streamFn;
+            activeSession.agent.streamFn = async (model, context, options) => {
+              if (imageResult.images.length > 0) {
+                const decision = {
+                  allowed: false,
+                  stage: resolveBudgetStage(spendBudget, 0).stage,
+                  reason: "projected_attempt_exceeds_cap" as const,
+                  monthToDateUsd: 0,
+                  projectedCostUsd: spendBudget.maxProjectedCostPerAttemptUsd,
+                  projectedRunCostUsd: params.runProjectedCostUsd ?? 0,
+                  projectedMonthToDateUsd: 0,
+                  message: `${spendBudget.blockMessage} Image inputs are not budget-safe because image token pricing is not configured.`,
+                };
+                log.warn(
+                  formatBudgetEventLog("budget_block", {
+                    decision,
+                    provider: params.provider,
+                    model: params.modelId,
+                    agentId: sessionAgentId,
+                    sessionKey: params.sessionKey,
+                  }),
+                );
+                throw new SpendBudgetError(decision);
+              }
+
+              const ctx = context as unknown as { messages?: unknown; systemPrompt?: unknown };
+              const messages = Array.isArray(ctx.messages)
+                ? (ctx.messages as AgentMessage[])
+                : activeSession.messages;
+              const promptTokens = estimateBudgetPromptTokens({
+                messages,
+                systemPrompt:
+                  typeof ctx.systemPrompt === "string" ? ctx.systemPrompt : systemPromptText,
+              });
+              const maxOutputTokens = Math.max(
+                1,
+                Math.floor(params.streamParams?.maxTokens ?? params.model.maxTokens ?? 4096),
+              );
+              const cost =
+                resolveModelCostConfig({
+                  provider: params.provider,
+                  model: params.modelId,
+                  config: params.config,
+                }) ?? (params.model as { cost?: ModelCostConfig }).cost;
+              const requiresCost = isSpendBudgetCostRequired({
+                provider: params.provider,
+                config: params.config,
+              });
+              const ledgerPath = resolveMonthlyBudgetLedgerPath();
+              const month = currentBudgetMonth();
+              const reservationId = `${params.runId}:${params.provider}:${params.modelId}:${randomUUID()}`;
+              const runProjectedBeforeCall =
+                Math.max(0, params.runProjectedCostUsd ?? 0) +
+                Math.max(0, budgetProjectedCostUsd ?? 0);
+              const reservation = await reserveMonthlyBudgetUsage({
+                ledgerPath,
+                budget: spendBudget,
+                cost,
+                requiresCost,
+                month,
+                entry: {
+                  id: reservationId,
+                  timestamp: new Date().toISOString(),
+                  month,
                   provider: params.provider,
                   model: params.modelId,
                   agentId: sessionAgentId,
                   sessionKey: params.sessionKey,
-                }),
-              );
-              throw new SpendBudgetError(decision);
-            }
-            const ledgerPath = resolveMonthlyBudgetLedgerPath();
-            const month = currentBudgetMonth();
-            const promptTokens = estimateBudgetPromptTokens({
-              messages: activeSession.messages,
-              prompt: effectivePrompt,
-              systemPrompt: systemPromptText,
-            });
-            const maxOutputTokens = Math.max(
-              1,
-              Math.floor(params.streamParams?.maxTokens ?? params.model.maxTokens ?? 4096),
-            );
-            const cost =
-              resolveModelCostConfig({
-                provider: params.provider,
-                model: params.modelId,
-                config: params.config,
-              }) ?? (params.model as { cost?: ModelCostConfig }).cost;
-            const requiresCost = isSpendBudgetCostRequired({
-              provider: params.provider,
-              config: params.config,
-            });
-            const reservationId = `${params.runId}:${params.provider}:${params.modelId}:${randomUUID()}`;
-            const reservation = await reserveMonthlyBudgetUsage({
-              ledgerPath,
-              budget: spendBudget,
-              cost,
-              requiresCost,
-              month,
-              entry: {
-                id: reservationId,
-                timestamp: new Date().toISOString(),
-                month,
+                  promptTokens,
+                  outputTokens: maxOutputTokens,
+                },
+                promptTokens,
+                maxOutputTokens,
+                runProjectedCostUsd: runProjectedBeforeCall,
+                senderIsOwner: params.senderIsOwner,
+              });
+              const decision = reservation.decision;
+              const budgetEvent = !decision.allowed
+                ? "budget_block"
+                : decision.stage === "warn"
+                  ? "budget_warn"
+                  : decision.stage === "degrade" || decision.stage === "hard_stop"
+                    ? "budget_degrade"
+                    : "budget_allow";
+              const eventLine = formatBudgetEventLog(budgetEvent, {
+                decision,
                 provider: params.provider,
                 model: params.modelId,
                 agentId: sessionAgentId,
                 sessionKey: params.sessionKey,
-                promptTokens,
-                outputTokens: maxOutputTokens,
-              },
-              promptTokens,
-              maxOutputTokens,
-              runProjectedCostUsd: params.runProjectedCostUsd,
-              senderIsOwner: params.senderIsOwner,
-            });
-            const decision = reservation.decision;
-            const budgetEvent = !decision.allowed
-              ? "budget_block"
-              : decision.stage === "warn"
-                ? "budget_warn"
-                : decision.stage === "degrade" || decision.stage === "hard_stop"
-                  ? "budget_degrade"
-                  : "budget_allow";
-            const eventLine = formatBudgetEventLog(budgetEvent, {
-              decision,
-              provider: params.provider,
-              model: params.modelId,
-              agentId: sessionAgentId,
-              sessionKey: params.sessionKey,
-            });
-            if (decision.allowed) {
+              });
+              if (!decision.allowed) {
+                log.warn(eventLine);
+                throw new SpendBudgetError(decision);
+              }
               if (decision.stage === "allow") {
                 log.info(eventLine);
               } else {
                 log.warn(eventLine);
               }
-              budgetRecord = {
+
+              const record = {
                 id: reservationId,
                 month,
                 ledgerPath,
@@ -1626,7 +1640,11 @@ export async function runEmbeddedAttempt(
                 promptTokens,
                 maxOutputTokens,
               };
-              budgetProjectedCostUsd = decision.projectedCostUsd;
+              budgetRecords = [...(budgetRecords ?? []), record];
+              budgetProjectedCostUsd = Math.max(
+                0,
+                (budgetProjectedCostUsd ?? 0) + decision.projectedCostUsd,
+              );
               budgetUsageAbortGuard = (usage) => {
                 const actualCostUsd = estimateUsageCost({ usage, cost }) ?? 0;
                 const projectedRunCostUsd =
@@ -1676,15 +1694,13 @@ export async function runEmbeddedAttempt(
                   abortRun(false, budgetRuntimeAbortError);
                 }
               };
-            } else {
-              log.warn(eventLine);
-              throw new SpendBudgetError(decision);
-            }
+              providerRequestSent = true;
+              return inner(model, context, options);
+            };
           }
 
           // Only pass images option if there are actually images to pass
           // This avoids potential issues with models that don't expect the images parameter
-          providerRequestSent = true;
           if (imageResult.images.length > 0) {
             await abortable(activeSession.prompt(effectivePrompt, { images: imageResult.images }));
           } else {
@@ -1697,7 +1713,8 @@ export async function runEmbeddedAttempt(
           log.debug(
             `embedded run prompt end: runId=${params.runId} sessionId=${params.sessionId} durationMs=${Date.now() - promptStartedAt}`,
           );
-          if (budgetRecord && providerRequestSent) {
+          if (budgetRecords?.length === 1 && providerRequestSent) {
+            const budgetRecord = budgetRecords[0];
             const usage = getUsageTotals();
             const cost =
               resolveModelCostConfig({
