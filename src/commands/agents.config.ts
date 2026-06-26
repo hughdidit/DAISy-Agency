@@ -213,7 +213,7 @@ export function pruneAgentConfig(
           const rawConfig = entry.config;
           const rawBindings =
             rawConfig && typeof rawConfig === "object" && !Array.isArray(rawConfig)
-              ? (rawConfig.agentCredentialBindings as unknown)
+              ? rawConfig.agentCredentialBindings
               : undefined;
           if (!rawBindings || typeof rawBindings !== "object" || Array.isArray(rawBindings)) {
             return [pluginId, entry];

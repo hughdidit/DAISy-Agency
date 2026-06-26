@@ -498,6 +498,7 @@ describe("ExecApprovalButton", () => {
 
     await button.run(interaction, data);
 
+    // oxlint-disable-next-line typescript/unbound-method -- vi.fn() mock
     expect(handler.resolveApproval).toHaveBeenCalledWith(
       "test-approval",
       "allow-once",
