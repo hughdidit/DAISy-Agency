@@ -335,10 +335,7 @@ export function createExecApprovalHandlers(
           respond(
             false,
             undefined,
-            errorShape(
-              ErrorCodes.INVALID_REQUEST,
-              "operationHash does not match approval request",
-            ),
+            errorShape(ErrorCodes.INVALID_REQUEST, "operationHash does not match approval request"),
           );
           return;
         }

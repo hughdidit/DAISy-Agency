@@ -28,9 +28,7 @@ Recommended HughDidIt bindings:
 ```json5
 {
   agents: {
-    list: [
-      { id: "daisy", googleWorkspace: { email: "daisy.ai@hughdidit.com" } },
-    ],
+    list: [{ id: "daisy", googleWorkspace: { email: "daisy.ai@hughdidit.com" } }],
   },
   plugins: {
     entries: {

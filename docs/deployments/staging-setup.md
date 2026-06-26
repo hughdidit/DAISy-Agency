@@ -405,9 +405,7 @@ Finn, Kody, Art, and Sally are retired DAISy-Agency agents. Do not configure `ch
 
 ```json5
 {
-  bindings: [
-    { agentId: "daisy", match: { channel: "discord", accountId: "default" } },
-  ],
+  bindings: [{ agentId: "daisy", match: { channel: "discord", accountId: "default" } }],
   channels: {
     discord: {
       accounts: {

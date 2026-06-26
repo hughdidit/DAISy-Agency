@@ -174,9 +174,7 @@ DAISy-Agency uses a single DAISy Discord bot. The default account may use `DISCO
 
 ```json5
 {
-  bindings: [
-    { agentId: "daisy", match: { channel: "discord", accountId: "default" } },
-  ],
+  bindings: [{ agentId: "daisy", match: { channel: "discord", accountId: "default" } }],
   channels: {
     discord: {
       accounts: {

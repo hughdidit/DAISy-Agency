@@ -19,13 +19,13 @@ import {
   isWorkspaceOnboardingCompleted,
 } from "../../agents/workspace.js";
 import { movePathToTrash } from "../../browser/trash.js";
+import { writeAgentArchiveManifest } from "../../commands/agents.archive.js";
 import {
   applyAgentConfig,
   findAgentEntryIndex,
   listAgentEntries,
   pruneAgentConfig,
 } from "../../commands/agents.config.js";
-import { writeAgentArchiveManifest } from "../../commands/agents.archive.js";
 import { loadConfig, writeConfigFile } from "../../config/config.js";
 import { resolveSessionTranscriptsDirForAgent } from "../../config/sessions/paths.js";
 import { sameFileIdentity } from "../../infra/file-identity.js";
