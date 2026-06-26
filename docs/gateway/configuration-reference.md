@@ -983,6 +983,42 @@ Periodic heartbeat runs.
 - `identifierInstructions`: optional custom identifier-preservation text used when `identifierPolicy=custom`.
 - `memoryFlush`: silent agentic turn before auto-compaction to store durable memories. Skipped when workspace is read-only.
 
+### `agents.defaults.spendBudget`
+
+Fail-closed monthly spend enforcement for embedded runner paid-provider attempts. When enabled, the
+gateway checks the selected model's configured `cost` before each embedded runner provider attempt,
+estimates prompt plus worst-case output spend, reserves projected spend, and blocks before provider
+traffic if the projected call would exceed the configured budget stage.
+
+```json5
+{
+  agents: {
+    defaults: {
+      spendBudget: {
+        enabled: true,
+        currency: "USD",
+        monthlyLimitUsd: 300,
+        timezone: "UTC",
+        warnAtUsd: 240,
+        degradeAtUsd: 270,
+        hardStopAtUsd: 295,
+        ownerEmergencyReserveUsd: 5,
+        maxProjectedCostPerAttemptUsd: 1,
+        maxProjectedCostPerRunUsd: 3,
+        blockMessage: "Monthly model budget exhausted. Try again after the budget resets.",
+      },
+    },
+  },
+}
+```
+
+- Nonlocal models without positive configured input or output `models.providers.<provider>.models[].cost` are denied while enforcement is enabled.
+- Image inputs fail closed while spend enforcement is enabled because this budget model does not price image token exposure.
+- The ledger is stored under the gateway state directory at `usage/monthly-budget.json`.
+- `warnAtUsd` emits `budget_warn`; `degradeAtUsd` emits `budget_degrade`; blocked calls emit `budget_block`.
+- Non-owner calls stop at `hardStopAtUsd`. Owners can use the emergency reserve up to `monthlyLimitUsd`.
+- `/usage cost` and `openclaw status` show month-to-date ledger spend, remaining budget, stage, and top spenders.
+
 ### `agents.defaults.contextPruning`
 
 Prunes **old tool results** from in-memory context before sending to the LLM. Does **not** modify session history on disk.

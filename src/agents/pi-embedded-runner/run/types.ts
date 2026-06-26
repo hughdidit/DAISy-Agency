@@ -20,6 +20,7 @@ export type EmbeddedRunAttemptParams = EmbeddedRunAttemptBase & {
   authStorage: AuthStorage;
   modelRegistry: ModelRegistry;
   thinkLevel: ThinkLevel;
+  runProjectedCostUsd?: number;
   legacyBeforeAgentStartResult?: PluginHookBeforeAgentStartResult;
 };
 
@@ -49,6 +50,7 @@ export type EmbeddedRunAttemptResult = {
   successfulCronAdds?: number;
   cloudCodeAssistFormatError: boolean;
   attemptUsage?: NormalizedUsage;
+  budgetProjectedCostUsd?: number;
   compactionCount?: number;
   /** Client tool call detected (OpenResponses hosted tools). */
   clientToolCall?: { name: string; params: Record<string, unknown> };

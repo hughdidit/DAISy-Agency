@@ -1,3 +1,10 @@
+import {
+  currentBudgetMonth,
+  loadMonthlyBudgetLedger,
+  resolveBudgetStage,
+  resolveSpendBudgetConfig,
+  summarizeMonthlyBudgetLedger,
+} from "../../agents/spend-budget.js";
 import { parseDurationMs } from "../../cli/parse-duration.js";
 import { isRestartEnabled } from "../../config/commands.js";
 import {
@@ -186,10 +193,34 @@ export const handleUsageCommand: CommandHandler = async (params, allowTextComman
     const last30Missing = summary.totals.missingCostEntries;
     const last30Suffix = last30Missing > 0 ? " (partial)" : "";
     const last30Line = `Last 30d ${last30Cost ?? "n/a"}${last30Suffix}`;
+    const spendBudget = resolveSpendBudgetConfig(params.cfg);
+    const budgetLines: string[] = [];
+    if (spendBudget.enabled) {
+      const budgetSummary = summarizeMonthlyBudgetLedger(
+        await loadMonthlyBudgetLedger(),
+        currentBudgetMonth(),
+      );
+      const budgetStage = resolveBudgetStage(spendBudget, budgetSummary.monthToDateUsd).stage;
+      const remainingUsd = Math.max(0, spendBudget.monthlyLimitUsd - budgetSummary.monthToDateUsd);
+      budgetLines.push(
+        `Budget ${formatUsd(budgetSummary.monthToDateUsd) ?? "$0.00"} / ${formatUsd(spendBudget.monthlyLimitUsd)} · remaining ${formatUsd(remainingUsd)} · stage ${budgetStage}`,
+      );
+      const topAgent = budgetSummary.topAgents[0];
+      const topModel = budgetSummary.topModels[0];
+      if (topAgent || topModel) {
+        budgetLines.push(
+          `Top ${topAgent ? `agent ${topAgent.key} ${formatUsd(topAgent.costUsd)}` : "agent n/a"} · ${topModel ? `model ${topModel.key} ${formatUsd(topModel.costUsd)}` : "model n/a"}`,
+        );
+      }
+    }
 
     return {
       shouldContinue: false,
-      reply: { text: `💸 Usage cost\n${sessionLine}\n${todayLine}\n${last30Line}` },
+      reply: {
+        text: `💸 Usage cost\n${sessionLine}\n${todayLine}\n${last30Line}${
+          budgetLines.length ? `\n${budgetLines.join("\n")}` : ""
+        }`,
+      },
     };
   }
 

@@ -48,6 +48,14 @@ import {
   pickFallbackThinkingLevel,
   type FailoverReason,
 } from "../pi-embedded-helpers.js";
+import {
+  currentBudgetMonth,
+  isSpendBudgetError,
+  loadMonthlyBudgetLedger,
+  resolveBudgetStage,
+  resolveSpendBudgetConfig,
+  summarizeMonthlyBudgetLedger,
+} from "../spend-budget.js";
 import { derivePromptTokens, normalizeUsage, type UsageLike } from "../usage.js";
 import { redactRunIdentifier, resolveRunWorkspaceDir } from "../workspace-run.js";
 import { compactEmbeddedPiSessionDirect } from "./compact.js";
@@ -655,6 +663,33 @@ export async function runEmbeddedPiAgent(
       let lastRunPromptUsage: ReturnType<typeof normalizeUsage> | undefined;
       let autoCompactionCount = 0;
       let runLoopIterations = 0;
+      let runProjectedCostUsd = 0;
+      const spendBudget = resolveSpendBudgetConfig(params.config);
+      if (spendBudget.enabled && params.trigger === "heartbeat") {
+        const budgetSummary = summarizeMonthlyBudgetLedger(
+          await loadMonthlyBudgetLedger(),
+          currentBudgetMonth(),
+        );
+        const stage = resolveBudgetStage(spendBudget, budgetSummary.monthToDateUsd).stage;
+        if (stage === "degrade" || stage === "hard_stop") {
+          return {
+            payloads: [
+              {
+                text: "Budget threshold reached; heartbeat LLM calls are paused.",
+                isError: false,
+              },
+            ],
+            meta: {
+              durationMs: Date.now() - started,
+              agentMeta: {
+                sessionId: params.sessionId,
+                provider,
+                model: model.id,
+              },
+            },
+          };
+        }
+      }
       const maybeMarkAuthProfileFailure = async (failure: {
         profileId?: string;
         reason?: Parameters<typeof markAuthProfileFailure>[0]["reason"] | null;
@@ -749,6 +784,7 @@ export async function runEmbeddedPiAgent(
             agentId: workspaceResolution.agentId,
             legacyBeforeAgentStartResult,
             thinkLevel,
+            runProjectedCostUsd,
             verboseLevel: params.verboseLevel,
             reasoningLevel: params.reasoningLevel,
             toolResultFormat: resolvedToolResultFormat,
@@ -775,6 +811,12 @@ export async function runEmbeddedPiAgent(
             ownerNumbers: params.ownerNumbers,
             enforceFinalTag: params.enforceFinalTag,
           });
+          if (
+            typeof attempt.budgetProjectedCostUsd === "number" &&
+            Number.isFinite(attempt.budgetProjectedCostUsd)
+          ) {
+            runProjectedCostUsd += Math.max(0, attempt.budgetProjectedCostUsd);
+          }
 
           const {
             aborted,
@@ -995,6 +1037,26 @@ export async function runEmbeddedPiAgent(
 
           if (promptError && !aborted) {
             const errorText = describeUnknownError(promptError);
+            if (isSpendBudgetError(promptError)) {
+              return {
+                payloads: [
+                  {
+                    text: promptError.decision.message,
+                    isError: true,
+                  },
+                ],
+                meta: {
+                  durationMs: Date.now() - started,
+                  agentMeta: {
+                    sessionId: sessionIdUsed,
+                    provider,
+                    model: model.id,
+                  },
+                  systemPromptReport: attempt.systemPromptReport,
+                  error: { kind: "spend_budget", message: errorText },
+                },
+              };
+            }
             if (await maybeRefreshCopilotForAuthError(errorText, copilotAuthRetry)) {
               authRetryPending = true;
               continue;

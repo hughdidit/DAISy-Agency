@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import os from "node:os";
 import type { AgentMessage, StreamFn } from "@mariozechner/pi-agent-core";
@@ -5,6 +6,7 @@ import { streamSimple } from "@mariozechner/pi-ai";
 import {
   createAgentSession,
   DefaultResourceLoader,
+  estimateTokens,
   SessionManager,
 } from "@mariozechner/pi-coding-agent";
 import { resolveHeartbeatPrompt } from "../../../auto-reply/heartbeat.js";
@@ -26,6 +28,11 @@ import { buildTtsSystemPromptHint } from "../../../tts/tts.js";
 import { resolveUserPath } from "../../../utils.js";
 import { normalizeMessageChannel } from "../../../utils/message-channel.js";
 import { isReasoningTagProvider } from "../../../utils/provider-utils.js";
+import {
+  estimateUsageCost,
+  resolveModelCostConfig,
+  type ModelCostConfig,
+} from "../../../utils/usage-format.js";
 import { resolveOpenClawAgentDir } from "../../agent-paths.js";
 import { resolveSessionAgentIds } from "../../agent-scope.js";
 import { createAnthropicPayloadLogger } from "../../anthropic-payload-log.js";
@@ -72,12 +79,24 @@ import {
   loadWorkspaceSkillEntries,
   resolveSkillsPromptForRun,
 } from "../../skills.js";
+import {
+  currentBudgetMonth,
+  formatBudgetEventLog,
+  isSpendBudgetCostRequired,
+  recordMonthlyBudgetUsage,
+  reserveMonthlyBudgetUsage,
+  resolveBudgetStage,
+  resolveMonthlyBudgetLedgerPath,
+  resolveSpendBudgetConfig,
+  SpendBudgetError,
+} from "../../spend-budget.js";
 import { buildSystemPromptParams } from "../../system-prompt-params.js";
 import { buildSystemPromptReport } from "../../system-prompt-report.js";
 import { sanitizeToolCallIdsForCloudCodeAssist } from "../../tool-call-id.js";
 import { resolveEffectiveToolFsWorkspaceOnly } from "../../tool-fs-policy.js";
 import { normalizeToolName } from "../../tool-policy.js";
 import { resolveTranscriptPolicy } from "../../transcript-policy.js";
+import type { NormalizedUsage } from "../../usage.js";
 import { DEFAULT_BOOTSTRAP_FILENAME } from "../../workspace.js";
 import { isRunnerAbortError } from "../abort.js";
 import { appendCacheTtlTimestamp, isCacheTtlEligibleProvider } from "../cache-ttl.js";
@@ -539,6 +558,22 @@ function summarizeSessionContext(messages: AgentMessage[]): {
     totalImageBlocks,
     maxMessageTextChars,
   };
+}
+
+function estimateBudgetPromptTokens(params: {
+  messages: AgentMessage[];
+  prompt?: string;
+  systemPrompt?: string;
+}): number {
+  let tokens = Math.ceil(((params.systemPrompt?.length ?? 0) + (params.prompt?.length ?? 0)) / 4);
+  for (const message of params.messages) {
+    try {
+      tokens += estimateTokens(message);
+    } catch {
+      tokens += Math.ceil(JSON.stringify(message).length / 4);
+    }
+  }
+  return Math.max(1, Math.ceil(tokens));
 }
 
 export async function runEmbeddedAttempt(
@@ -1227,6 +1262,8 @@ export async function runEmbeddedAttempt(
         });
       };
 
+      let budgetRuntimeAbortError: SpendBudgetError | undefined;
+      let budgetUsageAbortGuard: ((usage: NormalizedUsage) => void) | undefined;
       const subscription = subscribeEmbeddedPiSession({
         session: activeSession,
         runId: params.runId,
@@ -1245,6 +1282,7 @@ export async function runEmbeddedAttempt(
         blockReplyChunking: params.blockReplyChunking,
         onPartialReply: params.onPartialReply,
         onAssistantMessageStart: params.onAssistantMessageStart,
+        onUsage: (usage) => budgetUsageAbortGuard?.(usage),
         onAgentEvent: params.onAgentEvent,
         enforceFinalTag: params.enforceFinalTag,
         config: params.config,
@@ -1344,6 +1382,18 @@ export async function runEmbeddedAttempt(
 
       let promptError: unknown = null;
       let promptErrorSource: "prompt" | "compaction" | null = null;
+      let providerRequestSent = false;
+      let budgetProjectedCostUsd: number | undefined;
+      let budgetRecords:
+        | {
+            id: string;
+            month: string;
+            ledgerPath: string;
+            projectedCostUsd: number;
+            promptTokens: number;
+            maxOutputTokens: number;
+          }[]
+        | undefined;
       try {
         const promptStartedAt = Date.now();
 
@@ -1479,6 +1529,176 @@ export async function runEmbeddedAttempt(
               });
           }
 
+          const spendBudget = resolveSpendBudgetConfig(params.config);
+          if (spendBudget.enabled) {
+            const inner = activeSession.agent.streamFn;
+            activeSession.agent.streamFn = async (model, context, options) => {
+              if (imageResult.images.length > 0) {
+                const decision = {
+                  allowed: false,
+                  stage: resolveBudgetStage(spendBudget, 0).stage,
+                  reason: "projected_attempt_exceeds_cap" as const,
+                  monthToDateUsd: 0,
+                  projectedCostUsd: spendBudget.maxProjectedCostPerAttemptUsd,
+                  projectedRunCostUsd: params.runProjectedCostUsd ?? 0,
+                  projectedMonthToDateUsd: 0,
+                  message: `${spendBudget.blockMessage} Image inputs are not budget-safe because image token pricing is not configured.`,
+                };
+                log.warn(
+                  formatBudgetEventLog("budget_block", {
+                    decision,
+                    provider: params.provider,
+                    model: params.modelId,
+                    agentId: sessionAgentId,
+                    sessionKey: params.sessionKey,
+                  }),
+                );
+                throw new SpendBudgetError(decision);
+              }
+
+              const ctx = context as unknown as { messages?: unknown; systemPrompt?: unknown };
+              const messages = Array.isArray(ctx.messages)
+                ? (ctx.messages as AgentMessage[])
+                : activeSession.messages;
+              const promptTokens = estimateBudgetPromptTokens({
+                messages,
+                systemPrompt:
+                  typeof ctx.systemPrompt === "string" ? ctx.systemPrompt : systemPromptText,
+              });
+              const maxOutputTokens = Math.max(
+                1,
+                Math.floor(params.streamParams?.maxTokens ?? params.model.maxTokens ?? 4096),
+              );
+              const cost =
+                resolveModelCostConfig({
+                  provider: params.provider,
+                  model: params.modelId,
+                  config: params.config,
+                }) ?? (params.model as { cost?: ModelCostConfig }).cost;
+              const requiresCost = isSpendBudgetCostRequired({
+                provider: params.provider,
+                config: params.config,
+              });
+              const ledgerPath = resolveMonthlyBudgetLedgerPath();
+              const month = currentBudgetMonth();
+              const reservationId = `${params.runId}:${params.provider}:${params.modelId}:${randomUUID()}`;
+              const runProjectedBeforeCall =
+                Math.max(0, params.runProjectedCostUsd ?? 0) +
+                Math.max(0, budgetProjectedCostUsd ?? 0);
+              const reservation = await reserveMonthlyBudgetUsage({
+                ledgerPath,
+                budget: spendBudget,
+                cost,
+                requiresCost,
+                month,
+                entry: {
+                  id: reservationId,
+                  timestamp: new Date().toISOString(),
+                  month,
+                  provider: params.provider,
+                  model: params.modelId,
+                  agentId: sessionAgentId,
+                  sessionKey: params.sessionKey,
+                  promptTokens,
+                  outputTokens: maxOutputTokens,
+                },
+                promptTokens,
+                maxOutputTokens,
+                runProjectedCostUsd: runProjectedBeforeCall,
+                senderIsOwner: params.senderIsOwner,
+              });
+              const decision = reservation.decision;
+              const budgetEvent = !decision.allowed
+                ? "budget_block"
+                : decision.stage === "warn"
+                  ? "budget_warn"
+                  : decision.stage === "degrade" || decision.stage === "hard_stop"
+                    ? "budget_degrade"
+                    : "budget_allow";
+              const eventLine = formatBudgetEventLog(budgetEvent, {
+                decision,
+                provider: params.provider,
+                model: params.modelId,
+                agentId: sessionAgentId,
+                sessionKey: params.sessionKey,
+              });
+              if (!decision.allowed) {
+                log.warn(eventLine);
+                throw new SpendBudgetError(decision);
+              }
+              if (decision.stage === "allow") {
+                log.info(eventLine);
+              } else {
+                log.warn(eventLine);
+              }
+
+              const record = {
+                id: reservationId,
+                month,
+                ledgerPath,
+                projectedCostUsd: decision.projectedCostUsd,
+                promptTokens,
+                maxOutputTokens,
+              };
+              budgetRecords = [...(budgetRecords ?? []), record];
+              budgetProjectedCostUsd = Math.max(
+                0,
+                (budgetProjectedCostUsd ?? 0) + decision.projectedCostUsd,
+              );
+              budgetUsageAbortGuard = (usage) => {
+                const actualCostUsd = estimateUsageCost({ usage, cost }) ?? 0;
+                const projectedRunCostUsd =
+                  Math.max(0, params.runProjectedCostUsd ?? 0) + actualCostUsd;
+                const projectedMonthToDateUsd = decision.monthToDateUsd + actualCostUsd;
+                const crossesMonthlyLimit = params.senderIsOwner
+                  ? projectedMonthToDateUsd > spendBudget.monthlyLimitUsd
+                  : projectedMonthToDateUsd > spendBudget.hardStopAtUsd;
+                if (
+                  actualCostUsd > spendBudget.maxProjectedCostPerAttemptUsd ||
+                  projectedRunCostUsd > spendBudget.maxProjectedCostPerRunUsd ||
+                  crossesMonthlyLimit
+                ) {
+                  budgetUsageAbortGuard = undefined;
+                  log.warn(
+                    `spend budget aborting active run after observed usage: ` +
+                      formatBudgetEventLog("budget_block", {
+                        decision: {
+                          ...decision,
+                          allowed: false,
+                          reason:
+                            actualCostUsd > spendBudget.maxProjectedCostPerAttemptUsd
+                              ? "projected_attempt_exceeds_cap"
+                              : projectedRunCostUsd > spendBudget.maxProjectedCostPerRunUsd
+                                ? "projected_run_exceeds_cap"
+                                : params.senderIsOwner
+                                  ? "monthly_limit"
+                                  : "hard_stop",
+                          projectedCostUsd: actualCostUsd,
+                          projectedRunCostUsd,
+                          projectedMonthToDateUsd,
+                        },
+                        provider: params.provider,
+                        model: params.modelId,
+                        agentId: sessionAgentId,
+                        sessionKey: params.sessionKey,
+                      }),
+                  );
+                  budgetRuntimeAbortError = new SpendBudgetError({
+                    ...decision,
+                    allowed: false,
+                    projectedCostUsd: actualCostUsd,
+                    projectedRunCostUsd,
+                    projectedMonthToDateUsd,
+                    message: `${spendBudget.blockMessage} Observed run usage exceeded the configured budget cap.`,
+                  });
+                  abortRun(false, budgetRuntimeAbortError);
+                }
+              };
+              providerRequestSent = true;
+              return inner(model, context, options);
+            };
+          }
+
           // Only pass images option if there are actually images to pass
           // This avoids potential issues with models that don't expect the images parameter
           if (imageResult.images.length > 0) {
@@ -1493,6 +1713,46 @@ export async function runEmbeddedAttempt(
           log.debug(
             `embedded run prompt end: runId=${params.runId} sessionId=${params.sessionId} durationMs=${Date.now() - promptStartedAt}`,
           );
+          if (budgetRecords?.length === 1 && providerRequestSent) {
+            const budgetRecord = budgetRecords[0];
+            const usage = getUsageTotals();
+            const cost =
+              resolveModelCostConfig({
+                provider: params.provider,
+                model: params.modelId,
+                config: params.config,
+              }) ?? (params.model as { cost?: ModelCostConfig }).cost;
+            const actualCostUsd = estimateUsageCost({ usage, cost });
+            try {
+              await recordMonthlyBudgetUsage({
+                ledgerPath: budgetRecord.ledgerPath,
+                entry: {
+                  id: budgetRecord.id,
+                  timestamp: new Date().toISOString(),
+                  month: budgetRecord.month,
+                  provider: params.provider,
+                  model: params.modelId,
+                  agentId: sessionAgentId,
+                  sessionKey: params.sessionKey,
+                  promptTokens:
+                    usage &&
+                    [usage.input, usage.cacheRead, usage.cacheWrite].some(
+                      (value) => typeof value === "number" && Number.isFinite(value),
+                    )
+                      ? (usage.input ?? 0) + (usage.cacheRead ?? 0) + (usage.cacheWrite ?? 0)
+                      : budgetRecord.promptTokens,
+                  outputTokens: usage?.output ?? budgetRecord.maxOutputTokens,
+                  cacheReadTokens: usage?.cacheRead,
+                  cacheWriteTokens: usage?.cacheWrite,
+                  ...(actualCostUsd !== undefined
+                    ? { actualCostUsd }
+                    : { estimatedCostUsd: budgetRecord.projectedCostUsd }),
+                },
+              });
+            } catch (err) {
+              log.warn(`failed to record spend budget ledger entry: ${String(err)}`);
+            }
+          }
         }
 
         // Capture snapshot before compaction wait so we have complete messages if timeout occurs
@@ -1674,6 +1934,11 @@ export async function runEmbeddedAttempt(
           });
       }
 
+      if (budgetRuntimeAbortError) {
+        promptError = budgetRuntimeAbortError;
+        aborted = false;
+      }
+
       return {
         aborted,
         timedOut,
@@ -1695,6 +1960,7 @@ export async function runEmbeddedAttempt(
           lastAssistant?.errorMessage && isCloudCodeAssistFormatError(lastAssistant.errorMessage),
         ),
         attemptUsage: getUsageTotals(),
+        budgetProjectedCostUsd,
         compactionCount: getCompactionCount(),
         // Client tool call detected (OpenResponses hosted tools)
         clientToolCall: clientToolCallDetected ?? undefined,
