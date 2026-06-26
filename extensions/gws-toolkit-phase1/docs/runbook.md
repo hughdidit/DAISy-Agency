@@ -48,10 +48,6 @@ Example service-account delegated config:
         id: "daisy",
         googleWorkspace: { email: "daisy.ai@hughdidit.com" },
       },
-      {
-        id: "finn",
-        googleWorkspace: { email: "finn.ai@hughdidit.com" },
-      },
     ],
   },
   plugins: {
@@ -117,8 +113,6 @@ Example service-account delegated config:
           agentCredentialBindings: {
             "agent:daisy": "hughdidit-agent-gws",
             "subagent:daisy": "hughdidit-agent-gws",
-            "agent:finn": "hughdidit-agent-gws",
-            "subagent:finn": "hughdidit-agent-gws",
           },
         },
       },

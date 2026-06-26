@@ -89,6 +89,11 @@ export const ExecApprovalRequestParamsSchema = Type.Object(
   {
     id: Type.Optional(NonEmptyString),
     command: NonEmptyString,
+    category: Type.Optional(
+      Type.Union([Type.Literal("exec"), Type.Literal("financial"), Type.Literal("deletion")]),
+    ),
+    operationHash: Type.Optional(Type.Union([NonEmptyString, Type.Null()])),
+    operationPreview: Type.Optional(Type.Union([Type.String(), Type.Null()])),
     commandArgv: Type.Optional(Type.Array(Type.String())),
     systemRunPlan: Type.Optional(
       Type.Object(
@@ -125,6 +130,7 @@ export const ExecApprovalResolveParamsSchema = Type.Object(
   {
     id: NonEmptyString,
     decision: NonEmptyString,
+    operationHash: Type.Optional(Type.Union([NonEmptyString, Type.Null()])),
   },
   { additionalProperties: false },
 );

@@ -29,6 +29,9 @@ export type SystemRunApprovalPlan = {
 
 export type ExecApprovalRequestPayload = {
   command: string;
+  category?: "exec" | "financial" | "deletion";
+  operationHash?: string | null;
+  operationPreview?: string | null;
   commandArgv?: string[];
   // Optional UI-safe env key preview for approval prompts.
   envKeys?: string[];

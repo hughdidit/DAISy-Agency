@@ -233,7 +233,29 @@ describe("agents helpers", () => {
         { agentId: "home", match: { channel: "telegram" } },
       ],
       tools: {
-        agentToAgent: { enabled: true, allow: ["work", "home"] },
+        agentToAgent: { enabled: true, allow: ["work", "home", "agent:work"] },
+      },
+      plugins: {
+        entries: {
+          "gws-toolkit-phase1": {
+            enabled: true,
+            config: {
+              agentCredentialBindings: {
+                "agent:work": "work-route",
+                "subagent:work": "work-route",
+                "agent:home": "home-route",
+              },
+            },
+          },
+        },
+      },
+      channels: {
+        discord: {
+          accounts: {
+            work: { token: "${WORK_DISCORD_BOT_TOKEN}" },
+            home: { token: "${HOME_DISCORD_BOT_TOKEN}" },
+          },
+        },
       },
     };
 
@@ -243,7 +265,15 @@ describe("agents helpers", () => {
     expect(result.config.bindings).toHaveLength(1);
     expect(result.config.bindings?.[0]?.agentId).toBe("home");
     expect(result.config.tools?.agentToAgent?.allow).toEqual(["home"]);
+    expect(
+      result.config.plugins?.entries?.["gws-toolkit-phase1"]?.config?.agentCredentialBindings,
+    ).toEqual({ "agent:home": "home-route" });
+    expect(result.config.channels?.discord?.accounts).toEqual({
+      home: { token: "${HOME_DISCORD_BOT_TOKEN}" },
+    });
     expect(result.removedBindings).toBe(1);
-    expect(result.removedAllow).toBe(1);
+    expect(result.removedAllow).toBe(2);
+    expect(result.removedCredentialBindings).toBe(2);
+    expect(result.removedDiscordAccounts).toBe(1);
   });
 });

@@ -24,6 +24,7 @@ import type {
   ExecApprovalRequest,
   ExecApprovalResolved,
 } from "../../infra/exec-approvals.js";
+import { isSensitiveApprovalCategory } from "../../infra/sensitive-actions.js";
 import { logDebug, logError } from "../../logger.js";
 import { normalizeAccountId, resolveAgentIdFromSessionKey } from "../../routing/session-key.js";
 import type { RuntimeEnv } from "../../runtime.js";
@@ -159,27 +160,34 @@ class ExecApprovalActionButton extends Button {
 }
 
 class ExecApprovalActionRow extends Row<Button> {
-  constructor(approvalId: string) {
-    super([
+  constructor(approvalId: string, opts?: { allowAlways?: boolean }) {
+    const buttons = [
       new ExecApprovalActionButton({
         approvalId,
         action: "allow-once",
         label: "Allow once",
         style: ButtonStyle.Success,
       }),
-      new ExecApprovalActionButton({
-        approvalId,
-        action: "allow-always",
-        label: "Always allow",
-        style: ButtonStyle.Primary,
-      }),
+    ];
+    if (opts?.allowAlways !== false) {
+      buttons.push(
+        new ExecApprovalActionButton({
+          approvalId,
+          action: "allow-always",
+          label: "Always allow",
+          style: ButtonStyle.Primary,
+        }),
+      );
+    }
+    buttons.push(
       new ExecApprovalActionButton({
         approvalId,
         action: "deny",
         label: "Deny",
         style: ButtonStyle.Danger,
       }),
-    ]);
+    );
+    super(buttons);
   }
 }
 
@@ -209,6 +217,12 @@ function resolveExecApprovalAccountId(params: {
 
 function buildExecApprovalMetadataLines(request: ExecApprovalRequest): string[] {
   const lines: string[] = [];
+  if (isSensitiveApprovalCategory(request.request.category)) {
+    lines.push(`- Category: ${request.request.category}`);
+    if (request.request.operationHash) {
+      lines.push(`- Operation Hash: ${request.request.operationHash}`);
+    }
+  }
   if (request.request.cwd) {
     lines.push(`- Working Directory: ${request.request.cwd}`);
   }
@@ -244,17 +258,31 @@ function createExecApprovalRequestContainer(params: {
   const commandText = params.request.request.command;
   const commandPreview = formatCommandPreview(commandText, 1000);
   const expiresAtSeconds = Math.max(0, Math.floor(params.request.expiresAtMs / 1000));
+  const category = params.request.request.category;
+  const sensitive = isSensitiveApprovalCategory(category);
+  const title =
+    category === "financial"
+      ? "Financial Approval Required"
+      : category === "deletion"
+        ? "Deletion Approval Required"
+        : "Exec Approval Required";
+  const description =
+    category === "financial"
+      ? "A financial transaction or money-adjacent action needs Hugh's one-time approval."
+      : category === "deletion"
+        ? "A deletion or destructive action needs Hugh's one-time approval."
+        : "A command needs your approval.";
 
   return new ExecApprovalContainer({
     cfg: params.cfg,
     accountId: params.accountId,
-    title: "Exec Approval Required",
-    description: "A command needs your approval.",
+    title,
+    description,
     commandPreview,
     metadataLines: buildExecApprovalMetadataLines(params.request),
     actionRow: params.actionRow,
     footer: `Expires <t:${expiresAtSeconds}:R> · ID: ${params.request.id}`,
-    accentColor: "#FFA500",
+    accentColor: sensitive ? "#ED4245" : "#FFA500",
   });
 }
 
@@ -285,7 +313,9 @@ function createResolvedContainer(params: {
   return new ExecApprovalContainer({
     cfg: params.cfg,
     accountId: params.accountId,
-    title: `Exec Approval: ${decisionLabel}`,
+    title: `${
+      isSensitiveApprovalCategory(params.request.request.category) ? "Sensitive" : "Exec"
+    } Approval: ${decisionLabel}`,
     description: params.resolvedBy ? `Resolved by ${params.resolvedBy}` : "Resolved",
     commandPreview,
     footer: `ID: ${params.request.id}`,
@@ -353,8 +383,10 @@ export class DiscordExecApprovalHandler {
       }
     }
 
+    const sensitive = isSensitiveApprovalCategory(request.request.category);
+
     // Check agent filter
-    if (config.agentFilter?.length) {
+    if (!sensitive && config.agentFilter?.length) {
       if (!request.request.agentId) {
         return false;
       }
@@ -364,7 +396,7 @@ export class DiscordExecApprovalHandler {
     }
 
     // Check session filter (substring match)
-    if (config.sessionFilter?.length) {
+    if (!sensitive && config.sessionFilter?.length) {
       const session = request.request.sessionKey;
       if (!session) {
         return false;
@@ -479,7 +511,9 @@ export class DiscordExecApprovalHandler {
       this.opts.cfg,
     );
 
-    const actionRow = new ExecApprovalActionRow(request.id);
+    const actionRow = new ExecApprovalActionRow(request.id, {
+      allowAlways: !isSensitiveApprovalCategory(request.request.category),
+    });
     const container = createExecApprovalRequestContainer({
       request,
       cfg: this.opts.cfg,
@@ -717,7 +751,18 @@ export class DiscordExecApprovalHandler {
     }
   }
 
-  async resolveApproval(approvalId: string, decision: ExecApprovalDecision): Promise<boolean> {
+  getApprovalOperationHash(approvalId: string): string | null {
+    const request = this.requestCache.get(approvalId);
+    return typeof request?.request.operationHash === "string"
+      ? request.request.operationHash
+      : null;
+  }
+
+  async resolveApproval(
+    approvalId: string,
+    decision: ExecApprovalDecision,
+    operationHash?: string | null,
+  ): Promise<boolean> {
     if (!this.gatewayClient) {
       logError("discord exec approvals: gateway client not connected");
       return false;
@@ -729,6 +774,7 @@ export class DiscordExecApprovalHandler {
       await this.gatewayClient.request("exec.approval.resolve", {
         id: approvalId,
         decision,
+        ...(operationHash ? { operationHash } : {}),
       });
       logDebug(`discord exec approvals: resolved ${approvalId} successfully`);
       return true;
@@ -779,7 +825,7 @@ export class ExecApprovalButton extends Button {
     if (!approvers.some((id) => String(id) === userId)) {
       try {
         await interaction.reply({
-          content: "⛔ You are not authorized to approve exec requests.",
+          content: "You are not authorized to approve approval requests.",
           ephemeral: true,
         });
       } catch {
@@ -805,7 +851,11 @@ export class ExecApprovalButton extends Button {
       // Interaction may have expired, try to continue anyway
     }
 
-    const ok = await this.ctx.handler.resolveApproval(parsed.approvalId, parsed.action);
+    const ok = await this.ctx.handler.resolveApproval(
+      parsed.approvalId,
+      parsed.action,
+      this.ctx.handler.getApprovalOperationHash(parsed.approvalId),
+    );
 
     if (!ok) {
       try {

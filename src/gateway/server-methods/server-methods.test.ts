@@ -350,9 +350,15 @@ describe("exec approval handlers", () => {
     id: string;
     respond: ReturnType<typeof vi.fn>;
     context: { broadcast: (event: string, payload: unknown) => void };
+    decision?: string;
+    operationHash?: string;
   }) {
     return params.handlers["exec.approval.resolve"]({
-      params: { id: params.id, decision: "allow-once" } as ExecApprovalResolveArgs["params"],
+      params: {
+        id: params.id,
+        decision: params.decision ?? "allow-once",
+        ...(params.operationHash ? { operationHash: params.operationHash } : {}),
+      } as ExecApprovalResolveArgs["params"],
       respond: params.respond as unknown as ExecApprovalResolveArgs["respond"],
       context: toExecApprovalResolveContext(params.context),
       client: null,
@@ -692,6 +698,159 @@ describe("exec approval handlers", () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it("rejects sensitive approval requests without an operation hash", async () => {
+    const { handlers, respond, context } = createExecApprovalFixture();
+
+    await requestExecApproval({
+      handlers,
+      respond,
+      context,
+      params: {
+        host: "gateway",
+        category: "deletion",
+        operationHash: null,
+      },
+    });
+
+    expect(respond).toHaveBeenCalledWith(
+      false,
+      undefined,
+      expect.objectContaining({
+        message: "operationHash is required for financial and deletion approvals",
+      }),
+    );
+  });
+
+  it("rejects allow-always and mismatched hashes for sensitive approvals", async () => {
+    const { handlers, broadcasts, respond, context } = createExecApprovalFixture();
+    const operationHash = "a".repeat(64);
+    const requestPromise = requestExecApproval({
+      handlers,
+      respond,
+      context,
+      params: {
+        id: operationHash,
+        host: "gateway",
+        category: "financial",
+        operationHash,
+        operationPreview: "checkout order",
+        twoPhase: true,
+      },
+    });
+
+    const requested = broadcasts.find((entry) => entry.event === "exec.approval.requested");
+    const id = (requested?.payload as { id?: string })?.id ?? "";
+    expect(id).toBe(operationHash);
+
+    const alwaysRespond = vi.fn();
+    await resolveExecApproval({
+      handlers,
+      id,
+      decision: "allow-always",
+      operationHash,
+      respond: alwaysRespond,
+      context,
+    });
+    expect(alwaysRespond).toHaveBeenCalledWith(
+      false,
+      undefined,
+      expect.objectContaining({
+        message: "allow-always is not permitted for financial or deletion approvals",
+      }),
+    );
+
+    const mismatchRespond = vi.fn();
+    await resolveExecApproval({
+      handlers,
+      id,
+      decision: "allow-once",
+      operationHash: "b".repeat(64),
+      respond: mismatchRespond,
+      context,
+    });
+    expect(mismatchRespond).toHaveBeenCalledWith(
+      false,
+      undefined,
+      expect.objectContaining({ message: "operationHash does not match approval request" }),
+    );
+
+    const denyRespond = vi.fn();
+    await resolveExecApproval({
+      handlers,
+      id,
+      decision: "deny",
+      operationHash,
+      respond: denyRespond,
+      context,
+    });
+    await requestPromise;
+    expect(denyRespond).toHaveBeenCalledWith(true, { ok: true }, undefined);
+    expect(respond).toHaveBeenCalledWith(
+      true,
+      expect.objectContaining({ id, decision: "deny" }),
+      undefined,
+    );
+  });
+
+  it("consumes sensitive allow-once approvals so wait decisions cannot be replayed", async () => {
+    const { handlers, broadcasts, respond, context } = createExecApprovalFixture();
+    const operationHash = "c".repeat(64);
+    void requestExecApproval({
+      handlers,
+      respond,
+      context,
+      params: {
+        id: operationHash,
+        host: "gateway",
+        category: "deletion",
+        operationHash,
+        operationPreview: "delete file",
+        twoPhase: true,
+      },
+    });
+
+    const requested = broadcasts.find((entry) => entry.event === "exec.approval.requested");
+    const id = (requested?.payload as { id?: string })?.id ?? "";
+    const resolveRespond = vi.fn();
+    await resolveExecApproval({
+      handlers,
+      id,
+      operationHash,
+      respond: resolveRespond,
+      context,
+    });
+
+    const firstWait = vi.fn();
+    await handlers["exec.approval.waitDecision"]({
+      params: { id },
+      respond: firstWait as never,
+      context: toExecApprovalRequestContext(context),
+      client: null,
+      req: { id: "req-wait-1", type: "req", method: "exec.approval.waitDecision" },
+      isWebchatConnect: execApprovalNoop,
+    });
+    const replayWait = vi.fn();
+    await handlers["exec.approval.waitDecision"]({
+      params: { id },
+      respond: replayWait as never,
+      context: toExecApprovalRequestContext(context),
+      client: null,
+      req: { id: "req-wait-2", type: "req", method: "exec.approval.waitDecision" },
+      isWebchatConnect: execApprovalNoop,
+    });
+
+    expect(firstWait).toHaveBeenCalledWith(
+      true,
+      expect.objectContaining({ id, decision: "allow-once" }),
+      undefined,
+    );
+    expect(replayWait).toHaveBeenCalledWith(
+      true,
+      expect.objectContaining({ id, decision: null }),
+      undefined,
+    );
   });
 });
 

@@ -3,6 +3,7 @@ import type { SessionState } from "../logging/diagnostic-session-state.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { getGlobalHookRunner } from "../plugins/hook-runner-global.js";
 import { isPlainObject } from "../utils.js";
+import { requireSensitiveToolApproval } from "./sensitive-action-approval.js";
 import { normalizeToolName } from "./tool-policy.js";
 import type { AnyAgentTool } from "./tools/common.js";
 
@@ -140,6 +141,20 @@ export async function runBeforeToolCallHook(args: {
     }
 
     recordToolCall(sessionState, toolName, params, args.toolCallId, args.ctx.loopDetection);
+  }
+
+  try {
+    await requireSensitiveToolApproval({
+      toolName,
+      params,
+      agentId: args.ctx?.agentId,
+      sessionKey: args.ctx?.sessionKey,
+    });
+  } catch (err) {
+    return {
+      blocked: true,
+      reason: err instanceof Error ? err.message : String(err),
+    };
   }
 
   const hookRunner = getGlobalHookRunner();

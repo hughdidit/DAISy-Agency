@@ -3,6 +3,7 @@ import {
   DEFAULT_EXEC_APPROVAL_TIMEOUT_MS,
   type ExecApprovalDecision,
 } from "../../infra/exec-approvals.js";
+import { isSensitiveApprovalCategory } from "../../infra/sensitive-actions.js";
 import { buildSystemRunApprovalBinding } from "../../infra/system-run-approval-binding.js";
 import { resolveSystemRunApprovalRequestContext } from "../../infra/system-run-approval-context.js";
 import type { ExecApprovalManager } from "../exec-approval-manager.js";
@@ -45,6 +46,9 @@ export function createExecApprovalHandlers(
       const p = params as {
         id?: string;
         command: string;
+        category?: "exec" | "financial" | "deletion";
+        operationHash?: string | null;
+        operationPreview?: string | null;
         commandArgv?: string[];
         env?: Record<string, string>;
         cwd?: string;
@@ -64,6 +68,22 @@ export function createExecApprovalHandlers(
         twoPhase?: boolean;
       };
       const twoPhase = p.twoPhase === true;
+      const category = isSensitiveApprovalCategory(p.category) ? p.category : "exec";
+      const operationHash =
+        typeof p.operationHash === "string" && p.operationHash.trim().length > 0
+          ? p.operationHash.trim()
+          : null;
+      if (isSensitiveApprovalCategory(category) && !operationHash) {
+        respond(
+          false,
+          undefined,
+          errorShape(
+            ErrorCodes.INVALID_REQUEST,
+            "operationHash is required for financial and deletion approvals",
+          ),
+        );
+        return;
+      }
       const timeoutMs =
         typeof p.timeoutMs === "number" ? p.timeoutMs : DEFAULT_EXEC_APPROVAL_TIMEOUT_MS;
       const explicitId = typeof p.id === "string" && p.id.trim().length > 0 ? p.id.trim() : null;
@@ -130,6 +150,10 @@ export function createExecApprovalHandlers(
       }
       const request = {
         command: effectiveCommandText,
+        category,
+        operationHash,
+        operationPreview:
+          typeof p.operationPreview === "string" ? p.operationPreview.slice(0, 2_000) : null,
         commandArgv: effectiveCommandArgv,
         envKeys: systemRunBinding?.envKeys?.length ? systemRunBinding.envKeys : undefined,
         systemRunBinding: systemRunBinding?.binding ?? null,
@@ -212,12 +236,20 @@ export function createExecApprovalHandlers(
       }
 
       const decision = await decisionPromise;
+      const responseDecision =
+        !twoPhase &&
+        isSensitiveApprovalCategory(record.request.category) &&
+        decision === "allow-once"
+          ? manager.consumeAllowOnce(record.id)
+            ? decision
+            : null
+          : decision;
       // Send final response with decision for callers using expectFinal:true.
       respond(
         true,
         {
           id: record.id,
-          decision,
+          decision: responseDecision,
           createdAtMs: record.createdAtMs,
           expiresAtMs: record.expiresAtMs,
         },
@@ -243,12 +275,18 @@ export function createExecApprovalHandlers(
       // Capture snapshot before await (entry may be deleted after grace period)
       const snapshot = manager.getSnapshot(id);
       const decision = await decisionPromise;
+      const responseDecision =
+        isSensitiveApprovalCategory(snapshot?.request.category) && decision === "allow-once"
+          ? manager.consumeAllowOnce(id)
+            ? decision
+            : null
+          : decision;
       // Return decision (can be null on timeout) - let clients handle via askFallback
       respond(
         true,
         {
           id,
-          decision,
+          decision: responseDecision,
           createdAtMs: snapshot?.createdAtMs,
           expiresAtMs: snapshot?.expiresAtMs,
         },
@@ -269,13 +307,42 @@ export function createExecApprovalHandlers(
         );
         return;
       }
-      const p = params as { id: string; decision: string };
+      const p = params as { id: string; decision: string; operationHash?: string | null };
       const decision = p.decision as ExecApprovalDecision;
       if (decision !== "allow-once" && decision !== "allow-always" && decision !== "deny") {
         respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, "invalid decision"));
         return;
       }
       const snapshot = manager.getSnapshot(p.id);
+      if (!snapshot) {
+        respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, "unknown approval id"));
+        return;
+      }
+      if (isSensitiveApprovalCategory(snapshot.request.category)) {
+        if (decision === "allow-always") {
+          respond(
+            false,
+            undefined,
+            errorShape(
+              ErrorCodes.INVALID_REQUEST,
+              "allow-always is not permitted for financial or deletion approvals",
+            ),
+          );
+          return;
+        }
+        const suppliedHash = typeof p.operationHash === "string" ? p.operationHash.trim() : "";
+        if (!snapshot.request.operationHash || suppliedHash !== snapshot.request.operationHash) {
+          respond(
+            false,
+            undefined,
+            errorShape(
+              ErrorCodes.INVALID_REQUEST,
+              "operationHash does not match approval request",
+            ),
+          );
+          return;
+        }
+      }
       const resolvedBy = client?.connect?.client?.displayName ?? client?.connect?.client?.id;
       const ok = manager.resolve(p.id, decision, resolvedBy ?? null);
       if (!ok) {

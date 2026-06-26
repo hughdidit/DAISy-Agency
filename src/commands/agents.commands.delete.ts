@@ -5,6 +5,7 @@ import { resolveSessionTranscriptsDirForAgent } from "../config/sessions.js";
 import { DEFAULT_AGENT_ID, normalizeAgentId } from "../routing/session-key.js";
 import type { RuntimeEnv } from "../runtime.js";
 import { defaultRuntime } from "../runtime.js";
+import { writeAgentArchiveManifest } from "./agents.archive.js";
 import { createClackPrompter } from "../wizard/clack-prompter.js";
 import { createQuietRuntime, requireValidConfig } from "./agents.command-shared.js";
 import { findAgentEntryIndex, listAgentEntries, pruneAgentConfig } from "./agents.config.js";
@@ -70,6 +71,16 @@ export async function agentsDeleteCommand(
   const sessionsDir = resolveSessionTranscriptsDirForAgent(agentId);
 
   const result = pruneAgentConfig(cfg, agentId);
+  const archiveManifestPath = await writeAgentArchiveManifest({
+    agentId,
+    workspaceDir,
+    agentDir,
+    sessionsDir,
+    removedBindings: result.removedBindings,
+    removedAllow: result.removedAllow,
+    removedCredentialBindings: result.removedCredentialBindings,
+    removedDiscordAccounts: result.removedDiscordAccounts,
+  });
   await writeConfigFile(result.config);
   if (!opts.json) {
     logConfigUpdated(runtime);
@@ -88,14 +99,18 @@ export async function agentsDeleteCommand(
           workspace: workspaceDir,
           agentDir,
           sessionsDir,
+          archiveManifestPath,
           removedBindings: result.removedBindings,
           removedAllow: result.removedAllow,
+          removedCredentialBindings: result.removedCredentialBindings,
+          removedDiscordAccounts: result.removedDiscordAccounts,
         },
         null,
         2,
       ),
     );
   } else {
+    runtime.log(`Archive manifest: ${archiveManifestPath}`);
     runtime.log(`Deleted agent: ${agentId}`);
   }
 }

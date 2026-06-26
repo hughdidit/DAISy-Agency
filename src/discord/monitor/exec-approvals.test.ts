@@ -444,7 +444,7 @@ describe("ExecApprovalButton", () => {
     await button.run(interaction, data);
 
     expect(reply).toHaveBeenCalledWith({
-      content: "⛔ You are not authorized to approve exec requests.",
+      content: "You are not authorized to approve approval requests.",
       ephemeral: true,
     });
     expect(update).not.toHaveBeenCalled();
@@ -468,7 +468,7 @@ describe("ExecApprovalButton", () => {
       components: [],
     });
     // oxlint-disable-next-line typescript/unbound-method -- vi.fn() mock
-    expect(handler.resolveApproval).toHaveBeenCalledWith("test-approval", "allow-once");
+    expect(handler.resolveApproval).toHaveBeenCalledWith("test-approval", "allow-once", null);
   });
 
   it("shows correct label for allow-always", async () => {
@@ -485,6 +485,24 @@ describe("ExecApprovalButton", () => {
       content: "Submitting decision: **Allowed (always)**...",
       components: [],
     });
+  });
+
+  it("passes the cached operation hash when resolving sensitive approvals", async () => {
+    const handler = createMockHandler(["111"]);
+    handler.getApprovalOperationHash = vi.fn().mockReturnValue("a".repeat(64));
+    const ctx: ExecApprovalButtonContext = { handler };
+    const button = new ExecApprovalButton(ctx);
+
+    const { interaction } = createMockInteraction("111");
+    const data: ComponentData = { id: "test-approval", action: "allow-once" };
+
+    await button.run(interaction, data);
+
+    expect(handler.resolveApproval).toHaveBeenCalledWith(
+      "test-approval",
+      "allow-once",
+      "a".repeat(64),
+    );
   });
 
   it("shows correct label for deny", async () => {

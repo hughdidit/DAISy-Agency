@@ -162,7 +162,7 @@ describe("applyPluginAutoEnable", () => {
     const result = applyPluginAutoEnable({
       config: {},
       env: {
-        FINN_DISCORD_BOT_TOKEN: "token-finn",
+        OPS_DISCORD_BOT_TOKEN: "token-ops",
       },
     });
 
