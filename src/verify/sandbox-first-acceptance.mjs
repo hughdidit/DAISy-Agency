@@ -1365,7 +1365,7 @@ async function buildProviderUnavailableCronOutcome(ctx, params) {
     outcome: {
       status: "skipped",
       failureClass: "provider-quota-gap",
-      reason: `${scenarioName} reached provider quota/rate limits after isolated cron execution started${error ? `: ${error}` : ""}`,
+      reason: `${scenarioName} reached provider quota/rate limit or runtime budget exhaustion after isolated cron execution started${error ? `: ${error}` : ""}`,
     },
   };
 }

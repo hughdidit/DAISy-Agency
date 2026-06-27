@@ -1189,8 +1189,7 @@ describe("runSandboxFirstAcceptance", () => {
 
   it("skips isolated cron acceptance when provider quota blocks a verified isolated run", async () => {
     await withTempDir(async (artifactRoot) => {
-      const providerError =
-        "Error: All models failed (2): openai/gpt-5.4-nano: API rate limit reached. (rate_limit) | openai/gpt-5.4-mini: API rate limit reached. (rate_limit)";
+      const providerError = "Error: Projected model call cost $42.12 exceeds per-attempt cap $1.00";
       const wait = vi.fn(async () => undefined);
       const dockerExecBash = vi.fn((command: string) => {
         if (command.includes("node dist/index.js cron add")) {
@@ -1249,7 +1248,7 @@ describe("runSandboxFirstAcceptance", () => {
         expect.objectContaining({
           status: "skipped",
           failureClass: "provider-quota-gap",
-          reason: expect.stringContaining("provider quota/rate limits"),
+          reason: expect.stringContaining("provider quota/rate limit or runtime budget exhaustion"),
         }),
       );
 
