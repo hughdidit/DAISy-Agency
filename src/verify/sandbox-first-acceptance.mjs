@@ -1292,8 +1292,13 @@ async function pollForCronEntry(ctx, jobId) {
     const last = newestCronRunEntry(entries);
     if (last) {
       lastObserved = last;
-      if (last.action === "finished" && !isRetryableAcceptanceCronEntry(last)) {
-        return { runsPayload, last };
+      if (last.action === "finished") {
+        if (isProviderUnavailableAcceptanceCronEntry(last)) {
+          return { runsPayload, last, providerUnavailable: true };
+        }
+        if (!isRetryableAcceptanceCronEntry(last)) {
+          return { runsPayload, last };
+        }
       }
     }
     const delayMs = last ? acceptanceCronPollDelayMs(last) : ACCEPTANCE_CRON_POLL_INTERVAL_MS;

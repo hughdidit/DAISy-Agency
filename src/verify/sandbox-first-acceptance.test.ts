@@ -1210,7 +1210,6 @@ describe("runSandboxFirstAcceptance", () => {
                   status: "error",
                   error: providerError,
                   deliveryStatus: "not-requested",
-                  nextRunAtMs: Date.now() + 30_000,
                   sessionKey: "agent:main:cron:job-provider-quota:run:run-rate-limited",
                 },
               ],
@@ -1262,7 +1261,7 @@ describe("runSandboxFirstAcceptance", () => {
         sessionKey: "agent:main:cron:job-provider-quota:run:run-rate-limited",
         deliveryStatus: "not-requested",
       });
-      expect(wait).toHaveBeenCalled();
+      expect(wait).not.toHaveBeenCalled();
     });
   });
 
