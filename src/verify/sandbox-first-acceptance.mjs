@@ -521,11 +521,15 @@ function parseJsonOrThrow(raw, failureClass, message) {
 }
 
 async function cleanupAcceptanceCronArtifacts(ctx, params = {}) {
+  const cleanupParams = params && typeof params === "object" ? params : {};
   const outputs = [];
-  const jobId = typeof params.jobId === "string" && params.jobId.trim() ? params.jobId.trim() : "";
+  const jobId =
+    typeof cleanupParams.jobId === "string" && cleanupParams.jobId.trim()
+      ? cleanupParams.jobId.trim()
+      : "";
   const runSessionKey =
-    typeof params.runSessionKey === "string" && params.runSessionKey.trim()
-      ? params.runSessionKey.trim()
+    typeof cleanupParams.runSessionKey === "string" && cleanupParams.runSessionKey.trim()
+      ? cleanupParams.runSessionKey.trim()
       : "";
   const baseSessionKey = resolveCronBaseSessionKey(runSessionKey);
 
