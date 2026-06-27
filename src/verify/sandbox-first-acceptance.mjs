@@ -107,6 +107,8 @@ const ACCEPTANCE_CRON_POLL_INTERVAL_MS = 1_000;
 const ACCEPTANCE_CRON_RETRY_POLL_MAX_INTERVAL_MS = 5_000;
 const ACCEPTANCE_CRON_TRANSIENT_ERROR_PATTERN =
   /(rate[_ ]limit|too many requests|429|resource has been exhausted|cloudflare|network|econnreset|econnrefused|fetch failed|socket|timeout|etimedout|\b5\d{2}\b)/i;
+const ACCEPTANCE_CRON_PROVIDER_UNAVAILABLE_PATTERN =
+  /(rate[_ ]limit|too many requests|429|resource has been exhausted|monthly model budget exhausted|projected model call cost)/i;
 
 export class ExecError extends Error {
   constructor(message, details = {}) {
@@ -1242,6 +1244,14 @@ function isRetryableAcceptanceCronEntry(entry) {
   );
 }
 
+function isProviderUnavailableAcceptanceCronEntry(entry) {
+  if (entry?.action !== "finished" || entry?.status !== "error") {
+    return false;
+  }
+  const error = typeof entry.error === "string" ? entry.error : "";
+  return ACCEPTANCE_CRON_PROVIDER_UNAVAILABLE_PATTERN.test(error);
+}
+
 function acceptanceCronPollDelayMs(entry) {
   const nextRunAtMs = typeof entry?.nextRunAtMs === "number" ? entry.nextRunAtMs : Number.NaN;
   if (Number.isFinite(nextRunAtMs) && nextRunAtMs > 0) {
@@ -1269,6 +1279,7 @@ async function acceptanceCronPollWait(ctx, ms) {
 async function pollForCronEntry(ctx, jobId) {
   const deadlineMs = Date.now() + acceptanceCronPollTimeoutMs(ctx);
   let lastObserved = null;
+  let lastRunsPayload = null;
 
   while (Date.now() <= deadlineMs) {
     const runsRaw = ctx.dockerExecBash(
@@ -1276,12 +1287,19 @@ async function pollForCronEntry(ctx, jobId) {
     );
     await ctx.writeArtifactText("cron-runs.json", runsRaw);
     const runsPayload = extractLastJsonValue(runsRaw);
+    lastRunsPayload = runsPayload;
     const entries = Array.isArray(runsPayload?.entries) ? runsPayload.entries : [];
     const last = newestCronRunEntry(entries);
     if (last) {
       lastObserved = last;
-      if (last.action === "finished" && !isRetryableAcceptanceCronEntry(last)) {
-        return { runsPayload, last };
+      if (last.action === "finished") {
+        const retryable = isRetryableAcceptanceCronEntry(last);
+        if (!retryable) {
+          if (isProviderUnavailableAcceptanceCronEntry(last)) {
+            return { runsPayload, last, providerUnavailable: true };
+          }
+          return { runsPayload, last };
+        }
       }
     }
     const delayMs = last ? acceptanceCronPollDelayMs(last) : ACCEPTANCE_CRON_POLL_INTERVAL_MS;
@@ -1289,6 +1307,9 @@ async function pollForCronEntry(ctx, jobId) {
   }
 
   if (lastObserved) {
+    if (isProviderUnavailableAcceptanceCronEntry(lastObserved)) {
+      return { runsPayload: lastRunsPayload, last: lastObserved, providerUnavailable: true };
+    }
     const errorDetail =
       typeof lastObserved.error === "string" && lastObserved.error.trim()
         ? ` (error: ${lastObserved.error.trim()})`
@@ -1304,6 +1325,49 @@ async function pollForCronEntry(ctx, jobId) {
     "scheduler-gap",
     "cron runs did not record any entries for the acceptance job",
   );
+}
+
+async function buildProviderUnavailableCronOutcome(ctx, params) {
+  const last = params.last;
+  const jobId = params.jobId;
+  const scenarioName = params.scenarioName;
+
+  if (last?.deliveryStatus !== "not-requested") {
+    throw new ScenarioError(
+      "delivery-gap",
+      `${scenarioName} unexpectedly attempted delivery (${String(
+        last?.deliveryStatus ?? "<empty>",
+      )}) before provider quota exhaustion`,
+    );
+  }
+
+  const runSessionKey = typeof last?.sessionKey === "string" ? last.sessionKey.trim() : "";
+  if (!isAgentCronRunSessionKeyForJob(runSessionKey, jobId)) {
+    throw new ScenarioError(
+      "scheduler-gap",
+      `${scenarioName} did not expose the expected agent-scoped per-run session key for ${jobId}, got ${runSessionKey || "<empty>"}`,
+    );
+  }
+
+  const error = typeof last?.error === "string" && last.error.trim() ? last.error.trim() : "";
+  await ctx.writeArtifactJson("cron-provider-unavailable.json", {
+    providerUnavailable: true,
+    jobId,
+    sessionKey: runSessionKey,
+    status: last?.status ?? null,
+    error: error || null,
+    deliveryStatus: last?.deliveryStatus ?? null,
+    nextRunAtMs: typeof last?.nextRunAtMs === "number" ? last.nextRunAtMs : null,
+  });
+
+  return {
+    runSessionKey,
+    outcome: {
+      status: "skipped",
+      failureClass: "provider-quota-gap",
+      reason: `${scenarioName} reached provider quota/rate limit or runtime budget exhaustion after isolated cron execution started${error ? `: ${error}` : ""}`,
+    },
+  };
 }
 
 export async function runIsolatedCronScenario(ctx) {
@@ -1351,7 +1415,16 @@ export async function runIsolatedCronScenario(ctx) {
       );
     }
 
-    const { last } = await pollForCronEntry(ctx, jobId);
+    const { last, providerUnavailable } = await pollForCronEntry(ctx, jobId);
+    if (providerUnavailable) {
+      const skipped = await buildProviderUnavailableCronOutcome(ctx, {
+        jobId,
+        last,
+        scenarioName: "isolated cron acceptance job",
+      });
+      runSessionKey = skipped.runSessionKey;
+      return skipped.outcome;
+    }
     if (last?.action !== "finished") {
       throw new ScenarioError("scheduler-gap", "cron run history did not record a finished event");
     }
@@ -1516,7 +1589,16 @@ export async function runCronIsolationAndSubagentModelScenario(ctx) {
       );
     }
 
-    const { last } = await pollForCronEntry(ctx, jobId);
+    const { last, providerUnavailable } = await pollForCronEntry(ctx, jobId);
+    if (providerUnavailable) {
+      const skipped = await buildProviderUnavailableCronOutcome(ctx, {
+        jobId,
+        last,
+        scenarioName: "SBX-404 isolated cron job",
+      });
+      runSessionKey = skipped.runSessionKey;
+      return skipped.outcome;
+    }
     if (last?.action !== "finished") {
       throw new ScenarioError(
         "scheduler-gap",
