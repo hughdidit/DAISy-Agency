@@ -1293,10 +1293,11 @@ async function pollForCronEntry(ctx, jobId) {
     if (last) {
       lastObserved = last;
       if (last.action === "finished") {
-        if (isProviderUnavailableAcceptanceCronEntry(last)) {
-          return { runsPayload, last, providerUnavailable: true };
-        }
-        if (!isRetryableAcceptanceCronEntry(last)) {
+        const retryable = isRetryableAcceptanceCronEntry(last);
+        if (!retryable) {
+          if (isProviderUnavailableAcceptanceCronEntry(last)) {
+            return { runsPayload, last, providerUnavailable: true };
+          }
           return { runsPayload, last };
         }
       }
