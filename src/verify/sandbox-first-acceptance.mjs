@@ -99,7 +99,7 @@ const ANSI_ESCAPE_PATTERN = new RegExp(`${ANSI_ESCAPE_PREFIX}\\[[0-9;?]*[ -/]*[@
 const AGENT_CRON_RUN_SESSION_KEY_PATTERN = /^agent:[a-z0-9][a-z0-9_-]{0,63}:cron:[^:]+:run:[^:]+$/;
 const DEFAULT_CRON_PROMPT =
   "Report the current sandbox mode, runtime profile, and whether openclaw-readonly is supported. Do not mutate anything.";
-const DEFAULT_ACCEPTANCE_CRON_MODEL = "gpt-5.4-nano";
+const DEFAULT_ACCEPTANCE_CRON_MODEL = "openai/gpt-5.4-nano";
 const DEFAULT_ACCEPTANCE_CRON_THINKING = "minimal";
 const DEFAULT_ACCEPTANCE_CRON_TIMEOUT_SECONDS = "60";
 
@@ -592,7 +592,8 @@ function assertCronAddSelfDeletes(addPayload, message) {
 
 function acceptanceCronAgentTurnFlags(ctx, envModelKeys = []) {
   const env = ctx.env && typeof ctx.env === "object" ? ctx.env : {};
-  const envString = (key) => (typeof env[key] === "string" ? env[key].trim() : "");
+  const envString = (key) =>
+    typeof env[key] === "string" || typeof env[key] === "number" ? String(env[key]).trim() : "";
   const model =
     envModelKeys.map((key) => envString(key)).find(Boolean) ||
     envString("SBX_CRON_MODEL") ||
@@ -1237,7 +1238,7 @@ async function pollForCronEntry(ctx, jobId) {
 
 export async function runIsolatedCronScenario(ctx) {
   const runAt = new Date(ctx.now().getTime() + 20 * 60 * 1000).toISOString();
-  const jobName = `SBX-402 sandbox-first acceptance ${ctx.now().toISOString()}`;
+  const jobName = `SBX-401 sandbox-first acceptance ${ctx.now().toISOString()}`;
   let jobId = "";
   let runSessionKey = "";
 

@@ -470,6 +470,8 @@ describe("runSandboxFirstAcceptance", () => {
           GCP_PROJECT_ID: "proj",
           GCP_ZONE: "us-west1-b",
           VERIFY_GCE_CONTAINER: "openclaw-gateway",
+          SBX401_CRON_MODEL: "openai/sbx401-override",
+          SBX404_CRON_MODEL: "openai/sbx404-override",
         },
         commandContext: {
           container: "openclaw-gateway",
@@ -970,10 +972,12 @@ describe("runSandboxFirstAcceptance", () => {
       expect(cronAddCommands.every((command) => !command.includes("--delete-after-run"))).toBe(
         true,
       );
+      expect(cronAddCommands[0]).toContain("SBX-401 sandbox-first acceptance");
+      expect(cronAddCommands[0]).toContain("--model 'openai/sbx401-override'");
+      expect(cronAddCommands[1]).toContain("--model 'openai/sbx404-override'");
       expect(
         cronAddCommands.every(
           (command) =>
-            command.includes("--model 'gpt-5.4-nano'") &&
             command.includes("--thinking 'minimal'") &&
             command.includes("--timeout-seconds '60'") &&
             command.includes("--light-context"),
@@ -1017,6 +1021,11 @@ describe("runSandboxFirstAcceptance", () => {
 
       const ctx = {
         now: () => new Date("2026-04-25T20:00:00.000Z"),
+        env: {
+          SBX_CRON_MODEL: "openai/shared-override",
+          SBX_CRON_THINKING: "low",
+          SBX_CRON_TIMEOUT_SECONDS: 42,
+        },
         dockerExecBash,
         writeArtifactText: async (name: string, content: string) => {
           await fs.writeFile(path.join(artifactRoot, name), content, "utf8");
@@ -1087,9 +1096,9 @@ describe("runSandboxFirstAcceptance", () => {
       );
       expect(cronAddCommands).toHaveLength(1);
       expect(cronAddCommands[0]).not.toContain("--delete-after-run");
-      expect(cronAddCommands[0]).toContain("--model 'gpt-5.4-nano'");
-      expect(cronAddCommands[0]).toContain("--thinking 'minimal'");
-      expect(cronAddCommands[0]).toContain("--timeout-seconds '60'");
+      expect(cronAddCommands[0]).toContain("--model 'openai/shared-override'");
+      expect(cronAddCommands[0]).toContain("--thinking 'low'");
+      expect(cronAddCommands[0]).toContain("--timeout-seconds '42'");
       expect(cronAddCommands[0]).toContain("--light-context");
     });
   });
@@ -1098,6 +1107,7 @@ describe("runSandboxFirstAcceptance", () => {
     await withTempDir(async (artifactRoot) => {
       const dockerExecBash = vi.fn((command: string) => {
         if (command.includes("node dist/index.js cron add")) {
+          expect(command).toContain("--model 'openai/gpt-5.4-nano'");
           return JSON.stringify({ id: "job-persistent", deleteAfterRun: false }, null, 2);
         }
         throw new Error(`Unhandled docker command: ${command}`);
