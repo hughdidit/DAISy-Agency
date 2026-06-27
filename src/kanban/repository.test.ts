@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import { KANBAN_DEFAULT_COLLECTIONS } from "./config.js";
 import type { ResolvedKanbanConfig } from "./config.js";
 import {
+  buildCardDocument,
   buildDefaultBoardDocument,
+  buildCardUpdateOperation,
   KANBAN_INDEX_DEFINITIONS,
   validateKanbanAuditEnvelope,
 } from "./repository.js";
@@ -78,6 +80,101 @@ describe("buildDefaultBoardDocument", () => {
     });
     expect(board.createdAt).toBeInstanceOf(Date);
     expect(board.updatedAt).toBeInstanceOf(Date);
+  });
+});
+
+describe("buildCardDocument", () => {
+  it("creates an active To Do card with Trello-like default fields", () => {
+    const now = new Date("2026-01-02T03:04:05.000Z");
+    const card = buildCardDocument(
+      {
+        id: "card-1",
+        boardId: "team-agents",
+        title: "  Prepare QA notes  ",
+      },
+      now,
+    );
+
+    expect(card).toMatchObject({
+      _id: "card-1",
+      boardId: "team-agents",
+      title: "Prepare QA notes",
+      lane: "todo",
+      priority: "normal",
+      priorityRank: 2,
+      version: 1,
+      labels: [],
+      checklist: [],
+      comments: [],
+      links: [],
+      attachments: [],
+      watchers: [],
+      customFields: {},
+      readyForCodex: false,
+      createdAt: now,
+      updatedAt: now,
+    });
+    expect(card).not.toHaveProperty("archivedAt");
+  });
+
+  it("ranks urgent cards before normal cards for Codex pickup ordering", () => {
+    const urgent = buildCardDocument({
+      boardId: "team-agents",
+      title: "Urgent task",
+      priority: "urgent",
+    });
+    const normal = buildCardDocument({
+      boardId: "team-agents",
+      title: "Normal task",
+      priority: "normal",
+    });
+
+    expect(urgent.priorityRank).toBeLessThan(normal.priorityRank);
+  });
+
+  it("rejects empty card titles before repository writes proceed", () => {
+    expect(() =>
+      buildCardDocument({
+        boardId: "team-agents",
+        title: " ",
+      }),
+    ).toThrow("Kanban card title is required");
+  });
+});
+
+describe("buildCardUpdateOperation", () => {
+  it("uses null update values to clear optional card fields", () => {
+    const now = new Date("2026-01-02T03:04:05.000Z");
+
+    expect(
+      buildCardUpdateOperation(
+        {
+          boardId: "team-agents",
+          cardId: "card-1",
+          expectedVersion: 3,
+          updates: {
+            description: null,
+            assignee: null,
+            reviewer: null,
+            inputOwner: null,
+            dueAt: null,
+            import: null,
+          },
+        },
+        now,
+      ),
+    ).toEqual({
+      $inc: { version: 1 },
+      $set: { updatedAt: now },
+      $unset: {
+        description: "",
+        assignee: "",
+        reviewer: "",
+        inputOwner: "",
+        dueAt: "",
+        import: "",
+      },
+    });
   });
 });
 

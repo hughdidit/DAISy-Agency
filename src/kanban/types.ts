@@ -87,6 +87,7 @@ export type KanbanCard = {
   position: number;
   priority: KanbanPriority;
   priorityRank: number;
+  version: number;
   assignee?: string;
   reviewer?: string;
   inputOwner?: string;
