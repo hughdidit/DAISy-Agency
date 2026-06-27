@@ -1187,6 +1187,85 @@ describe("runSandboxFirstAcceptance", () => {
     });
   });
 
+  it("skips isolated cron acceptance when provider quota blocks a verified isolated run", async () => {
+    await withTempDir(async (artifactRoot) => {
+      const providerError =
+        "Error: All models failed (2): openai/gpt-5.4-nano: API rate limit reached. (rate_limit) | openai/gpt-5.4-mini: API rate limit reached. (rate_limit)";
+      const wait = vi.fn(async () => undefined);
+      const dockerExecBash = vi.fn((command: string) => {
+        if (command.includes("node dist/index.js cron add")) {
+          return JSON.stringify({ id: "job-provider-quota" }, null, 2);
+        }
+        if (command === "cd /app && node dist/index.js cron run 'job-provider-quota'") {
+          return JSON.stringify({ ok: true, ran: true }, null, 2);
+        }
+        if (
+          command === "cd /app && node dist/index.js cron runs --id 'job-provider-quota' --limit 20"
+        ) {
+          return JSON.stringify(
+            {
+              entries: [
+                {
+                  action: "finished",
+                  status: "error",
+                  error: providerError,
+                  deliveryStatus: "not-requested",
+                  nextRunAtMs: Date.now() + 30_000,
+                  sessionKey: "agent:main:cron:job-provider-quota:run:run-rate-limited",
+                },
+              ],
+            },
+            null,
+            2,
+          );
+        }
+        throw new Error(`Unhandled docker command: ${command}`);
+      });
+
+      const ctx = {
+        now: () => new Date("2026-04-25T20:00:00.000Z"),
+        env: {
+          SBX_CRON_POLL_TIMEOUT_SECONDS: "0.001",
+        },
+        dockerExecBash,
+        wait,
+        writeArtifactText: async (name: string, content: string) => {
+          await fs.writeFile(path.join(artifactRoot, name), content, "utf8");
+        },
+        writeArtifactJson: async (name: string, payload: unknown) => {
+          await fs.writeFile(
+            path.join(artifactRoot, name),
+            `${JSON.stringify(payload, null, 2)}\n`,
+            "utf8",
+          );
+        },
+      };
+      const acceptanceModule = (await import("./sandbox-first-acceptance.mjs")) as unknown as {
+        runIsolatedCronScenario: (
+          scenarioContext: typeof ctx,
+        ) => Promise<{ status: string; failureClass: string; reason: string }>;
+      };
+
+      await expect(acceptanceModule.runIsolatedCronScenario(ctx)).resolves.toEqual(
+        expect.objectContaining({
+          status: "skipped",
+          failureClass: "provider-quota-gap",
+          reason: expect.stringContaining("provider quota/rate limits"),
+        }),
+      );
+
+      const providerUnavailable = JSON.parse(
+        await fs.readFile(path.join(artifactRoot, "cron-provider-unavailable.json"), "utf8"),
+      ) as { providerUnavailable: boolean; sessionKey: string; deliveryStatus: string };
+      expect(providerUnavailable).toMatchObject({
+        providerUnavailable: true,
+        sessionKey: "agent:main:cron:job-provider-quota:run:run-rate-limited",
+        deliveryStatus: "not-requested",
+      });
+      expect(wait).toHaveBeenCalled();
+    });
+  });
+
   it("fails isolated cron acceptance when cron add explicitly disables self cleanup", async () => {
     await withTempDir(async (artifactRoot) => {
       const dockerExecBash = vi.fn((command: string) => {
