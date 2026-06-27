@@ -44,6 +44,26 @@ Depends on PRD-001 storage/service foundation. This PRD follows existing gateway
 - Fail closed for missing/unhealthy MongoDB.
 - Do not expose hard delete.
 
+Explicit method scopes:
+
+| Method                         | Scope |
+| ------------------------------ | ----- |
+| `kanban.status`                | Read  |
+| `kanban.board.get`             | Read  |
+| `kanban.cards.list`            | Read  |
+| `kanban.cards.get`             | Read  |
+| `kanban.activity.list`         | Read  |
+| `kanban.import.trello.preview` | Read  |
+| `kanban.cards.create`          | Write |
+| `kanban.cards.update`          | Write |
+| `kanban.cards.move`            | Write |
+| `kanban.cards.comment`         | Write |
+| `kanban.cards.archive`         | Write |
+| `kanban.import.trello.run`     | Write |
+| `kanban.codex.pickNext`        | Write |
+| `kanban.codex.handoff`         | Write |
+| `kanban.codex.complete`        | Write |
+
 ## 4) Non-Goals
 
 - UI rendering.

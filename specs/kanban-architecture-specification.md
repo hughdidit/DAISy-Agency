@@ -21,7 +21,7 @@ Success metrics:
 
 The current repo is DAISy-Agency, a DAISy-branded fork of OpenClaw. Control UI is a Lit/Vite frontend served by the gateway. Gateway operations use typed RPC methods, protocol schemas, method scopes, and server-method handlers. Agent tools are brokered through the gateway/tool catalog rather than direct datastore access.
 
-The feature must follow `AGENTS.md`:
+The feature must follow `../AGENTS.md`:
 
 - Create feature branches from `daisy/dev`.
 - Use Git for Windows for git operations.
@@ -82,7 +82,7 @@ Required indexes:
 
 - `cards`: `{ boardId: 1, archivedAt: 1, lane: 1, position: 1 }`
 - `cards`: `{ boardId: 1, readyForCodex: 1, priorityRank: 1, createdAt: 1 }`
-- `cards`: `{ boardId: 1, "import.source": 1, "import.sourceCardId": 1 }` unique where present
+- `cards`: `{ boardId: 1, "import.source": 1, "import.sourceCardId": 1 }` as a partial unique index that only includes documents where both import fields exist. When Trello data lacks a source card id, imports must use a stored source hash plus explicit import idempotency key instead of allowing missing source ids to collide.
 - `activity`: `{ boardId: 1, createdAt: -1 }`
 - `activity`: `{ cardId: 1, createdAt: -1 }`
 - `imports`: `{ source: 1, sourceHash: 1 }`
@@ -194,7 +194,7 @@ Tooling:
 
 Codex skill:
 
-- Add `skills/kanban-codex/SKILL.md`.
+- Add `../skills/kanban-codex/SKILL.md`.
 - Skill instructs Codex to use Kanban tools, never direct MongoDB.
 - Scheduled pickup flow uses `kanban_pick_task`.
 - Only cards marked `readyForCodex` are eligible.
@@ -214,7 +214,7 @@ Import behavior:
 - Preview maps source lists to DAISy lanes before write.
 - Default mapping recognizes todo/backlog, doing/progress, review/input, and done/complete names.
 - Unknown Trello lists map to `To Do` and retain original list metadata.
-- Labels, due dates, members, checklists, comments/actions, links, attachments, and card ids are preserved where present.
+- Labels, due dates, members, checklists, comments/actions, links, attachments, custom fields, and card ids are preserved where present.
 - Binary attachments are stored in GridFS only when included or uploaded; URL-only attachments remain links/metadata.
 - Re-running the same import updates/links existing imported cards instead of duplicating them.
 - Every imported card and import run emits activity.

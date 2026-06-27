@@ -17,7 +17,7 @@ Success metrics:
 
 ## 2) Context
 
-Depends on PRD-001 through PRD-003. PRD-002 exposes import RPC contracts; this PRD completes import and rich card behavior across service/API/UI as needed.
+Depends on PRD-001 through PRD-004. PRD-002 exposes import RPC contracts; PRD-004 defines the agent/Codex contract needed for `readyForCodex`; this PRD completes import and rich card behavior across service/API/UI as needed.
 
 ## 3) Hard Requirements
 

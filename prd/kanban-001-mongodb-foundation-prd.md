@@ -18,7 +18,7 @@ Success metrics:
 
 ## 2) Context
 
-This PRD implements the storage layer described in `specs/kanban-architecture-specification.md`. It must not implement Control UI, agent tools, or Trello import UI.
+This PRD implements the storage layer described in `../specs/kanban-architecture-specification.md`. It must not implement Control UI, agent tools, or Trello import UI.
 
 Existing repo/project:
 
@@ -31,11 +31,12 @@ Existing repo/project:
 - Add Kanban config resolution for MongoDB URI/database/collection names using existing repo conventions.
 - Redact MongoDB URI and credentials in all logs/errors/status.
 - Require TLS for non-local/non-container MongoDB endpoints.
-- Add Kanban domain types for board, lane, card, checklist item, comment, activity, import, and attachment metadata.
+- Add Kanban domain types for board, lane, card, checklist item, comment, activity, import, attachment metadata, and a typed actor/audit envelope.
 - Add repository operations for board bootstrap, card CRUD, move ordering, archive, activity append/list, status, and index creation.
 - Add atomic Codex pickup repository primitive for `readyForCodex` cards by priority then oldest.
 - Add GridFS plumbing for attachment content storage without exposing binary upload through RPC yet.
 - Add real-behavior tests against a real MongoDB service or approved repo integration test harness.
+- Require repository-facing write payloads and activity append payloads to carry an actor/audit envelope for human, agent, API, import, and system writes.
 
 ## 4) Non-Goals
 
@@ -62,8 +63,9 @@ Existing repo/project:
 4. Index creation.
 5. Activity append helper.
 6. Archive-only card behavior.
-7. Real MongoDB integration tests.
-8. Docs/config notes if new environment variables are introduced.
+7. Actor/audit envelope shared by write payloads and activity records.
+8. Real MongoDB integration tests.
+9. Docs/config notes if new environment variables are introduced.
 
 ## 7) Output Format
 
@@ -78,14 +80,15 @@ Closeout must include assumptions, implementation plan, changed files, test comm
 
 ## 9) Acceptance Criteria
 
-| Criterion              | Required result                            |
-| ---------------------- | ------------------------------------------ |
-| Dedicated storage      | Kanban uses dedicated DB/collections       |
-| Board bootstrap        | `team-agents` board exists with four lanes |
-| Archive policy         | No hard delete API in repository           |
-| Activity               | Every mutation helper can append activity  |
-| Codex pickup primitive | Atomic priority-then-oldest claim exists   |
-| Tests                  | Real MongoDB integration coverage added    |
+| Criterion              | Required result                                          |
+| ---------------------- | -------------------------------------------------------- |
+| Dedicated storage      | Kanban uses dedicated DB/collections                     |
+| Board bootstrap        | `team-agents` board exists with four lanes               |
+| Archive policy         | No hard delete API in repository                         |
+| Activity               | Every mutation helper can append activity                |
+| Codex pickup primitive | Atomic priority-then-oldest claim exists                 |
+| Actor attribution      | Write and activity payloads require actor/audit envelope |
+| Tests                  | Real MongoDB integration coverage added                  |
 
 ## 10) Project-Specific Details
 

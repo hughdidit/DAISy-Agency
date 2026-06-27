@@ -10,9 +10,9 @@ Primary outcome: commit the architecture specification, project backlog, and ord
 
 Success metrics:
 
-- `/specs/kanban-architecture-specification.md` exists.
-- `/specs/kanban-project-backlog.md` exists.
-- `/prd/kanban-000-*` through `/prd/kanban-006-*` exist.
+- `../specs/kanban-architecture-specification.md` exists.
+- `../specs/kanban-project-backlog.md` exists.
+- `../prd/kanban-000-*` through `../prd/kanban-006-*` exist.
 - The docs reflect the approved MongoDB-backed, four-lane, Trello-replacement plan.
 
 ## 2) Context
@@ -31,20 +31,20 @@ Existing repo/project:
 - Control UI is Lit/Vite.
 - Gateway APIs are typed RPC methods.
 - Agent tools are gateway-brokered.
-- `prd/one-shot-template.md` defines the PRD format.
+- The attached One-Shot End-to-End Code Specification defines the PRD format.
 
 Constraints:
 
-- Follow `AGENTS.md`.
+- Follow `../AGENTS.md`.
 - Keep this PR docs-only and issue-sized.
 - Do not adopt unmerged remote Kanban work unless it matches the approved spec.
 
 ## 3) Hard Requirements
 
-- Create `/specs` if missing.
-- Add architecture specification under `/specs/kanban-architecture-specification.md`.
-- Add project backlog under `/specs/kanban-project-backlog.md`.
-- Add all Kanban PRDs under `/prd`.
+- Create `../specs` if missing.
+- Add architecture specification under `../specs/kanban-architecture-specification.md`.
+- Add project backlog under `../specs/kanban-project-backlog.md`.
+- Add all Kanban PRDs under `../prd`.
 - State that PRDs may be split into multiple issue-sized PRs.
 - State final reconciliation and final `code-review-and-quality` requirements.
 - Use finished-product framing throughout.
@@ -63,13 +63,13 @@ Constraints:
 - Interfaces: PRD queue consumed by Codex Desktop and `prd-queue-runner`.
 - Data/storage: docs describe MongoDB, but this PRD does not implement storage.
 - Security: no secrets or credentials in docs.
-- Available files/modules: `AGENTS.md`, `prd/one-shot-template.md`, approved user plan.
+- Available files/modules: `../AGENTS.md`, the attached One-Shot End-to-End Code Specification, and the approved user plan.
 
 ## 6) Required Deliverables
 
-1. Architecture summary in `/specs`.
-2. Project backlog in `/specs`.
-3. Seven Kanban PRDs in `/prd`.
+1. Architecture summary in `../specs`.
+2. Project backlog in `../specs`.
+3. Seven Kanban PRDs in `../prd`.
 4. Queue runner instructions.
 5. Acceptance criteria mapped to PRDs.
 6. Risks and constraints.
@@ -95,8 +95,8 @@ Implementation closeout must report:
 
 | Criterion                | Required result                                                                 |
 | ------------------------ | ------------------------------------------------------------------------------- |
-| Architecture spec exists | `/specs/kanban-architecture-specification.md` committed                         |
-| Backlog exists           | `/specs/kanban-project-backlog.md` committed                                    |
+| Architecture spec exists | `../specs/kanban-architecture-specification.md` committed                       |
+| Backlog exists           | `../specs/kanban-project-backlog.md` committed                                  |
 | PRDs exist               | PRD-000 through PRD-006 committed                                               |
 | Plan fidelity            | MongoDB, four lanes, Activity audit, Trello import, tools, Codex skill included |
 | Scope discipline         | No runtime code changes in this PRD                                             |

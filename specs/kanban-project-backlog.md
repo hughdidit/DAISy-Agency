@@ -5,7 +5,7 @@
 - Name: DAISy Kanban Board
 - Repo: `hughdidit/DAISy-Agency`
 - Base branch: `daisy/dev`
-- Architecture: `specs/kanban-architecture-specification.md`
+- Architecture: `kanban-architecture-specification.md`
 - Product owner: Hughdidit LLC / DAISy operations
 - Delivery rule: PRDs are delivery units; PRs must remain issue-sized and may split a PRD into multiple independently reviewable slices.
 - Closeout rule: every slice follows DAISy PR, CI, review, merge, staging dry-run, staging deploy, and `verify.yml` workflow.
@@ -27,7 +27,7 @@
 ### Epic A: Planning And Governance
 
 - Create architecture specification and backlog under `/specs`.
-- Create PRDs under `/prd` using the One-Shot template.
+- Create PRDs under `../prd` using the attached One-Shot template supplied with the project brief.
 - Record issue-sized PR boundaries in each PRD.
 - Reconcile any unmerged Kanban branches against this specification before adopting code.
 
@@ -80,7 +80,7 @@ Acceptance:
 
 - Add Kanban tools to the agent tool catalog.
 - Implement gateway-brokered read/write/pickup/handoff/complete tools.
-- Add `skills/kanban-codex/SKILL.md`.
+- Add `../skills/kanban-codex/SKILL.md`.
 - Support scheduled Codex pickup for `readyForCodex` cards by priority then age.
 
 Acceptance:
@@ -147,9 +147,9 @@ Make a plan to implement [PRD FILENAME] attached. Refer to the other attached fi
 
 Attach or reference:
 
-- `AGENTS.md`
-- `specs/kanban-architecture-specification.md`
-- `specs/kanban-project-backlog.md`
+- `../AGENTS.md`
+- `kanban-architecture-specification.md`
+- `kanban-project-backlog.md`
 - the selected PRD
 - directly relevant repo docs or code discovered for that PRD
 

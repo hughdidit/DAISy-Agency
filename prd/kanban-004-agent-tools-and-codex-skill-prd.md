@@ -12,7 +12,7 @@ Success metrics:
 
 - Tool catalog exposes Kanban read/write/pickup/handoff/complete capabilities.
 - Tools call gateway RPC methods and preserve auth, scopes, validation, and activity logging.
-- `skills/kanban-codex/SKILL.md` instructs manual and scheduled Codex workflows.
+- `../skills/kanban-codex/SKILL.md` instructs manual and scheduled Codex workflows.
 - Scheduled pickup claims only `readyForCodex` cards by priority then oldest.
 
 ## 2) Context
@@ -29,7 +29,7 @@ Depends on PRD-002. The repo already has agent tool catalog, gateway-brokered to
   - `kanban_handoff`
   - `kanban_complete`
 - Add concise tool guidance to agent/system prompt surfaces.
-- Add `skills/kanban-codex/SKILL.md`.
+- Add `../skills/kanban-codex/SKILL.md`.
 - Skill must instruct Codex to:
   - read board/card context through tools,
   - pick up only `readyForCodex` cards,
@@ -59,7 +59,7 @@ Depends on PRD-002. The repo already has agent tool catalog, gateway-brokered to
 1. Tool catalog entries.
 2. Tool implementations.
 3. System prompt/tool guidance.
-4. `skills/kanban-codex/SKILL.md`.
+4. `../skills/kanban-codex/SKILL.md`.
 5. Tool tests.
 6. Scheduled pickup usage notes.
 
@@ -76,13 +76,13 @@ Closeout must include assumptions, implementation plan, changed files, test comm
 
 ## 9) Acceptance Criteria
 
-| Criterion      | Required result                                             |
-| -------------- | ----------------------------------------------------------- |
-| Tools          | Read/write/pickup/handoff/complete registered               |
-| Gateway backed | Tools use RPC, not MongoDB                                  |
-| Pickup         | Priority then oldest `readyForCodex` claim                  |
-| Skill          | Codex workflow documented in `skills/kanban-codex/SKILL.md` |
-| Tests          | Tool behavior covered                                       |
+| Criterion      | Required result                                                |
+| -------------- | -------------------------------------------------------------- |
+| Tools          | Read/write/pickup/handoff/complete registered                  |
+| Gateway backed | Tools use RPC, not MongoDB                                     |
+| Pickup         | Priority then oldest `readyForCodex` claim                     |
+| Skill          | Codex workflow documented in `../skills/kanban-codex/SKILL.md` |
+| Tests          | Tool behavior covered                                          |
 
 ## 10) Project-Specific Details
 

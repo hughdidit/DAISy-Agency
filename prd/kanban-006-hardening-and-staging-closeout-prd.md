@@ -22,7 +22,7 @@ Depends on PRD-001 through PRD-005. This PRD is the final reconciliation and ope
 
 ## 3) Hard Requirements
 
-- Compare `/prd/kanban-*.md`, `/specs/kanban-project-backlog.md`, merged PRs, local code, and deployment evidence.
+- Compare `../prd/kanban-*.md`, `../specs/kanban-architecture-specification.md`, `../specs/kanban-project-backlog.md`, merged PRs, local code, and deployment evidence.
 - Identify any skipped, partial, or undeployed Kanban PRD or PRD slice.
 - Execute missed work through `prd-queue-runner` and the standard PR workflow.
 - Run final `code-review-and-quality` across the whole Kanban implementation.
