@@ -753,29 +753,29 @@ Implementation must meet this bar:
 
 ## 9) Acceptance Criteria
 
-| ID | Criterion | Pass Condition |
-|---|---|---|
-| AC-1 | Skill exists | `extensions/memory-mongodb/skills/document-ingest/SKILL.md` exists and is AgentSkills-compatible |
-| AC-2 | Helper exists | `document-ingest.mjs` exists and runs under Node 22+ |
-| AC-3 | Plugin tool exists | `memory_ingest_document` is registered by memory-mongodb |
-| AC-4 | Text PDF works | Small text-bearing PDF extracts text, page count, chunks, hash, and returns `ok: true` |
-| AC-5 | Scanned PDF handled | No-text PDF triggers OCR path or clear `pdf_no_extractable_text` / `ocr_unavailable` result |
-| AC-6 | Text formats work | TXT, Markdown, CSV, JSON, HTML/XML return valid chunks |
-| AC-7 | Office formats work | DOCX, XLSX, and PPTX fixtures produce extracted text or clear supported failure |
-| AC-8 | Tables handled | CSV/XLSX table-like data creates table chunks or table summaries |
-| AC-9 | Unsupported MIME failure | Unsupported files return stable error JSON |
-| AC-10 | Missing file failure | Missing paths return stable error JSON |
-| AC-11 | Deterministic chunking | Same input and flags produce same chunk IDs and text |
-| AC-12 | No placeholder-only memory | No candidate stores only `[attachment:<mime>]` |
-| AC-13 | Parent/child linkage | Manifest and child chunk/table entries include document linkage metadata |
-| AC-14 | Dry run works | `dryRun: true` returns candidates without memory capture |
-| AC-15 | Capture works | `dryRun: false` captures manifest and child entries through memory-ops |
-| AC-16 | Recall verification works | Tool returns pass/fail recall verification details |
-| AC-17 | Docs updated | `docs/plugins/memory-mongodb.md` documents the new skill/tool |
-| AC-18 | No network helper | Helper makes no network/API calls |
-| AC-19 | No direct DB writes | Feature uses existing memory provider/capture paths |
-| AC-20 | Existing tests pass | Existing memory-mongodb tests still pass |
-| AC-21 | CI compatible | Tests pass without Poppler or mandatory OCR binaries |
+| ID    | Criterion                  | Pass Condition                                                                                   |
+| ----- | -------------------------- | ------------------------------------------------------------------------------------------------ |
+| AC-1  | Skill exists               | `extensions/memory-mongodb/skills/document-ingest/SKILL.md` exists and is AgentSkills-compatible |
+| AC-2  | Helper exists              | `document-ingest.mjs` exists and runs under Node 22+                                             |
+| AC-3  | Plugin tool exists         | `memory_ingest_document` is registered by memory-mongodb                                         |
+| AC-4  | Text PDF works             | Small text-bearing PDF extracts text, page count, chunks, hash, and returns `ok: true`           |
+| AC-5  | Scanned PDF handled        | No-text PDF triggers OCR path or clear `pdf_no_extractable_text` / `ocr_unavailable` result      |
+| AC-6  | Text formats work          | TXT, Markdown, CSV, JSON, HTML/XML return valid chunks                                           |
+| AC-7  | Office formats work        | DOCX, XLSX, and PPTX fixtures produce extracted text or clear supported failure                  |
+| AC-8  | Tables handled             | CSV/XLSX table-like data creates table chunks or table summaries                                 |
+| AC-9  | Unsupported MIME failure   | Unsupported files return stable error JSON                                                       |
+| AC-10 | Missing file failure       | Missing paths return stable error JSON                                                           |
+| AC-11 | Deterministic chunking     | Same input and flags produce same chunk IDs and text                                             |
+| AC-12 | No placeholder-only memory | No candidate stores only `[attachment:<mime>]`                                                   |
+| AC-13 | Parent/child linkage       | Manifest and child chunk/table entries include document linkage metadata                         |
+| AC-14 | Dry run works              | `dryRun: true` returns candidates without memory capture                                         |
+| AC-15 | Capture works              | `dryRun: false` captures manifest and child entries through memory-ops                           |
+| AC-16 | Recall verification works  | Tool returns pass/fail recall verification details                                               |
+| AC-17 | Docs updated               | `docs/plugins/memory-mongodb.md` documents the new skill/tool                                    |
+| AC-18 | No network helper          | Helper makes no network/API calls                                                                |
+| AC-19 | No direct DB writes        | Feature uses existing memory provider/capture paths                                              |
+| AC-20 | Existing tests pass        | Existing memory-mongodb tests still pass                                                         |
+| AC-21 | CI compatible              | Tests pass without Poppler or mandatory OCR binaries                                             |
 
 ## 10) Project-Specific Details
 
