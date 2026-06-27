@@ -37,7 +37,7 @@ Constraints:
 
 - Follow `../AGENTS.md`.
 - Keep this PR docs-only and issue-sized.
-- Do not adopt unmerged remote Kanban work unless it matches the approved spec.
+- Do not adopt prior unmerged remote Kanban work; the approved scope supersedes it.
 
 ## 3) Hard Requirements
 

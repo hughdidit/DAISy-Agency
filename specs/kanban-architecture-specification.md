@@ -257,7 +257,7 @@ Import behavior:
 
 ## Risks And Constraints
 
-- Existing unmerged Kanban work on remote branches must be reconciled against this specification before adopting code.
+- Prior unmerged Kanban remote-branch work is obsolete for this project and must not be adopted or used as implementation source material unless a future user request explicitly opens a separate candidate-review task.
 - MongoDB availability and credentials are required before the feature can operate in staging.
 - Attachment support must remain bounded to prevent storage abuse.
 - Importing Trello data can expose private task content, so import files and errors must be handled as sensitive operational data.

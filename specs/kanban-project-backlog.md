@@ -29,7 +29,7 @@
 - Create architecture specification and backlog under `/specs`.
 - Create PRDs under `../prd` using the attached One-Shot template supplied with the project brief.
 - Record issue-sized PR boundaries in each PRD.
-- Reconcile any unmerged Kanban branches against this specification before adopting code.
+- Ignore prior unmerged Kanban remote-branch work because the approved scope supersedes it.
 
 Acceptance:
 
