@@ -520,8 +520,9 @@ function parseJsonOrThrow(raw, failureClass, message) {
   return parsed;
 }
 
-async function cleanupAcceptanceCronArtifacts(ctx, params) {
+async function cleanupAcceptanceCronArtifacts(ctx, params = {}) {
   const outputs = [];
+  const jobId = typeof params.jobId === "string" && params.jobId.trim() ? params.jobId.trim() : "";
   const runSessionKey =
     typeof params.runSessionKey === "string" && params.runSessionKey.trim()
       ? params.runSessionKey.trim()
@@ -530,10 +531,10 @@ async function cleanupAcceptanceCronArtifacts(ctx, params) {
 
   // Staging verify runs without an interactive approver. Record the cleanup intent
   // without issuing gateway deletion methods that require sensitive-action approval.
-  if (params.jobId) {
+  if (jobId) {
     outputs.push({
       action: "cron.rm",
-      key: params.jobId,
+      key: jobId,
       skipped: true,
       reason: "sensitive-delete-approval-required",
     });
@@ -545,6 +546,10 @@ async function cleanupAcceptanceCronArtifacts(ctx, params) {
       key: runSessionKey,
       skipped: true,
       reason: "sensitive-delete-approval-required",
+      options: {
+        deleteTranscript: true,
+        emitLifecycleHooks: false,
+      },
     });
   }
 
@@ -554,11 +559,15 @@ async function cleanupAcceptanceCronArtifacts(ctx, params) {
       key: baseSessionKey,
       skipped: true,
       reason: "sensitive-delete-approval-required",
+      options: {
+        deleteTranscript: true,
+        emitLifecycleHooks: false,
+      },
     });
   }
 
   await ctx.writeArtifactJson("cron-cleanup.json", {
-    jobId: params.jobId || null,
+    jobId: jobId || null,
     runSessionKey: runSessionKey || null,
     baseSessionKey: baseSessionKey || null,
     outputs,
@@ -566,6 +575,12 @@ async function cleanupAcceptanceCronArtifacts(ctx, params) {
   });
 
   return { errors: [] };
+}
+
+function assertCronAddSelfDeletes(addPayload, message) {
+  if (addPayload?.deleteAfterRun === false) {
+    throw new ScenarioError("scheduler-gap", message);
+  }
 }
 
 function resolveGatewayConfigHostPath(credentialsPath) {
@@ -1217,6 +1232,10 @@ export async function runIsolatedCronScenario(ctx) {
     if (!jobId) {
       throw new ScenarioError("scheduler-gap", "cron add did not return a job id");
     }
+    assertCronAddSelfDeletes(
+      addPayload,
+      "cron add reported deleteAfterRun=false; refusing to skip destructive cleanup for a persistent acceptance job",
+    );
 
     const runRaw = ctx.dockerExecBash(
       `cd /app && node dist/index.js cron run ${shellQuote(jobId)}`,
@@ -1379,6 +1398,10 @@ export async function runCronIsolationAndSubagentModelScenario(ctx) {
     if (!jobId) {
       throw new ScenarioError("scheduler-gap", "SBX-404 cron add did not return a job id");
     }
+    assertCronAddSelfDeletes(
+      addPayload,
+      "SBX-404 cron add reported deleteAfterRun=false; refusing to skip destructive cleanup for a persistent acceptance job",
+    );
 
     const runRaw = ctx.dockerExecBash(
       `cd /app && node dist/index.js cron run ${shellQuote(jobId)}`,

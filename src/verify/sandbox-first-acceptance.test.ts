@@ -921,7 +921,13 @@ describe("runSandboxFirstAcceptance", () => {
         jobId: string;
         runSessionKey: string;
         baseSessionKey: string;
-        outputs: Array<{ action: string; key: string; skipped?: boolean; reason?: string }>;
+        outputs: Array<{
+          action: string;
+          key: string;
+          skipped?: boolean;
+          reason?: string;
+          options?: { deleteTranscript: boolean; emitLifecycleHooks: boolean };
+        }>;
         errors: unknown[];
       };
       expect(cleanup).toEqual(
@@ -932,17 +938,28 @@ describe("runSandboxFirstAcceptance", () => {
           errors: [],
         }),
       );
-      expect(cleanup.outputs.map((entry) => entry.action)).toEqual([
-        "cron.rm",
-        "sessions.delete.run",
-        "sessions.delete.base",
+      expect(cleanup.outputs).toEqual([
+        {
+          action: "cron.rm",
+          key: "job-1",
+          skipped: true,
+          reason: "sensitive-delete-approval-required",
+        },
+        {
+          action: "sessions.delete.run",
+          key: "agent:main:cron:job-1:run:run-1",
+          skipped: true,
+          reason: "sensitive-delete-approval-required",
+          options: { deleteTranscript: true, emitLifecycleHooks: false },
+        },
+        {
+          action: "sessions.delete.base",
+          key: "agent:main:cron:job-1",
+          skipped: true,
+          reason: "sensitive-delete-approval-required",
+          options: { deleteTranscript: true, emitLifecycleHooks: false },
+        },
       ]);
-      expect(
-        cleanup.outputs.every(
-          (entry) =>
-            entry.skipped === true && entry.reason === "sensitive-delete-approval-required",
-        ),
-      ).toBe(true);
       expect(commands.some((command) => command.includes("--delete-after-run"))).toBe(false);
       expect(commands.some((command) => command.includes("cron rm "))).toBe(false);
       expect(commands.some((command) => command.includes("sessions.delete"))).toBe(false);
@@ -1015,7 +1032,13 @@ describe("runSandboxFirstAcceptance", () => {
         jobId: string;
         runSessionKey: string;
         baseSessionKey: string;
-        outputs: Array<{ action: string; skipped?: boolean; reason?: string }>;
+        outputs: Array<{
+          action: string;
+          key: string;
+          skipped?: boolean;
+          reason?: string;
+          options?: { deleteTranscript: boolean; emitLifecycleHooks: boolean };
+        }>;
         errors: unknown[];
       };
       expect(cleanup).toMatchObject({
@@ -1024,12 +1047,28 @@ describe("runSandboxFirstAcceptance", () => {
         baseSessionKey: "agent:main:cron:job-sensitive-cleanup",
         errors: [],
       });
-      expect(
-        cleanup.outputs.every(
-          (entry) =>
-            entry.skipped === true && entry.reason === "sensitive-delete-approval-required",
-        ),
-      ).toBe(true);
+      expect(cleanup.outputs).toEqual([
+        {
+          action: "cron.rm",
+          key: "job-sensitive-cleanup",
+          skipped: true,
+          reason: "sensitive-delete-approval-required",
+        },
+        {
+          action: "sessions.delete.run",
+          key: "agent:main:cron:job-sensitive-cleanup:run:run-sensitive-cleanup",
+          skipped: true,
+          reason: "sensitive-delete-approval-required",
+          options: { deleteTranscript: true, emitLifecycleHooks: false },
+        },
+        {
+          action: "sessions.delete.base",
+          key: "agent:main:cron:job-sensitive-cleanup",
+          skipped: true,
+          reason: "sensitive-delete-approval-required",
+          options: { deleteTranscript: true, emitLifecycleHooks: false },
+        },
+      ]);
       await expect(fs.access(path.join(artifactRoot, "cron-cleanup-error.txt"))).rejects.toThrow();
       expect(commands.some((command) => command.includes("--delete-after-run"))).toBe(false);
       expect(commands.some((command) => command.includes("cron rm "))).toBe(false);
@@ -1039,6 +1078,53 @@ describe("runSandboxFirstAcceptance", () => {
       );
       expect(cronAddCommands).toHaveLength(1);
       expect(cronAddCommands[0]).not.toContain("--delete-after-run");
+    });
+  });
+
+  it("fails isolated cron acceptance when cron add explicitly disables self cleanup", async () => {
+    await withTempDir(async (artifactRoot) => {
+      const dockerExecBash = vi.fn((command: string) => {
+        if (command.includes("node dist/index.js cron add")) {
+          return JSON.stringify({ id: "job-persistent", deleteAfterRun: false }, null, 2);
+        }
+        throw new Error(`Unhandled docker command: ${command}`);
+      });
+
+      const ctx = {
+        now: () => new Date("2026-04-25T20:00:00.000Z"),
+        dockerExecBash,
+        writeArtifactText: async (name: string, content: string) => {
+          await fs.writeFile(path.join(artifactRoot, name), content, "utf8");
+        },
+        writeArtifactJson: async (name: string, payload: unknown) => {
+          await fs.writeFile(
+            path.join(artifactRoot, name),
+            `${JSON.stringify(payload, null, 2)}\n`,
+            "utf8",
+          );
+        },
+      };
+      const acceptanceModule = (await import("./sandbox-first-acceptance.mjs")) as unknown as {
+        runIsolatedCronScenario: (scenarioContext: typeof ctx) => Promise<void>;
+      };
+
+      await expect(acceptanceModule.runIsolatedCronScenario(ctx)).rejects.toMatchObject({
+        failureClass: "scheduler-gap",
+        message:
+          "cron add reported deleteAfterRun=false; refusing to skip destructive cleanup for a persistent acceptance job",
+      });
+
+      const cleanup = JSON.parse(
+        await fs.readFile(path.join(artifactRoot, "cron-cleanup.json"), "utf8"),
+      ) as { outputs: Array<{ action: string; key: string }> };
+      expect(cleanup.outputs).toEqual([
+        {
+          action: "cron.rm",
+          key: "job-persistent",
+          skipped: true,
+          reason: "sensitive-delete-approval-required",
+        },
+      ]);
     });
   });
 });
