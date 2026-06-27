@@ -22,18 +22,6 @@ async function withTempDir(run: (dir: string) => Promise<void>) {
   }
 }
 
-function parseSessionDeleteParams(command: string) {
-  const match = command.match(/--params '(.+)'$/);
-  if (!match?.[1]) {
-    throw new Error(`sessions.delete command did not include quoted params: ${command}`);
-  }
-  return JSON.parse(match[1].replace(/'\\''/g, "'")) as {
-    key: string;
-    deleteTranscript: boolean;
-    emitLifecycleHooks: boolean;
-  };
-}
-
 afterEach(() => {
   vi.restoreAllMocks();
 });
@@ -677,11 +665,6 @@ describe("runSandboxFirstAcceptance", () => {
   it("writes per-scenario artifacts, a summary file, and cron cleanup output", async () => {
     await withTempDir(async (artifactRoot) => {
       const commands: string[] = [];
-      const sessionDeleteParams: Array<{
-        key: string;
-        deleteTranscript: boolean;
-        emitLifecycleHooks: boolean;
-      }> = [];
       const dockerExecBash = vi.fn((command: string) => {
         commands.push(command);
         if (command.startsWith("cd /app && node dist/index.js sandbox explain --session ")) {
@@ -854,16 +837,6 @@ describe("runSandboxFirstAcceptance", () => {
             2,
           );
         }
-        if (command === "cd /app && node dist/index.js cron rm 'job-1' --json") {
-          return JSON.stringify({ ok: true, removed: false }, null, 2);
-        }
-        if (command === "cd /app && node dist/index.js cron rm 'job-2' --json") {
-          return JSON.stringify({ ok: true, removed: false }, null, 2);
-        }
-        if (command.includes("node dist/index.js gateway call sessions.delete")) {
-          sessionDeleteParams.push(parseSessionDeleteParams(command));
-          return JSON.stringify({ ok: true, deleted: true, archived: [] }, null, 2);
-        }
         if (command.includes("spawnAcpDirect")) {
           return JSON.stringify(
             {
@@ -948,7 +921,7 @@ describe("runSandboxFirstAcceptance", () => {
         jobId: string;
         runSessionKey: string;
         baseSessionKey: string;
-        outputs: Array<{ action: string; key: string }>;
+        outputs: Array<{ action: string; key: string; skipped?: boolean; reason?: string }>;
         errors: unknown[];
       };
       expect(cleanup).toEqual(
@@ -964,50 +937,39 @@ describe("runSandboxFirstAcceptance", () => {
         "sessions.delete.run",
         "sessions.delete.base",
       ]);
-      expect(sessionDeleteParams).toEqual([
-        {
-          key: "agent:main:cron:job-1:run:run-1",
-          deleteTranscript: true,
-          emitLifecycleHooks: false,
-        },
-        {
-          key: "agent:main:cron:job-1",
-          deleteTranscript: true,
-          emitLifecycleHooks: false,
-        },
-        {
-          key: "agent:daisy:cron:job-2:run:run-2",
-          deleteTranscript: true,
-          emitLifecycleHooks: false,
-        },
-        {
-          key: "agent:daisy:cron:job-2",
-          deleteTranscript: true,
-          emitLifecycleHooks: false,
-        },
-      ]);
-      expect(commands.some((command) => command.includes("cron rm 'job-1' --json"))).toBe(true);
       expect(
-        commands.some((command) => command.includes('"key":"agent:main:cron:job-1:run:run-1"')),
+        cleanup.outputs.every(
+          (entry) =>
+            entry.skipped === true && entry.reason === "sensitive-delete-approval-required",
+        ),
       ).toBe(true);
-      expect(commands.some((command) => command.includes('"key":"agent:main:cron:job-1"'))).toBe(
+      expect(commands.some((command) => command.includes("--delete-after-run"))).toBe(false);
+      expect(commands.some((command) => command.includes("cron rm "))).toBe(false);
+      expect(commands.some((command) => command.includes("sessions.delete"))).toBe(false);
+      const cronAddCommands = commands.filter((command) =>
+        command.includes("node dist/index.js cron add"),
+      );
+      expect(cronAddCommands).toHaveLength(2);
+      expect(cronAddCommands.every((command) => !command.includes("--delete-after-run"))).toBe(
         true,
       );
     });
   });
 
-  it("fails the isolated cron scenario when verified cleanup fails", async () => {
+  it("records sensitive cleanup skips without failing a verified isolated cron scenario", async () => {
     await withTempDir(async (artifactRoot) => {
+      const commands: string[] = [];
       const dockerExecBash = vi.fn((command: string) => {
+        commands.push(command);
         if (command.includes("node dist/index.js cron add")) {
-          return JSON.stringify({ id: "job-cleanup-failure" }, null, 2);
+          return JSON.stringify({ id: "job-sensitive-cleanup" }, null, 2);
         }
-        if (command === "cd /app && node dist/index.js cron run 'job-cleanup-failure'") {
+        if (command === "cd /app && node dist/index.js cron run 'job-sensitive-cleanup'") {
           return JSON.stringify({ ok: true, ran: true }, null, 2);
         }
         if (
           command ===
-          "cd /app && node dist/index.js cron runs --id 'job-cleanup-failure' --limit 20"
+          "cd /app && node dist/index.js cron runs --id 'job-sensitive-cleanup' --limit 20"
         ) {
           return JSON.stringify(
             {
@@ -1016,29 +978,13 @@ describe("runSandboxFirstAcceptance", () => {
                   action: "finished",
                   status: "ok",
                   deliveryStatus: "not-requested",
-                  sessionKey: "agent:main:cron:job-cleanup-failure:run:run-cleanup-failure",
+                  sessionKey: "agent:main:cron:job-sensitive-cleanup:run:run-sensitive-cleanup",
                 },
               ],
             },
             null,
             2,
           );
-        }
-        if (command === "cd /app && node dist/index.js cron rm 'job-cleanup-failure' --json") {
-          return JSON.stringify({ ok: true, removed: true }, null, 2);
-        }
-        if (command.includes("node dist/index.js gateway call sessions.delete")) {
-          const params = parseSessionDeleteParams(command);
-          if (params.key === "agent:main:cron:job-cleanup-failure") {
-            const error = new Error("base delete failed") as Error & {
-              stdout?: string;
-              stderr?: string;
-            };
-            error.stdout = '{"ok":false}';
-            error.stderr = "delete failed";
-            throw error;
-          }
-          return JSON.stringify({ ok: true, deleted: true, archived: [] }, null, 2);
         }
         throw new Error(`Unhandled docker command: ${command}`);
       });
@@ -1061,17 +1007,38 @@ describe("runSandboxFirstAcceptance", () => {
         runIsolatedCronScenario: (scenarioContext: typeof ctx) => Promise<void>;
       };
 
-      await expect(acceptanceModule.runIsolatedCronScenario(ctx)).rejects.toMatchObject({
-        failureClass: "scheduler-gap",
-        message: "isolated cron acceptance cleanup failed; see cron-cleanup-error.txt",
-      });
+      await expect(acceptanceModule.runIsolatedCronScenario(ctx)).resolves.toBeUndefined();
 
-      const cleanupError = await fs.readFile(
-        path.join(artifactRoot, "cron-cleanup-error.txt"),
-        "utf8",
+      const cleanup = JSON.parse(
+        await fs.readFile(path.join(artifactRoot, "cron-cleanup.json"), "utf8"),
+      ) as {
+        jobId: string;
+        runSessionKey: string;
+        baseSessionKey: string;
+        outputs: Array<{ action: string; skipped?: boolean; reason?: string }>;
+        errors: unknown[];
+      };
+      expect(cleanup).toMatchObject({
+        jobId: "job-sensitive-cleanup",
+        runSessionKey: "agent:main:cron:job-sensitive-cleanup:run:run-sensitive-cleanup",
+        baseSessionKey: "agent:main:cron:job-sensitive-cleanup",
+        errors: [],
+      });
+      expect(
+        cleanup.outputs.every(
+          (entry) =>
+            entry.skipped === true && entry.reason === "sensitive-delete-approval-required",
+        ),
+      ).toBe(true);
+      await expect(fs.access(path.join(artifactRoot, "cron-cleanup-error.txt"))).rejects.toThrow();
+      expect(commands.some((command) => command.includes("--delete-after-run"))).toBe(false);
+      expect(commands.some((command) => command.includes("cron rm "))).toBe(false);
+      expect(commands.some((command) => command.includes("sessions.delete"))).toBe(false);
+      const cronAddCommands = commands.filter((command) =>
+        command.includes("node dist/index.js cron add"),
       );
-      expect(cleanupError).toContain("sessions.delete.base");
-      expect(cleanupError).toContain("base delete failed");
+      expect(cronAddCommands).toHaveLength(1);
+      expect(cronAddCommands[0]).not.toContain("--delete-after-run");
     });
   });
 });
