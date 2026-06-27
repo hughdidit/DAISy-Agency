@@ -120,6 +120,39 @@ const MemorySchema = z
   .strict()
   .optional();
 
+const KanbanMongoCollectionsSchema = z
+  .object({
+    boards: z.string().min(1).optional(),
+    cards: z.string().min(1).optional(),
+    activity: z.string().min(1).optional(),
+    imports: z.string().min(1).optional(),
+    attachments: z.string().min(1).optional(),
+    gridFsBucket: z.string().min(1).optional(),
+  })
+  .strict();
+
+const KanbanSchema = z
+  .object({
+    enabled: z.boolean().optional(),
+    mongodb: z
+      .object({
+        uri: z.string().min(1).register(sensitive).optional(),
+        database: z.string().min(1).optional(),
+        collections: KanbanMongoCollectionsSchema.optional(),
+      })
+      .strict()
+      .optional(),
+    board: z
+      .object({
+        slug: z.string().min(1).optional(),
+        title: z.string().min(1).optional(),
+      })
+      .strict()
+      .optional(),
+  })
+  .strict()
+  .optional();
+
 const HttpUrlSchema = z
   .string()
   .url()
@@ -767,6 +800,7 @@ export const OpenClawSchema = z
       .strict()
       .optional(),
     memory: MemorySchema,
+    kanban: KanbanSchema,
     skills: z
       .object({
         allowBundled: z.array(z.string()).optional(),

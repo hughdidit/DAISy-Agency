@@ -869,6 +869,35 @@ export const FIELD_HELP: Record<string, string> = {
   "agents.defaults.memorySearch.cache.enabled":
     "Caches computed chunk embeddings in SQLite so reindexing and incremental updates run faster (default: true). Keep this enabled unless investigating cache correctness or minimizing disk usage.",
   memory: "Memory backend configuration (global).",
+  kanban:
+    "Kanban board storage configuration. Configure MongoDB before enabling the Control UI board or agent tools.",
+  "kanban.enabled":
+    "Controls whether the Kanban feature can become available. When false, status remains disabled even if MongoDB settings are present.",
+  "kanban.mongodb":
+    "MongoDB connection, database, collection, and GridFS bucket settings for the dedicated Kanban store.",
+  "kanban.mongodb.uri":
+    "MongoDB connection URI for the dedicated Kanban database. Prefer ${KANBAN_MONGODB_URI}; remote mongodb:// URIs must use tls=true.",
+  "kanban.mongodb.database":
+    "Dedicated MongoDB database for Kanban data. Defaults to daisy_kanban and must stay separate from memory storage.",
+  "kanban.mongodb.collections":
+    "Optional collection and GridFS bucket names for Kanban storage. Defaults are boards, cards, activity, imports, attachments, and kanban_attachments.",
+  "kanban.mongodb.collections.boards":
+    "MongoDB collection name for board records. Defaults to boards.",
+  "kanban.mongodb.collections.cards":
+    "MongoDB collection name for card records. Defaults to cards.",
+  "kanban.mongodb.collections.activity":
+    "MongoDB collection name for append-only activity records. Defaults to activity.",
+  "kanban.mongodb.collections.imports":
+    "MongoDB collection name for Trello import run records. Defaults to imports.",
+  "kanban.mongodb.collections.attachments":
+    "MongoDB collection name for attachment metadata. Defaults to attachments.",
+  "kanban.mongodb.collections.gridFsBucket":
+    "GridFS bucket name for Kanban attachment blobs. Defaults to kanban_attachments.",
+  "kanban.board":
+    "Shared DAISy Kanban board identity settings used during board bootstrap and status reporting.",
+  "kanban.board.slug": "Stable slug for the shared DAISy Kanban board. Defaults to team-agents.",
+  "kanban.board.title":
+    "Human-facing title for the shared DAISy Kanban board. Defaults to Team Agents.",
   "memory.backend":
     'Selects the global memory engine: "builtin" uses OpenClaw memory internals, while "qmd" uses the QMD sidecar pipeline. Keep "builtin" unless you intentionally operate QMD.',
   "memory.citations":

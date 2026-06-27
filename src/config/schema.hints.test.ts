@@ -30,6 +30,7 @@ describe("isSensitiveConfigPath", () => {
     expect(isSensitiveConfigPath("channels.slack.token")).toBe(true);
     expect(isSensitiveConfigPath("models.providers.openai.apiKey")).toBe(true);
     expect(isSensitiveConfigPath("channels.irc.nickserv.password")).toBe(true);
+    expect(isSensitiveConfigPath("kanban.mongodb.uri")).toBe(true);
   });
 });
 
@@ -135,6 +136,7 @@ describe("mapSensitivePaths", () => {
     expect(hints["channels.discord.accounts.*.token"]?.sensitive).toBe(true);
     expect(hints["channels.googlechat.serviceAccount"]?.sensitive).toBe(true);
     expect(hints["gateway.auth.token"]?.sensitive).toBe(true);
+    expect(hints["kanban.mongodb.uri"]?.sensitive).toBe(true);
     expect(hints["skills.entries.*.apiKey"]?.sensitive).toBe(true);
   });
 });

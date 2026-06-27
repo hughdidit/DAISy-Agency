@@ -30,6 +30,7 @@ const GROUP_LABELS: Record<string, string> = {
   hooks: "Hooks",
   ui: "UI",
   browser: "Browser",
+  kanban: "Kanban",
   talk: "Talk",
   channels: "Messaging Channels",
   skills: "Skills",
@@ -58,6 +59,7 @@ const GROUP_ORDER: Record<string, number> = {
   hooks: 110,
   ui: 120,
   browser: 130,
+  kanban: 135,
   talk: 140,
   channels: 150,
   skills: 200,
@@ -107,6 +109,7 @@ const SENSITIVE_PATTERNS = [
   /api.?key/i,
   /serviceaccount(?:ref)?$/i,
 ];
+const SENSITIVE_PATH_SUFFIXES = ["mongodb.uri"] as const;
 
 function isWhitelistedSensitivePath(path: string): boolean {
   const lowerPath = path.toLowerCase();
@@ -118,7 +121,12 @@ function matchesSensitivePattern(path: string): boolean {
 }
 
 export function isSensitiveConfigPath(path: string): boolean {
-  return !isWhitelistedSensitivePath(path) && matchesSensitivePattern(path);
+  const lowerPath = path.toLowerCase();
+  return (
+    !isWhitelistedSensitivePath(path) &&
+    (matchesSensitivePattern(path) ||
+      SENSITIVE_PATH_SUFFIXES.some((suffix) => lowerPath.endsWith(suffix)))
+  );
 }
 
 export function buildBaseHints(): ConfigUiHints {

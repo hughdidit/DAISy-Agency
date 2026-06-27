@@ -87,6 +87,29 @@ describe("config schema regressions", () => {
     expect(res.ok).toBe(true);
   });
 
+  it("accepts Kanban MongoDB configuration", () => {
+    const res = validateConfigObject({
+      kanban: {
+        enabled: true,
+        mongodb: {
+          uri: "${KANBAN_MONGODB_URI}",
+          database: "daisy_kanban",
+          collections: {
+            cards: "cards",
+            activity: "activity",
+            gridFsBucket: "kanban_attachments",
+          },
+        },
+        board: {
+          slug: "team-agents",
+          title: "Team Agents",
+        },
+      },
+    });
+
+    expect(res.ok).toBe(true);
+  });
+
   it("rejects unsafe iMessage remoteHost", () => {
     const res = validateConfigObject({
       channels: {
