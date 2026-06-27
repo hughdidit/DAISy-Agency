@@ -96,6 +96,11 @@ describe("redactConfigSnapshot", () => {
         },
       },
       shortSecret: { token: "short" },
+      kanban: {
+        mongodb: {
+          uri: "mongodb://user:pass@db.example.com:27017/?tls=true",
+        },
+      },
     });
     const result = redactConfigSnapshot(snapshot);
     const cfg = result.config as typeof snapshot.config;
@@ -111,6 +116,7 @@ describe("redactConfigSnapshot", () => {
     expect(cfg.models.providers.openai.apiKey).toBe(REDACTED_SENTINEL);
     expect(cfg.models.providers.openai.baseUrl).toBe("https://api.openai.com");
     expect(cfg.shortSecret.token).toBe(REDACTED_SENTINEL);
+    expect(cfg.kanban.mongodb.uri).toBe(REDACTED_SENTINEL);
   });
 
   it("redacts googlechat serviceAccount object payloads", () => {
