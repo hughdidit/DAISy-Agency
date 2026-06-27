@@ -573,6 +573,8 @@ describe("runSandboxFirstAcceptance", () => {
           GCP_PROJECT_ID: "proj",
           GCP_ZONE: "us-west1-b",
           VERIFY_GCE_CONTAINER: "openclaw-gateway",
+          SBX401_CRON_MODEL: "openai/sbx401-override",
+          SBX404_CRON_MODEL: "openai/sbx404-override",
         },
         commandContext: {
           container: "openclaw-gateway",
