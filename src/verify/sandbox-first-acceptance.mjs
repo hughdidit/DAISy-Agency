@@ -100,8 +100,13 @@ const AGENT_CRON_RUN_SESSION_KEY_PATTERN = /^agent:[a-z0-9][a-z0-9_-]{0,63}:cron
 const DEFAULT_CRON_PROMPT =
   "Report the current sandbox mode, runtime profile, and whether openclaw-readonly is supported. Do not mutate anything.";
 const DEFAULT_ACCEPTANCE_CRON_MODEL = "openai/gpt-5.4-nano";
-const DEFAULT_ACCEPTANCE_CRON_THINKING = "minimal";
+const DEFAULT_ACCEPTANCE_CRON_THINKING = "low";
 const DEFAULT_ACCEPTANCE_CRON_TIMEOUT_SECONDS = "60";
+const DEFAULT_ACCEPTANCE_CRON_POLL_TIMEOUT_SECONDS = 180;
+const ACCEPTANCE_CRON_POLL_INTERVAL_MS = 1_000;
+const ACCEPTANCE_CRON_RETRY_POLL_MAX_INTERVAL_MS = 5_000;
+const ACCEPTANCE_CRON_TRANSIENT_ERROR_PATTERN =
+  /(rate[_ ]limit|too many requests|429|resource has been exhausted|cloudflare|network|econnreset|econnrefused|fetch failed|socket|timeout|etimedout|\b5\d{2}\b)/i;
 
 export class ExecError extends Error {
   constructor(message, details = {}) {
@@ -590,17 +595,21 @@ function assertCronAddSelfDeletes(addPayload, message) {
   }
 }
 
+function envString(ctx, key) {
+  const env = ctx?.env && typeof ctx.env === "object" ? ctx.env : {};
+  return typeof env[key] === "string" || typeof env[key] === "number"
+    ? String(env[key]).trim()
+    : "";
+}
+
 function acceptanceCronAgentTurnFlags(ctx, envModelKeys = []) {
-  const env = ctx.env && typeof ctx.env === "object" ? ctx.env : {};
-  const envString = (key) =>
-    typeof env[key] === "string" || typeof env[key] === "number" ? String(env[key]).trim() : "";
   const model =
-    envModelKeys.map((key) => envString(key)).find(Boolean) ||
-    envString("SBX_CRON_MODEL") ||
+    envModelKeys.map((key) => envString(ctx, key)).find(Boolean) ||
+    envString(ctx, "SBX_CRON_MODEL") ||
     DEFAULT_ACCEPTANCE_CRON_MODEL;
-  const thinking = envString("SBX_CRON_THINKING") || DEFAULT_ACCEPTANCE_CRON_THINKING;
+  const thinking = envString(ctx, "SBX_CRON_THINKING") || DEFAULT_ACCEPTANCE_CRON_THINKING;
   const timeoutSeconds =
-    envString("SBX_CRON_TIMEOUT_SECONDS") || DEFAULT_ACCEPTANCE_CRON_TIMEOUT_SECONDS;
+    envString(ctx, "SBX_CRON_TIMEOUT_SECONDS") || DEFAULT_ACCEPTANCE_CRON_TIMEOUT_SECONDS;
   return [
     `--model ${shellQuote(model)}`,
     `--thinking ${shellQuote(thinking)}`,
@@ -1213,22 +1222,83 @@ async function runIntegrationPathScenario(ctx) {
   return { status: "passed" };
 }
 
+function acceptanceCronPollTimeoutMs(ctx) {
+  const configured = Number(envString(ctx, "SBX_CRON_POLL_TIMEOUT_SECONDS"));
+  return Number.isFinite(configured) && configured > 0
+    ? configured * 1_000
+    : DEFAULT_ACCEPTANCE_CRON_POLL_TIMEOUT_SECONDS * 1_000;
+}
+
+function isRetryableAcceptanceCronEntry(entry) {
+  if (entry?.action !== "finished" || entry?.status !== "error") {
+    return false;
+  }
+  const error = typeof entry.error === "string" ? entry.error : "";
+  const nextRunAtMs = typeof entry.nextRunAtMs === "number" ? entry.nextRunAtMs : Number.NaN;
+  return (
+    ACCEPTANCE_CRON_TRANSIENT_ERROR_PATTERN.test(error) &&
+    Number.isFinite(nextRunAtMs) &&
+    nextRunAtMs > 0
+  );
+}
+
+function acceptanceCronPollDelayMs(entry) {
+  const nextRunAtMs = typeof entry?.nextRunAtMs === "number" ? entry.nextRunAtMs : Number.NaN;
+  if (Number.isFinite(nextRunAtMs) && nextRunAtMs > 0) {
+    const untilRetry = Math.max(nextRunAtMs - Date.now() + ACCEPTANCE_CRON_POLL_INTERVAL_MS, 0);
+    return Math.min(
+      Math.max(untilRetry, ACCEPTANCE_CRON_POLL_INTERVAL_MS),
+      ACCEPTANCE_CRON_RETRY_POLL_MAX_INTERVAL_MS,
+    );
+  }
+  return ACCEPTANCE_CRON_POLL_INTERVAL_MS;
+}
+
+function newestCronRunEntry(entries) {
+  return entries.find((entry) => entry && typeof entry === "object") ?? null;
+}
+
+async function acceptanceCronPollWait(ctx, ms) {
+  if (typeof ctx.wait === "function") {
+    await ctx.wait(ms);
+    return;
+  }
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function pollForCronEntry(ctx, jobId) {
-  const maxAttempts = 10;
-  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+  const deadlineMs = Date.now() + acceptanceCronPollTimeoutMs(ctx);
+  let lastObserved = null;
+
+  while (Date.now() <= deadlineMs) {
     const runsRaw = ctx.dockerExecBash(
       `cd /app && node dist/index.js cron runs --id ${shellQuote(jobId)} --limit 20`,
     );
     await ctx.writeArtifactText("cron-runs.json", runsRaw);
     const runsPayload = extractLastJsonValue(runsRaw);
     const entries = Array.isArray(runsPayload?.entries) ? runsPayload.entries : [];
-    const last = entries.at(-1);
+    const last = newestCronRunEntry(entries);
     if (last) {
-      return { runsPayload, last };
+      lastObserved = last;
+      if (last.action === "finished" && !isRetryableAcceptanceCronEntry(last)) {
+        return { runsPayload, last };
+      }
     }
-    if (attempt < maxAttempts - 1) {
-      await new Promise((resolve) => setTimeout(resolve, 1_000));
-    }
+    const delayMs = last ? acceptanceCronPollDelayMs(last) : ACCEPTANCE_CRON_POLL_INTERVAL_MS;
+    await acceptanceCronPollWait(ctx, Math.min(delayMs, Math.max(deadlineMs - Date.now(), 0)));
+  }
+
+  if (lastObserved) {
+    const errorDetail =
+      typeof lastObserved.error === "string" && lastObserved.error.trim()
+        ? ` (error: ${lastObserved.error.trim()})`
+        : "";
+    throw new ScenarioError(
+      "sandbox-runtime-gap",
+      `cron acceptance job did not reach a terminal non-retry state within ${Math.round(
+        acceptanceCronPollTimeoutMs(ctx) / 1_000,
+      )} seconds after last status ${String(lastObserved.status ?? "<empty>")}${errorDetail}`,
+    );
   }
   throw new ScenarioError(
     "scheduler-gap",

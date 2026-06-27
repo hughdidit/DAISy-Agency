@@ -978,7 +978,7 @@ describe("runSandboxFirstAcceptance", () => {
       expect(
         cronAddCommands.every(
           (command) =>
-            command.includes("--thinking 'minimal'") &&
+            command.includes("--thinking 'low'") &&
             command.includes("--timeout-seconds '60'") &&
             command.includes("--light-context"),
         ),
@@ -1100,6 +1100,90 @@ describe("runSandboxFirstAcceptance", () => {
       expect(cronAddCommands[0]).toContain("--thinking 'low'");
       expect(cronAddCommands[0]).toContain("--timeout-seconds '42'");
       expect(cronAddCommands[0]).toContain("--light-context");
+    });
+  });
+
+  it("waits through retryable isolated cron failures before accepting the terminal run", async () => {
+    await withTempDir(async (artifactRoot) => {
+      let cronRunsCalls = 0;
+      const wait = vi.fn(async () => undefined);
+      const dockerExecBash = vi.fn((command: string) => {
+        if (command.includes("node dist/index.js cron add")) {
+          return JSON.stringify({ id: "job-retry" }, null, 2);
+        }
+        if (command === "cd /app && node dist/index.js cron run 'job-retry'") {
+          return JSON.stringify({ ok: true, ran: true }, null, 2);
+        }
+        if (command === "cd /app && node dist/index.js cron runs --id 'job-retry' --limit 20") {
+          cronRunsCalls += 1;
+          if (cronRunsCalls === 1) {
+            return JSON.stringify(
+              {
+                entries: [
+                  {
+                    action: "finished",
+                    status: "error",
+                    error: "API rate limit reached. Please try again later. (rate_limit)",
+                    nextRunAtMs: Date.now() + 1_000,
+                    sessionKey: "agent:main:cron:job-retry:run:run-rate-limited",
+                  },
+                ],
+              },
+              null,
+              2,
+            );
+          }
+          return JSON.stringify(
+            {
+              entries: [
+                {
+                  action: "finished",
+                  status: "ok",
+                  deliveryStatus: "not-requested",
+                  sessionKey: "agent:main:cron:job-retry:run:run-ok",
+                },
+                {
+                  action: "finished",
+                  status: "error",
+                  error: "API rate limit reached. Please try again later. (rate_limit)",
+                  nextRunAtMs: Date.now() + 1_000,
+                  sessionKey: "agent:main:cron:job-retry:run:run-rate-limited",
+                },
+              ],
+            },
+            null,
+            2,
+          );
+        }
+        throw new Error(`Unhandled docker command: ${command}`);
+      });
+
+      const ctx = {
+        now: () => new Date("2026-04-25T20:00:00.000Z"),
+        env: {
+          SBX_CRON_POLL_TIMEOUT_SECONDS: 5,
+        },
+        dockerExecBash,
+        wait,
+        writeArtifactText: async (name: string, content: string) => {
+          await fs.writeFile(path.join(artifactRoot, name), content, "utf8");
+        },
+        writeArtifactJson: async (name: string, payload: unknown) => {
+          await fs.writeFile(
+            path.join(artifactRoot, name),
+            `${JSON.stringify(payload, null, 2)}\n`,
+            "utf8",
+          );
+        },
+      };
+      const acceptanceModule = (await import("./sandbox-first-acceptance.mjs")) as unknown as {
+        runIsolatedCronScenario: (scenarioContext: typeof ctx) => Promise<void>;
+      };
+
+      await expect(acceptanceModule.runIsolatedCronScenario(ctx)).resolves.toBeUndefined();
+
+      expect(cronRunsCalls).toBe(2);
+      expect(wait).toHaveBeenCalled();
     });
   });
 
