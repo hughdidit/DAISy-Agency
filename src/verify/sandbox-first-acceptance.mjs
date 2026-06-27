@@ -99,6 +99,9 @@ const ANSI_ESCAPE_PATTERN = new RegExp(`${ANSI_ESCAPE_PREFIX}\\[[0-9;?]*[ -/]*[@
 const AGENT_CRON_RUN_SESSION_KEY_PATTERN = /^agent:[a-z0-9][a-z0-9_-]{0,63}:cron:[^:]+:run:[^:]+$/;
 const DEFAULT_CRON_PROMPT =
   "Report the current sandbox mode, runtime profile, and whether openclaw-readonly is supported. Do not mutate anything.";
+const DEFAULT_ACCEPTANCE_CRON_MODEL = "gpt-5.4-nano";
+const DEFAULT_ACCEPTANCE_CRON_THINKING = "minimal";
+const DEFAULT_ACCEPTANCE_CRON_TIMEOUT_SECONDS = "60";
 
 export class ExecError extends Error {
   constructor(message, details = {}) {
@@ -585,6 +588,24 @@ function assertCronAddSelfDeletes(addPayload, message) {
   if (addPayload?.deleteAfterRun === false) {
     throw new ScenarioError("scheduler-gap", message);
   }
+}
+
+function acceptanceCronAgentTurnFlags(ctx, envModelKeys = []) {
+  const env = ctx.env && typeof ctx.env === "object" ? ctx.env : {};
+  const envString = (key) => (typeof env[key] === "string" ? env[key].trim() : "");
+  const model =
+    envModelKeys.map((key) => envString(key)).find(Boolean) ||
+    envString("SBX_CRON_MODEL") ||
+    DEFAULT_ACCEPTANCE_CRON_MODEL;
+  const thinking = envString("SBX_CRON_THINKING") || DEFAULT_ACCEPTANCE_CRON_THINKING;
+  const timeoutSeconds =
+    envString("SBX_CRON_TIMEOUT_SECONDS") || DEFAULT_ACCEPTANCE_CRON_TIMEOUT_SECONDS;
+  return [
+    `--model ${shellQuote(model)}`,
+    `--thinking ${shellQuote(thinking)}`,
+    `--timeout-seconds ${shellQuote(timeoutSeconds)}`,
+    "--light-context",
+  ].join(" ");
 }
 
 function resolveGatewayConfigHostPath(credentialsPath) {
@@ -1224,7 +1245,9 @@ export async function runIsolatedCronScenario(ctx) {
     const addRaw = ctx.dockerExecBash(
       `cd /app && node dist/index.js cron add --name ${shellQuote(jobName)} --at ${shellQuote(
         runAt,
-      )} --session isolated --message ${shellQuote(DEFAULT_CRON_PROMPT)} --no-deliver`,
+      )} --session isolated --message ${shellQuote(
+        DEFAULT_CRON_PROMPT,
+      )} ${acceptanceCronAgentTurnFlags(ctx, ["SBX401_CRON_MODEL"])} --no-deliver`,
     );
     await ctx.writeArtifactText("cron-add.json", addRaw);
     const addPayload = parseJsonOrThrow(
@@ -1374,7 +1397,6 @@ export async function runCronIsolationAndSubagentModelScenario(ctx) {
   const now = ctx.now();
   const runAt = new Date(now.getTime() + 20 * 60 * 1000).toISOString();
   const jobName = `SBX-404 cron isolation ${now.toISOString()}`;
-  const modelOverride = ctx.env.SBX404_CRON_MODEL?.trim() || "";
   let jobId = "";
   let runSessionKey = "";
 
@@ -1386,7 +1408,7 @@ export async function runCronIsolationAndSubagentModelScenario(ctx) {
         `--at ${shellQuote(runAt)}`,
         "--session isolated",
         `--message ${shellQuote(DEFAULT_CRON_PROMPT)}`,
-        modelOverride ? `--model ${shellQuote(modelOverride)}` : "",
+        acceptanceCronAgentTurnFlags(ctx, ["SBX404_CRON_MODEL"]),
         "--no-deliver",
       ]
         .filter(Boolean)

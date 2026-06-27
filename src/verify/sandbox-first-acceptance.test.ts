@@ -970,6 +970,15 @@ describe("runSandboxFirstAcceptance", () => {
       expect(cronAddCommands.every((command) => !command.includes("--delete-after-run"))).toBe(
         true,
       );
+      expect(
+        cronAddCommands.every(
+          (command) =>
+            command.includes("--model 'gpt-5.4-nano'") &&
+            command.includes("--thinking 'minimal'") &&
+            command.includes("--timeout-seconds '60'") &&
+            command.includes("--light-context"),
+        ),
+      ).toBe(true);
     });
   });
 
@@ -1078,6 +1087,10 @@ describe("runSandboxFirstAcceptance", () => {
       );
       expect(cronAddCommands).toHaveLength(1);
       expect(cronAddCommands[0]).not.toContain("--delete-after-run");
+      expect(cronAddCommands[0]).toContain("--model 'gpt-5.4-nano'");
+      expect(cronAddCommands[0]).toContain("--thinking 'minimal'");
+      expect(cronAddCommands[0]).toContain("--timeout-seconds '60'");
+      expect(cronAddCommands[0]).toContain("--light-context");
     });
   });
 
