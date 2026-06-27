@@ -1254,6 +1254,10 @@ function acceptanceCronPollDelayMs(entry) {
   return ACCEPTANCE_CRON_POLL_INTERVAL_MS;
 }
 
+function newestCronRunEntry(entries) {
+  return entries.find((entry) => entry && typeof entry === "object") ?? null;
+}
+
 async function acceptanceCronPollWait(ctx, ms) {
   if (typeof ctx.wait === "function") {
     await ctx.wait(ms);
@@ -1273,10 +1277,10 @@ async function pollForCronEntry(ctx, jobId) {
     await ctx.writeArtifactText("cron-runs.json", runsRaw);
     const runsPayload = extractLastJsonValue(runsRaw);
     const entries = Array.isArray(runsPayload?.entries) ? runsPayload.entries : [];
-    const last = entries.at(-1);
+    const last = newestCronRunEntry(entries);
     if (last) {
       lastObserved = last;
-      if (!isRetryableAcceptanceCronEntry(last)) {
+      if (last.action === "finished" && !isRetryableAcceptanceCronEntry(last)) {
         return { runsPayload, last };
       }
     }
@@ -1285,11 +1289,15 @@ async function pollForCronEntry(ctx, jobId) {
   }
 
   if (lastObserved) {
+    const errorDetail =
+      typeof lastObserved.error === "string" && lastObserved.error.trim()
+        ? ` (error: ${lastObserved.error.trim()})`
+        : "";
     throw new ScenarioError(
       "sandbox-runtime-gap",
       `cron acceptance job did not reach a terminal non-retry state within ${Math.round(
         acceptanceCronPollTimeoutMs(ctx) / 1_000,
-      )} seconds after last status ${String(lastObserved.status ?? "<empty>")}`,
+      )} seconds after last status ${String(lastObserved.status ?? "<empty>")}${errorDetail}`,
     );
   }
   throw new ScenarioError(

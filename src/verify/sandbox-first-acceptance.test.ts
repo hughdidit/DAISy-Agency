@@ -1138,16 +1138,16 @@ describe("runSandboxFirstAcceptance", () => {
               entries: [
                 {
                   action: "finished",
+                  status: "ok",
+                  deliveryStatus: "not-requested",
+                  sessionKey: "agent:main:cron:job-retry:run:run-ok",
+                },
+                {
+                  action: "finished",
                   status: "error",
                   error: "API rate limit reached. Please try again later. (rate_limit)",
                   nextRunAtMs: Date.now() + 1_000,
                   sessionKey: "agent:main:cron:job-retry:run:run-rate-limited",
-                },
-                {
-                  action: "finished",
-                  status: "ok",
-                  deliveryStatus: "not-requested",
-                  sessionKey: "agent:main:cron:job-retry:run:run-ok",
                 },
               ],
             },
