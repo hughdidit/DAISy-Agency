@@ -30,6 +30,7 @@ export const en: TranslationMap = {
     sessions: "Sessions",
     usage: "Usage",
     cron: "Cron Jobs",
+    kanban: "Kanban",
     skills: "Skills",
     nodes: "Nodes",
     chat: "Chat",
@@ -45,6 +46,7 @@ export const en: TranslationMap = {
     sessions: "Inspect active sessions and adjust per-session defaults.",
     usage: "Monitor API usage and costs.",
     cron: "Schedule wakeups and recurring agent runs.",
+    kanban: "Track agent work cards and board activity.",
     skills: "Manage skill availability and API key injection.",
     nodes: "Paired devices, capabilities, and command exposure.",
     chat: "Direct gateway chat session for quick interventions.",
@@ -115,6 +117,53 @@ export const en: TranslationMap = {
     showCronSessions: "Show cron sessions",
     showCronSessionsHidden: "Show cron sessions ({count} hidden)",
     onboardingDisabled: "Disabled during onboarding",
+  },
+  kanban: {
+    summary: {
+      board: "Board",
+      cards: "Cards",
+      readyForCodex: "Ready for Codex",
+      gateway: "Gateway",
+    },
+    gateway: {
+      available: "Available",
+      unavailable: "Unavailable",
+      disabled: "Disabled",
+      unknown: "Unknown",
+    },
+    actions: {
+      refresh: "Refresh",
+      refreshing: "Refreshing...",
+    },
+    lanes: {
+      todo: "To do",
+      inProgress: "In progress",
+      review: "Review",
+      done: "Done",
+    },
+    board: {
+      ariaLabel: "Kanban board",
+    },
+    badges: {
+      codexReady: "Codex ready",
+      due: "Due {date}",
+      comments: "{count} comments",
+      links: "{count} links",
+      files: "{count} files",
+    },
+    card: {
+      unassigned: "unassigned",
+      reviewer: "review {reviewer}",
+    },
+    empty: {
+      noCards: "No cards",
+      noRecentActivity: "No recent activity",
+    },
+    activity: {
+      title: "Activity",
+      recentEvents: "{count} recent events",
+      unknownActor: "Unknown actor",
+    },
   },
   languages: {
     en: "English",

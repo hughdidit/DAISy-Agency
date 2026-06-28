@@ -57,6 +57,7 @@ import type { CronFieldErrors } from "./controllers/cron.ts";
 import type { DevicePairingList } from "./controllers/devices.ts";
 import type { ExecApprovalRequest } from "./controllers/exec-approval.ts";
 import type { ExecApprovalsFile, ExecApprovalsSnapshot } from "./controllers/exec-approvals.ts";
+import { loadKanban as loadKanbanInternal } from "./controllers/kanban.ts";
 import type { SkillMessage } from "./controllers/skills.ts";
 import type { GatewayBrowserClient, GatewayHelloOk } from "./gateway.ts";
 import type { Tab } from "./navigation.ts";
@@ -74,6 +75,10 @@ import type {
   CronRunLogEntry,
   CronStatus,
   HealthSnapshot,
+  KanbanActivity,
+  KanbanBoard,
+  KanbanCard,
+  KanbanStatusResult,
   LogEntry,
   LogLevel,
   PresenceEntry,
@@ -249,6 +254,13 @@ export class OpenClawApp extends LitElement {
   @state() agentSkillsError: string | null = null;
   @state() agentSkillsReport: SkillStatusReport | null = null;
   @state() agentSkillsAgentId: string | null = null;
+
+  @state() kanbanLoading = false;
+  @state() kanbanStatus: KanbanStatusResult | null = null;
+  @state() kanbanBoard: KanbanBoard | null = null;
+  @state() kanbanCards: KanbanCard[] = [];
+  @state() kanbanActivity: KanbanActivity[] = [];
+  @state() kanbanError: string | null = null;
 
   @state() sessionsLoading = false;
   @state() sessionsResult: SessionsListResult | null = null;
@@ -489,6 +501,10 @@ export class OpenClawApp extends LitElement {
 
   async loadCron() {
     await loadCronInternal(this as unknown as Parameters<typeof loadCronInternal>[0]);
+  }
+
+  async loadKanban() {
+    await loadKanbanInternal(this as unknown as Parameters<typeof loadKanbanInternal>[0]);
   }
 
   async handleAbortChat() {

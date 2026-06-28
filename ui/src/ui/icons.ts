@@ -88,6 +88,14 @@ export const icons = {
       />
     </svg>
   `,
+  kanban: html`
+    <svg viewBox="0 0 24 24">
+      <rect width="6" height="18" x="3" y="3" rx="2" />
+      <rect width="6" height="12" x="15" y="3" rx="2" />
+      <rect width="6" height="8" x="9" y="3" rx="2" />
+      <path d="M9 15h6" />
+    </svg>
+  `,
 
   // UI icons
   menu: html`

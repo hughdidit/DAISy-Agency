@@ -20,6 +20,10 @@ import type {
   ConfigSnapshot,
   ConfigUiHints,
   HealthSnapshot,
+  KanbanActivity,
+  KanbanBoard,
+  KanbanCard,
+  KanbanStatusResult,
   LogEntry,
   LogLevel,
   NostrProfile,
@@ -158,6 +162,12 @@ export type AppViewState = {
   agentSkillsError: string | null;
   agentSkillsReport: SkillStatusReport | null;
   agentSkillsAgentId: string | null;
+  kanbanLoading: boolean;
+  kanbanStatus: KanbanStatusResult | null;
+  kanbanBoard: KanbanBoard | null;
+  kanbanCards: KanbanCard[];
+  kanbanActivity: KanbanActivity[];
+  kanbanError: string | null;
   sessionsLoading: boolean;
   sessionsResult: SessionsListResult | null;
   sessionsError: string | null;
@@ -276,6 +286,7 @@ export type AppViewState = {
     loadOverview: () => Promise<void>;
     loadAssistantIdentity: () => Promise<void>;
     loadCron: () => Promise<void>;
+    loadKanban: () => Promise<void>;
     handleWhatsAppStart: (force: boolean) => Promise<void>;
     handleWhatsAppWait: () => Promise<void>;
     handleWhatsAppLogout: () => Promise<void>;

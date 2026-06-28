@@ -5,6 +5,13 @@ import type {
   SkillRemoteSatisfied as GatewaySkillRemoteSatisfied,
   SkillStatusConfigCheck as GatewaySkillStatusConfigCheck,
   SkillStatusEntry as GatewaySkillStatusEntry,
+  KanbanActivity as GatewayKanbanActivity,
+  KanbanActivityListResult as GatewayKanbanActivityListResult,
+  KanbanBoard as GatewayKanbanBoard,
+  KanbanBoardGetResult as GatewayKanbanBoardGetResult,
+  KanbanCard as GatewayKanbanCard,
+  KanbanCardsListResult as GatewayKanbanCardsListResult,
+  KanbanStatusResult as GatewayKanbanStatusResult,
   SkillsStatusResult as GatewaySkillsStatusResult,
   ToolCatalogEntry as GatewayToolCatalogEntry,
   ToolCatalogGroup as GatewayToolCatalogGroup,
@@ -353,6 +360,20 @@ export type ToolCatalogEntry = GatewayToolCatalogEntry;
 export type ToolCatalogGroup = GatewayToolCatalogGroup;
 
 export type ToolsCatalogResult = GatewayToolsCatalogResult;
+
+export type KanbanActivity = GatewayKanbanActivity;
+
+export type KanbanActivityListResult = GatewayKanbanActivityListResult;
+
+export type KanbanBoard = GatewayKanbanBoard;
+
+export type KanbanBoardGetResult = GatewayKanbanBoardGetResult;
+
+export type KanbanCard = GatewayKanbanCard;
+
+export type KanbanCardsListResult = GatewayKanbanCardsListResult;
+
+export type KanbanStatusResult = GatewayKanbanStatusResult;
 
 export type AgentIdentityResult = {
   agentId: string;

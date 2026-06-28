@@ -62,6 +62,7 @@ import {
   saveExecApprovals,
   updateExecApprovalsFormValue,
 } from "./controllers/exec-approvals.ts";
+import { loadKanban } from "./controllers/kanban.ts";
 import { loadLogs } from "./controllers/logs.ts";
 import { loadNodes } from "./controllers/nodes.ts";
 import { loadPresence } from "./controllers/presence.ts";
@@ -86,6 +87,7 @@ import { renderDebug } from "./views/debug.ts";
 import { renderExecApprovalPrompt } from "./views/exec-approval.ts";
 import { renderGatewayUrlConfirmation } from "./views/gateway-url-confirmation.ts";
 import { renderInstances } from "./views/instances.ts";
+import { renderKanban } from "./views/kanban.ts";
 import { renderLogs } from "./views/logs.ts";
 import { renderNodes } from "./views/nodes.ts";
 import { renderOverview } from "./views/overview.ts";
@@ -1032,6 +1034,20 @@ export function renderApp(state: AppViewState) {
                     : { fallbacks: normalized };
                   updateConfigFormValue(state, basePath, next);
                 },
+              })
+            : nothing
+        }
+
+        ${
+          state.tab === "kanban"
+            ? renderKanban({
+                loading: state.kanbanLoading,
+                status: state.kanbanStatus,
+                board: state.kanbanBoard,
+                cards: state.kanbanCards,
+                activity: state.kanbanActivity,
+                error: state.kanbanError,
+                onRefresh: () => loadKanban(state),
               })
             : nothing
         }
