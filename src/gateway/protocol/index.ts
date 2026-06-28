@@ -184,6 +184,10 @@ import {
   KanbanCodexHandoffParamsSchema,
   type KanbanCodexPickNextParams,
   KanbanCodexPickNextParamsSchema,
+  type KanbanImportTrelloPreviewParams,
+  KanbanImportTrelloPreviewParamsSchema,
+  type KanbanImportTrelloRunParams,
+  KanbanImportTrelloRunParamsSchema,
   type KanbanStatusParams,
   KanbanStatusParamsSchema,
   type ModelsListParams,
@@ -542,6 +546,12 @@ export const validateKanbanCardsArchiveParams = ajv.compile<KanbanCardsArchivePa
 );
 export const validateKanbanActivityListParams = ajv.compile<KanbanActivityListParams>(
   KanbanActivityListParamsSchema,
+);
+export const validateKanbanImportTrelloPreviewParams = ajv.compile<KanbanImportTrelloPreviewParams>(
+  KanbanImportTrelloPreviewParamsSchema,
+);
+export const validateKanbanImportTrelloRunParams = ajv.compile<KanbanImportTrelloRunParams>(
+  KanbanImportTrelloRunParamsSchema,
 );
 export const validateKanbanCodexPickNextParams = ajv.compile<KanbanCodexPickNextParams>(
   KanbanCodexPickNextParamsSchema,

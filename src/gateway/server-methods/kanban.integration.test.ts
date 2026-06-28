@@ -11,6 +11,8 @@ import type {
   KanbanCardsGetResult,
   KanbanCardsListResult,
   KanbanCodexPickNextResult,
+  KanbanImportTrelloPreviewResult,
+  KanbanImportTrelloRunResult,
 } from "../protocol/schema/types.js";
 import { listGatewayMethods } from "../server-methods-list.js";
 import { createKanbanHandlers, KANBAN_METHOD_NAMES } from "./kanban.js";
@@ -313,6 +315,18 @@ describe("Kanban gateway read handlers", () => {
     ).resolves.toMatchObject({
       ok: false,
       error: { code: "INVALID_REQUEST", message: "Kanban completion summary must not be blank" },
+    });
+    await expect(
+      invoke(handlers, "kanban.import.trello.preview", { format: "json", content: "   " }),
+    ).resolves.toMatchObject({
+      ok: false,
+      error: { code: "INVALID_REQUEST", message: "Trello import content must not be blank" },
+    });
+    await expect(
+      invoke(handlers, "kanban.import.trello.run", { format: "csv", content: "   " }),
+    ).resolves.toMatchObject({
+      ok: false,
+      error: { code: "INVALID_REQUEST", message: "Trello import content must not be blank" },
     });
   });
 });
@@ -636,6 +650,106 @@ describeWithDocker("Kanban gateway read handlers with MongoDB", () => {
       lane: "done",
       readyForCodex: false,
       version: 4,
+    });
+  }, 240_000);
+
+  it("previews and runs Trello imports through durable gateway handlers", async () => {
+    const testHandlers = requireValue(handlers, "Kanban gateway handlers were not initialized");
+    const testRepository = requireValue(
+      repository,
+      "Kanban gateway repository was not initialized",
+    );
+
+    await testRepository.bootstrapDefaultBoard({
+      actor: { type: "system" as const, id: "kanban-gateway-import-test" },
+      correlationId: "kanban-gateway-import-bootstrap",
+    });
+
+    const content = JSON.stringify({
+      lists: [{ id: "list-review", name: "Review" }],
+      cards: [
+        {
+          id: "trello-card-1",
+          name: "Imported Trello card",
+          desc: "Imported through gateway",
+          idList: "list-review",
+          labels: [{ name: "urgent" }],
+          due: "2026-01-02T03:04:05.000Z",
+          url: "https://trello.example/c/trello-card-1",
+        },
+      ],
+    });
+
+    const previewResponse = await invoke(testHandlers, "kanban.import.trello.preview", {
+      format: "json",
+      content,
+    });
+    expect(previewResponse.ok).toBe(true);
+    const preview = previewResponse.payload as KanbanImportTrelloPreviewResult;
+    expect(preview).toMatchObject({
+      importId: expect.any(String),
+      cards: [
+        {
+          sourceCardId: "trello-card-1",
+          title: "Imported Trello card",
+          lane: "review",
+          priority: "urgent",
+          labels: ["urgent"],
+          dueDate: "2026-01-02T03:04:05.000Z",
+          warnings: [],
+        },
+      ],
+      warnings: [],
+    });
+
+    const runResponse = await invoke(testHandlers, "kanban.import.trello.run", {
+      importId: preview.importId,
+    });
+    expect(runResponse.ok).toBe(true);
+    const run = runResponse.payload as KanbanImportTrelloRunResult;
+    expect(run).toMatchObject({
+      importRunId: preview.importId,
+      created: 1,
+      updated: 0,
+      skipped: 0,
+      activity: {
+        action: "import_run",
+        summary: "Imported Trello cards: 1 created, 0 updated, 0 skipped",
+      },
+    });
+
+    const listResponse = await invoke(testHandlers, "kanban.cards.list", {
+      includeArchived: true,
+    });
+    expect(listResponse.ok).toBe(true);
+    const cards = (listResponse.payload as KanbanCardsListResult).cards;
+    expect(cards).toContainEqual(
+      expect.objectContaining({
+        title: "Imported Trello card",
+        lane: "review",
+        priority: "urgent",
+        import: { source: "trello", sourceCardId: "trello-card-1" },
+      }),
+    );
+
+    const updatedContent = JSON.stringify({
+      cards: [
+        {
+          id: "trello-card-1",
+          name: "Updated Trello card",
+          labels: [{ name: "low" }],
+        },
+      ],
+    });
+    const updateRunResponse = await invoke(testHandlers, "kanban.import.trello.run", {
+      format: "json",
+      content: updatedContent,
+    });
+    expect(updateRunResponse.ok).toBe(true);
+    expect(updateRunResponse.payload).toMatchObject({
+      created: 0,
+      updated: 1,
+      skipped: 0,
     });
   }, 240_000);
 });
