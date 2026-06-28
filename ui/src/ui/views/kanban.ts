@@ -22,7 +22,7 @@ export type KanbanProps = {
 };
 
 function sortCards(cards: KanbanCard[]): KanbanCard[] {
-  return [...cards].sort((a, b) => {
+  return cards.toSorted((a, b) => {
     const laneOrder = a.lane.localeCompare(b.lane);
     if (laneOrder !== 0) {
       return laneOrder;
@@ -163,7 +163,7 @@ function renderActivity(entry: KanbanActivity) {
 }
 
 export function renderKanban(props: KanbanProps) {
-  const lanes = [...(props.board?.lanes ?? FALLBACK_LANES)].sort((a, b) => a.position - b.position);
+  const lanes = (props.board?.lanes ?? FALLBACK_LANES).toSorted((a, b) => a.position - b.position);
   const sortedCards = sortCards(props.cards);
   const cardsByLane = new Map<KanbanLaneId, KanbanCard[]>(
     lanes.map((lane) => [lane.id, sortedCards.filter((card) => card.lane === lane.id)]),
