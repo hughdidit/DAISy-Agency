@@ -330,6 +330,7 @@ export const KanbanActivityListParamsSchema = Type.Object(
     cardId: Type.Optional(NonEmptyString),
     limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 200 })),
     before: Type.Optional(IsoDateTimeString),
+    beforeId: Type.Optional(NonEmptyString),
   },
   { additionalProperties: false },
 );
