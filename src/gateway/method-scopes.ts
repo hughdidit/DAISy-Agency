@@ -96,7 +96,6 @@ const METHOD_SCOPE_GROUPS: Record<OperatorScope, readonly string[]> = {
     "kanban.cards.list",
     "kanban.cards.get",
     "kanban.activity.list",
-    "kanban.import.trello.preview",
   ],
   [WRITE_SCOPE]: [
     "send",
@@ -120,6 +119,7 @@ const METHOD_SCOPE_GROUPS: Record<OperatorScope, readonly string[]> = {
     "kanban.cards.move",
     "kanban.cards.comment",
     "kanban.cards.archive",
+    "kanban.import.trello.preview",
     "kanban.import.trello.run",
     "kanban.codex.pickNext",
     "kanban.codex.handoff",

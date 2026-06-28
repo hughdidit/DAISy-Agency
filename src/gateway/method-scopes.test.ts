@@ -22,9 +22,9 @@ describe("method scope resolution", () => {
       "kanban.cards.list",
       "kanban.cards.get",
       "kanban.activity.list",
-      "kanban.import.trello.preview",
     ];
     const writeMethods = [
+      "kanban.import.trello.preview",
       "kanban.cards.create",
       "kanban.cards.update",
       "kanban.cards.move",

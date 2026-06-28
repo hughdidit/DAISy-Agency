@@ -10,6 +10,7 @@ import {
   type UpdateFilter,
 } from "mongodb";
 import { redactMongoUri, type ResolvedKanbanConfig } from "./config.js";
+import type { ParsedTrelloImportCard, TrelloImportFormat } from "./trello-import.js";
 import {
   KANBAN_LANES,
   type KanbanActivity,
@@ -20,6 +21,7 @@ import {
   type KanbanCard,
   type KanbanLaneId,
   type KanbanPriority,
+  type KanbanImportRun,
 } from "./types.js";
 
 export type KanbanBoardDocument = Omit<KanbanBoard, "id"> & {
@@ -30,6 +32,14 @@ export type KanbanActivityDocument = Omit<KanbanActivity, "id"> & {
   _id: string;
 };
 
+export type KanbanImportRunDocument = Omit<KanbanImportRun, "id"> & {
+  _id: string;
+  boardId: string;
+  format: TrelloImportFormat;
+  cards: ParsedTrelloImportCard[];
+  warnings: string[];
+};
+
 export type KanbanCardDocument = Omit<KanbanCard, "id"> & {
   _id: string;
 };
@@ -38,7 +48,7 @@ type CollectionSet = {
   boards: Collection<KanbanBoardDocument>;
   cards: Collection<KanbanCardDocument>;
   activity: Collection<KanbanActivityDocument>;
-  imports: Collection;
+  imports: Collection<KanbanImportRunDocument>;
   attachments: Collection;
 };
 
@@ -182,8 +192,30 @@ export type KanbanCodexCompleteInput = {
   summary: string;
 };
 
+export type KanbanRecordTrelloImportPreviewInput = {
+  boardId: string;
+  sourceHash: string;
+  format: TrelloImportFormat;
+  cards: ParsedTrelloImportCard[];
+  warnings: string[];
+};
+
+export type KanbanRunTrelloImportInput = {
+  boardId: string;
+  importId: string;
+  cards: ParsedTrelloImportCard[];
+};
+
 export type KanbanCardMutationResult = {
   card: KanbanCard;
+  activity: KanbanActivity;
+};
+
+export type KanbanRunTrelloImportResult = {
+  importRunId: string;
+  created: number;
+  updated: number;
+  skipped: number;
   activity: KanbanActivity;
 };
 
@@ -370,6 +402,23 @@ function requireNonEmptyText(value: string, message: string): string {
   return trimmed;
 }
 
+function sanitizeImportWarnings(warnings: string[]): string[] {
+  return warnings
+    .map((warning) => warning.trim())
+    .filter(Boolean)
+    .slice(0, 100);
+}
+
+function createImportPreviewSummary(input: KanbanRecordTrelloImportPreviewInput) {
+  const cardWarnings = input.cards.reduce((count, card) => count + card.warnings.length, 0);
+  return {
+    boardId: input.boardId,
+    format: input.format,
+    cardCount: input.cards.length,
+    warningCount: input.warnings.length + cardWarnings,
+  };
+}
+
 export function buildCardDocument(
   input: KanbanCreateCardInput,
   now = new Date(),
@@ -503,7 +552,7 @@ export class KanbanMongoRepository {
       boards: this.db.collection<KanbanBoardDocument>(config.collections.boards),
       cards: this.db.collection<KanbanCardDocument>(config.collections.cards),
       activity: this.db.collection<KanbanActivityDocument>(config.collections.activity),
-      imports: this.db.collection(config.collections.imports),
+      imports: this.db.collection<KanbanImportRunDocument>(config.collections.imports),
       attachments: this.db.collection(config.collections.attachments),
     };
   }
@@ -615,6 +664,215 @@ export class KanbanMongoRepository {
       );
       return {
         card: mapCard(document),
+        activity,
+      };
+    });
+  }
+
+  async recordTrelloImportPreview(
+    input: KanbanRecordTrelloImportPreviewInput,
+    audit: KanbanAuditEnvelope,
+  ): Promise<KanbanImportRunDocument> {
+    const unifiedAudit = auditWithTimestamp(audit);
+    const summary = createImportPreviewSummary(input);
+    return this.withTransaction(async (session) => {
+      const existing = await this.collections.imports.findOne(
+        { source: "trello", sourceHash: input.sourceHash, boardId: input.boardId },
+        { session },
+      );
+      if (existing) {
+        await this.appendActivity(
+          {
+            boardId: input.boardId,
+            action: "import_preview",
+            summary: `Previewed Trello import with ${String(existing.cards.length)} cards`,
+            metadata: { importId: existing._id, reused: true, ...summary },
+          },
+          unifiedAudit,
+          session,
+        );
+        return existing;
+      }
+      const document: KanbanImportRunDocument = {
+        _id: randomUUID(),
+        source: "trello",
+        sourceHash: input.sourceHash,
+        status: "previewed",
+        boardId: input.boardId,
+        format: input.format,
+        cards: input.cards.map((card) => ({
+          ...card,
+          labels: [...card.labels],
+          links: [...card.links],
+          warnings: sanitizeImportWarnings(card.warnings),
+        })),
+        warnings: sanitizeImportWarnings(input.warnings),
+        summary,
+        createdAt: unifiedAudit.occurredAt,
+        updatedAt: unifiedAudit.occurredAt,
+      };
+      await this.collections.imports.insertOne(document, { session });
+      await this.appendActivity(
+        {
+          boardId: input.boardId,
+          action: "import_preview",
+          summary: `Previewed Trello import with ${String(input.cards.length)} cards`,
+          metadata: { importId: document._id, ...summary },
+        },
+        unifiedAudit,
+        session,
+      );
+      return document;
+    });
+  }
+
+  async getTrelloImportPreview(
+    importId: string,
+    boardId: string,
+  ): Promise<KanbanImportRunDocument | null> {
+    return await this.collections.imports.findOne({
+      _id: importId,
+      source: "trello",
+      boardId,
+    });
+  }
+
+  async runTrelloImport(
+    input: KanbanRunTrelloImportInput,
+    audit: KanbanAuditEnvelope,
+  ): Promise<KanbanRunTrelloImportResult> {
+    const unifiedAudit = auditWithTimestamp(audit);
+    return this.withTransaction(async (session) => {
+      let created = 0;
+      let updated = 0;
+      let skipped = 0;
+      for (const card of input.cards) {
+        const title = card.title.trim();
+        if (!title || card.warnings.some((warning) => warning.includes("card skipped"))) {
+          skipped += 1;
+          continue;
+        }
+        const existing = await this.collections.cards.findOne(
+          {
+            boardId: input.boardId,
+            "import.source": "trello",
+            "import.sourceCardId": card.sourceCardId,
+          },
+          { session },
+        );
+        if (existing?.archivedAt) {
+          skipped += 1;
+          continue;
+        }
+        if (existing) {
+          const set: Partial<KanbanCardDocument> = {
+            title,
+            lane: card.lane,
+            priority: card.priority,
+            priorityRank: priorityRank(card.priority),
+            labels: [...card.labels],
+            links: [...card.links],
+            import: {
+              source: "trello",
+              sourceCardId: card.sourceCardId,
+            },
+            updatedAt: unifiedAudit.occurredAt,
+          };
+          if (card.position !== undefined) {
+            set.position = card.position;
+          }
+          const unset: Record<string, ""> = {};
+          if (card.description === undefined) {
+            unset.description = "";
+          } else {
+            set.description = card.description;
+          }
+          if (card.dueAt === undefined) {
+            unset.dueAt = "";
+          } else {
+            set.dueAt = card.dueAt;
+          }
+          const update: UpdateFilter<KanbanCardDocument> = {
+            $inc: { version: 1 },
+            $set: set,
+          };
+          if (Object.keys(unset).length > 0) {
+            update.$unset = unset as UpdateFilter<KanbanCardDocument>["$unset"];
+          }
+          const updatedCard = await this.collections.cards.findOneAndUpdate(
+            {
+              _id: existing._id,
+              boardId: input.boardId,
+              archivedAt: { $exists: false },
+            },
+            update,
+            { returnDocument: "after", session },
+          );
+          if (updatedCard) {
+            updated += 1;
+          } else {
+            skipped += 1;
+          }
+          continue;
+        }
+        const document = buildCardDocument(
+          {
+            boardId: input.boardId,
+            title,
+            description: card.description,
+            lane: card.lane,
+            position: card.position,
+            priority: card.priority,
+            labels: card.labels,
+            dueAt: card.dueAt,
+            links: card.links,
+            import: {
+              source: "trello",
+              sourceCardId: card.sourceCardId,
+            },
+          },
+          unifiedAudit.occurredAt,
+        );
+        await this.collections.cards.insertOne(document, { session });
+        created += 1;
+      }
+      const activity = await this.appendActivity(
+        {
+          boardId: input.boardId,
+          action: "import_run",
+          summary: `Imported Trello cards: ${String(created)} created, ${String(updated)} updated, ${String(skipped)} skipped`,
+          metadata: {
+            importId: input.importId,
+            created,
+            updated,
+            skipped,
+          },
+        },
+        unifiedAudit,
+        session,
+      );
+      await this.collections.imports.updateOne(
+        { _id: input.importId, source: "trello", boardId: input.boardId },
+        {
+          $set: {
+            status: "completed",
+            completedAt: unifiedAudit.occurredAt,
+            updatedAt: unifiedAudit.occurredAt,
+            summary: {
+              created,
+              updated,
+              skipped,
+              cardCount: input.cards.length,
+            },
+          },
+        },
+        { session },
+      );
+      return {
+        importRunId: input.importId,
+        created,
+        updated,
+        skipped,
         activity,
       };
     });

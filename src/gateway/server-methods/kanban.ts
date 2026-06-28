@@ -8,8 +8,10 @@ import {
   createKanbanRepository,
   type KanbanMongoRepository,
   type KanbanRepositoryStatus,
+  type KanbanRunTrelloImportResult,
   type KanbanUpdateCardInput,
 } from "../../kanban/repository.js";
+import { parseTrelloImport } from "../../kanban/trello-import.js";
 import type {
   KanbanActivity as RepositoryKanbanActivity,
   KanbanBoard as RepositoryKanbanBoard,
@@ -33,6 +35,8 @@ import {
   validateKanbanCodexCompleteParams,
   validateKanbanCodexHandoffParams,
   validateKanbanCodexPickNextParams,
+  validateKanbanImportTrelloPreviewParams,
+  validateKanbanImportTrelloRunParams,
   validateKanbanStatusParams,
 } from "../protocol/index.js";
 import type {
@@ -41,6 +45,7 @@ import type {
   KanbanCard,
   KanbanCardMutationResult,
   KanbanCardsUpdateParams,
+  KanbanImportTrelloPreviewResult,
   KanbanStatusResult,
 } from "../protocol/schema/types.js";
 import type { GatewayClient, GatewayRequestHandlers, RespondFn } from "./types.js";
@@ -64,11 +69,13 @@ const KANBAN_READ_METHODS = [
 ] as const;
 
 const KANBAN_WRITE_METHODS = [
+  "kanban.import.trello.preview",
   "kanban.cards.create",
   "kanban.cards.update",
   "kanban.cards.move",
   "kanban.cards.comment",
   "kanban.cards.archive",
+  "kanban.import.trello.run",
   "kanban.codex.pickNext",
   "kanban.codex.handoff",
   "kanban.codex.complete",
@@ -168,6 +175,36 @@ function mapMutationResult(result: {
   return {
     card: mapCard(result.card),
     activity: mapActivity(result.activity),
+  };
+}
+
+function mapImportRunResult(result: KanbanRunTrelloImportResult) {
+  return {
+    importRunId: result.importRunId,
+    created: result.created,
+    updated: result.updated,
+    skipped: result.skipped,
+    activity: mapActivity(result.activity),
+  };
+}
+
+function mapImportPreviewResult(params: {
+  importId: string;
+  cards: ReturnType<typeof parseTrelloImport>["cards"];
+  warnings: string[];
+}): KanbanImportTrelloPreviewResult {
+  return {
+    importId: params.importId,
+    cards: params.cards.map((card) => ({
+      sourceCardId: card.sourceCardId,
+      title: card.title,
+      lane: card.lane,
+      priority: card.priority,
+      labels: card.labels,
+      dueDate: card.dueAt ? iso(card.dueAt) : undefined,
+      warnings: card.warnings,
+    })),
+    warnings: params.warnings,
   };
 }
 
@@ -354,6 +391,10 @@ function requireNonBlankParam(value: string, fieldName: string, respond: Respond
   return trimmed;
 }
 
+function invalidRequest(message: string, respond: RespondFn): void {
+  respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, message));
+}
+
 export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequestHandlers {
   const loadConfigFn = deps.loadConfig ?? loadConfig;
   const createRepository = deps.createRepository ?? createKanbanRepository;
@@ -513,6 +554,50 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
           beforeId: params.beforeId,
         });
         respond(true, { activity: activity.map(mapActivity) }, undefined);
+      });
+    },
+
+    "kanban.import.trello.preview": async ({ params, req, client, respond }) => {
+      if (
+        !assertValidParams(
+          params,
+          validateKanbanImportTrelloPreviewParams,
+          "kanban.import.trello.preview",
+          respond,
+        )
+      ) {
+        return;
+      }
+      let parsed: ReturnType<typeof parseTrelloImport>;
+      try {
+        parsed = parseTrelloImport({ format: params.format, content: params.content });
+      } catch (error) {
+        invalidRequest(error instanceof Error ? error.message : String(error), respond);
+        return;
+      }
+      await withRepository(respond, async (repo, config) => {
+        if (rejectNonDefaultBoard(params.boardId, config, respond)) {
+          return;
+        }
+        const preview = await repo.recordTrelloImportPreview(
+          {
+            boardId: config.board.slug,
+            sourceHash: parsed.sourceHash,
+            format: params.format,
+            cards: parsed.cards,
+            warnings: parsed.warnings,
+          },
+          auditFromRequest(client, req.id),
+        );
+        respond(
+          true,
+          mapImportPreviewResult({
+            importId: preview._id,
+            cards: preview.cards,
+            warnings: preview.warnings,
+          }),
+          undefined,
+        );
       });
     },
 
@@ -683,6 +768,78 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
           return;
         }
         respond(true, mapMutationResult(result), undefined);
+      });
+    },
+
+    "kanban.import.trello.run": async ({ params, req, client, respond }) => {
+      if (
+        !assertValidParams(
+          params,
+          validateKanbanImportTrelloRunParams,
+          "kanban.import.trello.run",
+          respond,
+        )
+      ) {
+        return;
+      }
+      let parsed:
+        | {
+            sourceHash: string;
+            format: "json" | "csv";
+            cards: ReturnType<typeof parseTrelloImport>["cards"];
+            warnings: string[];
+          }
+        | undefined;
+      if ("format" in params) {
+        try {
+          const direct = parseTrelloImport({ format: params.format, content: params.content });
+          parsed = { ...direct, format: params.format };
+        } catch (error) {
+          invalidRequest(error instanceof Error ? error.message : String(error), respond);
+          return;
+        }
+      }
+      await withRepository(respond, async (repo, config) => {
+        if (rejectNonDefaultBoard(params.boardId, config, respond)) {
+          return;
+        }
+        let importId: string | undefined;
+        let cards = parsed?.cards;
+        if ("importId" in params) {
+          const preview = await repo.getTrelloImportPreview(params.importId, config.board.slug);
+          if (!preview) {
+            invalidRequest(`unknown Trello import preview id: ${params.importId}`, respond);
+            return;
+          }
+          importId = preview._id;
+          cards = preview.cards;
+        } else if ("format" in params && parsed) {
+          const preview = await repo.recordTrelloImportPreview(
+            {
+              boardId: config.board.slug,
+              sourceHash: parsed.sourceHash,
+              format: parsed.format,
+              cards: parsed.cards,
+              warnings: parsed.warnings,
+            },
+            auditFromRequest(client, req.id),
+          );
+          importId = preview._id;
+          cards = parsed.cards;
+        }
+        if (!importId || !cards) {
+          invalidRequest("Trello import run requires a preview id or import content", respond);
+          return;
+        }
+        const result = await repo.runTrelloImport(
+          {
+            boardId: config.board.slug,
+            importId,
+            cards,
+          },
+          auditFromRequest(client, req.id),
+        );
+        respond(true, mapImportRunResult(result), undefined);
       });
     },
 
