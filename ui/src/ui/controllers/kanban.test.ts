@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
-import { loadKanban, type KanbanState } from "./kanban.ts";
 import type {
   KanbanActivityListResult,
   KanbanBoardGetResult,
   KanbanCardsListResult,
   KanbanStatusResult,
 } from "../types.ts";
+import { loadKanban, type KanbanState } from "./kanban.ts";
 
 function createState(): { state: KanbanState; request: ReturnType<typeof vi.fn> } {
   const request = vi.fn();

@@ -70,16 +70,26 @@ function renderCardBadges(card: KanbanCard) {
       <span class="kanban-badge kanban-badge--priority kanban-badge--${card.priority}">
         ${card.priority}
       </span>
-      ${card.readyForCodex ? html`<span class="kanban-badge">Codex ready</span>` : nothing}
+      ${
+        card.readyForCodex
+          ? html`
+              <span class="kanban-badge">Codex ready</span>
+            `
+          : nothing
+      }
       ${due ? html`<span class="kanban-badge">Due ${due}</span>` : nothing}
-      ${checklist.total
-        ? html`<span class="kanban-badge">${checklist.done}/${checklist.total}</span>`
-        : nothing}
+      ${
+        checklist.total
+          ? html`<span class="kanban-badge">${checklist.done}/${checklist.total}</span>`
+          : nothing
+      }
       ${card.comments.length ? html`<span class="kanban-badge">${card.comments.length} comments</span>` : nothing}
       ${card.links.length ? html`<span class="kanban-badge">${card.links.length} links</span>` : nothing}
-      ${card.attachments.length
-        ? html`<span class="kanban-badge">${card.attachments.length} files</span>`
-        : nothing}
+      ${
+        card.attachments.length
+          ? html`<span class="kanban-badge">${card.attachments.length} files</span>`
+          : nothing
+      }
     </div>
   `;
 }
@@ -89,17 +99,27 @@ function renderCard(card: KanbanCard) {
   return html`
     <article class="kanban-card" data-card-id=${card.id}>
       <div class="kanban-card__title">${card.title}</div>
-      ${card.description
-        ? html`<div class="kanban-card__description">${card.description}</div>`
-        : nothing}
-      ${card.labels.length
-        ? html`<div class="kanban-card__labels">
+      ${
+        card.description
+          ? html`<div class="kanban-card__description">${card.description}</div>`
+          : nothing
+      }
+      ${
+        card.labels.length
+          ? html`<div class="kanban-card__labels">
             ${card.labels.map((label) => html`<span class="kanban-label">${label}</span>`)}
           </div>`
-        : nothing}
+          : nothing
+      }
       ${renderCardBadges(card)}
       <div class="kanban-card__meta">
-        ${owner ? html`<span>${owner}</span>` : html`<span>unassigned</span>`}
+        ${
+          owner
+            ? html`<span>${owner}</span>`
+            : html`
+                <span>unassigned</span>
+              `
+        }
         ${card.reviewer ? html`<span>review ${card.reviewer}</span>` : nothing}
         <span>v${card.version}</span>
       </div>
@@ -115,9 +135,13 @@ function renderLane(lane: KanbanLane, cards: KanbanCard[]) {
         <div class="kanban-lane__count">${cards.length}</div>
       </div>
       <div class="kanban-lane__cards">
-        ${cards.length
-          ? cards.map((card) => renderCard(card))
-          : html`<div class="kanban-empty">No cards</div>`}
+        ${
+          cards.length
+            ? cards.map((card) => renderCard(card))
+            : html`
+                <div class="kanban-empty">No cards</div>
+              `
+        }
       </div>
     </section>
   `;
@@ -176,9 +200,11 @@ export function renderKanban(props: KanbanProps) {
       </section>
 
       ${props.error ? html`<div class="callout danger">${props.error}</div>` : nothing}
-      ${statusDetail && !props.status?.available
-        ? html`<div class="callout warn">${statusDetail}</div>`
-        : nothing}
+      ${
+        statusDetail && !props.status?.available
+          ? html`<div class="callout warn">${statusDetail}</div>`
+          : nothing
+      }
 
       <section class="kanban-workspace">
         <div class="kanban-board" aria-label="Kanban board">
@@ -188,9 +214,13 @@ export function renderKanban(props: KanbanProps) {
           <div class="card-title">Activity</div>
           <div class="card-sub">${props.activity.length} recent events</div>
           <div class="kanban-activity-list">
-            ${props.activity.length
-              ? props.activity.map((entry) => renderActivity(entry))
-              : html`<div class="kanban-empty">No recent activity</div>`}
+            ${
+              props.activity.length
+                ? props.activity.map((entry) => renderActivity(entry))
+                : html`
+                    <div class="kanban-empty">No recent activity</div>
+                  `
+            }
           </div>
         </aside>
       </section>
