@@ -1,6 +1,6 @@
 import { listChannelPlugins } from "../channels/plugins/index.js";
 import { GATEWAY_EVENT_UPDATE_AVAILABLE } from "./events.js";
-import { KANBAN_READ_METHOD_NAMES } from "./server-methods/kanban.js";
+import { KANBAN_METHOD_NAMES } from "./server-methods/kanban.js";
 
 const BASE_METHODS = [
   "health",
@@ -105,7 +105,7 @@ const BASE_METHODS = [
   "chat.history",
   "chat.abort",
   "chat.send",
-  ...KANBAN_READ_METHOD_NAMES,
+  ...KANBAN_METHOD_NAMES,
 ];
 
 export function listGatewayMethods(): string[] {

@@ -6,9 +6,14 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { OpenClawConfig } from "../../config/config.js";
 import { KANBAN_DEFAULT_COLLECTIONS, type ResolvedKanbanConfig } from "../../kanban/config.js";
 import { createKanbanMongoClient, KanbanMongoRepository } from "../../kanban/repository.js";
-import type { KanbanCardsGetResult, KanbanCardsListResult } from "../protocol/schema/types.js";
+import type {
+  KanbanCardMutationResult,
+  KanbanCardsGetResult,
+  KanbanCardsListResult,
+  KanbanCodexPickNextResult,
+} from "../protocol/schema/types.js";
 import { listGatewayMethods } from "../server-methods-list.js";
-import { createKanbanHandlers, KANBAN_READ_METHOD_NAMES } from "./kanban.js";
+import { createKanbanHandlers, KANBAN_METHOD_NAMES } from "./kanban.js";
 import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 
 type MongoDockerRuntime = {
@@ -255,12 +260,60 @@ describe("Kanban gateway read handlers", () => {
     });
   });
 
-  it("exposes only the implemented read methods through gateway discovery", () => {
+  it("exposes only the implemented Kanban methods through gateway discovery", () => {
     const methods = listGatewayMethods();
-    expect(methods).toEqual(expect.arrayContaining(KANBAN_READ_METHOD_NAMES));
+    expect(methods).toEqual(expect.arrayContaining(KANBAN_METHOD_NAMES));
     expect(methods.filter((method) => method.startsWith("kanban.")).toSorted()).toEqual(
-      [...KANBAN_READ_METHOD_NAMES].toSorted(),
+      [...KANBAN_METHOD_NAMES].toSorted(),
     );
+  });
+
+  it("rejects blank write text before opening storage", async () => {
+    const handlers = createKanbanHandlers({
+      loadConfig: () => ({}) as OpenClawConfig,
+      env: {},
+    });
+
+    await expect(invoke(handlers, "kanban.cards.create", { title: "   " })).resolves.toMatchObject({
+      ok: false,
+      error: { code: "INVALID_REQUEST", message: "Kanban card title must not be blank" },
+    });
+    await expect(
+      invoke(handlers, "kanban.cards.update", {
+        cardId: "card-1",
+        expectedVersion: 1,
+        updates: { title: "   " },
+      }),
+    ).resolves.toMatchObject({
+      ok: false,
+      error: { code: "INVALID_REQUEST", message: "Kanban card title must not be blank" },
+    });
+    await expect(
+      invoke(handlers, "kanban.cards.comment", { cardId: "card-1", body: "   " }),
+    ).resolves.toMatchObject({
+      ok: false,
+      error: { code: "INVALID_REQUEST", message: "Kanban comment body must not be blank" },
+    });
+    await expect(
+      invoke(handlers, "kanban.codex.handoff", {
+        cardId: "card-1",
+        expectedVersion: 1,
+        summary: "   ",
+      }),
+    ).resolves.toMatchObject({
+      ok: false,
+      error: { code: "INVALID_REQUEST", message: "Kanban handoff summary must not be blank" },
+    });
+    await expect(
+      invoke(handlers, "kanban.codex.complete", {
+        cardId: "card-1",
+        expectedVersion: 1,
+        summary: "   ",
+      }),
+    ).resolves.toMatchObject({
+      ok: false,
+      error: { code: "INVALID_REQUEST", message: "Kanban completion summary must not be blank" },
+    });
   });
 });
 
@@ -421,6 +474,168 @@ describeWithDocker("Kanban gateway read handlers with MongoDB", () => {
     expect(nextActivityPage).toMatchObject({
       ok: true,
       payload: { activity: [] },
+    });
+  }, 240_000);
+
+  it("creates, updates, comments, moves, archives, and completes Codex cards through handlers", async () => {
+    const testRepository = requireValue(
+      repository,
+      "Kanban gateway repository was not initialized",
+    );
+    const testHandlers = requireValue(handlers, "Kanban gateway handlers were not initialized");
+
+    await testRepository.bootstrapDefaultBoard({
+      actor: { type: "system" as const, id: "kanban-gateway-write-test" },
+      correlationId: "kanban-gateway-write-bootstrap",
+    });
+
+    const createResponse = await invoke(testHandlers, "kanban.cards.create", {
+      title: "Write handler card",
+      description: "Initial body",
+      priority: "urgent",
+      readyForCodex: true,
+      labels: ["gateway"],
+      links: ["https://example.invalid/card"],
+      watchers: ["codex"],
+      customFields: { source: "integration" },
+    });
+    expect(createResponse.ok).toBe(true);
+    const created = createResponse.payload as KanbanCardMutationResult;
+    expect(created.activity).toMatchObject({
+      action: "card_create",
+      summary: "Created Write handler card",
+      actor: { type: "api", id: "kanban-gateway" },
+      correlationId: "kanban.cards.create-test",
+    });
+    expect(created.card).toMatchObject({
+      title: "Write handler card",
+      lane: "todo",
+      priority: "urgent",
+      readyForCodex: true,
+      version: 1,
+    });
+
+    const updateResponse = await invoke(testHandlers, "kanban.cards.update", {
+      cardId: created.card.id,
+      expectedVersion: created.card.version,
+      updates: {
+        title: "Updated write handler card",
+        description: null,
+        priority: "high",
+        readyForCodex: true,
+      },
+    });
+    expect(updateResponse.ok).toBe(true);
+    const updated = updateResponse.payload as KanbanCardMutationResult;
+    expect(updated.activity.action).toBe("card_update");
+    expect(updated.card).toMatchObject({
+      title: "Updated write handler card",
+      priority: "high",
+      version: 2,
+    });
+    expect(updated.card.description).toBeUndefined();
+
+    const commentResponse = await invoke(testHandlers, "kanban.cards.comment", {
+      cardId: updated.card.id,
+      body: "Ready for movement",
+    });
+    expect(commentResponse.ok).toBe(true);
+    const commented = commentResponse.payload as KanbanCardMutationResult;
+    expect(commented.activity).toMatchObject({
+      action: "card_comment",
+      summary: "Commented on Updated write handler card",
+    });
+    expect(commented.card.comments).toHaveLength(1);
+    expect(commented.card.version).toBe(3);
+
+    const moveResponse = await invoke(testHandlers, "kanban.cards.move", {
+      cardId: commented.card.id,
+      expectedVersion: commented.card.version,
+      lane: "review",
+      position: 42,
+    });
+    expect(moveResponse.ok).toBe(true);
+    const moved = moveResponse.payload as KanbanCardMutationResult;
+    expect(moved.activity).toMatchObject({
+      action: "card_move",
+      data: { lane: "review", position: 42 },
+    });
+    expect(moved.card).toMatchObject({
+      lane: "review",
+      position: 42,
+      version: 4,
+    });
+
+    const archiveCreateResponse = await invoke(testHandlers, "kanban.cards.create", {
+      title: "Archive handler card",
+    });
+    const archiveCreated = archiveCreateResponse.payload as KanbanCardMutationResult;
+    const archiveResponse = await invoke(testHandlers, "kanban.cards.archive", {
+      cardId: archiveCreated.card.id,
+      expectedVersion: archiveCreated.card.version,
+    });
+    expect(archiveResponse.ok).toBe(true);
+    const archived = archiveResponse.payload as KanbanCardMutationResult;
+    expect(archived.activity.action).toBe("card_archive");
+    expect(archived.card.archivedAt).toEqual(expect.any(String));
+
+    const codexCreateResponse = await invoke(testHandlers, "kanban.cards.create", {
+      title: "Codex pickup card",
+      priority: "urgent",
+      readyForCodex: true,
+    });
+    const codexCreated = codexCreateResponse.payload as KanbanCardMutationResult;
+    const pickResponse = await invoke(testHandlers, "kanban.codex.pickNext", {
+      agentId: "codex-agent",
+      agentName: "Codex Agent",
+    });
+    expect(pickResponse.ok).toBe(true);
+    const picked = pickResponse.payload as KanbanCodexPickNextResult;
+    expect(picked.card).toMatchObject({
+      id: codexCreated.card.id,
+      lane: "in_progress",
+      assignee: "codex-agent",
+      readyForCodex: false,
+      version: 2,
+    });
+    expect(picked.activity).toMatchObject({
+      action: "card_pickup",
+      actor: { type: "agent", id: "codex-agent", name: "Codex Agent" },
+    });
+
+    const handoffResponse = await invoke(testHandlers, "kanban.codex.handoff", {
+      cardId: requireValue(picked.card, "Expected picked card").id,
+      expectedVersion: requireValue(picked.card, "Expected picked card").version,
+      summary: "Needs human review",
+      reviewer: "ops-reviewer",
+    });
+    expect(handoffResponse.ok).toBe(true);
+    const handedOff = handoffResponse.payload as KanbanCardMutationResult;
+    expect(handedOff.activity).toMatchObject({
+      action: "card_handoff",
+      summary: "Needs human review",
+    });
+    expect(handedOff.card).toMatchObject({
+      lane: "review",
+      reviewer: "ops-reviewer",
+      version: 3,
+    });
+
+    const completeResponse = await invoke(testHandlers, "kanban.codex.complete", {
+      cardId: handedOff.card.id,
+      expectedVersion: handedOff.card.version,
+      summary: "Completed by Codex",
+    });
+    expect(completeResponse.ok).toBe(true);
+    const completed = completeResponse.payload as KanbanCardMutationResult;
+    expect(completed.activity).toMatchObject({
+      action: "card_complete",
+      summary: "Completed by Codex",
+    });
+    expect(completed.card).toMatchObject({
+      lane: "done",
+      readyForCodex: false,
+      version: 4,
     });
   }, 240_000);
 });

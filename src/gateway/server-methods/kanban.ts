@@ -8,28 +8,42 @@ import {
   createKanbanRepository,
   type KanbanMongoRepository,
   type KanbanRepositoryStatus,
+  type KanbanUpdateCardInput,
 } from "../../kanban/repository.js";
 import type {
   KanbanActivity as RepositoryKanbanActivity,
   KanbanBoard as RepositoryKanbanBoard,
   KanbanCard as RepositoryKanbanCard,
+  KanbanActorEnvelope,
+  KanbanAuditEnvelope,
+  KanbanChecklistItem as RepositoryKanbanChecklistItem,
 } from "../../kanban/types.js";
 import {
   ErrorCodes,
   errorShape,
   validateKanbanActivityListParams,
   validateKanbanBoardGetParams,
+  validateKanbanCardsArchiveParams,
+  validateKanbanCardsCommentParams,
+  validateKanbanCardsCreateParams,
   validateKanbanCardsGetParams,
   validateKanbanCardsListParams,
+  validateKanbanCardsMoveParams,
+  validateKanbanCardsUpdateParams,
+  validateKanbanCodexCompleteParams,
+  validateKanbanCodexHandoffParams,
+  validateKanbanCodexPickNextParams,
   validateKanbanStatusParams,
 } from "../protocol/index.js";
 import type {
   KanbanActivity,
   KanbanBoard,
   KanbanCard,
+  KanbanCardMutationResult,
+  KanbanCardsUpdateParams,
   KanbanStatusResult,
 } from "../protocol/schema/types.js";
-import type { GatewayRequestHandlers, RespondFn } from "./types.js";
+import type { GatewayClient, GatewayRequestHandlers, RespondFn } from "./types.js";
 import { assertValidParams } from "./validation.js";
 
 type KanbanRepositoryFactory = (config: ResolvedKanbanConfig) => Promise<KanbanMongoRepository>;
@@ -47,6 +61,17 @@ const KANBAN_READ_METHODS = [
   "kanban.cards.list",
   "kanban.cards.get",
   "kanban.activity.list",
+] as const;
+
+const KANBAN_WRITE_METHODS = [
+  "kanban.cards.create",
+  "kanban.cards.update",
+  "kanban.cards.move",
+  "kanban.cards.comment",
+  "kanban.cards.archive",
+  "kanban.codex.pickNext",
+  "kanban.codex.handoff",
+  "kanban.codex.complete",
 ] as const;
 
 function iso(value: Date): string {
@@ -136,6 +161,54 @@ function mapActivity(activity: RepositoryKanbanActivity): KanbanActivity {
   };
 }
 
+function mapMutationResult(result: {
+  card: RepositoryKanbanCard;
+  activity: RepositoryKanbanActivity;
+}): KanbanCardMutationResult {
+  return {
+    card: mapCard(result.card),
+    activity: mapActivity(result.activity),
+  };
+}
+
+type GatewayChecklistItem = NonNullable<KanbanCardsUpdateParams["updates"]["checklist"]>[number];
+
+function mapChecklistItem(
+  item: GatewayChecklistItem,
+  position: number,
+): RepositoryKanbanChecklistItem {
+  const now = new Date();
+  return {
+    id: item.id,
+    title: item.text,
+    done: item.checked,
+    position,
+    createdAt: item.createdAt ? new Date(item.createdAt) : now,
+    updatedAt: item.updatedAt ? new Date(item.updatedAt) : now,
+  };
+}
+
+function mapUpdateParams(
+  updates: KanbanCardsUpdateParams["updates"],
+): KanbanUpdateCardInput["updates"] {
+  return {
+    title: updates.title,
+    description: updates.description,
+    priority: updates.priority,
+    assignee: updates.assignee,
+    reviewer: updates.reviewer,
+    inputOwner: updates.inputOwner,
+    labels: updates.labels,
+    dueAt:
+      updates.dueDate === null ? null : updates.dueDate ? new Date(updates.dueDate) : undefined,
+    checklist: updates.checklist?.map((item, index) => mapChecklistItem(item, index)),
+    links: updates.links,
+    watchers: updates.watchers,
+    customFields: updates.customFields,
+    readyForCodex: updates.readyForCodex,
+  };
+}
+
 function statusPayload(
   resolution: KanbanConfigResolution,
   status?: KanbanRepositoryStatus,
@@ -206,6 +279,79 @@ function rejectNonDefaultBoard(
     errorShape(ErrorCodes.INVALID_REQUEST, `unknown Kanban board id: ${boardId}`),
   );
   return true;
+}
+
+function actorFromClient(
+  client: GatewayClient | null,
+  fallbackId: string,
+  forceAgent = false,
+): KanbanActorEnvelope {
+  const clientInfo = client?.connect?.client;
+  const id =
+    client?.connect?.device?.id ??
+    clientInfo?.instanceId ??
+    clientInfo?.id ??
+    client?.connId ??
+    fallbackId;
+  const name = clientInfo?.displayName;
+  if (forceAgent) {
+    return name ? { type: "agent", id, name } : { type: "agent", id };
+  }
+  const mode = clientInfo?.mode;
+  const type = mode === "ui" || mode === "webchat" ? "human" : "api";
+  return name ? { type, id, name } : { type, id };
+}
+
+function auditFromRequest(
+  client: GatewayClient | null,
+  requestId: string,
+  forceAgent = false,
+): KanbanAuditEnvelope {
+  return {
+    actor: actorFromClient(client, "kanban-gateway", forceAgent),
+    correlationId: requestId,
+  };
+}
+
+function codexAuditFromRequest(
+  client: GatewayClient | null,
+  requestId: string,
+  params: { agentId?: string; agentName?: string },
+): KanbanAuditEnvelope {
+  if (params.agentId) {
+    return {
+      actor: params.agentName
+        ? { type: "agent", id: params.agentId, name: params.agentName }
+        : { type: "agent", id: params.agentId },
+      correlationId: requestId,
+    };
+  }
+  return auditFromRequest(client, requestId, true);
+}
+
+function notFoundOrConflict(respond: RespondFn): void {
+  respond(
+    false,
+    undefined,
+    errorShape(ErrorCodes.INVALID_REQUEST, "Kanban card not found or version conflict"),
+  );
+}
+
+function cardNotFound(respond: RespondFn): void {
+  respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, "Kanban card not found"));
+}
+
+function requireNonBlankParam(value: string, fieldName: string, respond: RespondFn): string | null {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    respond(
+      false,
+      undefined,
+      errorShape(ErrorCodes.INVALID_REQUEST, `${fieldName} must not be blank`),
+    );
+    return null;
+  }
+  return trimmed;
 }
 
 export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequestHandlers {
@@ -369,8 +515,277 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
         respond(true, { activity: activity.map(mapActivity) }, undefined);
       });
     },
+
+    "kanban.cards.create": async ({ params, req, client, respond }) => {
+      if (
+        !assertValidParams(params, validateKanbanCardsCreateParams, "kanban.cards.create", respond)
+      ) {
+        return;
+      }
+      const title = requireNonBlankParam(params.title, "Kanban card title", respond);
+      if (!title) {
+        return;
+      }
+      await withRepository(respond, async (repo, config) => {
+        if (rejectNonDefaultBoard(params.boardId, config, respond)) {
+          return;
+        }
+        const result = await repo.createCard(
+          {
+            boardId: config.board.slug,
+            title,
+            description: params.description,
+            lane: params.lane,
+            position: params.position,
+            priority: params.priority,
+            assignee: params.assignee,
+            reviewer: params.reviewer,
+            inputOwner: params.inputOwner,
+            labels: params.labels,
+            dueAt: params.dueDate ? new Date(params.dueDate) : undefined,
+            links: params.links,
+            watchers: params.watchers,
+            customFields: params.customFields,
+            readyForCodex: params.readyForCodex,
+          },
+          auditFromRequest(client, req.id),
+        );
+        respond(true, mapMutationResult(result), undefined);
+      });
+    },
+
+    "kanban.cards.update": async ({ params, req, client, respond }) => {
+      if (
+        !assertValidParams(params, validateKanbanCardsUpdateParams, "kanban.cards.update", respond)
+      ) {
+        return;
+      }
+      let title: string | undefined;
+      if (params.updates.title !== undefined) {
+        const trimmedTitle = requireNonBlankParam(
+          params.updates.title,
+          "Kanban card title",
+          respond,
+        );
+        if (!trimmedTitle) {
+          return;
+        }
+        title = trimmedTitle;
+      }
+      const updates = mapUpdateParams({ ...params.updates, title });
+      await withRepository(respond, async (repo, config) => {
+        if (rejectNonDefaultBoard(params.boardId, config, respond)) {
+          return;
+        }
+        const result = await repo.updateCard(
+          {
+            boardId: config.board.slug,
+            cardId: params.cardId,
+            expectedVersion: params.expectedVersion,
+            updates,
+          },
+          auditFromRequest(client, req.id),
+        );
+        if (!result) {
+          notFoundOrConflict(respond);
+          return;
+        }
+        respond(true, mapMutationResult(result), undefined);
+      });
+    },
+
+    "kanban.cards.move": async ({ params, req, client, respond }) => {
+      if (!assertValidParams(params, validateKanbanCardsMoveParams, "kanban.cards.move", respond)) {
+        return;
+      }
+      await withRepository(respond, async (repo, config) => {
+        if (rejectNonDefaultBoard(params.boardId, config, respond)) {
+          return;
+        }
+        const result = await repo.moveCard(
+          {
+            boardId: config.board.slug,
+            cardId: params.cardId,
+            expectedVersion: params.expectedVersion,
+            lane: params.lane,
+            position: params.position,
+          },
+          auditFromRequest(client, req.id),
+        );
+        if (!result) {
+          notFoundOrConflict(respond);
+          return;
+        }
+        respond(true, mapMutationResult(result), undefined);
+      });
+    },
+
+    "kanban.cards.comment": async ({ params, req, client, respond }) => {
+      if (
+        !assertValidParams(
+          params,
+          validateKanbanCardsCommentParams,
+          "kanban.cards.comment",
+          respond,
+        )
+      ) {
+        return;
+      }
+      const body = requireNonBlankParam(params.body, "Kanban comment body", respond);
+      if (!body) {
+        return;
+      }
+      await withRepository(respond, async (repo, config) => {
+        if (rejectNonDefaultBoard(params.boardId, config, respond)) {
+          return;
+        }
+        const result = await repo.commentCard(
+          {
+            boardId: config.board.slug,
+            cardId: params.cardId,
+            body,
+          },
+          auditFromRequest(client, req.id),
+        );
+        if (!result) {
+          cardNotFound(respond);
+          return;
+        }
+        respond(true, mapMutationResult(result), undefined);
+      });
+    },
+
+    "kanban.cards.archive": async ({ params, req, client, respond }) => {
+      if (
+        !assertValidParams(
+          params,
+          validateKanbanCardsArchiveParams,
+          "kanban.cards.archive",
+          respond,
+        )
+      ) {
+        return;
+      }
+      await withRepository(respond, async (repo, config) => {
+        if (rejectNonDefaultBoard(params.boardId, config, respond)) {
+          return;
+        }
+        const result = await repo.archiveCard(
+          {
+            boardId: config.board.slug,
+            cardId: params.cardId,
+            expectedVersion: params.expectedVersion,
+          },
+          auditFromRequest(client, req.id),
+        );
+        if (!result) {
+          notFoundOrConflict(respond);
+          return;
+        }
+        respond(true, mapMutationResult(result), undefined);
+      });
+    },
+
+    "kanban.codex.pickNext": async ({ params, req, client, respond }) => {
+      if (
+        !assertValidParams(
+          params,
+          validateKanbanCodexPickNextParams,
+          "kanban.codex.pickNext",
+          respond,
+        )
+      ) {
+        return;
+      }
+      await withRepository(respond, async (repo, config) => {
+        if (rejectNonDefaultBoard(params.boardId, config, respond)) {
+          return;
+        }
+        const result = await repo.pickNextCodexCard(
+          { boardId: config.board.slug },
+          codexAuditFromRequest(client, req.id, params),
+        );
+        respond(true, result ? mapMutationResult(result) : { card: null }, undefined);
+      });
+    },
+
+    "kanban.codex.handoff": async ({ params, req, client, respond }) => {
+      if (
+        !assertValidParams(
+          params,
+          validateKanbanCodexHandoffParams,
+          "kanban.codex.handoff",
+          respond,
+        )
+      ) {
+        return;
+      }
+      const summary = requireNonBlankParam(params.summary, "Kanban handoff summary", respond);
+      if (!summary) {
+        return;
+      }
+      await withRepository(respond, async (repo, config) => {
+        if (rejectNonDefaultBoard(params.boardId, config, respond)) {
+          return;
+        }
+        const result = await repo.handoffCodexCard(
+          {
+            boardId: config.board.slug,
+            cardId: params.cardId,
+            expectedVersion: params.expectedVersion,
+            summary,
+            reviewer: params.reviewer,
+            inputOwner: params.inputOwner,
+          },
+          auditFromRequest(client, req.id, true),
+        );
+        if (!result) {
+          notFoundOrConflict(respond);
+          return;
+        }
+        respond(true, mapMutationResult(result), undefined);
+      });
+    },
+
+    "kanban.codex.complete": async ({ params, req, client, respond }) => {
+      if (
+        !assertValidParams(
+          params,
+          validateKanbanCodexCompleteParams,
+          "kanban.codex.complete",
+          respond,
+        )
+      ) {
+        return;
+      }
+      const summary = requireNonBlankParam(params.summary, "Kanban completion summary", respond);
+      if (!summary) {
+        return;
+      }
+      await withRepository(respond, async (repo, config) => {
+        if (rejectNonDefaultBoard(params.boardId, config, respond)) {
+          return;
+        }
+        const result = await repo.completeCodexCard(
+          {
+            boardId: config.board.slug,
+            cardId: params.cardId,
+            expectedVersion: params.expectedVersion,
+            summary,
+          },
+          auditFromRequest(client, req.id, true),
+        );
+        if (!result) {
+          notFoundOrConflict(respond);
+          return;
+        }
+        respond(true, mapMutationResult(result), undefined);
+      });
+    },
   };
 }
 
 export const kanbanHandlers = createKanbanHandlers();
 export const KANBAN_READ_METHOD_NAMES = [...KANBAN_READ_METHODS];
+export const KANBAN_WRITE_METHOD_NAMES = [...KANBAN_WRITE_METHODS];
+export const KANBAN_METHOD_NAMES = [...KANBAN_READ_METHODS, ...KANBAN_WRITE_METHODS];

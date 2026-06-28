@@ -147,7 +147,7 @@ export type KanbanMoveCardInput = {
   cardId: string;
   expectedVersion: number;
   lane: KanbanLaneId;
-  position: number;
+  position?: number;
 };
 
 export type KanbanArchiveCardInput = {
@@ -156,8 +156,30 @@ export type KanbanArchiveCardInput = {
   expectedVersion: number;
 };
 
+export type KanbanCommentCardInput = {
+  boardId: string;
+  cardId: string;
+  body: string;
+};
+
 export type KanbanPickNextCodexCardInput = {
   boardId: string;
+};
+
+export type KanbanCodexHandoffInput = {
+  boardId: string;
+  cardId: string;
+  expectedVersion: number;
+  summary: string;
+  reviewer?: string | null;
+  inputOwner?: string | null;
+};
+
+export type KanbanCodexCompleteInput = {
+  boardId: string;
+  cardId: string;
+  expectedVersion: number;
+  summary: string;
 };
 
 export type KanbanCardMutationResult = {
@@ -711,7 +733,7 @@ export class KanbanMongoRepository {
           $inc: { version: 1 },
           $set: {
             lane: input.lane,
-            position: input.position,
+            position: input.position ?? unifiedAudit.occurredAt.getTime(),
             updatedAt: unifiedAudit.occurredAt,
           },
         },
@@ -784,6 +806,52 @@ export class KanbanMongoRepository {
     });
   }
 
+  async commentCard(
+    input: KanbanCommentCardInput,
+    audit: KanbanAuditEnvelope,
+  ): Promise<KanbanCardMutationResult | null> {
+    const unifiedAudit = auditWithTimestamp(audit);
+    return this.withTransaction(async (session) => {
+      const comment = {
+        id: randomUUID(),
+        body: requireNonEmptyText(input.body, "Kanban comment body is required"),
+        actor: unifiedAudit.actor,
+        createdAt: unifiedAudit.occurredAt,
+      };
+      const card = await this.collections.cards.findOneAndUpdate(
+        {
+          _id: input.cardId,
+          boardId: input.boardId,
+          archivedAt: { $exists: false },
+        },
+        {
+          $push: { comments: comment },
+          $inc: { version: 1 },
+          $set: { updatedAt: unifiedAudit.occurredAt },
+        },
+        { returnDocument: "after", session },
+      );
+      if (!card) {
+        return null;
+      }
+      const activity = await this.appendActivity(
+        {
+          boardId: input.boardId,
+          cardId: input.cardId,
+          action: "card_comment",
+          summary: `Commented on ${card.title}`,
+          metadata: { commentId: comment.id },
+        },
+        unifiedAudit,
+        session,
+      );
+      return {
+        card: mapCard(card),
+        activity,
+      };
+    });
+  }
+
   async pickNextCodexCard(
     input: KanbanPickNextCodexCardInput,
     audit: KanbanAuditEnvelope,
@@ -820,6 +888,121 @@ export class KanbanMongoRepository {
           cardId: card._id,
           action: "card_pickup",
           summary: `${unifiedAudit.actor.name ?? unifiedAudit.actor.id} picked up ${card.title}`,
+        },
+        unifiedAudit,
+        session,
+      );
+      return {
+        card: mapCard(card),
+        activity,
+      };
+    });
+  }
+
+  async handoffCodexCard(
+    input: KanbanCodexHandoffInput,
+    audit: KanbanAuditEnvelope,
+  ): Promise<KanbanCardMutationResult | null> {
+    const unifiedAudit = auditWithTimestamp(audit);
+    const summary = requireNonEmptyText(input.summary, "Kanban Codex handoff summary is required");
+    return this.withTransaction(async (session) => {
+      const set: Partial<KanbanCardDocument> = {
+        lane: "review",
+        position: unifiedAudit.occurredAt.getTime(),
+        readyForCodex: false,
+        updatedAt: unifiedAudit.occurredAt,
+      };
+      const unset: Record<string, ""> = {};
+      if (input.reviewer === null) {
+        unset.reviewer = "";
+      } else if (input.reviewer !== undefined) {
+        set.reviewer = input.reviewer;
+      }
+      if (input.inputOwner === null) {
+        unset.inputOwner = "";
+      } else if (input.inputOwner !== undefined) {
+        set.inputOwner = input.inputOwner;
+      }
+      const update: UpdateFilter<KanbanCardDocument> = {
+        $inc: { version: 1 },
+        $set: set,
+      };
+      if (Object.keys(unset).length > 0) {
+        update.$unset = unset as UpdateFilter<KanbanCardDocument>["$unset"];
+      }
+      const card = await this.collections.cards.findOneAndUpdate(
+        {
+          _id: input.cardId,
+          boardId: input.boardId,
+          archivedAt: { $exists: false },
+          version: input.expectedVersion,
+        },
+        update,
+        { returnDocument: "after", session },
+      );
+      if (!card) {
+        return null;
+      }
+      const activity = await this.appendActivity(
+        {
+          boardId: input.boardId,
+          cardId: input.cardId,
+          action: "card_handoff",
+          summary,
+          metadata: {
+            lane: card.lane,
+            reviewer: card.reviewer,
+            inputOwner: card.inputOwner,
+          },
+        },
+        unifiedAudit,
+        session,
+      );
+      return {
+        card: mapCard(card),
+        activity,
+      };
+    });
+  }
+
+  async completeCodexCard(
+    input: KanbanCodexCompleteInput,
+    audit: KanbanAuditEnvelope,
+  ): Promise<KanbanCardMutationResult | null> {
+    const unifiedAudit = auditWithTimestamp(audit);
+    const summary = requireNonEmptyText(
+      input.summary,
+      "Kanban Codex completion summary is required",
+    );
+    return this.withTransaction(async (session) => {
+      const card = await this.collections.cards.findOneAndUpdate(
+        {
+          _id: input.cardId,
+          boardId: input.boardId,
+          archivedAt: { $exists: false },
+          version: input.expectedVersion,
+        },
+        {
+          $inc: { version: 1 },
+          $set: {
+            lane: "done",
+            position: unifiedAudit.occurredAt.getTime(),
+            readyForCodex: false,
+            updatedAt: unifiedAudit.occurredAt,
+          },
+        },
+        { returnDocument: "after", session },
+      );
+      if (!card) {
+        return null;
+      }
+      const activity = await this.appendActivity(
+        {
+          boardId: input.boardId,
+          cardId: input.cardId,
+          action: "card_complete",
+          summary,
+          metadata: { lane: card.lane },
         },
         unifiedAudit,
         session,
