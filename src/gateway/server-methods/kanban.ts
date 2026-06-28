@@ -501,10 +501,6 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
       ) {
         return;
       }
-      const title = requireNonBlankParam(params.title, "Kanban card title", respond);
-      if (!title) {
-        return;
-      }
       await withRepository(respond, async (repo, config) => {
         if (rejectNonDefaultBoard(params.boardId, config, respond)) {
           return;
@@ -524,6 +520,10 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
       if (
         !assertValidParams(params, validateKanbanCardsCreateParams, "kanban.cards.create", respond)
       ) {
+        return;
+      }
+      const title = requireNonBlankParam(params.title, "Kanban card title", respond);
+      if (!title) {
         return;
       }
       await withRepository(respond, async (repo, config) => {
@@ -666,10 +666,6 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
       ) {
         return;
       }
-      const summary = requireNonBlankParam(params.summary, "Kanban handoff summary", respond);
-      if (!summary) {
-        return;
-      }
       await withRepository(respond, async (repo, config) => {
         if (rejectNonDefaultBoard(params.boardId, config, respond)) {
           return;
@@ -699,6 +695,10 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
           respond,
         )
       ) {
+        return;
+      }
+      const summary = requireNonBlankParam(params.summary, "Kanban handoff summary", respond);
+      if (!summary) {
         return;
       }
       await withRepository(respond, async (repo, config) => {
