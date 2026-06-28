@@ -691,7 +691,7 @@ export class KanbanMongoRepository {
     const summary = createImportPreviewSummary(input);
     return this.withTransaction(async (session) => {
       const existing = await this.collections.imports.findOne(
-        { source: "trello", sourceHash: input.sourceHash },
+        { source: "trello", sourceHash: input.sourceHash, boardId: input.boardId },
         { session },
       );
       if (existing) {
@@ -740,10 +740,14 @@ export class KanbanMongoRepository {
     });
   }
 
-  async getTrelloImportPreview(importId: string): Promise<KanbanImportRunDocument | null> {
+  async getTrelloImportPreview(
+    importId: string,
+    boardId: string,
+  ): Promise<KanbanImportRunDocument | null> {
     return await this.collections.imports.findOne({
       _id: importId,
       source: "trello",
+      boardId,
     });
   }
 
@@ -778,7 +782,6 @@ export class KanbanMongoRepository {
           const set: Partial<KanbanCardDocument> = {
             title,
             lane: card.lane,
-            position: card.position ?? unifiedAudit.occurredAt.getTime(),
             priority: card.priority,
             priorityRank: priorityRank(card.priority),
             labels: [...card.labels],
@@ -789,6 +792,9 @@ export class KanbanMongoRepository {
             },
             updatedAt: unifiedAudit.occurredAt,
           };
+          if (card.position !== undefined) {
+            set.position = card.position;
+          }
           const unset: Record<string, ""> = {};
           if (card.description === undefined) {
             unset.description = "";
@@ -860,7 +866,7 @@ export class KanbanMongoRepository {
         session,
       );
       await this.collections.imports.updateOne(
-        { _id: input.importId, source: "trello" },
+        { _id: input.importId, source: "trello", boardId: input.boardId },
         {
           $set: {
             status: "completed",

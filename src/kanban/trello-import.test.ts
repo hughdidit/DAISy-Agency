@@ -6,10 +6,7 @@ describe("parseTrelloImport", () => {
     const parsed = parseTrelloImport({
       format: "json",
       content: JSON.stringify({
-        lists: [
-          { id: "list-todo", name: "To Do" },
-          { id: "list-review", name: "Review" },
-        ],
+        lists: [null, { id: "list-todo", name: "To Do" }, { id: "list-review", name: "Review" }],
         cards: [
           {
             id: "card-1",
@@ -61,6 +58,32 @@ describe("parseTrelloImport", () => {
       }),
     ]);
     expect(parsed.cards[0]?.sourceCardId).toMatch(/^csv-[a-f0-9]{12}-1$/);
+  });
+
+  it("salts generated JSON ids and marks archived cards as skipped", () => {
+    const parsed = parseTrelloImport({
+      format: "json",
+      content: JSON.stringify({
+        cards: [
+          {
+            name: "Archived Trello card",
+            closed: true,
+          },
+        ],
+      }),
+    });
+
+    expect(parsed.cards[0]).toEqual(
+      expect.objectContaining({
+        sourceCardId: expect.stringMatching(/^json-[a-f0-9]{12}-1$/),
+        title: "Archived Trello card",
+        lane: "todo",
+        warnings: [
+          "archived Trello card; card skipped during run",
+          "missing Trello card id; generated stable row id",
+        ],
+      }),
+    );
   });
 
   it("rejects malformed import content with actionable messages", () => {

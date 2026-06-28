@@ -51,6 +51,10 @@ type CsvRow = Record<string, string>;
 const MAX_LABELS = 50;
 const MAX_CARDS = 1000;
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
 function sourceHash(format: TrelloImportFormat, content: string): string {
   return createHash("sha256").update(format).update("\0").update(content).digest("hex");
 }
@@ -160,18 +164,21 @@ function parseDelimitedLabels(value: unknown): string[] {
   return uniqueLabels(text.split(/[;,|]/));
 }
 
-function parseJsonImport(content: string): ParsedTrelloImportCard[] {
+function parseJsonImport(content: string, hash: string): ParsedTrelloImportCard[] {
   const parsed = JSON.parse(content) as unknown;
-  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+  if (!isRecord(parsed)) {
     throw new Error("Trello JSON import content must be an object");
   }
-  const root = parsed as { cards?: unknown; lists?: unknown };
-  if (!Array.isArray(root.cards)) {
+  if (!Array.isArray(parsed.cards)) {
     throw new Error("Trello JSON import content must include a cards array");
   }
   const listNames = new Map<string, string>();
-  if (Array.isArray(root.lists)) {
-    for (const list of root.lists as TrelloJsonList[]) {
+  if (Array.isArray(parsed.lists)) {
+    for (const candidate of parsed.lists) {
+      if (!isRecord(candidate)) {
+        continue;
+      }
+      const list = candidate as TrelloJsonList;
       const id = normalizeText(list.id);
       const name = normalizeText(list.name);
       if (id && name) {
@@ -179,10 +186,17 @@ function parseJsonImport(content: string): ParsedTrelloImportCard[] {
       }
     }
   }
-  return (root.cards as TrelloJsonCard[]).map((card, index) => {
+  return parsed.cards.map((candidate, index) => {
+    const card = isRecord(candidate) ? (candidate as TrelloJsonCard) : {};
     const warnings: string[] = [];
     const sourceCardId = normalizeText(card.id) ?? normalizeText(card.shortLink);
     const title = normalizeText(card.name);
+    if (!isRecord(candidate)) {
+      warnings.push("invalid Trello card entry; card skipped during run");
+    }
+    if (card.closed === true) {
+      warnings.push("archived Trello card; card skipped during run");
+    }
     if (!sourceCardId) {
       warnings.push("missing Trello card id; generated stable row id");
     }
@@ -195,10 +209,10 @@ function parseJsonImport(content: string): ParsedTrelloImportCard[] {
       (value): value is string => value !== undefined,
     );
     return {
-      sourceCardId: sourceCardId ?? `json-card-${String(index + 1)}`,
+      sourceCardId: sourceCardId ?? `json-${hash.slice(0, 12)}-${String(index + 1)}`,
       title: title ?? `Untitled Trello card ${String(index + 1)}`,
       description: normalizeText(card.desc),
-      lane: card.closed === true ? "done" : normalizeLane(listName),
+      lane: normalizeLane(listName),
       priority: normalizePriority(labels),
       labels,
       dueAt: parseDate(card.due, warnings, "due"),
@@ -306,7 +320,8 @@ export function parseTrelloImport(params: {
     throw new Error("Trello import content must not be blank");
   }
   const hash = sourceHash(params.format, content);
-  const cards = params.format === "json" ? parseJsonImport(content) : parseCsvImport(content, hash);
+  const cards =
+    params.format === "json" ? parseJsonImport(content, hash) : parseCsvImport(content, hash);
   const warnings: string[] = [];
   if (cards.length > MAX_CARDS) {
     warnings.push(`import preview is limited to ${String(MAX_CARDS)} cards`);

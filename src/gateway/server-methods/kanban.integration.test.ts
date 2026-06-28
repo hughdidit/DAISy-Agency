@@ -751,5 +751,19 @@ describeWithDocker("Kanban gateway read handlers with MongoDB", () => {
       updated: 1,
       skipped: 0,
     });
+
+    const updatedListResponse = await invoke(testHandlers, "kanban.cards.list", {
+      includeArchived: true,
+    });
+    expect(updatedListResponse.ok).toBe(true);
+    const updatedCards = (updatedListResponse.payload as KanbanCardsListResult).cards.filter(
+      (card) => card.import?.sourceCardId === "trello-card-1",
+    );
+    expect(updatedCards).toHaveLength(1);
+    expect(updatedCards[0]).toMatchObject({
+      title: "Updated Trello card",
+      labels: ["low"],
+      import: { source: "trello", sourceCardId: "trello-card-1" },
+    });
   }, 240_000);
 });

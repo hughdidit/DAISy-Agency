@@ -66,10 +66,10 @@ const KANBAN_READ_METHODS = [
   "kanban.cards.list",
   "kanban.cards.get",
   "kanban.activity.list",
-  "kanban.import.trello.preview",
 ] as const;
 
 const KANBAN_WRITE_METHODS = [
+  "kanban.import.trello.preview",
   "kanban.cards.create",
   "kanban.cards.update",
   "kanban.cards.move",
@@ -806,7 +806,7 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
         let importId: string | undefined;
         let cards = parsed?.cards;
         if ("importId" in params) {
-          const preview = await repo.getTrelloImportPreview(params.importId);
+          const preview = await repo.getTrelloImportPreview(params.importId, config.board.slug);
           if (!preview) {
             invalidRequest(`unknown Trello import preview id: ${params.importId}`, respond);
             return;
