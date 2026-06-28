@@ -4845,6 +4845,770 @@ public struct UpdateRunParams: Codable, Sendable {
     }
 }
 
+public struct KanbanActor: Codable, Sendable {
+    public let type: AnyCodable
+    public let id: String
+    public let name: String?
+
+    public init(
+        type: AnyCodable,
+        id: String,
+        name: String?)
+    {
+        self.type = type
+        self.id = id
+        self.name = name
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case type
+        case id
+        case name
+    }
+}
+
+public struct KanbanBoard: Codable, Sendable {
+    public let id: String
+    public let slug: String
+    public let title: String
+    public let lanes: [[String: AnyCodable]]
+    public let createdat: String
+    public let updatedat: String
+
+    public init(
+        id: String,
+        slug: String,
+        title: String,
+        lanes: [[String: AnyCodable]],
+        createdat: String,
+        updatedat: String)
+    {
+        self.id = id
+        self.slug = slug
+        self.title = title
+        self.lanes = lanes
+        self.createdat = createdat
+        self.updatedat = updatedat
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case slug
+        case title
+        case lanes
+        case createdat = "createdAt"
+        case updatedat = "updatedAt"
+    }
+}
+
+public struct KanbanCard: Codable, Sendable {
+    public let id: String
+    public let boardid: String
+    public let title: String
+    public let description: String?
+    public let lane: AnyCodable
+    public let position: Double
+    public let priority: AnyCodable
+    public let assignee: String?
+    public let reviewer: String?
+    public let inputowner: String?
+    public let labels: [String]
+    public let duedate: String?
+    public let checklist: [[String: AnyCodable]]
+    public let comments: [[String: AnyCodable]]
+    public let links: [String]
+    public let attachments: [[String: AnyCodable]]
+    public let watchers: [String]
+    public let customfields: [String: AnyCodable]
+    public let readyforcodex: Bool
+    public let _import: [String: AnyCodable]?
+    public let archivedat: String?
+    public let createdat: String
+    public let updatedat: String
+    public let version: Int
+
+    public init(
+        id: String,
+        boardid: String,
+        title: String,
+        description: String?,
+        lane: AnyCodable,
+        position: Double,
+        priority: AnyCodable,
+        assignee: String?,
+        reviewer: String?,
+        inputowner: String?,
+        labels: [String],
+        duedate: String?,
+        checklist: [[String: AnyCodable]],
+        comments: [[String: AnyCodable]],
+        links: [String],
+        attachments: [[String: AnyCodable]],
+        watchers: [String],
+        customfields: [String: AnyCodable],
+        readyforcodex: Bool,
+        _import: [String: AnyCodable]?,
+        archivedat: String?,
+        createdat: String,
+        updatedat: String,
+        version: Int)
+    {
+        self.id = id
+        self.boardid = boardid
+        self.title = title
+        self.description = description
+        self.lane = lane
+        self.position = position
+        self.priority = priority
+        self.assignee = assignee
+        self.reviewer = reviewer
+        self.inputowner = inputowner
+        self.labels = labels
+        self.duedate = duedate
+        self.checklist = checklist
+        self.comments = comments
+        self.links = links
+        self.attachments = attachments
+        self.watchers = watchers
+        self.customfields = customfields
+        self.readyforcodex = readyforcodex
+        self._import = _import
+        self.archivedat = archivedat
+        self.createdat = createdat
+        self.updatedat = updatedat
+        self.version = version
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case boardid = "boardId"
+        case title
+        case description
+        case lane
+        case position
+        case priority
+        case assignee
+        case reviewer
+        case inputowner = "inputOwner"
+        case labels
+        case duedate = "dueDate"
+        case checklist
+        case comments
+        case links
+        case attachments
+        case watchers
+        case customfields = "customFields"
+        case readyforcodex = "readyForCodex"
+        case _import = "import"
+        case archivedat = "archivedAt"
+        case createdat = "createdAt"
+        case updatedat = "updatedAt"
+        case version
+    }
+}
+
+public struct KanbanActivity: Codable, Sendable {
+    public let id: String
+    public let boardid: String
+    public let cardid: String?
+    public let action: AnyCodable
+    public let actor: KanbanActor
+    public let summary: String
+    public let data: [String: AnyCodable]?
+    public let correlationid: String?
+    public let createdat: String
+
+    public init(
+        id: String,
+        boardid: String,
+        cardid: String?,
+        action: AnyCodable,
+        actor: KanbanActor,
+        summary: String,
+        data: [String: AnyCodable]?,
+        correlationid: String?,
+        createdat: String)
+    {
+        self.id = id
+        self.boardid = boardid
+        self.cardid = cardid
+        self.action = action
+        self.actor = actor
+        self.summary = summary
+        self.data = data
+        self.correlationid = correlationid
+        self.createdat = createdat
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case boardid = "boardId"
+        case cardid = "cardId"
+        case action
+        case actor
+        case summary
+        case data
+        case correlationid = "correlationId"
+        case createdat = "createdAt"
+    }
+}
+
+public struct KanbanCardMutationResult: Codable, Sendable {
+    public let card: KanbanCard
+    public let activity: KanbanActivity
+
+    public init(
+        card: KanbanCard,
+        activity: KanbanActivity)
+    {
+        self.card = card
+        self.activity = activity
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case card
+        case activity
+    }
+}
+
+public struct KanbanStatusParams: Codable, Sendable {}
+
+public struct KanbanStatusResult: Codable, Sendable {
+    public let ok: Bool
+    public let available: Bool
+    public let enabled: Bool
+    public let boardid: String?
+    public let reason: String?
+    public let message: String?
+    public let redacteduri: String?
+
+    public init(
+        ok: Bool,
+        available: Bool,
+        enabled: Bool,
+        boardid: String?,
+        reason: String?,
+        message: String?,
+        redacteduri: String?)
+    {
+        self.ok = ok
+        self.available = available
+        self.enabled = enabled
+        self.boardid = boardid
+        self.reason = reason
+        self.message = message
+        self.redacteduri = redacteduri
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case ok
+        case available
+        case enabled
+        case boardid = "boardId"
+        case reason
+        case message
+        case redacteduri = "redactedUri"
+    }
+}
+
+public struct KanbanBoardGetParams: Codable, Sendable {
+    public let boardid: String?
+
+    public init(
+        boardid: String?)
+    {
+        self.boardid = boardid
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case boardid = "boardId"
+    }
+}
+
+public struct KanbanBoardGetResult: Codable, Sendable {
+    public let board: KanbanBoard
+
+    public init(
+        board: KanbanBoard)
+    {
+        self.board = board
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case board
+    }
+}
+
+public struct KanbanCardsListParams: Codable, Sendable {
+    public let boardid: String?
+    public let lane: AnyCodable?
+    public let includearchived: Bool?
+    public let readyforcodex: Bool?
+    public let assignee: String?
+    public let limit: Int?
+    public let after: [String: AnyCodable]?
+
+    public init(
+        boardid: String?,
+        lane: AnyCodable?,
+        includearchived: Bool?,
+        readyforcodex: Bool?,
+        assignee: String?,
+        limit: Int?,
+        after: [String: AnyCodable]?)
+    {
+        self.boardid = boardid
+        self.lane = lane
+        self.includearchived = includearchived
+        self.readyforcodex = readyforcodex
+        self.assignee = assignee
+        self.limit = limit
+        self.after = after
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case boardid = "boardId"
+        case lane
+        case includearchived = "includeArchived"
+        case readyforcodex = "readyForCodex"
+        case assignee
+        case limit
+        case after
+    }
+}
+
+public struct KanbanCardsListResult: Codable, Sendable {
+    public let cards: [KanbanCard]
+
+    public init(
+        cards: [KanbanCard])
+    {
+        self.cards = cards
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case cards
+    }
+}
+
+public struct KanbanCardsGetParams: Codable, Sendable {
+    public let boardid: String?
+    public let cardid: String
+
+    public init(
+        boardid: String?,
+        cardid: String)
+    {
+        self.boardid = boardid
+        self.cardid = cardid
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case boardid = "boardId"
+        case cardid = "cardId"
+    }
+}
+
+public struct KanbanCardsGetResult: Codable, Sendable {
+    public let card: KanbanCard
+
+    public init(
+        card: KanbanCard)
+    {
+        self.card = card
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case card
+    }
+}
+
+public struct KanbanCardsCreateParams: Codable, Sendable {
+    public let boardid: String?
+    public let title: String
+    public let description: String?
+    public let lane: AnyCodable?
+    public let position: Double?
+    public let priority: AnyCodable?
+    public let assignee: String?
+    public let reviewer: String?
+    public let inputowner: String?
+    public let labels: [String]?
+    public let duedate: String?
+    public let readyforcodex: Bool?
+    public let links: [String]?
+    public let watchers: [String]?
+    public let customfields: [String: AnyCodable]?
+
+    public init(
+        boardid: String?,
+        title: String,
+        description: String?,
+        lane: AnyCodable?,
+        position: Double?,
+        priority: AnyCodable?,
+        assignee: String?,
+        reviewer: String?,
+        inputowner: String?,
+        labels: [String]?,
+        duedate: String?,
+        readyforcodex: Bool?,
+        links: [String]?,
+        watchers: [String]?,
+        customfields: [String: AnyCodable]?)
+    {
+        self.boardid = boardid
+        self.title = title
+        self.description = description
+        self.lane = lane
+        self.position = position
+        self.priority = priority
+        self.assignee = assignee
+        self.reviewer = reviewer
+        self.inputowner = inputowner
+        self.labels = labels
+        self.duedate = duedate
+        self.readyforcodex = readyforcodex
+        self.links = links
+        self.watchers = watchers
+        self.customfields = customfields
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case boardid = "boardId"
+        case title
+        case description
+        case lane
+        case position
+        case priority
+        case assignee
+        case reviewer
+        case inputowner = "inputOwner"
+        case labels
+        case duedate = "dueDate"
+        case readyforcodex = "readyForCodex"
+        case links
+        case watchers
+        case customfields = "customFields"
+    }
+}
+
+public struct KanbanCardsUpdateParams: Codable, Sendable {
+    public let boardid: String?
+    public let cardid: String
+    public let expectedversion: Int
+    public let updates: [String: AnyCodable]
+
+    public init(
+        boardid: String?,
+        cardid: String,
+        expectedversion: Int,
+        updates: [String: AnyCodable])
+    {
+        self.boardid = boardid
+        self.cardid = cardid
+        self.expectedversion = expectedversion
+        self.updates = updates
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case boardid = "boardId"
+        case cardid = "cardId"
+        case expectedversion = "expectedVersion"
+        case updates
+    }
+}
+
+public struct KanbanCardsMoveParams: Codable, Sendable {
+    public let boardid: String?
+    public let cardid: String
+    public let expectedversion: Int
+    public let lane: AnyCodable
+    public let position: Double?
+
+    public init(
+        boardid: String?,
+        cardid: String,
+        expectedversion: Int,
+        lane: AnyCodable,
+        position: Double?)
+    {
+        self.boardid = boardid
+        self.cardid = cardid
+        self.expectedversion = expectedversion
+        self.lane = lane
+        self.position = position
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case boardid = "boardId"
+        case cardid = "cardId"
+        case expectedversion = "expectedVersion"
+        case lane
+        case position
+    }
+}
+
+public struct KanbanCardsCommentParams: Codable, Sendable {
+    public let boardid: String?
+    public let cardid: String
+    public let body: String
+
+    public init(
+        boardid: String?,
+        cardid: String,
+        body: String)
+    {
+        self.boardid = boardid
+        self.cardid = cardid
+        self.body = body
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case boardid = "boardId"
+        case cardid = "cardId"
+        case body
+    }
+}
+
+public struct KanbanCardsArchiveParams: Codable, Sendable {
+    public let boardid: String?
+    public let cardid: String
+    public let expectedversion: Int
+
+    public init(
+        boardid: String?,
+        cardid: String,
+        expectedversion: Int)
+    {
+        self.boardid = boardid
+        self.cardid = cardid
+        self.expectedversion = expectedversion
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case boardid = "boardId"
+        case cardid = "cardId"
+        case expectedversion = "expectedVersion"
+    }
+}
+
+public struct KanbanActivityListParams: Codable, Sendable {
+    public let boardid: String?
+    public let cardid: String?
+    public let limit: Int?
+    public let before: String?
+
+    public init(
+        boardid: String?,
+        cardid: String?,
+        limit: Int?,
+        before: String?)
+    {
+        self.boardid = boardid
+        self.cardid = cardid
+        self.limit = limit
+        self.before = before
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case boardid = "boardId"
+        case cardid = "cardId"
+        case limit
+        case before
+    }
+}
+
+public struct KanbanActivityListResult: Codable, Sendable {
+    public let activity: [KanbanActivity]
+
+    public init(
+        activity: [KanbanActivity])
+    {
+        self.activity = activity
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case activity
+    }
+}
+
+public struct KanbanImportTrelloPreviewParams: Codable, Sendable {
+    public let boardid: String?
+    public let format: AnyCodable
+    public let content: String
+
+    public init(
+        boardid: String?,
+        format: AnyCodable,
+        content: String)
+    {
+        self.boardid = boardid
+        self.format = format
+        self.content = content
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case boardid = "boardId"
+        case format
+        case content
+    }
+}
+
+public struct KanbanImportTrelloPreviewResult: Codable, Sendable {
+    public let importid: String
+    public let cards: [[String: AnyCodable]]
+    public let warnings: [String]
+
+    public init(
+        importid: String,
+        cards: [[String: AnyCodable]],
+        warnings: [String])
+    {
+        self.importid = importid
+        self.cards = cards
+        self.warnings = warnings
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case importid = "importId"
+        case cards
+        case warnings
+    }
+}
+
+public typealias KanbanImportTrelloRunParams = AnyCodable
+
+public struct KanbanImportTrelloRunResult: Codable, Sendable {
+    public let importrunid: String
+    public let created: Int
+    public let updated: Int
+    public let skipped: Int
+    public let activity: KanbanActivity
+
+    public init(
+        importrunid: String,
+        created: Int,
+        updated: Int,
+        skipped: Int,
+        activity: KanbanActivity)
+    {
+        self.importrunid = importrunid
+        self.created = created
+        self.updated = updated
+        self.skipped = skipped
+        self.activity = activity
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case importrunid = "importRunId"
+        case created
+        case updated
+        case skipped
+        case activity
+    }
+}
+
+public struct KanbanCodexPickNextParams: Codable, Sendable {
+    public let boardid: String?
+    public let agentid: String?
+    public let agentname: String?
+
+    public init(
+        boardid: String?,
+        agentid: String?,
+        agentname: String?)
+    {
+        self.boardid = boardid
+        self.agentid = agentid
+        self.agentname = agentname
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case boardid = "boardId"
+        case agentid = "agentId"
+        case agentname = "agentName"
+    }
+}
+
+public struct KanbanCodexPickNextResult: Codable, Sendable {
+    public let card: AnyCodable
+    public let activity: [String: AnyCodable]?
+
+    public init(
+        card: AnyCodable,
+        activity: [String: AnyCodable]?)
+    {
+        self.card = card
+        self.activity = activity
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case card
+        case activity
+    }
+}
+
+public struct KanbanCodexHandoffParams: Codable, Sendable {
+    public let boardid: String?
+    public let cardid: String
+    public let expectedversion: Int
+    public let summary: String
+    public let reviewer: AnyCodable?
+    public let inputowner: AnyCodable?
+
+    public init(
+        boardid: String?,
+        cardid: String,
+        expectedversion: Int,
+        summary: String,
+        reviewer: AnyCodable?,
+        inputowner: AnyCodable?)
+    {
+        self.boardid = boardid
+        self.cardid = cardid
+        self.expectedversion = expectedversion
+        self.summary = summary
+        self.reviewer = reviewer
+        self.inputowner = inputowner
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case boardid = "boardId"
+        case cardid = "cardId"
+        case expectedversion = "expectedVersion"
+        case summary
+        case reviewer
+        case inputowner = "inputOwner"
+    }
+}
+
+public struct KanbanCodexCompleteParams: Codable, Sendable {
+    public let boardid: String?
+    public let cardid: String
+    public let expectedversion: Int
+    public let summary: String
+
+    public init(
+        boardid: String?,
+        cardid: String,
+        expectedversion: Int,
+        summary: String)
+    {
+        self.boardid = boardid
+        self.cardid = cardid
+        self.expectedversion = expectedversion
+        self.summary = summary
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case boardid = "boardId"
+        case cardid = "cardId"
+        case expectedversion = "expectedVersion"
+        case summary
+    }
+}
+
 public struct TickEvent: Codable, Sendable {
     public let ts: Int
 
