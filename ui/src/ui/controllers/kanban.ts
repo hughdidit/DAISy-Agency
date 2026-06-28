@@ -58,6 +58,9 @@ export async function loadKanban(state: KanbanState) {
     state.kanbanActivity = activityResult.activity;
   } catch (err) {
     state.kanbanError = String(err);
+    state.kanbanBoard = null;
+    state.kanbanCards = [];
+    state.kanbanActivity = [];
   } finally {
     state.kanbanLoading = false;
   }

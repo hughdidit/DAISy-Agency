@@ -114,6 +114,16 @@ describe("kanban view", () => {
     expect(button?.textContent?.trim()).toBe("Refreshing...");
   });
 
+  it("calls refresh from the active refresh button", () => {
+    const container = document.createElement("div");
+    const onRefresh = vi.fn();
+    render(renderKanban(createProps({ onRefresh })), container);
+
+    container.querySelector("button")?.click();
+
+    expect(onRefresh).toHaveBeenCalledTimes(1);
+  });
+
   it("shows unavailable status detail without card data", () => {
     const container = document.createElement("div");
     render(
@@ -137,5 +147,13 @@ describe("kanban view", () => {
     expect(container.textContent).toContain("MongoDB is not configured");
     expect(container.textContent).toContain("No cards");
     expect(container.textContent).toContain("No recent activity");
+  });
+
+  it("does not mark the gateway unavailable before status loads", () => {
+    const container = document.createElement("div");
+    render(renderKanban(createProps({ status: null })), container);
+
+    expect(container.textContent).toContain("Unknown");
+    expect(container.textContent).not.toContain("Unavailable");
   });
 });

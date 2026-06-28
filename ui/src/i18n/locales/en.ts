@@ -118,6 +118,53 @@ export const en: TranslationMap = {
     showCronSessionsHidden: "Show cron sessions ({count} hidden)",
     onboardingDisabled: "Disabled during onboarding",
   },
+  kanban: {
+    summary: {
+      board: "Board",
+      cards: "Cards",
+      readyForCodex: "Ready for Codex",
+      gateway: "Gateway",
+    },
+    gateway: {
+      available: "Available",
+      unavailable: "Unavailable",
+      disabled: "Disabled",
+      unknown: "Unknown",
+    },
+    actions: {
+      refresh: "Refresh",
+      refreshing: "Refreshing...",
+    },
+    lanes: {
+      todo: "To do",
+      inProgress: "In progress",
+      review: "Review",
+      done: "Done",
+    },
+    board: {
+      ariaLabel: "Kanban board",
+    },
+    badges: {
+      codexReady: "Codex ready",
+      due: "Due {date}",
+      comments: "{count} comments",
+      links: "{count} links",
+      files: "{count} files",
+    },
+    card: {
+      unassigned: "unassigned",
+      reviewer: "review {reviewer}",
+    },
+    empty: {
+      noCards: "No cards",
+      noRecentActivity: "No recent activity",
+    },
+    activity: {
+      title: "Activity",
+      recentEvents: "{count} recent events",
+      unknownActor: "Unknown actor",
+    },
+  },
   languages: {
     en: "English",
     zhCN: "简体中文 (Simplified Chinese)",
