@@ -164,10 +164,26 @@ import {
   KanbanActivityListParamsSchema,
   type KanbanBoardGetParams,
   KanbanBoardGetParamsSchema,
+  type KanbanCardsArchiveParams,
+  KanbanCardsArchiveParamsSchema,
+  type KanbanCardsCommentParams,
+  KanbanCardsCommentParamsSchema,
+  type KanbanCardsCreateParams,
+  KanbanCardsCreateParamsSchema,
   type KanbanCardsGetParams,
   KanbanCardsGetParamsSchema,
   type KanbanCardsListParams,
   KanbanCardsListParamsSchema,
+  type KanbanCardsMoveParams,
+  KanbanCardsMoveParamsSchema,
+  type KanbanCardsUpdateParams,
+  KanbanCardsUpdateParamsSchema,
+  type KanbanCodexCompleteParams,
+  KanbanCodexCompleteParamsSchema,
+  type KanbanCodexHandoffParams,
+  KanbanCodexHandoffParamsSchema,
+  type KanbanCodexPickNextParams,
+  KanbanCodexPickNextParamsSchema,
   type KanbanStatusParams,
   KanbanStatusParamsSchema,
   type ModelsListParams,
@@ -509,8 +525,32 @@ export const validateKanbanCardsListParams = ajv.compile<KanbanCardsListParams>(
 export const validateKanbanCardsGetParams = ajv.compile<KanbanCardsGetParams>(
   KanbanCardsGetParamsSchema,
 );
+export const validateKanbanCardsCreateParams = ajv.compile<KanbanCardsCreateParams>(
+  KanbanCardsCreateParamsSchema,
+);
+export const validateKanbanCardsUpdateParams = ajv.compile<KanbanCardsUpdateParams>(
+  KanbanCardsUpdateParamsSchema,
+);
+export const validateKanbanCardsMoveParams = ajv.compile<KanbanCardsMoveParams>(
+  KanbanCardsMoveParamsSchema,
+);
+export const validateKanbanCardsCommentParams = ajv.compile<KanbanCardsCommentParams>(
+  KanbanCardsCommentParamsSchema,
+);
+export const validateKanbanCardsArchiveParams = ajv.compile<KanbanCardsArchiveParams>(
+  KanbanCardsArchiveParamsSchema,
+);
 export const validateKanbanActivityListParams = ajv.compile<KanbanActivityListParams>(
   KanbanActivityListParamsSchema,
+);
+export const validateKanbanCodexPickNextParams = ajv.compile<KanbanCodexPickNextParams>(
+  KanbanCodexPickNextParamsSchema,
+);
+export const validateKanbanCodexHandoffParams = ajv.compile<KanbanCodexHandoffParams>(
+  KanbanCodexHandoffParamsSchema,
+);
+export const validateKanbanCodexCompleteParams = ajv.compile<KanbanCodexCompleteParams>(
+  KanbanCodexCompleteParamsSchema,
 );
 export const validateChatHistoryParams = ajv.compile(ChatHistoryParamsSchema);
 export const validateChatSendParams = ajv.compile(ChatSendParamsSchema);
