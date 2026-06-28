@@ -274,9 +274,7 @@ describe("Kanban gateway read handlers", () => {
       env: {},
     });
 
-    await expect(
-      invoke(handlers, "kanban.cards.create", { title: "   " }),
-    ).resolves.toMatchObject({
+    await expect(invoke(handlers, "kanban.cards.create", { title: "   " })).resolves.toMatchObject({
       ok: false,
       error: { code: "INVALID_REQUEST", message: "Kanban card title must not be blank" },
     });

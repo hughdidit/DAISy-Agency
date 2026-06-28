@@ -904,10 +904,7 @@ export class KanbanMongoRepository {
     audit: KanbanAuditEnvelope,
   ): Promise<KanbanCardMutationResult | null> {
     const unifiedAudit = auditWithTimestamp(audit);
-    const summary = requireNonEmptyText(
-      input.summary,
-      "Kanban Codex handoff summary is required",
-    );
+    const summary = requireNonEmptyText(input.summary, "Kanban Codex handoff summary is required");
     return this.withTransaction(async (session) => {
       const set: Partial<KanbanCardDocument> = {
         lane: "review",

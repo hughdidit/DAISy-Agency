@@ -200,11 +200,7 @@ function mapUpdateParams(
     inputOwner: updates.inputOwner,
     labels: updates.labels,
     dueAt:
-      updates.dueDate === null
-        ? null
-        : updates.dueDate
-          ? new Date(updates.dueDate)
-          : undefined,
+      updates.dueDate === null ? null : updates.dueDate ? new Date(updates.dueDate) : undefined,
     checklist: updates.checklist?.map((item, index) => mapChecklistItem(item, index)),
     links: updates.links,
     watchers: updates.watchers,
@@ -345,11 +341,7 @@ function cardNotFound(respond: RespondFn): void {
   respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, "Kanban card not found"));
 }
 
-function requireNonBlankParam(
-  value: string,
-  fieldName: string,
-  respond: RespondFn,
-): string | null {
+function requireNonBlankParam(value: string, fieldName: string, respond: RespondFn): string | null {
   const trimmed = value.trim();
   if (!trimmed) {
     respond(
@@ -530,12 +522,7 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
 
     "kanban.cards.create": async ({ params, req, client, respond }) => {
       if (
-        !assertValidParams(
-          params,
-          validateKanbanCardsCreateParams,
-          "kanban.cards.create",
-          respond,
-        )
+        !assertValidParams(params, validateKanbanCardsCreateParams, "kanban.cards.create", respond)
       ) {
         return;
       }
@@ -569,12 +556,7 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
 
     "kanban.cards.update": async ({ params, req, client, respond }) => {
       if (
-        !assertValidParams(
-          params,
-          validateKanbanCardsUpdateParams,
-          "kanban.cards.update",
-          respond,
-        )
+        !assertValidParams(params, validateKanbanCardsUpdateParams, "kanban.cards.update", respond)
       ) {
         return;
       }
@@ -613,9 +595,7 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
     },
 
     "kanban.cards.move": async ({ params, req, client, respond }) => {
-      if (
-        !assertValidParams(params, validateKanbanCardsMoveParams, "kanban.cards.move", respond)
-      ) {
+      if (!assertValidParams(params, validateKanbanCardsMoveParams, "kanban.cards.move", respond)) {
         return;
       }
       await withRepository(respond, async (repo, config) => {
@@ -642,7 +622,12 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
 
     "kanban.cards.comment": async ({ params, req, client, respond }) => {
       if (
-        !assertValidParams(params, validateKanbanCardsCommentParams, "kanban.cards.comment", respond)
+        !assertValidParams(
+          params,
+          validateKanbanCardsCommentParams,
+          "kanban.cards.comment",
+          respond,
+        )
       ) {
         return;
       }
