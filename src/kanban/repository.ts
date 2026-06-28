@@ -85,6 +85,7 @@ export type KanbanListCardsParams = {
   lane?: KanbanLaneId;
   includeArchived?: boolean;
   readyForCodex?: boolean;
+  assignee?: string;
   limit?: number;
   after?: {
     lane: KanbanLaneId;
@@ -610,6 +611,9 @@ export class KanbanMongoRepository {
     }
     if (params.readyForCodex !== undefined) {
       filter.readyForCodex = params.readyForCodex;
+    }
+    if (params.assignee) {
+      filter.assignee = params.assignee;
     }
     if (params.after) {
       const after = params.after;

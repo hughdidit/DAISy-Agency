@@ -160,6 +160,16 @@ import {
   LogsTailParamsSchema,
   type LogsTailResult,
   LogsTailResultSchema,
+  type KanbanActivityListParams,
+  KanbanActivityListParamsSchema,
+  type KanbanBoardGetParams,
+  KanbanBoardGetParamsSchema,
+  type KanbanCardsGetParams,
+  KanbanCardsGetParamsSchema,
+  type KanbanCardsListParams,
+  KanbanCardsListParamsSchema,
+  type KanbanStatusParams,
+  KanbanStatusParamsSchema,
   type ModelsListParams,
   ModelsListParamsSchema,
   type ResolvedCapabilityClass,
@@ -489,6 +499,19 @@ export const validateExecApprovalsNodeSetParams = ajv.compile<ExecApprovalsNodeS
   ExecApprovalsNodeSetParamsSchema,
 );
 export const validateLogsTailParams = ajv.compile<LogsTailParams>(LogsTailParamsSchema);
+export const validateKanbanStatusParams = ajv.compile<KanbanStatusParams>(KanbanStatusParamsSchema);
+export const validateKanbanBoardGetParams = ajv.compile<KanbanBoardGetParams>(
+  KanbanBoardGetParamsSchema,
+);
+export const validateKanbanCardsListParams = ajv.compile<KanbanCardsListParams>(
+  KanbanCardsListParamsSchema,
+);
+export const validateKanbanCardsGetParams = ajv.compile<KanbanCardsGetParams>(
+  KanbanCardsGetParamsSchema,
+);
+export const validateKanbanActivityListParams = ajv.compile<KanbanActivityListParams>(
+  KanbanActivityListParamsSchema,
+);
 export const validateChatHistoryParams = ajv.compile(ChatHistoryParamsSchema);
 export const validateChatSendParams = ajv.compile(ChatSendParamsSchema);
 export const validateChatAbortParams = ajv.compile<ChatAbortParams>(ChatAbortParamsSchema);

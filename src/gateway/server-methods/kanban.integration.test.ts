@@ -1,0 +1,393 @@
+import { execFileSync } from "node:child_process";
+import { randomUUID } from "node:crypto";
+import net from "node:net";
+import { MongoClient } from "mongodb";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import type { OpenClawConfig } from "../../config/config.js";
+import { KANBAN_DEFAULT_COLLECTIONS, type ResolvedKanbanConfig } from "../../kanban/config.js";
+import { createKanbanMongoClient, KanbanMongoRepository } from "../../kanban/repository.js";
+import type { KanbanCardsGetResult, KanbanCardsListResult } from "../protocol/schema/types.js";
+import { listGatewayMethods } from "../server-methods-list.js";
+import { createKanbanHandlers, KANBAN_READ_METHOD_NAMES } from "./kanban.js";
+import type { GatewayRequestHandlers, RespondFn } from "./types.js";
+
+type MongoDockerRuntime = {
+  containerName: string;
+  uri: string;
+};
+
+type CapturedResponse = {
+  ok: boolean;
+  payload?: unknown;
+  error?: unknown;
+  meta?: Record<string, unknown>;
+};
+
+const isCI = process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
+const isLinux = process.platform === "linux";
+const runsUnderRepoNodeTestRunner = process.env.VITEST_GROUP?.startsWith("unit") === true;
+
+function dockerAvailable(): boolean {
+  if (!runsUnderRepoNodeTestRunner || !isLinux) {
+    return false;
+  }
+  try {
+    execFileSync("docker", ["version", "--format", "{{.Server.Version}}"], {
+      stdio: "ignore",
+    });
+    return true;
+  } catch {
+    if (isCI) {
+      throw new Error("Docker is required for Kanban gateway integration tests in CI");
+    }
+    return false;
+  }
+}
+
+const describeWithDocker = dockerAvailable() ? describe : describe.skip;
+
+function docker(args: string[]): string {
+  return execFileSync("docker", args, {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"],
+  }).trim();
+}
+
+function requireValue<T>(value: T | undefined, message: string): T {
+  if (value === undefined) {
+    throw new Error(message);
+  }
+  return value;
+}
+
+function wait(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function findOpenPort(): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const server = net.createServer();
+    server.once("error", reject);
+    server.listen(0, "127.0.0.1", () => {
+      const address = server.address();
+      server.close(() => {
+        if (address && typeof address === "object") {
+          resolve(address.port);
+        } else {
+          reject(new Error("Unable to allocate an open local port"));
+        }
+      });
+    });
+  });
+}
+
+async function waitForMongo(uri: string): Promise<void> {
+  const deadline = Date.now() + 90_000;
+  let lastError: unknown;
+  while (Date.now() < deadline) {
+    const client = new MongoClient(uri, { serverSelectionTimeoutMS: 1_000 });
+    try {
+      await client.connect();
+      await client.db("admin").command({ ping: 1 });
+      return;
+    } catch (error) {
+      lastError = error;
+      await wait(1_000);
+    } finally {
+      await client.close().catch(() => undefined);
+    }
+  }
+  throw new Error(`Timed out waiting for MongoDB: ${String(lastError)}`);
+}
+
+async function waitForPrimary(uri: string): Promise<void> {
+  const deadline = Date.now() + 90_000;
+  let lastHello: unknown;
+  while (Date.now() < deadline) {
+    const client = new MongoClient(uri, { serverSelectionTimeoutMS: 1_000 });
+    try {
+      await client.connect();
+      const hello = await client.db("admin").command({ hello: 1 });
+      lastHello = hello;
+      if (hello.isWritablePrimary === true) {
+        return;
+      }
+    } catch (error) {
+      lastHello = error;
+    } finally {
+      await client.close().catch(() => undefined);
+    }
+    await wait(1_000);
+  }
+  throw new Error(`Timed out waiting for MongoDB replica-set primary: ${String(lastHello)}`);
+}
+
+async function startMongoReplicaSet(): Promise<MongoDockerRuntime> {
+  const port = await findOpenPort();
+  const containerName = `daisy-kanban-gateway-mongo-${randomUUID()}`;
+  const directUri = `mongodb://127.0.0.1:${String(port)}/?directConnection=true`;
+  const runtime = {
+    containerName,
+    uri: `mongodb://127.0.0.1:${String(port)}/?replicaSet=rs0`,
+  };
+
+  try {
+    docker([
+      "run",
+      "-d",
+      "--rm",
+      "--name",
+      containerName,
+      "--network",
+      "host",
+      "mongo:7",
+      "--replSet",
+      "rs0",
+      "--bind_ip_all",
+      "--port",
+      String(port),
+      "--quiet",
+    ]);
+
+    await waitForMongo(directUri);
+
+    const client = new MongoClient(directUri, { serverSelectionTimeoutMS: 2_000 });
+    await client.connect();
+    try {
+      await client.db("admin").command({
+        replSetInitiate: {
+          _id: "rs0",
+          members: [{ _id: 0, host: `127.0.0.1:${String(port)}` }],
+        },
+      });
+    } catch (error) {
+      const codeName = (error as { codeName?: string }).codeName;
+      if (codeName !== "AlreadyInitialized") {
+        throw error;
+      }
+    } finally {
+      await client.close();
+    }
+
+    await waitForPrimary(runtime.uri);
+    return runtime;
+  } catch (error) {
+    await stopMongo(runtime);
+    throw error;
+  }
+}
+
+async function stopMongo(runtime: MongoDockerRuntime | null): Promise<void> {
+  if (!runtime) {
+    return;
+  }
+  try {
+    docker(["rm", "-f", runtime.containerName]);
+  } catch {
+    // Best-effort cleanup. Docker --rm removes the container if it exits first.
+  }
+}
+
+function buildConfig(runtime: MongoDockerRuntime): ResolvedKanbanConfig {
+  return {
+    enabled: true,
+    uri: runtime.uri,
+    redactedUri: runtime.uri,
+    database: `daisy_kanban_gateway_test_${randomUUID().replaceAll("-", "")}`,
+    collections: KANBAN_DEFAULT_COLLECTIONS,
+    board: {
+      slug: "team-agents",
+      title: "Team Agents",
+    },
+  };
+}
+
+function envForConfig(config: ResolvedKanbanConfig): Record<string, string> {
+  return {
+    KANBAN_MONGODB_URI: config.uri,
+    KANBAN_MONGODB_DATABASE: config.database,
+    KANBAN_BOARD_SLUG: config.board.slug,
+    KANBAN_BOARD_TITLE: config.board.title,
+  };
+}
+
+async function invoke(
+  handlers: GatewayRequestHandlers,
+  method: string,
+  params: Record<string, unknown>,
+): Promise<CapturedResponse> {
+  const responses: CapturedResponse[] = [];
+  const respond: RespondFn = (ok, payload, error, meta) => {
+    responses.push({ ok, payload, error, meta });
+  };
+  const handler = handlers[method];
+  if (!handler) {
+    throw new Error(`Missing handler for ${method}`);
+  }
+  await handler({
+    req: { id: `${method}-test`, type: "req", method },
+    params,
+    respond,
+    context: {} as never,
+    client: null,
+    isWebchatConnect: () => false,
+  });
+  return requireValue(responses.at(0), `Expected response for ${method}`);
+}
+
+describe("Kanban gateway read handlers", () => {
+  it("reports unavailable status without a configured MongoDB URI", async () => {
+    const handlers = createKanbanHandlers({
+      loadConfig: () => ({}) as OpenClawConfig,
+      env: {},
+    });
+
+    const response = await invoke(handlers, "kanban.status", {});
+
+    expect(response.ok).toBe(true);
+    expect(response.payload).toMatchObject({
+      ok: false,
+      available: false,
+      enabled: true,
+      reason: "missing-uri",
+    });
+  });
+
+  it("exposes only the implemented read methods through gateway discovery", () => {
+    expect(listGatewayMethods()).toEqual(expect.arrayContaining(KANBAN_READ_METHOD_NAMES));
+    expect(listGatewayMethods()).not.toContain("kanban.cards.create");
+  });
+});
+
+describeWithDocker("Kanban gateway read handlers with MongoDB", () => {
+  let runtime: MongoDockerRuntime | null = null;
+  let client: MongoClient | null = null;
+  let repository: KanbanMongoRepository | null = null;
+  let config: ResolvedKanbanConfig | undefined;
+  let handlers: GatewayRequestHandlers | undefined;
+
+  beforeAll(async () => {
+    runtime = await startMongoReplicaSet();
+    config = buildConfig(runtime);
+    client = await createKanbanMongoClient(config);
+    repository = new KanbanMongoRepository(client, config);
+    handlers = createKanbanHandlers({
+      loadConfig: () => ({}) as OpenClawConfig,
+      env: envForConfig(config),
+    });
+  }, 240_000);
+
+  afterAll(async () => {
+    try {
+      if (client && config) {
+        await client
+          .db(config.database)
+          .dropDatabase()
+          .catch(() => undefined);
+      }
+      await repository?.close();
+    } finally {
+      await stopMongo(runtime);
+    }
+  }, 120_000);
+
+  it("returns status, board, card list, card details, and activity from real storage", async () => {
+    const testConfig = requireValue(config, "Kanban gateway config was not initialized");
+    const testRepository = requireValue(
+      repository,
+      "Kanban gateway repository was not initialized",
+    );
+    const testHandlers = requireValue(handlers, "Kanban gateway handlers were not initialized");
+
+    const status = await invoke(testHandlers, "kanban.status", {});
+    expect(status.ok).toBe(true);
+    expect(status.payload).toMatchObject({
+      ok: true,
+      available: true,
+      enabled: true,
+      boardId: "team-agents",
+    });
+
+    const boardResponse = await invoke(testHandlers, "kanban.board.get", {});
+    expect(boardResponse.ok).toBe(true);
+    expect(boardResponse.payload).toMatchObject({
+      board: {
+        id: "team-agents",
+        title: "Team Agents",
+        lanes: [
+          { id: "todo", title: "To Do", position: 0 },
+          { id: "in_progress", title: "In Progress", position: 1 },
+          { id: "review", title: "Review", position: 2 },
+          { id: "done", title: "Done", position: 3 },
+        ],
+      },
+    });
+
+    const audit = {
+      actor: { type: "api" as const, id: "kanban-gateway-test" },
+      correlationId: "kanban-gateway-test",
+      occurredAt: new Date("2026-02-03T04:05:06.000Z"),
+    };
+    await testRepository.createCard(
+      {
+        id: "gateway-card-1",
+        boardId: testConfig.board.slug,
+        title: "Gateway card",
+        description: "Read handler coverage",
+        assignee: "codex",
+        priority: "high",
+        readyForCodex: true,
+      },
+      audit,
+    );
+    await testRepository.createCard(
+      {
+        id: "gateway-card-2",
+        boardId: testConfig.board.slug,
+        title: "Other assignee card",
+        assignee: "human",
+      },
+      audit,
+    );
+
+    const listResponse = await invoke(testHandlers, "kanban.cards.list", {
+      assignee: "codex",
+      readyForCodex: true,
+    });
+    expect(listResponse.ok).toBe(true);
+    const listedCards = (listResponse.payload as KanbanCardsListResult).cards;
+    expect(listedCards.map((card) => card.id)).toEqual(["gateway-card-1"]);
+    expect(listedCards[0]).toMatchObject({
+      title: "Gateway card",
+      priority: "high",
+      assignee: "codex",
+      readyForCodex: true,
+    });
+
+    const getResponse = await invoke(testHandlers, "kanban.cards.get", {
+      cardId: "gateway-card-1",
+    });
+    expect(getResponse.ok).toBe(true);
+    expect((getResponse.payload as KanbanCardsGetResult).card).toMatchObject({
+      id: "gateway-card-1",
+      description: "Read handler coverage",
+      lane: "todo",
+      version: 1,
+    });
+
+    const activityResponse = await invoke(testHandlers, "kanban.activity.list", {
+      cardId: "gateway-card-1",
+    });
+    expect(activityResponse.ok).toBe(true);
+    expect(activityResponse.payload).toMatchObject({
+      activity: [
+        {
+          cardId: "gateway-card-1",
+          action: "card_create",
+          summary: "Created Gateway card",
+          correlationId: "kanban-gateway-test",
+        },
+      ],
+    });
+  }, 240_000);
+});
