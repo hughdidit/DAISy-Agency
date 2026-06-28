@@ -25,7 +25,8 @@ type CapturedResponse = {
 
 const isCI = process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
 const isLinux = process.platform === "linux";
-const runsUnderRepoNodeTestRunner = process.env.VITEST_GROUP?.startsWith("unit") === true;
+const vitestGroup = process.env.VITEST_GROUP ?? "";
+const runsUnderRepoNodeTestRunner = vitestGroup.startsWith("unit") || vitestGroup === "gateway";
 
 function dockerAvailable(): boolean {
   if (!runsUnderRepoNodeTestRunner || !isLinux) {
