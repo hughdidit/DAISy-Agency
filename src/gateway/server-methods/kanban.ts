@@ -177,13 +177,14 @@ function mapChecklistItem(
   item: GatewayChecklistItem,
   position: number,
 ): RepositoryKanbanChecklistItem {
+  const now = new Date();
   return {
     id: item.id,
     title: item.text,
     done: item.checked,
     position,
-    createdAt: new Date(item.createdAt),
-    updatedAt: new Date(item.updatedAt),
+    createdAt: item.createdAt ? new Date(item.createdAt) : now,
+    updatedAt: item.updatedAt ? new Date(item.updatedAt) : now,
   };
 }
 
@@ -583,15 +584,19 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
         if (rejectNonDefaultBoard(params.boardId, config, respond)) {
           return;
         }
+        const now = new Date();
         const result = await repo.moveCard(
           {
             boardId: config.board.slug,
             cardId: params.cardId,
             expectedVersion: params.expectedVersion,
             lane: params.lane,
-            position: params.position ?? Date.now(),
+            position: params.position ?? now.getTime(),
           },
-          auditFromRequest(client, req.id),
+          {
+            ...auditFromRequest(client, req.id),
+            occurredAt: now,
+          },
         );
         if (!result) {
           notFoundOrConflict(respond);
