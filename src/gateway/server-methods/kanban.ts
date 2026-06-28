@@ -592,9 +592,9 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
         respond(
           true,
           mapImportPreviewResult({
-            importId: preview.id,
-            cards: parsed.cards,
-            warnings: parsed.warnings,
+            importId: preview._id,
+            cards: preview.cards,
+            warnings: preview.warnings,
           }),
           undefined,
         );
@@ -824,7 +824,7 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
             },
             auditFromRequest(client, req.id),
           );
-          importId = preview.id;
+          importId = preview._id;
           cards = parsed.cards;
         }
         if (!importId || !cards) {

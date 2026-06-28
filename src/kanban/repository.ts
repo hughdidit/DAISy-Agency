@@ -328,20 +328,6 @@ function mapActivity(document: KanbanActivityDocument): KanbanActivity {
   };
 }
 
-function mapImportRun(document: KanbanImportRunDocument): KanbanImportRun {
-  return {
-    id: document._id,
-    source: document.source,
-    sourceHash: document.sourceHash,
-    status: document.status,
-    createdAt: document.createdAt,
-    updatedAt: document.updatedAt,
-    completedAt: document.completedAt,
-    error: document.error,
-    summary: document.summary,
-  };
-}
-
 function mapCard(document: KanbanCardDocument): KanbanCard {
   const { _id, ...card } = document;
   return {
@@ -686,7 +672,7 @@ export class KanbanMongoRepository {
   async recordTrelloImportPreview(
     input: KanbanRecordTrelloImportPreviewInput,
     audit: KanbanAuditEnvelope,
-  ): Promise<KanbanImportRun> {
+  ): Promise<KanbanImportRunDocument> {
     const unifiedAudit = auditWithTimestamp(audit);
     const summary = createImportPreviewSummary(input);
     return this.withTransaction(async (session) => {
@@ -705,7 +691,7 @@ export class KanbanMongoRepository {
           unifiedAudit,
           session,
         );
-        return mapImportRun(existing);
+        return existing;
       }
       const document: KanbanImportRunDocument = {
         _id: randomUUID(),
@@ -736,7 +722,7 @@ export class KanbanMongoRepository {
         unifiedAudit,
         session,
       );
-      return mapImportRun(document);
+      return document;
     });
   }
 

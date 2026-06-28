@@ -50,6 +50,12 @@ type CsvRow = Record<string, string>;
 
 const MAX_LABELS = 50;
 const MAX_CARDS = 1000;
+const MAX_SOURCE_ID_LENGTH = 256;
+const MAX_TITLE_LENGTH = 500;
+const MAX_DESCRIPTION_LENGTH = 4000;
+const MAX_LABEL_LENGTH = 100;
+const MAX_LINKS = 20;
+const MAX_LINK_LENGTH = 2048;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -65,6 +71,36 @@ function normalizeText(value: unknown): string | undefined {
   }
   const trimmed = value.trim();
   return trimmed ? trimmed : undefined;
+}
+
+function truncateText(
+  value: string | undefined,
+  maxLength: number,
+  warnings: string[],
+  fieldName: string,
+): string | undefined {
+  if (value === undefined || value.length <= maxLength) {
+    return value;
+  }
+  warnings.push(`${fieldName} was truncated to ${String(maxLength)} characters`);
+  return value.slice(0, maxLength);
+}
+
+function normalizeSourceCardId(
+  value: string | undefined,
+  fallback: string,
+  warnings: string[],
+): string {
+  if (!value) {
+    warnings.push("missing Trello card id; generated stable row id");
+    return fallback;
+  }
+  if (value.length <= MAX_SOURCE_ID_LENGTH) {
+    return value;
+  }
+  warnings.push(`Trello card id was shortened to ${String(MAX_SOURCE_ID_LENGTH)} characters`);
+  const suffix = createHash("sha256").update(value).digest("hex").slice(0, 24);
+  return `${value.slice(0, MAX_SOURCE_ID_LENGTH - suffix.length - 1)}-${suffix}`;
 }
 
 function normalizeLane(value: unknown): KanbanLaneId {
@@ -130,7 +166,7 @@ function uniqueLabels(labels: string[]): string[] {
   const seen = new Set<string>();
   const result: string[] = [];
   for (const label of labels) {
-    const trimmed = label.trim();
+    const trimmed = label.trim().slice(0, MAX_LABEL_LENGTH);
     if (!trimmed || seen.has(trimmed)) {
       continue;
     }
@@ -141,6 +177,23 @@ function uniqueLabels(labels: string[]): string[] {
     }
   }
   return result;
+}
+
+function normalizeLinks(values: Array<string | undefined>, warnings: string[]): string[] {
+  const links: string[] = [];
+  for (const value of values) {
+    if (!value) {
+      continue;
+    }
+    const link = truncateText(value, MAX_LINK_LENGTH, warnings, "link");
+    if (link) {
+      links.push(link);
+    }
+    if (links.length >= MAX_LINKS) {
+      break;
+    }
+  }
+  return links;
 }
 
 function parseJsonLabels(value: unknown): string[] {
@@ -197,21 +250,27 @@ function parseJsonImport(content: string, hash: string): ParsedTrelloImportCard[
     if (card.closed === true) {
       warnings.push("archived Trello card; card skipped during run");
     }
-    if (!sourceCardId) {
-      warnings.push("missing Trello card id; generated stable row id");
-    }
     if (!title) {
       warnings.push("missing Trello card title; card skipped during run");
     }
     const labels = parseJsonLabels(card.labels);
     const listName = typeof card.idList === "string" ? listNames.get(card.idList) : undefined;
-    const links = [normalizeText(card.url), normalizeText(card.shortUrl)].filter(
-      (value): value is string => value !== undefined,
-    );
+    const links = normalizeLinks([normalizeText(card.url), normalizeText(card.shortUrl)], warnings);
     return {
-      sourceCardId: sourceCardId ?? `json-${hash.slice(0, 12)}-${String(index + 1)}`,
-      title: title ?? `Untitled Trello card ${String(index + 1)}`,
-      description: normalizeText(card.desc),
+      sourceCardId: normalizeSourceCardId(
+        sourceCardId,
+        `json-${hash.slice(0, 12)}-${String(index + 1)}`,
+        warnings,
+      ),
+      title:
+        truncateText(title, MAX_TITLE_LENGTH, warnings, "title") ??
+        `Untitled Trello card ${String(index + 1)}`,
+      description: truncateText(
+        normalizeText(card.desc),
+        MAX_DESCRIPTION_LENGTH,
+        warnings,
+        "description",
+      ),
       lane: normalizeLane(listName),
       priority: normalizePriority(labels),
       labels,
@@ -286,25 +345,31 @@ function parseCsvImport(content: string, hash: string): ParsedTrelloImportCard[]
     const warnings: string[] = [];
     const sourceCardId = firstCsv(row, ["sourcecardid", "source card id", "trello id", "id"]);
     const title = firstCsv(row, ["title", "name", "card name"]);
-    if (!sourceCardId) {
-      warnings.push("missing Trello card id; generated stable row id");
-    }
     if (!title) {
       warnings.push("missing Trello card title; card skipped during run");
     }
     const labels = parseDelimitedLabels(firstCsv(row, ["labels", "label", "tags"]));
     const dueAt = parseDate(firstCsv(row, ["due", "due date", "duedate"]), warnings, "due");
     return {
-      sourceCardId: sourceCardId ?? `csv-${hash.slice(0, 12)}-${String(index + 1)}`,
-      title: title ?? `Untitled Trello card ${String(index + 1)}`,
-      description: firstCsv(row, ["description", "desc"]),
+      sourceCardId: normalizeSourceCardId(
+        sourceCardId,
+        `csv-${hash.slice(0, 12)}-${String(index + 1)}`,
+        warnings,
+      ),
+      title:
+        truncateText(title, MAX_TITLE_LENGTH, warnings, "title") ??
+        `Untitled Trello card ${String(index + 1)}`,
+      description: truncateText(
+        firstCsv(row, ["description", "desc"]),
+        MAX_DESCRIPTION_LENGTH,
+        warnings,
+        "description",
+      ),
       lane: normalizeLane(firstCsv(row, ["lane", "list", "status"])),
       priority: normalizePriority(labels, firstCsv(row, ["priority"])),
       labels,
       dueAt,
-      links: [firstCsv(row, ["url", "link"])].filter(
-        (value): value is string => value !== undefined,
-      ),
+      links: normalizeLinks([firstCsv(row, ["url", "link"])], warnings),
       position: parseOptionalNumber(firstCsv(row, ["position", "pos"])),
       warnings,
     };
