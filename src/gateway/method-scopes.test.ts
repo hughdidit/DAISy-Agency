@@ -15,6 +15,35 @@ describe("method scope resolution", () => {
     expect(resolveLeastPrivilegeOperatorScopesForMethod("poll")).toEqual(["operator.write"]);
   });
 
+  it("classifies Kanban methods with their least-privilege read/write scopes", () => {
+    const readMethods = [
+      "kanban.status",
+      "kanban.board.get",
+      "kanban.cards.list",
+      "kanban.cards.get",
+      "kanban.activity.list",
+      "kanban.import.trello.preview",
+    ];
+    const writeMethods = [
+      "kanban.cards.create",
+      "kanban.cards.update",
+      "kanban.cards.move",
+      "kanban.cards.comment",
+      "kanban.cards.archive",
+      "kanban.import.trello.run",
+      "kanban.codex.pickNext",
+      "kanban.codex.handoff",
+      "kanban.codex.complete",
+    ];
+
+    for (const method of readMethods) {
+      expect(resolveLeastPrivilegeOperatorScopesForMethod(method)).toEqual(["operator.read"]);
+    }
+    for (const method of writeMethods) {
+      expect(resolveLeastPrivilegeOperatorScopesForMethod(method)).toEqual(["operator.write"]);
+    }
+  });
+
   it("returns empty scopes for unknown methods", () => {
     expect(resolveLeastPrivilegeOperatorScopesForMethod("totally.unknown.method")).toEqual([]);
   });
