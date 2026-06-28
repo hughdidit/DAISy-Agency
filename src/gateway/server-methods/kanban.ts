@@ -341,6 +341,27 @@ function notFoundOrConflict(respond: RespondFn): void {
   );
 }
 
+function cardNotFound(respond: RespondFn): void {
+  respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, "Kanban card not found"));
+}
+
+function requireNonBlankParam(
+  value: string,
+  fieldName: string,
+  respond: RespondFn,
+): string | null {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    respond(
+      false,
+      undefined,
+      errorShape(ErrorCodes.INVALID_REQUEST, `${fieldName} must not be blank`),
+    );
+    return null;
+  }
+  return trimmed;
+}
+
 export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequestHandlers {
   const loadConfigFn = deps.loadConfig ?? loadConfig;
   const createRepository = deps.createRepository ?? createKanbanRepository;
@@ -488,6 +509,10 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
       ) {
         return;
       }
+      const title = requireNonBlankParam(params.title, "Kanban card title", respond);
+      if (!title) {
+        return;
+      }
       await withRepository(respond, async (repo, config) => {
         if (rejectNonDefaultBoard(params.boardId, config, respond)) {
           return;
@@ -521,7 +546,7 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
         const result = await repo.createCard(
           {
             boardId: config.board.slug,
-            title: params.title,
+            title,
             description: params.description,
             lane: params.lane,
             position: params.position,
@@ -553,6 +578,19 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
       ) {
         return;
       }
+      let title: string | undefined;
+      if (params.updates.title !== undefined) {
+        const trimmedTitle = requireNonBlankParam(
+          params.updates.title,
+          "Kanban card title",
+          respond,
+        );
+        if (!trimmedTitle) {
+          return;
+        }
+        title = trimmedTitle;
+      }
+      const updates = mapUpdateParams({ ...params.updates, title });
       await withRepository(respond, async (repo, config) => {
         if (rejectNonDefaultBoard(params.boardId, config, respond)) {
           return;
@@ -562,7 +600,7 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
             boardId: config.board.slug,
             cardId: params.cardId,
             expectedVersion: params.expectedVersion,
-            updates: mapUpdateParams(params.updates),
+            updates,
           },
           auditFromRequest(client, req.id),
         );
@@ -584,19 +622,15 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
         if (rejectNonDefaultBoard(params.boardId, config, respond)) {
           return;
         }
-        const now = new Date();
         const result = await repo.moveCard(
           {
             boardId: config.board.slug,
             cardId: params.cardId,
             expectedVersion: params.expectedVersion,
             lane: params.lane,
-            position: params.position ?? now.getTime(),
+            position: params.position,
           },
-          {
-            ...auditFromRequest(client, req.id),
-            occurredAt: now,
-          },
+          auditFromRequest(client, req.id),
         );
         if (!result) {
           notFoundOrConflict(respond);
@@ -612,6 +646,10 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
       ) {
         return;
       }
+      const body = requireNonBlankParam(params.body, "Kanban comment body", respond);
+      if (!body) {
+        return;
+      }
       await withRepository(respond, async (repo, config) => {
         if (rejectNonDefaultBoard(params.boardId, config, respond)) {
           return;
@@ -620,12 +658,12 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
           {
             boardId: config.board.slug,
             cardId: params.cardId,
-            body: params.body,
+            body,
           },
           auditFromRequest(client, req.id),
         );
         if (!result) {
-          notFoundOrConflict(respond);
+          cardNotFound(respond);
           return;
         }
         respond(true, mapMutationResult(result), undefined);
@@ -641,6 +679,10 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
           respond,
         )
       ) {
+        return;
+      }
+      const summary = requireNonBlankParam(params.summary, "Kanban handoff summary", respond);
+      if (!summary) {
         return;
       }
       await withRepository(respond, async (repo, config) => {
@@ -706,7 +748,7 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
             boardId: config.board.slug,
             cardId: params.cardId,
             expectedVersion: params.expectedVersion,
-            summary: params.summary,
+            summary,
             reviewer: params.reviewer,
             inputOwner: params.inputOwner,
           },
@@ -731,6 +773,10 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
       ) {
         return;
       }
+      const summary = requireNonBlankParam(params.summary, "Kanban completion summary", respond);
+      if (!summary) {
+        return;
+      }
       await withRepository(respond, async (repo, config) => {
         if (rejectNonDefaultBoard(params.boardId, config, respond)) {
           return;
@@ -740,7 +786,7 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
             boardId: config.board.slug,
             cardId: params.cardId,
             expectedVersion: params.expectedVersion,
-            summary: params.summary,
+            summary,
           },
           auditFromRequest(client, req.id, true),
         );

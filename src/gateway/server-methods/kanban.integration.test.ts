@@ -267,6 +267,56 @@ describe("Kanban gateway read handlers", () => {
       [...KANBAN_METHOD_NAMES].toSorted(),
     );
   });
+
+  it("rejects blank write text before opening storage", async () => {
+    const handlers = createKanbanHandlers({
+      loadConfig: () => ({}) as OpenClawConfig,
+      env: {},
+    });
+
+    await expect(
+      invoke(handlers, "kanban.cards.create", { title: "   " }),
+    ).resolves.toMatchObject({
+      ok: false,
+      error: { code: "INVALID_REQUEST", message: "Kanban card title must not be blank" },
+    });
+    await expect(
+      invoke(handlers, "kanban.cards.update", {
+        cardId: "card-1",
+        expectedVersion: 1,
+        updates: { title: "   " },
+      }),
+    ).resolves.toMatchObject({
+      ok: false,
+      error: { code: "INVALID_REQUEST", message: "Kanban card title must not be blank" },
+    });
+    await expect(
+      invoke(handlers, "kanban.cards.comment", { cardId: "card-1", body: "   " }),
+    ).resolves.toMatchObject({
+      ok: false,
+      error: { code: "INVALID_REQUEST", message: "Kanban comment body must not be blank" },
+    });
+    await expect(
+      invoke(handlers, "kanban.codex.handoff", {
+        cardId: "card-1",
+        expectedVersion: 1,
+        summary: "   ",
+      }),
+    ).resolves.toMatchObject({
+      ok: false,
+      error: { code: "INVALID_REQUEST", message: "Kanban handoff summary must not be blank" },
+    });
+    await expect(
+      invoke(handlers, "kanban.codex.complete", {
+        cardId: "card-1",
+        expectedVersion: 1,
+        summary: "   ",
+      }),
+    ).resolves.toMatchObject({
+      ok: false,
+      error: { code: "INVALID_REQUEST", message: "Kanban completion summary must not be blank" },
+    });
+  });
 });
 
 describeWithDocker("Kanban gateway read handlers with MongoDB", () => {

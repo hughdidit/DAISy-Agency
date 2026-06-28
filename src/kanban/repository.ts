@@ -147,7 +147,7 @@ export type KanbanMoveCardInput = {
   cardId: string;
   expectedVersion: number;
   lane: KanbanLaneId;
-  position: number;
+  position?: number;
 };
 
 export type KanbanArchiveCardInput = {
@@ -733,7 +733,7 @@ export class KanbanMongoRepository {
           $inc: { version: 1 },
           $set: {
             lane: input.lane,
-            position: input.position,
+            position: input.position ?? unifiedAudit.occurredAt.getTime(),
             updatedAt: unifiedAudit.occurredAt,
           },
         },
@@ -904,6 +904,10 @@ export class KanbanMongoRepository {
     audit: KanbanAuditEnvelope,
   ): Promise<KanbanCardMutationResult | null> {
     const unifiedAudit = auditWithTimestamp(audit);
+    const summary = requireNonEmptyText(
+      input.summary,
+      "Kanban Codex handoff summary is required",
+    );
     return this.withTransaction(async (session) => {
       const set: Partial<KanbanCardDocument> = {
         lane: "review",
@@ -947,7 +951,7 @@ export class KanbanMongoRepository {
           boardId: input.boardId,
           cardId: input.cardId,
           action: "card_handoff",
-          summary: input.summary,
+          summary,
           metadata: {
             lane: card.lane,
             reviewer: card.reviewer,
@@ -969,6 +973,10 @@ export class KanbanMongoRepository {
     audit: KanbanAuditEnvelope,
   ): Promise<KanbanCardMutationResult | null> {
     const unifiedAudit = auditWithTimestamp(audit);
+    const summary = requireNonEmptyText(
+      input.summary,
+      "Kanban Codex completion summary is required",
+    );
     return this.withTransaction(async (session) => {
       const card = await this.collections.cards.findOneAndUpdate(
         {
@@ -996,7 +1004,7 @@ export class KanbanMongoRepository {
           boardId: input.boardId,
           cardId: input.cardId,
           action: "card_complete",
-          summary: input.summary,
+          summary,
           metadata: { lane: card.lane },
         },
         unifiedAudit,
