@@ -5398,17 +5398,20 @@ public struct KanbanActivityListParams: Codable, Sendable {
     public let cardid: String?
     public let limit: Int?
     public let before: String?
+    public let beforeid: String?
 
     public init(
         boardid: String?,
         cardid: String?,
         limit: Int?,
-        before: String?)
+        before: String?,
+        beforeid: String?)
     {
         self.boardid = boardid
         self.cardid = cardid
         self.limit = limit
         self.before = before
+        self.beforeid = beforeid
     }
 
     private enum CodingKeys: String, CodingKey {
@@ -5416,6 +5419,7 @@ public struct KanbanActivityListParams: Codable, Sendable {
         case cardid = "cardId"
         case limit
         case before
+        case beforeid = "beforeId"
     }
 }
 

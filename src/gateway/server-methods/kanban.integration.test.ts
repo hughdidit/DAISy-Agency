@@ -53,8 +53,8 @@ function docker(args: string[]): string {
   }).trim();
 }
 
-function requireValue<T>(value: T | undefined, message: string): T {
-  if (value === undefined) {
+function requireValue<T>(value: T | null | undefined, message: string): T {
+  if (value === null || value === undefined) {
     throw new Error(message);
   }
   return value;
@@ -232,6 +232,7 @@ async function invoke(
     client: null,
     isWebchatConnect: () => false,
   });
+  expect(responses, `${method} should respond exactly once`).toHaveLength(1);
   return requireValue(responses.at(0), `Expected response for ${method}`);
 }
 
@@ -254,8 +255,11 @@ describe("Kanban gateway read handlers", () => {
   });
 
   it("exposes only the implemented read methods through gateway discovery", () => {
-    expect(listGatewayMethods()).toEqual(expect.arrayContaining(KANBAN_READ_METHOD_NAMES));
-    expect(listGatewayMethods()).not.toContain("kanban.cards.create");
+    const methods = listGatewayMethods();
+    expect(methods).toEqual(expect.arrayContaining(KANBAN_READ_METHOD_NAMES));
+    expect(methods.filter((method) => method.startsWith("kanban.")).toSorted()).toEqual(
+      [...KANBAN_READ_METHOD_NAMES].toSorted(),
+    );
   });
 });
 
@@ -309,8 +313,20 @@ describeWithDocker("Kanban gateway read handlers with MongoDB", () => {
     });
 
     const boardResponse = await invoke(testHandlers, "kanban.board.get", {});
-    expect(boardResponse.ok).toBe(true);
-    expect(boardResponse.payload).toMatchObject({
+    expect(boardResponse.ok).toBe(false);
+    expect(boardResponse.error).toMatchObject({
+      code: "UNAVAILABLE",
+      message: "Kanban board is not initialized.",
+    });
+
+    await testRepository.bootstrapDefaultBoard({
+      actor: { type: "system" as const, id: "kanban-gateway-test" },
+      correlationId: "kanban-gateway-bootstrap",
+    });
+
+    const initializedBoardResponse = await invoke(testHandlers, "kanban.board.get", {});
+    expect(initializedBoardResponse.ok).toBe(true);
+    expect(initializedBoardResponse.payload).toMatchObject({
       board: {
         id: "team-agents",
         title: "Team Agents",
@@ -346,6 +362,7 @@ describeWithDocker("Kanban gateway read handlers with MongoDB", () => {
         boardId: testConfig.board.slug,
         title: "Other assignee card",
         assignee: "human",
+        readyForCodex: true,
       },
       audit,
     );
@@ -388,6 +405,21 @@ describeWithDocker("Kanban gateway read handlers with MongoDB", () => {
           correlationId: "kanban-gateway-test",
         },
       ],
+    });
+    const [activityCursor] = (
+      activityResponse.payload as {
+        activity: Array<{ id: string; createdAt: string }>;
+      }
+    ).activity;
+    const cursor = requireValue(activityCursor, "Expected activity cursor");
+    const nextActivityPage = await invoke(testHandlers, "kanban.activity.list", {
+      cardId: "gateway-card-1",
+      before: cursor.createdAt,
+      beforeId: cursor.id,
+    });
+    expect(nextActivityPage).toMatchObject({
+      ok: true,
+      payload: { activity: [] },
     });
   }, 240_000);
 });

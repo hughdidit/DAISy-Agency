@@ -33,6 +33,7 @@ import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 import { assertValidParams } from "./validation.js";
 
 type KanbanRepositoryFactory = (config: ResolvedKanbanConfig) => Promise<KanbanMongoRepository>;
+type UnavailableKanbanRepositoryStatus = Extract<KanbanRepositoryStatus, { available: false }>;
 
 type KanbanHandlersDeps = {
   loadConfig?: () => OpenClawConfig;
@@ -149,14 +150,15 @@ function statusPayload(
       redactedUri: resolution.redactedUri,
     };
   }
-  if (!status?.available) {
+  if (!status || !status.available) {
+    const unavailableStatus = status?.available === false ? status : undefined;
     return {
       ok: false,
       available: false,
       enabled: true,
       reason: "unavailable",
-      message: status?.message ?? "Kanban MongoDB is unavailable.",
-      redactedUri: status?.redactedUri ?? resolution.config.redactedUri,
+      message: unavailableStatus?.message ?? "Kanban MongoDB is unavailable.",
+      redactedUri: unavailableStatus?.redactedUri ?? resolution.config.redactedUri,
     };
   }
   return {
@@ -173,7 +175,10 @@ function sanitizeError(error: unknown, config: ResolvedKanbanConfig): string {
   return raw.split(config.uri).join(config.redactedUri);
 }
 
-function unavailable(resolution: KanbanConfigResolution, status?: KanbanRepositoryStatus) {
+function unavailable(
+  resolution: KanbanConfigResolution,
+  status?: UnavailableKanbanRepositoryStatus,
+) {
   return errorShape(
     ErrorCodes.UNAVAILABLE,
     resolution.available
@@ -217,8 +222,9 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
       respond(false, undefined, unavailable(resolution));
       return null;
     }
-    const repo = await createRepository(resolution.config);
+    let repo: KanbanMongoRepository | null = null;
     try {
+      repo = await createRepository(resolution.config);
       const status = await repo.status();
       if (!status.available) {
         respond(false, undefined, unavailable(resolution, status));
@@ -233,7 +239,7 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
       );
       return null;
     } finally {
-      await repo.close().catch(() => undefined);
+      await repo?.close().catch(() => undefined);
     }
   }
 
@@ -247,8 +253,9 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
         respond(true, statusPayload(resolution), undefined);
         return;
       }
-      const repo = await createRepository(resolution.config);
+      let repo: KanbanMongoRepository | null = null;
       try {
+        repo = await createRepository(resolution.config);
         respond(true, statusPayload(resolution, await repo.status()), undefined);
       } catch (error) {
         respond(
@@ -263,7 +270,7 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
           undefined,
         );
       } finally {
-        await repo.close().catch(() => undefined);
+        await repo?.close().catch(() => undefined);
       }
     },
 
@@ -275,10 +282,17 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
         if (rejectNonDefaultBoard(params.boardId, config, respond)) {
           return;
         }
-        const board = await repo.bootstrapDefaultBoard({
-          actor: { type: "system", id: "gateway", name: "DAISy Gateway" },
-          correlationId: "kanban.board.get",
-        });
+        const board = await repo.getDefaultBoard();
+        if (!board) {
+          respond(
+            false,
+            undefined,
+            errorShape(ErrorCodes.UNAVAILABLE, "Kanban board is not initialized.", {
+              details: { boardId: config.board.slug },
+            }),
+          );
+          return;
+        }
         respond(true, { board: mapBoard(board) }, undefined);
       });
     },
@@ -350,6 +364,7 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
           cardId: params.cardId,
           limit: params.limit,
           before: params.before ? new Date(params.before) : undefined,
+          beforeId: params.beforeId,
         });
         respond(true, { activity: activity.map(mapActivity) }, undefined);
       });
