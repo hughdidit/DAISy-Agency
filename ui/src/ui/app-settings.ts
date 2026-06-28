@@ -21,6 +21,7 @@ import {
 import { loadDebug } from "./controllers/debug.ts";
 import { loadDevices } from "./controllers/devices.ts";
 import { loadExecApprovals } from "./controllers/exec-approvals.ts";
+import { loadKanban } from "./controllers/kanban.ts";
 import { loadLogs } from "./controllers/logs.ts";
 import { loadNodes } from "./controllers/nodes.ts";
 import { loadPresence } from "./controllers/presence.ts";
@@ -207,6 +208,9 @@ export async function refreshActiveTab(host: SettingsHost) {
         void loadCron(host);
       }
     }
+  }
+  if (host.tab === "kanban") {
+    await loadKanban(host as unknown as OpenClawApp);
   }
   if (host.tab === "nodes") {
     await loadNodes(host as unknown as OpenClawApp);
