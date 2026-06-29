@@ -57,7 +57,15 @@ import type { CronFieldErrors } from "./controllers/cron.ts";
 import type { DevicePairingList } from "./controllers/devices.ts";
 import type { ExecApprovalRequest } from "./controllers/exec-approval.ts";
 import type { ExecApprovalsFile, ExecApprovalsSnapshot } from "./controllers/exec-approvals.ts";
-import { loadKanban as loadKanbanInternal } from "./controllers/kanban.ts";
+import {
+  loadKanban as loadKanbanInternal,
+  loadKanbanImportFile as loadKanbanImportFileInternal,
+  previewKanbanImport as previewKanbanImportInternal,
+  runKanbanImport as runKanbanImportInternal,
+  setKanbanImportContent as setKanbanImportContentInternal,
+  setKanbanImportFormat as setKanbanImportFormatInternal,
+  type KanbanImportFormat,
+} from "./controllers/kanban.ts";
 import type { SkillMessage } from "./controllers/skills.ts";
 import type { GatewayBrowserClient, GatewayHelloOk } from "./gateway.ts";
 import type { Tab } from "./navigation.ts";
@@ -78,6 +86,8 @@ import type {
   KanbanActivity,
   KanbanBoard,
   KanbanCard,
+  KanbanImportTrelloPreviewResult,
+  KanbanImportTrelloRunResult,
   KanbanStatusResult,
   LogEntry,
   LogLevel,
@@ -261,6 +271,13 @@ export class OpenClawApp extends LitElement {
   @state() kanbanCards: KanbanCard[] = [];
   @state() kanbanActivity: KanbanActivity[] = [];
   @state() kanbanError: string | null = null;
+  @state() kanbanImportFormat: KanbanImportFormat = "json";
+  @state() kanbanImportContent = "";
+  @state() kanbanImportFileName: string | null = null;
+  @state() kanbanImportPreview: KanbanImportTrelloPreviewResult | null = null;
+  @state() kanbanImportResult: KanbanImportTrelloRunResult | null = null;
+  @state() kanbanImportBusy = false;
+  @state() kanbanImportError: string | null = null;
 
   @state() sessionsLoading = false;
   @state() sessionsResult: SessionsListResult | null = null;
@@ -505,6 +522,37 @@ export class OpenClawApp extends LitElement {
 
   async loadKanban() {
     await loadKanbanInternal(this as unknown as Parameters<typeof loadKanbanInternal>[0]);
+  }
+
+  setKanbanImportFormat(format: KanbanImportFormat) {
+    setKanbanImportFormatInternal(
+      this as unknown as Parameters<typeof setKanbanImportFormatInternal>[0],
+      format,
+    );
+  }
+
+  setKanbanImportContent(content: string) {
+    setKanbanImportContentInternal(
+      this as unknown as Parameters<typeof setKanbanImportContentInternal>[0],
+      content,
+    );
+  }
+
+  async loadKanbanImportFile(file: File | null) {
+    await loadKanbanImportFileInternal(
+      this as unknown as Parameters<typeof loadKanbanImportFileInternal>[0],
+      file,
+    );
+  }
+
+  async previewKanbanImport() {
+    await previewKanbanImportInternal(
+      this as unknown as Parameters<typeof previewKanbanImportInternal>[0],
+    );
+  }
+
+  async runKanbanImport() {
+    await runKanbanImportInternal(this as unknown as Parameters<typeof runKanbanImportInternal>[0]);
   }
 
   async handleAbortChat() {
