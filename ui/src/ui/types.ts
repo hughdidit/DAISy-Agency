@@ -11,6 +11,8 @@ import type {
   KanbanBoardGetResult as GatewayKanbanBoardGetResult,
   KanbanCard as GatewayKanbanCard,
   KanbanCardsListResult as GatewayKanbanCardsListResult,
+  KanbanImportTrelloPreviewResult as GatewayKanbanImportTrelloPreviewResult,
+  KanbanImportTrelloRunResult as GatewayKanbanImportTrelloRunResult,
   KanbanStatusResult as GatewayKanbanStatusResult,
   SkillsStatusResult as GatewaySkillsStatusResult,
   ToolCatalogEntry as GatewayToolCatalogEntry,
@@ -372,6 +374,10 @@ export type KanbanBoardGetResult = GatewayKanbanBoardGetResult;
 export type KanbanCard = GatewayKanbanCard;
 
 export type KanbanCardsListResult = GatewayKanbanCardsListResult;
+
+export type KanbanImportTrelloPreviewResult = GatewayKanbanImportTrelloPreviewResult;
+
+export type KanbanImportTrelloRunResult = GatewayKanbanImportTrelloRunResult;
 
 export type KanbanStatusResult = GatewayKanbanStatusResult;
 

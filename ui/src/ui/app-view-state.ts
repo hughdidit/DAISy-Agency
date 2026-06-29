@@ -4,6 +4,7 @@ import type { CronModelSuggestionsState, CronState } from "./controllers/cron.ts
 import type { DevicePairingList } from "./controllers/devices.ts";
 import type { ExecApprovalRequest } from "./controllers/exec-approval.ts";
 import type { ExecApprovalsFile, ExecApprovalsSnapshot } from "./controllers/exec-approvals.ts";
+import type { KanbanImportFormat } from "./controllers/kanban.ts";
 import type { SkillMessage } from "./controllers/skills.ts";
 import type { GatewayBrowserClient, GatewayHelloOk } from "./gateway.ts";
 import type { Tab } from "./navigation.ts";
@@ -23,6 +24,8 @@ import type {
   KanbanActivity,
   KanbanBoard,
   KanbanCard,
+  KanbanImportTrelloPreviewResult,
+  KanbanImportTrelloRunResult,
   KanbanStatusResult,
   LogEntry,
   LogLevel,
@@ -168,6 +171,13 @@ export type AppViewState = {
   kanbanCards: KanbanCard[];
   kanbanActivity: KanbanActivity[];
   kanbanError: string | null;
+  kanbanImportFormat: KanbanImportFormat;
+  kanbanImportContent: string;
+  kanbanImportFileName: string | null;
+  kanbanImportPreview: KanbanImportTrelloPreviewResult | null;
+  kanbanImportResult: KanbanImportTrelloRunResult | null;
+  kanbanImportBusy: boolean;
+  kanbanImportError: string | null;
   sessionsLoading: boolean;
   sessionsResult: SessionsListResult | null;
   sessionsError: string | null;
@@ -287,6 +297,11 @@ export type AppViewState = {
     loadAssistantIdentity: () => Promise<void>;
     loadCron: () => Promise<void>;
     loadKanban: () => Promise<void>;
+    setKanbanImportFormat: (format: KanbanImportFormat) => void;
+    setKanbanImportContent: (content: string) => void;
+    loadKanbanImportFile: (file: File | null) => Promise<void>;
+    previewKanbanImport: () => Promise<void>;
+    runKanbanImport: () => Promise<void>;
     handleWhatsAppStart: (force: boolean) => Promise<void>;
     handleWhatsAppWait: () => Promise<void>;
     handleWhatsAppLogout: () => Promise<void>;

@@ -1,6 +1,14 @@
 import { html, nothing } from "lit";
 import { t } from "../../i18n/index.ts";
-import type { KanbanActivity, KanbanBoard, KanbanCard, KanbanStatusResult } from "../types.ts";
+import type { KanbanImportFormat } from "../controllers/kanban.ts";
+import type {
+  KanbanActivity,
+  KanbanBoard,
+  KanbanCard,
+  KanbanImportTrelloPreviewResult,
+  KanbanImportTrelloRunResult,
+  KanbanStatusResult,
+} from "../types.ts";
 
 type KanbanLane = KanbanBoard["lanes"][number];
 type KanbanLaneId = KanbanLane["id"];
@@ -12,7 +20,19 @@ export type KanbanProps = {
   cards: KanbanCard[];
   activity: KanbanActivity[];
   error: string | null;
+  importFormat: KanbanImportFormat;
+  importContent: string;
+  importFileName: string | null;
+  importPreview: KanbanImportTrelloPreviewResult | null;
+  importResult: KanbanImportTrelloRunResult | null;
+  importBusy: boolean;
+  importError: string | null;
   onRefresh: () => void | Promise<void>;
+  onImportFormatChange: (format: KanbanImportFormat) => void;
+  onImportContentChange: (content: string) => void;
+  onImportFile: (file: File | null) => void | Promise<void>;
+  onImportPreview: () => void | Promise<void>;
+  onImportRun: () => void | Promise<void>;
 };
 
 function fallbackLanes(): KanbanLane[] {
@@ -66,6 +86,10 @@ function countChecklist(card: KanbanCard): { done: number; total: number } {
   const total = checklist.length;
   const done = checklist.filter((item) => item.checked).length;
   return { done, total };
+}
+
+function isKanbanImportFormat(value: string): value is KanbanImportFormat {
+  return value === "json" || value === "csv";
 }
 
 function renderCardBadges(card: KanbanCard) {
@@ -183,6 +207,166 @@ function renderActivity(entry: KanbanActivity) {
   `;
 }
 
+function renderImportPreview(props: KanbanProps) {
+  const preview = props.importPreview;
+  if (!preview) {
+    return nothing;
+  }
+  const visibleCards = preview.cards.slice(0, 5);
+  return html`
+    <div class="kanban-import__result" data-import-preview>
+      <div class="kanban-import__result-header">
+        <div>
+          <div class="kanban-import__result-title">${t("kanban.import.previewTitle")}</div>
+          <div class="kanban-import__result-meta">
+            ${t("kanban.import.previewMeta", {
+              count: String(preview.cards.length),
+              warnings: String(preview.warnings.length),
+            })}
+          </div>
+        </div>
+        <span class="kanban-badge mono">${preview.importId}</span>
+      </div>
+      ${
+        preview.warnings.length
+          ? html`
+              <div class="kanban-import__warnings">
+                ${preview.warnings.map((warning) => html`<div>${warning}</div>`)}
+              </div>
+            `
+          : nothing
+      }
+      <div class="kanban-import__cards">
+        ${visibleCards.map(
+          (card) => html`
+            <div class="kanban-import__card">
+              <div class="kanban-import__card-main">
+                <div class="kanban-import__card-title">${card.title}</div>
+                <div class="kanban-import__card-meta">
+                  <span>${card.lane}</span>
+                  <span>${card.priority}</span>
+                  <span>${t("kanban.import.cardCounts", {
+                    checklist: String(card.checklistCount),
+                    comments: String(card.commentCount),
+                    attachments: String(card.attachmentCount),
+                  })}</span>
+                </div>
+              </div>
+              ${
+                card.labels.length
+                  ? html`
+                      <div class="kanban-import__labels">
+                        ${card.labels.map((label) => html`<span class="kanban-label">${label}</span>`)}
+                      </div>
+                    `
+                  : nothing
+              }
+            </div>
+          `,
+        )}
+      </div>
+    </div>
+  `;
+}
+
+function renderImportResult(result: KanbanImportTrelloRunResult | null) {
+  if (!result) {
+    return nothing;
+  }
+  return html`
+    <div class="kanban-import__result" data-import-result>
+      <div class="kanban-import__result-title">${t("kanban.import.resultTitle")}</div>
+      <div class="kanban-import__counts">
+        <span>${t("kanban.import.created", { count: String(result.created) })}</span>
+        <span>${t("kanban.import.updated", { count: String(result.updated) })}</span>
+        <span>${t("kanban.import.skipped", { count: String(result.skipped) })}</span>
+      </div>
+      <div class="kanban-import__result-meta">${result.activity.summary}</div>
+    </div>
+  `;
+}
+
+function renderImportPanel(props: KanbanProps) {
+  const available = Boolean(props.status?.enabled && props.status?.available);
+  const disabled = props.loading || props.importBusy || !available;
+  const hasContent = props.importContent.trim().length > 0;
+  return html`
+    <section class="kanban-import" aria-label=${t("kanban.import.title")}>
+      <div class="kanban-import__header">
+        <div>
+          <div class="card-title">${t("kanban.import.title")}</div>
+          <div class="card-sub">${t("kanban.import.subtitle")}</div>
+        </div>
+        ${
+          props.importFileName
+            ? html`<span class="kanban-badge">${props.importFileName}</span>`
+            : nothing
+        }
+      </div>
+      <div class="kanban-import__controls">
+        <label class="field">
+          <span>${t("kanban.import.format")}</span>
+          <select
+            .value=${props.importFormat}
+            ?disabled=${disabled}
+            @change=${(event: Event) => {
+              const format = (event.currentTarget as HTMLSelectElement).value;
+              if (isKanbanImportFormat(format)) {
+                props.onImportFormatChange(format);
+              }
+            }}
+          >
+            <option value="json">${t("kanban.import.json")}</option>
+            <option value="csv">${t("kanban.import.csv")}</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>${t("kanban.import.file")}</span>
+          <input
+            type="file"
+            accept=".json,.csv,application/json,text/csv"
+            ?disabled=${disabled}
+            @change=${(event: Event) => {
+              const input = event.currentTarget as HTMLInputElement;
+              void props.onImportFile(input.files?.item(0) ?? null);
+            }}
+          />
+        </label>
+      </div>
+      <label class="field kanban-import__content">
+        <span>${t("kanban.import.content")}</span>
+        <textarea
+          class="kanban-import__textarea"
+          .value=${props.importContent}
+          placeholder=${t("kanban.import.contentPlaceholder")}
+          ?disabled=${disabled}
+          @input=${(event: Event) =>
+            props.onImportContentChange((event.currentTarget as HTMLTextAreaElement).value)}
+        ></textarea>
+      </label>
+      <div class="kanban-import__actions">
+        <button
+          class="btn btn--sm"
+          ?disabled=${disabled || !hasContent}
+          @click=${() => void props.onImportPreview()}
+        >
+          ${props.importBusy ? t("kanban.import.working") : t("kanban.import.preview")}
+        </button>
+        <button
+          class="btn btn--sm primary"
+          ?disabled=${disabled || !props.importPreview || Boolean(props.importResult)}
+          @click=${() => void props.onImportRun()}
+        >
+          ${props.importBusy ? t("kanban.import.working") : t("kanban.import.run")}
+        </button>
+      </div>
+      ${props.importError ? html`<div class="callout danger">${props.importError}</div>` : nothing}
+      ${renderImportPreview(props)}
+      ${renderImportResult(props.importResult)}
+    </section>
+  `;
+}
+
 function gatewayStatus(status: KanbanStatusResult | null): { className: string; label: string } {
   if (!status) {
     return { className: "warn", label: t("kanban.gateway.unknown") };
@@ -233,6 +417,8 @@ export function renderKanban(props: KanbanProps) {
           </button>
         </div>
       </section>
+
+      ${renderImportPanel(props)}
 
       ${props.error ? html`<div class="callout danger">${props.error}</div>` : nothing}
       ${

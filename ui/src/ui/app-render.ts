@@ -62,7 +62,14 @@ import {
   saveExecApprovals,
   updateExecApprovalsFormValue,
 } from "./controllers/exec-approvals.ts";
-import { loadKanban } from "./controllers/kanban.ts";
+import {
+  loadKanban,
+  loadKanbanImportFile,
+  previewKanbanImport,
+  runKanbanImport,
+  setKanbanImportContent,
+  setKanbanImportFormat,
+} from "./controllers/kanban.ts";
 import { loadLogs } from "./controllers/logs.ts";
 import { loadNodes } from "./controllers/nodes.ts";
 import { loadPresence } from "./controllers/presence.ts";
@@ -1047,7 +1054,19 @@ export function renderApp(state: AppViewState) {
                 cards: state.kanbanCards,
                 activity: state.kanbanActivity,
                 error: state.kanbanError,
+                importFormat: state.kanbanImportFormat,
+                importContent: state.kanbanImportContent,
+                importFileName: state.kanbanImportFileName,
+                importPreview: state.kanbanImportPreview,
+                importResult: state.kanbanImportResult,
+                importBusy: state.kanbanImportBusy,
+                importError: state.kanbanImportError,
                 onRefresh: () => loadKanban(state),
+                onImportFormatChange: (format) => setKanbanImportFormat(state, format),
+                onImportContentChange: (content) => setKanbanImportContent(state, content),
+                onImportFile: (file) => loadKanbanImportFile(state, file),
+                onImportPreview: () => previewKanbanImport(state),
+                onImportRun: () => runKanbanImport(state),
               })
             : nothing
         }
