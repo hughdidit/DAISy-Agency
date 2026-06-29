@@ -696,11 +696,18 @@ export class OpenClawApp extends LitElement {
     this.execApprovalBusy = true;
     this.execApprovalError = null;
     try {
+      const sensitive = isSensitiveExecApprovalRequest(active);
+      if (sensitive && decision === "allow-always") {
+        throw new Error("Always allow is not permitted for sensitive exec approvals");
+      }
       const params: { id: string; decision: string; operationHash?: string } = {
         id: active.id,
         decision,
       };
-      if (isSensitiveExecApprovalRequest(active) && active.request.operationHash) {
+      if (sensitive) {
+        if (!active.request.operationHash) {
+          throw new Error("Sensitive exec approval is missing operationHash");
+        }
         params.operationHash = active.request.operationHash;
       }
       await this.client.request("exec.approval.resolve", params);
