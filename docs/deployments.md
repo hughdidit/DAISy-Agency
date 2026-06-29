@@ -108,6 +108,7 @@ These secrets are passed to docker compose on the target VM.
 
 - `OPENAI_API_KEY` - OpenAI-backed models, tools, and embeddings
 - `MONGODB_URI` - memory-mongodb connection URI
+- `KANBAN_MONGODB_URI` - dedicated Kanban MongoDB connection URI; do not reuse `MONGODB_URI`
 - `GEMINI_API_KEY` - Gemini embeddings / Google provider access
 - `BRAVE_API_KEY` - Brave web search access
 - `FIRECRAWL_API_KEY` - Firecrawl access
@@ -137,6 +138,9 @@ Use Actions **variables** only for non-sensitive deployment settings:
 - `OPENCLAW_BRIDGE_PORT`
 - `OPENCLAW_GATEWAY_BIND`
 - `OPENCLAW_CONFIG_FILE`
+- `KANBAN_MONGODB_DATABASE` - optional Kanban database name, defaults to `daisy_kanban`
+- `KANBAN_BOARD_SLUG` - optional Kanban board slug, defaults to `team-agents`
+- `KANBAN_BOARD_TITLE` - optional Kanban board title, defaults to `Team Agents`
 - `VERIFY_GCE_CONTAINER`
 - `VERIFY_HEALTH_TIMEOUT`
 - `ALERT_EMAIL_TO`

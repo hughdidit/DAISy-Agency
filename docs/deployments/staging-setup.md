@@ -168,6 +168,7 @@ For a brand-new staging VM, the real deploy requires the config file to exist at
    - `ANTHROPIC_API_KEY` - Required by the current deploy workflow and deploy script for real deploys
    - `OPENAI_API_KEY` - Optional, for OpenAI-backed models, tools, and embeddings
    - `MONGODB_URI` - Optional, for memory-mongodb
+   - `KANBAN_MONGODB_URI` - Optional, for the dedicated Kanban board store
    - `GEMINI_API_KEY` - Optional, for Gemini-backed embeddings/providers
    - `BRAVE_API_KEY` - Optional, for Brave search
    - `FIRECRAWL_API_KEY` - Optional, for firecrawl-enabled environments
@@ -270,6 +271,9 @@ For a brand-new staging VM, the real deploy requires the config file to exist at
    - `OPENCLAW_GATEWAY_PORT`
    - `OPENCLAW_BRIDGE_PORT`
    - `OPENCLAW_CONFIG_FILE`
+   - `KANBAN_MONGODB_DATABASE` - Optional; defaults to `daisy_kanban`
+   - `KANBAN_BOARD_SLUG` - Optional; defaults to `team-agents`
+   - `KANBAN_BOARD_TITLE` - Optional; defaults to `Team Agents`
    - `VERIFY_GCE_CONTAINER`
    - `ALERT_EMAIL_TO`
    - `ALERT_SMTP_HOST`
@@ -320,6 +324,7 @@ sudo chown "$(whoami):$(whoami)" /opt/DAISy
 - [ ] `ANTHROPIC_API_KEY` - Required by the current deploy workflow/script for real deploys
 - [ ] `OPENAI_API_KEY` - Optional; set when staging should use OpenAI-backed features
 - [ ] `MONGODB_URI` - Optional; set when memory-mongodb is enabled
+- [ ] `KANBAN_MONGODB_URI` - Optional; set when the Kanban board is enabled, using a database separate from memory storage
 - [ ] `GEMINI_API_KEY` - Optional; set when Gemini-backed embeddings/providers are enabled
 - [ ] `BRAVE_API_KEY` - Optional; set when Brave search is enabled
 - [ ] Discord allowlist - **Staging-only channels/users**
@@ -550,6 +555,9 @@ Configure the `staging` environment with these variables (replace with your valu
 | `GCP_WORKLOAD_IDENTITY_PROVIDER` | `projects/PROJECT_NUM/locations/global/workloadIdentityPools/github/providers/github` | WIF provider path                                          |
 | `GCP_SERVICE_ACCOUNT`            | `daisy-staging-sa@PROJECT_ID.iam.gserviceaccount.com`                                 | Staging service account                                    |
 | `DEPLOY_DIR`                     | `/opt/DAISy`                                                                          | Directory containing docker-compose.yml                    |
+| `KANBAN_MONGODB_DATABASE`        | `daisy_kanban`                                                                        | Dedicated Kanban database name (optional)                  |
+| `KANBAN_BOARD_SLUG`              | `team-agents`                                                                         | Shared Kanban board slug (optional)                        |
+| `KANBAN_BOARD_TITLE`             | `Team Agents`                                                                         | Shared Kanban board title (optional)                       |
 | `HOSTNAME_PATTERN`               | `daisy-1`                                                                             | Production hostname pattern for .env validation (optional) |
 
 ### Workflow Authentication

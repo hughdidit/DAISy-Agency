@@ -100,6 +100,11 @@ OPENAI_API_KEY="${OPENAI_API_KEY:-}"
 # MONGODB_URI and GEMINI_API_KEY are optional (memory-mongodb plugin only)
 MONGODB_URI="${MONGODB_URI:-}"
 GEMINI_API_KEY="${GEMINI_API_KEY:-}"
+# Kanban uses a dedicated MongoDB database separate from memory storage.
+KANBAN_MONGODB_URI="${KANBAN_MONGODB_URI:-}"
+KANBAN_MONGODB_DATABASE="${KANBAN_MONGODB_DATABASE:-daisy_kanban}"
+KANBAN_BOARD_SLUG="${KANBAN_BOARD_SLUG:-team-agents}"
+KANBAN_BOARD_TITLE="${KANBAN_BOARD_TITLE:-Team Agents}"
 # BRAVE_API_KEY is optional (web-search tool)
 BRAVE_API_KEY="${BRAVE_API_KEY:-}"
 # FIRECRAWL_API_KEY is optional (firecrawl tool)
@@ -509,13 +514,17 @@ case "${OPENCLAW_CONFIG_FILE}" in
     ;;
 esac
 
-# Read secrets from stdin (one per line, passed by outer script)
+# Read deployment values from stdin (one per line, passed by outer script)
 read -r GHCR_TOKEN
 read -r OPENCLAW_GATEWAY_TOKEN
 read -r DISCORD_BOT_TOKEN
 read -r ANTHROPIC_API_KEY
 read -r OPENAI_API_KEY || OPENAI_API_KEY=""
 read -r MONGODB_URI || MONGODB_URI=""
+read -r KANBAN_MONGODB_URI || KANBAN_MONGODB_URI=""
+read -r KANBAN_MONGODB_DATABASE || KANBAN_MONGODB_DATABASE="daisy_kanban"
+read -r KANBAN_BOARD_SLUG || KANBAN_BOARD_SLUG="team-agents"
+read -r KANBAN_BOARD_TITLE || KANBAN_BOARD_TITLE="Team Agents"
 read -r GEMINI_API_KEY || GEMINI_API_KEY=""
 read -r BRAVE_API_KEY || BRAVE_API_KEY=""
 read -r FIRECRAWL_API_KEY || FIRECRAWL_API_KEY=""
@@ -800,6 +809,10 @@ export DISCORD_BOT_TOKEN
 export ANTHROPIC_API_KEY
 export OPENAI_API_KEY
 export MONGODB_URI
+export KANBAN_MONGODB_URI
+export KANBAN_MONGODB_DATABASE
+export KANBAN_BOARD_SLUG
+export KANBAN_BOARD_TITLE
 export GEMINI_API_KEY
 export BRAVE_API_KEY
 export FIRECRAWL_API_KEY
@@ -1230,7 +1243,8 @@ fi
 
 # Clear secrets from environment
 unset OPENCLAW_GATEWAY_TOKEN DISCORD_BOT_TOKEN ANTHROPIC_API_KEY \
-  OPENAI_API_KEY MONGODB_URI GEMINI_API_KEY \
+  OPENAI_API_KEY MONGODB_URI KANBAN_MONGODB_URI KANBAN_MONGODB_DATABASE \
+  KANBAN_BOARD_SLUG KANBAN_BOARD_TITLE GEMINI_API_KEY \
   BRAVE_API_KEY FIRECRAWL_API_KEY TRELLO_API_KEY TRELLO_TOKEN \
   GOOGLE_WORKSPACE_CLI_TOKEN GWS_CREDENTIALS_B64 DAISY_ENVIRONMENT
 
@@ -1268,7 +1282,7 @@ if [[ -n "${GWS_CREDENTIALS}" ]]; then
 fi
 unset GWS_CREDENTIALS
 
-# Pass all secrets via stdin (one per line)
+# Pass deployment values via stdin (one per line)
 {
   printf '%s\n' "${GHCR_TOKEN}"
   printf '%s\n' "${OPENCLAW_GATEWAY_TOKEN}"
@@ -1276,6 +1290,10 @@ unset GWS_CREDENTIALS
   printf '%s\n' "${ANTHROPIC_API_KEY}"
   printf '%s\n' "${OPENAI_API_KEY}"
   printf '%s\n' "${MONGODB_URI}"
+  printf '%s\n' "${KANBAN_MONGODB_URI}"
+  printf '%s\n' "${KANBAN_MONGODB_DATABASE}"
+  printf '%s\n' "${KANBAN_BOARD_SLUG}"
+  printf '%s\n' "${KANBAN_BOARD_TITLE}"
   printf '%s\n' "${GEMINI_API_KEY}"
   printf '%s\n' "${BRAVE_API_KEY}"
   printf '%s\n' "${FIRECRAWL_API_KEY}"
