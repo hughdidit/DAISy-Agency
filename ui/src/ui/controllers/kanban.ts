@@ -90,6 +90,14 @@ function dueDateValue(value: string): string | null {
   return trimmed ? `${trimmed}T00:00:00Z` : null;
 }
 
+function resolvedDueDateValue(card: KanbanCard, draft: KanbanCardDraft): string | null {
+  const originalDate = dateInputValue(card.dueDate);
+  if (draft.dueDate === originalDate) {
+    return card.dueDate ?? null;
+  }
+  return dueDateValue(draft.dueDate);
+}
+
 function checklistText(card: KanbanCard): string {
   return (card.checklist ?? [])
     .map((item) => `${item.checked ? "[x]" : "[ ]"} ${item.text}`)
@@ -98,6 +106,7 @@ function checklistText(card: KanbanCard): string {
 
 function parseChecklistDraft(card: KanbanCard, value: string) {
   const existing = card.checklist ?? [];
+  const timestamp = nowIso();
   return value
     .split("\n")
     .map((line) => line.trim())
@@ -106,7 +115,6 @@ function parseChecklistDraft(card: KanbanCard, value: string) {
       const checked = /^\[(x|X)\]\s*/.test(line);
       const text = line.replace(/^\[(x|X| )\]\s*/, "").trim();
       const fallback = existing[index];
-      const timestamp = nowIso();
       return {
         id: fallback?.id ?? generatedId("item"),
         text: text || fallback?.text || "Checklist item",
@@ -157,6 +165,36 @@ function applyCardMutation(state: KanbanState, result: KanbanCardMutationResult)
   state.kanbanActivity = [result.activity, ...state.kanbanActivity].slice(0, 50);
 }
 
+function isKanbanCardDraftDirty(
+  card: KanbanCard,
+  draft: KanbanCardDraft,
+  options: { ignoreLane?: boolean } = {},
+): boolean {
+  const baseline = createKanbanCardDraft(card);
+  const fields: Array<keyof KanbanCardDraft> = [
+    "title",
+    "description",
+    "lane",
+    "priority",
+    "assignee",
+    "reviewer",
+    "inputOwner",
+    "labelsText",
+    "dueDate",
+    "readyForCodex",
+    "linksText",
+    "watchersText",
+    "checklistText",
+    "customFieldsText",
+  ];
+  return fields.some((field) => {
+    if (options.ignoreLane && field === "lane") {
+      return false;
+    }
+    return draft[field] !== baseline[field];
+  });
+}
+
 export function updateKanbanCardDraft<K extends keyof KanbanCardDraft>(
   state: KanbanState,
   field: K,
@@ -199,15 +237,22 @@ export async function selectKanbanCard(state: KanbanState, cardId: string) {
       ...kanbanBoardParams(state),
       cardId,
     });
+    if (state.kanbanSelectedCardId !== cardId) {
+      return;
+    }
     state.kanbanSelectedCard = result.card;
     state.kanbanCardDraft = createKanbanCardDraft(result.card);
     state.kanbanCards = state.kanbanCards.map((card) =>
       card.id === result.card.id ? result.card : card,
     );
   } catch (err) {
-    state.kanbanCardError = String(err);
+    if (state.kanbanSelectedCardId === cardId) {
+      state.kanbanCardError = String(err);
+    }
   } finally {
-    state.kanbanCardBusy = false;
+    if (state.kanbanSelectedCardId === cardId) {
+      state.kanbanCardBusy = false;
+    }
   }
 }
 
@@ -218,6 +263,10 @@ export async function saveKanbanCard(state: KanbanState) {
   const card = state.kanbanSelectedCard;
   const draft = state.kanbanCardDraft;
   if (!card || !draft) {
+    return;
+  }
+  if (draft.lane !== card.lane) {
+    state.kanbanCardError = "Use Move to change lanes before saving other card edits.";
     return;
   }
   const title = draft.title.trim();
@@ -251,7 +300,7 @@ export async function saveKanbanCard(state: KanbanState) {
         reviewer: draft.reviewer.trim() || null,
         inputOwner: draft.inputOwner.trim() || null,
         labels: compactList(draft.labelsText),
-        dueDate: dueDateValue(draft.dueDate),
+        dueDate: resolvedDueDateValue(card, draft),
         checklist: parseChecklistDraft(card, draft.checklistText),
         links: compactList(draft.linksText),
         watchers: compactList(draft.watchersText),
@@ -269,7 +318,13 @@ export async function saveKanbanCard(state: KanbanState) {
 }
 
 export async function commentKanbanCard(state: KanbanState) {
-  if (!state.client || !state.connected || state.kanbanCardBusy || !state.kanbanSelectedCard) {
+  const card = state.kanbanSelectedCard;
+  const draft = state.kanbanCardDraft;
+  if (!state.client || !state.connected || state.kanbanCardBusy || !card) {
+    return;
+  }
+  if (draft && isKanbanCardDraftDirty(card, draft)) {
+    state.kanbanCardError = "Save or close card edits before commenting.";
     return;
   }
   const body = state.kanbanCardCommentDraft.trim();
@@ -282,7 +337,7 @@ export async function commentKanbanCard(state: KanbanState) {
   try {
     const result = await state.client.request<KanbanCardMutationResult>("kanban.cards.comment", {
       ...kanbanBoardParams(state),
-      cardId: state.kanbanSelectedCard.id,
+      cardId: card.id,
       body,
     });
     state.kanbanCardCommentDraft = "";
@@ -296,7 +351,16 @@ export async function commentKanbanCard(state: KanbanState) {
 }
 
 export async function moveKanbanCard(state: KanbanState, lane: KanbanCard["lane"]) {
-  if (!state.client || !state.connected || state.kanbanCardBusy || !state.kanbanSelectedCard) {
+  const card = state.kanbanSelectedCard;
+  const draft = state.kanbanCardDraft;
+  if (!state.client || !state.connected || state.kanbanCardBusy || !card) {
+    return;
+  }
+  if (lane === card.lane) {
+    return;
+  }
+  if (draft && isKanbanCardDraftDirty(card, draft, { ignoreLane: true })) {
+    state.kanbanCardError = "Save or close card edits before moving.";
     return;
   }
   state.kanbanCardBusy = true;
@@ -304,8 +368,8 @@ export async function moveKanbanCard(state: KanbanState, lane: KanbanCard["lane"
   try {
     const result = await state.client.request<KanbanCardMutationResult>("kanban.cards.move", {
       ...kanbanBoardParams(state),
-      cardId: state.kanbanSelectedCard.id,
-      expectedVersion: state.kanbanSelectedCard.version,
+      cardId: card.id,
+      expectedVersion: card.version,
       lane,
     });
     applyCardMutation(state, result);
@@ -318,7 +382,13 @@ export async function moveKanbanCard(state: KanbanState, lane: KanbanCard["lane"
 }
 
 export async function archiveKanbanCard(state: KanbanState) {
-  if (!state.client || !state.connected || state.kanbanCardBusy || !state.kanbanSelectedCard) {
+  const card = state.kanbanSelectedCard;
+  const draft = state.kanbanCardDraft;
+  if (!state.client || !state.connected || state.kanbanCardBusy || !card) {
+    return;
+  }
+  if (draft && isKanbanCardDraftDirty(card, draft)) {
+    state.kanbanCardError = "Save or close card edits before archiving.";
     return;
   }
   state.kanbanCardBusy = true;
@@ -326,8 +396,8 @@ export async function archiveKanbanCard(state: KanbanState) {
   try {
     await state.client.request<KanbanCardMutationResult>("kanban.cards.archive", {
       ...kanbanBoardParams(state),
-      cardId: state.kanbanSelectedCard.id,
-      expectedVersion: state.kanbanSelectedCard.version,
+      cardId: card.id,
+      expectedVersion: card.version,
     });
     closeKanbanCard(state);
     await loadKanban(state);
