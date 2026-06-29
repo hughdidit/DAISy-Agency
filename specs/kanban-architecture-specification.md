@@ -142,8 +142,8 @@ The public API is gateway RPC. Methods:
 
 Method scope policy:
 
-- Read scope: `kanban.status`, board/card/activity reads, import preview.
-- Write scope: create/update/move/comment/archive/import run, Codex pickup/handoff/complete.
+- Read scope: `kanban.status`, board/card/activity reads.
+- Write scope: create/update/move/comment/archive/import preview/import run, Codex pickup/handoff/complete. Trello import preview persists a preview record for a later run, so it is intentionally write-scoped until a separate pure validation endpoint exists.
 - Admin scope is reserved for future board-level configuration and destructive maintenance. Card hard delete is not implemented.
 
 RPC requirements:
@@ -213,7 +213,7 @@ Supported sources:
 
 Import behavior:
 
-- Preview maps source lists to DAISy lanes before write.
+- Preview maps source lists to DAISy lanes and records a bounded import preview before the import run writes cards.
 - Default mapping recognizes todo/backlog, doing/progress, review/input, and done/complete names.
 - Unknown Trello lists map to `To Do` and retain original list metadata.
 - Labels, due dates, members, checklists, comments/actions, links, attachments, custom fields, and card ids are preserved where present.

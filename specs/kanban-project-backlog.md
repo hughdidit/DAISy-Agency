@@ -12,15 +12,15 @@
 
 ## PRD Queue
 
-| Order | PRD                                                      | Title                                           | Status  | Dependencies              | Issue-sized PR guidance                                                |
-| ----- | -------------------------------------------------------- | ----------------------------------------------- | ------- | ------------------------- | ---------------------------------------------------------------------- |
-| 0     | `kanban-000-specs-and-backlog-prd.md`                    | Specs, backlog, and PRD package                 | Planned | Approved user plan        | One docs-only PR                                                       |
-| 1     | `kanban-001-mongodb-foundation-prd.md`                   | MongoDB foundation                              | Planned | PRD-000                   | Split config, repository, and integration tests if needed              |
-| 2     | `kanban-002-gateway-rpc-api-prd.md`                      | Gateway RPC API                                 | Planned | PRD-001                   | Split protocol/scopes from handlers if needed                          |
-| 3     | `kanban-003-control-ui-board-prd.md`                     | Control UI board                                | Planned | PRD-001, PRD-002          | Split navigation/shell, card interactions, and visual polish if needed |
-| 4     | `kanban-004-agent-tools-and-codex-skill-prd.md`          | Agent tools and Codex skill                     | Planned | PRD-002                   | Split tool catalog/tool execution from skill docs if needed            |
-| 5     | `kanban-005-trello-import-and-full-card-features-prd.md` | Trello import and full card features            | Planned | PRD-001, PRD-002, PRD-003 | Split import, attachments, and advanced card fields if needed          |
-| 6     | `kanban-006-hardening-and-staging-closeout-prd.md`       | Hardening, reconciliation, and staging closeout | Planned | PRD-001 through PRD-005   | Split final defects, docs, and deployment evidence PRs if needed       |
+| Order | PRD                                                      | Title                                           | Status   | Dependencies              | Issue-sized PR guidance                                  |
+| ----- | -------------------------------------------------------- | ----------------------------------------------- | -------- | ------------------------- | -------------------------------------------------------- |
+| 0     | `kanban-000-specs-and-backlog-prd.md`                    | Specs, backlog, and PRD package                 | Complete | Approved user plan        | Completed by PR #462                                     |
+| 1     | `kanban-001-mongodb-foundation-prd.md`                   | MongoDB foundation                              | Complete | PRD-000                   | Completed by PRs #467, #468, #469, and #470              |
+| 2     | `kanban-002-gateway-rpc-api-prd.md`                      | Gateway RPC API                                 | Complete | PRD-001                   | Completed by PRs #471, #472, #473, and #474              |
+| 3     | `kanban-003-control-ui-board-prd.md`                     | Control UI board                                | Complete | PRD-001, PRD-002          | Completed by PRs #475, #479, and #480                    |
+| 4     | `kanban-004-agent-tools-and-codex-skill-prd.md`          | Agent tools and Codex skill                     | Complete | PRD-002                   | Completed by PR #476                                     |
+| 5     | `kanban-005-trello-import-and-full-card-features-prd.md` | Trello import and full card features            | Complete | PRD-001, PRD-002, PRD-003 | Completed by PRs #477, #478, #479, and #480              |
+| 6     | `kanban-006-hardening-and-staging-closeout-prd.md`       | Hardening, reconciliation, and staging closeout | Complete | PRD-001 through PRD-005   | Completed by PR #481 and the final reconciliation report |
 
 ## Epics
 
@@ -154,3 +154,7 @@ Attach or reference:
 - directly relevant repo docs or code discovered for that PRD
 
 Do not infer completion from filenames. Completion requires merged PR, CI/review/deploy evidence, or explicit repo records. After PRD-006, run a reconciliation pass and execute any missing Kanban PRD/slice before the final global review.
+
+## Final Reconciliation
+
+The final reconciliation report is recorded in [kanban-final-reconciliation-report.md](kanban-final-reconciliation-report.md).
