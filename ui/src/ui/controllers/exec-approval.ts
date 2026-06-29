@@ -1,5 +1,8 @@
 export type ExecApprovalRequestPayload = {
   command: string;
+  category?: "exec" | "financial" | "deletion" | null;
+  operationHash?: string | null;
+  operationPreview?: string | null;
   cwd?: string | null;
   host?: string | null;
   security?: string | null;
@@ -27,6 +30,14 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
+function parseApprovalCategory(value: unknown): "exec" | "financial" | "deletion" | null {
+  return value === "exec" || value === "financial" || value === "deletion" ? value : null;
+}
+
+export function isSensitiveExecApprovalRequest(request: ExecApprovalRequest): boolean {
+  return request.request.category === "financial" || request.request.category === "deletion";
+}
+
 export function parseExecApprovalRequested(payload: unknown): ExecApprovalRequest | null {
   if (!isRecord(payload)) {
     return null;
@@ -49,6 +60,10 @@ export function parseExecApprovalRequested(payload: unknown): ExecApprovalReques
     id,
     request: {
       command,
+      category: parseApprovalCategory(request.category),
+      operationHash: typeof request.operationHash === "string" ? request.operationHash : null,
+      operationPreview:
+        typeof request.operationPreview === "string" ? request.operationPreview : null,
       cwd: typeof request.cwd === "string" ? request.cwd : null,
       host: typeof request.host === "string" ? request.host : null,
       security: typeof request.security === "string" ? request.security : null,

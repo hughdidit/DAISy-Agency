@@ -1,5 +1,6 @@
 import { html, nothing } from "lit";
 import type { AppViewState } from "../app-view-state.ts";
+import { isSensitiveExecApprovalRequest } from "../controllers/exec-approval.ts";
 
 function formatRemaining(ms: number): string {
   const remaining = Math.max(0, ms);
@@ -31,6 +32,7 @@ export function renderExecApprovalPrompt(state: AppViewState) {
   const remainingMs = active.expiresAtMs - Date.now();
   const remaining = remainingMs > 0 ? `expires in ${formatRemaining(remainingMs)}` : "expired";
   const queueCount = state.execApprovalQueue.length;
+  const sensitive = isSensitiveExecApprovalRequest(active);
   return html`
     <div class="exec-approval-overlay" role="dialog" aria-live="polite">
       <div class="exec-approval-card">
@@ -52,6 +54,7 @@ export function renderExecApprovalPrompt(state: AppViewState) {
           ${renderMetaRow("Session", request.sessionKey)}
           ${renderMetaRow("CWD", request.cwd)}
           ${renderMetaRow("Resolved", request.resolvedPath)}
+          ${renderMetaRow("Category", request.category)}
           ${renderMetaRow("Security", request.security)}
           ${renderMetaRow("Ask", request.ask)}
         </div>
@@ -70,7 +73,7 @@ export function renderExecApprovalPrompt(state: AppViewState) {
           </button>
           <button
             class="btn"
-            ?disabled=${state.execApprovalBusy}
+            ?disabled=${state.execApprovalBusy || sensitive}
             @click=${() => state.handleExecApprovalDecision("allow-always")}
           >
             Always allow
