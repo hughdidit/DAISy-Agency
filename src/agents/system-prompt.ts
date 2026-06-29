@@ -255,6 +255,12 @@ export function buildAgentSystemPrompt(params: {
     cron: "Manage cron jobs and wake events (use for reminders; when scheduling a reminder, write the systemEvent text as something that will read like a reminder when it fires, and mention that it is a reminder depending on the time gap between setting and firing; include recent context in reminder text if appropriate)",
     message: "Send messages and channel actions",
     gateway: "Restart, apply config, or run updates on the running OpenClaw process",
+    kanban_read: "Read DAISy Kanban status, board, cards, and activity through Gateway RPC",
+    kanban_write: "Create/update/move/comment/archive DAISy Kanban cards through Gateway RPC",
+    kanban_pick_task:
+      "Claim the next readyForCodex Kanban card; Gateway orders by priority then oldest",
+    kanban_handoff: "Move a Kanban card to Review with reviewer/input owner and activity evidence",
+    kanban_complete: "Move a Kanban card to Done with concise completion evidence",
     agents_list: acpSpawnRuntimeEnabled
       ? 'List OpenClaw agent ids allowed for sessions_spawn when runtime="subagent" (not ACP harness ids)'
       : "List OpenClaw agent ids allowed for sessions_spawn",
@@ -288,6 +294,11 @@ export function buildAgentSystemPrompt(params: {
     "cron",
     "message",
     "gateway",
+    "kanban_read",
+    "kanban_write",
+    "kanban_pick_task",
+    "kanban_handoff",
+    "kanban_complete",
     "agents_list",
     "sessions_list",
     "sessions_history",
