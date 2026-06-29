@@ -1180,9 +1180,8 @@ export class KanbanMongoRepository {
     });
     await new Promise<void>((resolve, reject) => {
       stream.once("error", reject);
-      stream.end(input.content, () => {
-        resolve();
-      });
+      stream.once("finish", resolve);
+      stream.end(input.content);
     });
   }
 
@@ -1212,7 +1211,7 @@ export class KanbanMongoRepository {
       archivedAt: { $exists: false },
       version: input.expectedVersion,
     });
-    if (!existing || existing.attachments.length >= KANBAN_MAX_ATTACHMENTS_PER_CARD) {
+    if (!existing || (existing.attachments?.length ?? 0) >= KANBAN_MAX_ATTACHMENTS_PER_CARD) {
       return null;
     }
 
@@ -1326,7 +1325,7 @@ export class KanbanMongoRepository {
         },
         { session },
       );
-      const attachment = existing?.attachments.find(
+      const attachment = existing?.attachments?.find(
         (item) => item.id === input.attachmentId && !item.archivedAt,
       );
       if (!existing || !attachment) {
