@@ -666,16 +666,45 @@ describeWithDocker("Kanban gateway read handlers with MongoDB", () => {
     });
 
     const content = JSON.stringify({
+      id: "trello-board-1",
+      members: [{ id: "member-1", fullName: "Hugh Chapman" }],
+      customFields: [{ id: "field-1", name: "Estimate" }],
       lists: [{ id: "list-review", name: "Review" }],
+      checklists: [
+        {
+          idCard: "trello-card-1",
+          checkItems: [{ id: "check-1", name: "Verify import", state: "complete" }],
+        },
+      ],
+      actions: [
+        {
+          id: "comment-1",
+          type: "commentCard",
+          date: "2026-01-03T00:00:00.000Z",
+          data: { card: { id: "trello-card-1" }, text: "Preserved Trello comment" },
+          memberCreator: { id: "member-1", fullName: "Hugh Chapman" },
+        },
+      ],
       cards: [
         {
           id: "trello-card-1",
+          idBoard: "trello-board-1",
           name: "Imported Trello card",
           desc: "Imported through gateway",
           idList: "list-review",
+          idMembers: ["member-1"],
           labels: [{ name: "urgent" }],
           due: "2026-01-02T03:04:05.000Z",
           url: "https://trello.example/c/trello-card-1",
+          attachments: [
+            {
+              id: "attachment-1",
+              name: "Trello URL attachment",
+              url: "https://trello.example/attachments/1",
+              bytes: 7,
+            },
+          ],
+          customFieldItems: [{ idCustomField: "field-1", value: { number: "5" } }],
         },
       ],
     });
@@ -696,6 +725,11 @@ describeWithDocker("Kanban gateway read handlers with MongoDB", () => {
           priority: "urgent",
           labels: ["urgent"],
           dueDate: "2026-01-02T03:04:05.000Z",
+          sourceUrl: "https://trello.example/c/trello-card-1",
+          checklistCount: 1,
+          commentCount: 1,
+          attachmentCount: 1,
+          watcherCount: 1,
           warnings: [],
         },
       ],
@@ -728,9 +762,74 @@ describeWithDocker("Kanban gateway read handlers with MongoDB", () => {
         title: "Imported Trello card",
         lane: "review",
         priority: "urgent",
-        import: { source: "trello", sourceCardId: "trello-card-1" },
+        assignee: "Hugh Chapman",
+        checklist: [
+          expect.objectContaining({
+            id: "check-1",
+            text: "Verify import",
+            checked: true,
+          }),
+        ],
+        comments: [
+          expect.objectContaining({
+            id: "comment-1",
+            body: "Preserved Trello comment",
+            actor: { type: "import", id: "member-1", name: "Hugh Chapman" },
+          }),
+        ],
+        links: ["https://trello.example/c/trello-card-1", "https://trello.example/attachments/1"],
+        attachments: [
+          expect.objectContaining({
+            id: "attachment-1",
+            fileName: "Trello URL attachment",
+            sizeBytes: 7,
+            import: {
+              source: "trello",
+              sourceUrl: "https://trello.example/attachments/1",
+            },
+          }),
+        ],
+        watchers: ["Hugh Chapman"],
+        customFields: expect.objectContaining({
+          Estimate: "5",
+          trello: expect.objectContaining({
+            sourceBoardId: "trello-board-1",
+            sourceListId: "list-review",
+            sourceUrl: "https://trello.example/c/trello-card-1",
+            attachmentCount: 1,
+            checklistCount: 1,
+            commentCount: 1,
+            watcherCount: 1,
+          }),
+        }),
+        import: {
+          source: "trello",
+          sourceBoardId: "trello-board-1",
+          sourceCardId: "trello-card-1",
+          sourceListId: "list-review",
+          sourceUrl: "https://trello.example/c/trello-card-1",
+        },
       }),
     );
+    const importedCard = requireValue(
+      cards.find((card) => card.import?.sourceCardId === "trello-card-1"),
+      "Expected imported Trello card",
+    );
+    const localCommentResponse = await invoke(testHandlers, "kanban.cards.comment", {
+      cardId: importedCard.id,
+      body: "DAISy-side follow-up",
+    });
+    expect(localCommentResponse.ok).toBe(true);
+    const localCommented = localCommentResponse.payload as KanbanCardMutationResult;
+    const localEditResponse = await invoke(testHandlers, "kanban.cards.update", {
+      cardId: importedCard.id,
+      expectedVersion: localCommented.card.version,
+      updates: {
+        watchers: ["DAISy watcher"],
+        customFields: { localNote: "keep" },
+      },
+    });
+    expect(localEditResponse.ok).toBe(true);
 
     const updatedContent = JSON.stringify({
       cards: [
@@ -765,5 +864,20 @@ describeWithDocker("Kanban gateway read handlers with MongoDB", () => {
       labels: ["low"],
       import: { source: "trello", sourceCardId: "trello-card-1" },
     });
+    expect(updatedCards[0].comments).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: "comment-1", body: "Preserved Trello comment" }),
+        expect.objectContaining({ body: "DAISy-side follow-up" }),
+      ]),
+    );
+    expect(updatedCards[0].watchers).toEqual(["DAISy watcher"]);
+    expect(updatedCards[0].customFields).toEqual(
+      expect.objectContaining({
+        localNote: "keep",
+        trello: expect.objectContaining({
+          commentCount: 2,
+        }),
+      }),
+    );
   }, 240_000);
 });

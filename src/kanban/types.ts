@@ -76,6 +76,7 @@ export type KanbanImportReference = {
   sourceCardId?: string;
   sourceListId?: string;
   sourceUrl?: string;
+  importRunId?: string;
 };
 
 export type KanbanCard = {

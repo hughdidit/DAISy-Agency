@@ -98,24 +98,28 @@ export const KanbanCommentSchema = Type.Object(
   { additionalProperties: false },
 );
 
+export const KanbanImportReferenceSchema = Type.Object(
+  {
+    source: Type.Union([Type.Literal("trello"), Type.Literal("manual"), Type.Literal("api")]),
+    sourceCardId: Type.Optional(NonEmptyString),
+    sourceBoardId: Type.Optional(NonEmptyString),
+    sourceListId: Type.Optional(NonEmptyString),
+    sourceUrl: Type.Optional(Type.String()),
+    importRunId: Type.Optional(NonEmptyString),
+  },
+  { additionalProperties: false },
+);
+
 export const KanbanAttachmentMetadataSchema = Type.Object(
   {
     id: NonEmptyString,
     fileName: NonEmptyString,
     contentType: Type.Optional(Type.String()),
     sizeBytes: Type.Integer({ minimum: 0 }),
-    gridFsId: NonEmptyString,
+    gridFsId: Type.Optional(NonEmptyString),
+    import: Type.Optional(KanbanImportReferenceSchema),
     archivedAt: Type.Optional(IsoDateTimeString),
     createdAt: IsoDateTimeString,
-  },
-  { additionalProperties: false },
-);
-
-export const KanbanImportReferenceSchema = Type.Object(
-  {
-    source: Type.Union([Type.Literal("trello"), Type.Literal("manual"), Type.Literal("api")]),
-    sourceCardId: NonEmptyString,
-    importRunId: Type.Optional(NonEmptyString),
   },
   { additionalProperties: false },
 );
@@ -359,6 +363,11 @@ export const KanbanImportPreviewCardSchema = Type.Object(
     priority: KanbanPrioritySchema,
     labels: Type.Array(Type.String(), { maxItems: 50 }),
     dueDate: Type.Optional(IsoDateTimeString),
+    sourceUrl: Type.Optional(Type.String()),
+    checklistCount: Type.Integer({ minimum: 0 }),
+    commentCount: Type.Integer({ minimum: 0 }),
+    attachmentCount: Type.Integer({ minimum: 0 }),
+    watcherCount: Type.Integer({ minimum: 0 }),
     warnings: Type.Array(Type.String(), { maxItems: 20 }),
   },
   { additionalProperties: false },

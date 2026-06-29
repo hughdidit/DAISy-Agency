@@ -10,7 +10,13 @@ import {
   type UpdateFilter,
 } from "mongodb";
 import { redactMongoUri, type ResolvedKanbanConfig } from "./config.js";
-import type { ParsedTrelloImportCard, TrelloImportFormat } from "./trello-import.js";
+import type {
+  ParsedTrelloAttachment,
+  ParsedTrelloComment,
+  ParsedTrelloImportCard,
+  ParsedTrelloChecklistItem,
+  TrelloImportFormat,
+} from "./trello-import.js";
 import {
   KANBAN_LANES,
   type KanbanActivity,
@@ -394,6 +400,16 @@ function cloneRecord(value: Record<string, unknown> | undefined): Record<string,
   return value ? { ...value } : {};
 }
 
+function hasOwnKey(value: Record<string, unknown>, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(value, key);
+}
+
+function recordValue(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? { ...(value as Record<string, unknown>) }
+    : {};
+}
+
 function requireNonEmptyText(value: string, message: string): string {
   const trimmed = value.trim();
   if (!trimmed) {
@@ -409,6 +425,34 @@ function sanitizeImportWarnings(warnings: string[]): string[] {
     .slice(0, 100);
 }
 
+function normalizeParsedImportCard(card: ParsedTrelloImportCard): ParsedTrelloImportCard {
+  const legacy = card as Partial<ParsedTrelloImportCard>;
+  return {
+    ...card,
+    labels: cloneStrings(legacy.labels),
+    checklist: cloneCardArray(legacy.checklist),
+    comments: cloneCardArray(legacy.comments),
+    links: cloneStrings(legacy.links),
+    attachments: cloneCardArray(legacy.attachments),
+    watchers: cloneStrings(legacy.watchers),
+    customFields:
+      legacy.customFields &&
+      typeof legacy.customFields === "object" &&
+      !Array.isArray(legacy.customFields)
+        ? { ...legacy.customFields }
+        : {},
+    warnings: sanitizeImportWarnings(legacy.warnings ?? []),
+  };
+}
+
+function normalizeImportRunDocument(document: KanbanImportRunDocument): KanbanImportRunDocument {
+  return {
+    ...document,
+    cards: document.cards.map(normalizeParsedImportCard),
+    warnings: sanitizeImportWarnings(document.warnings ?? []),
+  };
+}
+
 function createImportPreviewSummary(input: KanbanRecordTrelloImportPreviewInput) {
   const cardWarnings = input.cards.reduce((count, card) => count + card.warnings.length, 0);
   return {
@@ -416,6 +460,155 @@ function createImportPreviewSummary(input: KanbanRecordTrelloImportPreviewInput)
     format: input.format,
     cardCount: input.cards.length,
     warningCount: input.warnings.length + cardWarnings,
+  };
+}
+
+function mapImportedChecklistItem(item: ParsedTrelloChecklistItem, now: Date) {
+  return {
+    id: item.sourceId,
+    title: item.text,
+    done: item.checked,
+    position: item.position,
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
+function mapImportedComment(comment: ParsedTrelloComment, now: Date) {
+  return {
+    id: comment.sourceId,
+    body: comment.body,
+    actor: comment.actor,
+    createdAt: comment.createdAt ?? now,
+    updatedAt: now,
+  };
+}
+
+function mapImportedAttachment(
+  attachment: ParsedTrelloAttachment,
+  now: Date,
+): KanbanCard["attachments"][number] {
+  const importReference = attachment.url
+    ? {
+        source: "trello" as const,
+        sourceUrl: attachment.url,
+      }
+    : undefined;
+  return {
+    id: attachment.sourceId,
+    filename: attachment.fileName,
+    contentType: attachment.contentType,
+    byteSize: attachment.sizeBytes,
+    createdAt: attachment.createdAt ?? now,
+    ...(importReference ? { import: importReference } : {}),
+  };
+}
+
+function buildImportedCustomFields(
+  card: ParsedTrelloImportCard,
+  counts: {
+    attachmentCount?: number;
+    checklistCount?: number;
+    commentCount?: number;
+    watcherCount?: number;
+  } = {},
+): Record<string, unknown> {
+  const metadataKey = hasOwnKey(card.customFields, "trelloImport") ? "trelloImport" : "trello";
+  const trello: Record<string, unknown> =
+    typeof card.customFields[metadataKey] === "object" && card.customFields[metadataKey]
+      ? { ...(card.customFields[metadataKey] as Record<string, unknown>) }
+      : {};
+  if (card.sourceBoardId) {
+    trello.sourceBoardId = card.sourceBoardId;
+  }
+  if (card.sourceListId) {
+    trello.sourceListId = card.sourceListId;
+  }
+  if (card.sourceUrl) {
+    trello.sourceUrl = card.sourceUrl;
+  }
+  trello.attachmentCount = counts.attachmentCount ?? card.attachments.length;
+  trello.checklistCount = counts.checklistCount ?? card.checklist.length;
+  trello.commentCount = counts.commentCount ?? card.comments.length;
+  trello.watcherCount = counts.watcherCount ?? card.watchers.length;
+  return {
+    ...card.customFields,
+    [metadataKey]: trello,
+  };
+}
+
+function buildImportedReference(card: ParsedTrelloImportCard): KanbanCardDocument["import"] {
+  const reference: NonNullable<KanbanCardDocument["import"]> = {
+    source: "trello",
+    sourceCardId: card.sourceCardId,
+  };
+  if (card.sourceBoardId) {
+    reference.sourceBoardId = card.sourceBoardId;
+  }
+  if (card.sourceListId) {
+    reference.sourceListId = card.sourceListId;
+  }
+  if (card.sourceUrl) {
+    reference.sourceUrl = card.sourceUrl;
+  }
+  return reference;
+}
+
+function buildImportedCardSet(
+  card: ParsedTrelloImportCard,
+  now: Date,
+): Partial<KanbanCardDocument> {
+  return {
+    title: card.title.trim(),
+    lane: card.lane,
+    priority: card.priority,
+    priorityRank: priorityRank(card.priority),
+    assignee: card.assignee,
+    labels: [...card.labels],
+    checklist: card.checklist
+      .toSorted((left, right) => left.position - right.position)
+      .map((item) => mapImportedChecklistItem(item, now)),
+    comments: card.comments.map((comment) => mapImportedComment(comment, now)),
+    links: [...card.links],
+    attachments: card.attachments.map((attachment) => mapImportedAttachment(attachment, now)),
+    watchers: [...card.watchers],
+    customFields: buildImportedCustomFields(card),
+    import: buildImportedReference(card),
+    updatedAt: now,
+  };
+}
+
+function mergeImportedItems<T extends { id: string }>(existingItems: T[], importedItems: T[]): T[] {
+  const importedIds = new Set(importedItems.map((item) => item.id));
+  return [...importedItems, ...existingItems.filter((item) => !importedIds.has(item.id))];
+}
+
+function mergeImportedStrings(existingItems: string[], importedItems: string[]): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const item of [...importedItems, ...existingItems]) {
+    const trimmed = item.trim();
+    if (!trimmed || seen.has(trimmed)) {
+      continue;
+    }
+    seen.add(trimmed);
+    result.push(trimmed);
+  }
+  return result;
+}
+
+function mergeImportedCustomFields(
+  existingFields: Record<string, unknown>,
+  importedFields: Record<string, unknown>,
+): Record<string, unknown> {
+  const metadataKey = hasOwnKey(importedFields, "trelloImport") ? "trelloImport" : "trello";
+  return {
+    ...existingFields,
+    ...importedFields,
+    [metadataKey]: {
+      ...recordValue(existingFields[metadataKey]),
+      ...recordValue(importedFields[metadataKey]),
+    },
   };
 }
 
@@ -691,7 +884,7 @@ export class KanbanMongoRepository {
           unifiedAudit,
           session,
         );
-        return existing;
+        return normalizeImportRunDocument(existing);
       }
       const document: KanbanImportRunDocument = {
         _id: randomUUID(),
@@ -700,12 +893,7 @@ export class KanbanMongoRepository {
         status: "previewed",
         boardId: input.boardId,
         format: input.format,
-        cards: input.cards.map((card) => ({
-          ...card,
-          labels: [...card.labels],
-          links: [...card.links],
-          warnings: sanitizeImportWarnings(card.warnings),
-        })),
+        cards: input.cards.map(normalizeParsedImportCard),
         warnings: sanitizeImportWarnings(input.warnings),
         summary,
         createdAt: unifiedAudit.occurredAt,
@@ -730,11 +918,12 @@ export class KanbanMongoRepository {
     importId: string,
     boardId: string,
   ): Promise<KanbanImportRunDocument | null> {
-    return await this.collections.imports.findOne({
+    const preview = await this.collections.imports.findOne({
       _id: importId,
       source: "trello",
       boardId,
     });
+    return preview ? normalizeImportRunDocument(preview) : null;
   }
 
   async runTrelloImport(
@@ -746,7 +935,8 @@ export class KanbanMongoRepository {
       let created = 0;
       let updated = 0;
       let skipped = 0;
-      for (const card of input.cards) {
+      for (const rawCard of input.cards) {
+        const card = normalizeParsedImportCard(rawCard);
         const title = card.title.trim();
         if (!title || card.warnings.some((warning) => warning.includes("card skipped"))) {
           skipped += 1;
@@ -765,23 +955,26 @@ export class KanbanMongoRepository {
           continue;
         }
         if (existing) {
-          const set: Partial<KanbanCardDocument> = {
-            title,
-            lane: card.lane,
-            priority: card.priority,
-            priorityRank: priorityRank(card.priority),
-            labels: [...card.labels],
-            links: [...card.links],
-            import: {
-              source: "trello",
-              sourceCardId: card.sourceCardId,
-            },
-            updatedAt: unifiedAudit.occurredAt,
-          };
+          const set = buildImportedCardSet(card, unifiedAudit.occurredAt);
+          set.checklist = mergeImportedItems(existing.checklist, set.checklist ?? []);
+          set.comments = mergeImportedItems(existing.comments, set.comments ?? []);
+          set.attachments = mergeImportedItems(existing.attachments, set.attachments ?? []);
+          set.watchers = mergeImportedStrings(existing.watchers, set.watchers ?? []);
+          const importedCustomFields = buildImportedCustomFields(card, {
+            attachmentCount: set.attachments.length,
+            checklistCount: set.checklist.length,
+            commentCount: set.comments.length,
+            watcherCount: set.watchers?.length,
+          });
+          set.customFields = mergeImportedCustomFields(existing.customFields, importedCustomFields);
           if (card.position !== undefined) {
             set.position = card.position;
           }
           const unset: Record<string, ""> = {};
+          if (card.assignee === undefined) {
+            delete set.assignee;
+            unset.assignee = "";
+          }
           if (card.description === undefined) {
             unset.description = "";
           } else {
@@ -825,11 +1018,20 @@ export class KanbanMongoRepository {
             priority: card.priority,
             labels: card.labels,
             dueAt: card.dueAt,
+            assignee: card.assignee,
+            checklist: card.checklist
+              .toSorted((left, right) => left.position - right.position)
+              .map((item) => mapImportedChecklistItem(item, unifiedAudit.occurredAt)),
+            comments: card.comments.map((comment) =>
+              mapImportedComment(comment, unifiedAudit.occurredAt),
+            ),
             links: card.links,
-            import: {
-              source: "trello",
-              sourceCardId: card.sourceCardId,
-            },
+            attachments: card.attachments.map((attachment) =>
+              mapImportedAttachment(attachment, unifiedAudit.occurredAt),
+            ),
+            watchers: card.watchers,
+            customFields: buildImportedCustomFields(card),
+            import: buildImportedReference(card),
           },
           unifiedAudit.occurredAt,
         );

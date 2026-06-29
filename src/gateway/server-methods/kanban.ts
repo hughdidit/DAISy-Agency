@@ -85,6 +85,33 @@ function iso(value: Date): string {
   return value.toISOString();
 }
 
+function mapImportReference(
+  reference: RepositoryKanbanCard["import"] | undefined,
+): NonNullable<RepositoryKanbanCard["import"]> | undefined {
+  if (!reference) {
+    return undefined;
+  }
+  const mapped: NonNullable<RepositoryKanbanCard["import"]> = {
+    source: reference.source,
+  };
+  if (reference.sourceCardId) {
+    mapped.sourceCardId = reference.sourceCardId;
+  }
+  if (reference.sourceBoardId) {
+    mapped.sourceBoardId = reference.sourceBoardId;
+  }
+  if (reference.sourceListId) {
+    mapped.sourceListId = reference.sourceListId;
+  }
+  if (reference.sourceUrl) {
+    mapped.sourceUrl = reference.sourceUrl;
+  }
+  if (reference.importRunId) {
+    mapped.importRunId = reference.importRunId;
+  }
+  return mapped;
+}
+
 function mapBoard(board: RepositoryKanbanBoard): KanbanBoard {
   return {
     id: board.id,
@@ -133,20 +160,15 @@ function mapCard(card: RepositoryKanbanCard): KanbanCard {
       fileName: attachment.filename,
       contentType: attachment.contentType,
       sizeBytes: attachment.byteSize,
-      gridFsId: attachment.fileId ?? attachment.id,
+      gridFsId: attachment.fileId,
+      import: mapImportReference(attachment.import),
       archivedAt: attachment.archivedAt ? iso(attachment.archivedAt) : undefined,
       createdAt: iso(attachment.createdAt),
     })),
     watchers: card.watchers,
     customFields: card.customFields,
     readyForCodex: card.readyForCodex,
-    import:
-      card.import?.sourceCardId !== undefined
-        ? {
-            source: card.import.source,
-            sourceCardId: card.import.sourceCardId,
-          }
-        : undefined,
+    import: mapImportReference(card.import),
     archivedAt: card.archivedAt ? iso(card.archivedAt) : undefined,
     createdAt: iso(card.createdAt),
     updatedAt: iso(card.updatedAt),
@@ -195,15 +217,26 @@ function mapImportPreviewResult(params: {
 }): KanbanImportTrelloPreviewResult {
   return {
     importId: params.importId,
-    cards: params.cards.map((card) => ({
-      sourceCardId: card.sourceCardId,
-      title: card.title,
-      lane: card.lane,
-      priority: card.priority,
-      labels: card.labels,
-      dueDate: card.dueAt ? iso(card.dueAt) : undefined,
-      warnings: card.warnings,
-    })),
+    cards: params.cards.map((card) => {
+      const checklist = Array.isArray(card.checklist) ? card.checklist : [];
+      const comments = Array.isArray(card.comments) ? card.comments : [];
+      const attachments = Array.isArray(card.attachments) ? card.attachments : [];
+      const watchers = Array.isArray(card.watchers) ? card.watchers : [];
+      return {
+        sourceCardId: card.sourceCardId,
+        title: card.title,
+        lane: card.lane,
+        priority: card.priority,
+        labels: card.labels,
+        dueDate: card.dueAt ? iso(card.dueAt) : undefined,
+        sourceUrl: card.sourceUrl,
+        checklistCount: checklist.length,
+        commentCount: comments.length,
+        attachmentCount: attachments.length,
+        watcherCount: watchers.length,
+        warnings: card.warnings,
+      };
+    }),
     warnings: params.warnings,
   };
 }
