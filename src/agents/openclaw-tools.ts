@@ -12,6 +12,7 @@ import { createCronTool } from "./tools/cron-tool.js";
 import { createGatewayTool } from "./tools/gateway-tool.js";
 import { createImageGenerateTool } from "./tools/image-generate-tool.js";
 import { createImageTool } from "./tools/image-tool.js";
+import { createKanbanTools } from "./tools/kanban-tool.js";
 import { createMessageTool } from "./tools/message-tool.js";
 import { createNodesTool } from "./tools/nodes-tool.js";
 import { createOcrExtractTool } from "./tools/ocr-extract-tool.js";
@@ -162,6 +163,7 @@ export function createOpenClawTools(options?: {
       agentSessionKey: options?.agentSessionKey,
       config: options?.config,
     }),
+    ...createKanbanTools(),
     createOpenClawDoctorRepairTool({
       agentSessionKey: options?.agentSessionKey,
       agentChannel: options?.agentChannel,
