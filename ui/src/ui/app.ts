@@ -58,12 +58,21 @@ import type { DevicePairingList } from "./controllers/devices.ts";
 import type { ExecApprovalRequest } from "./controllers/exec-approval.ts";
 import type { ExecApprovalsFile, ExecApprovalsSnapshot } from "./controllers/exec-approvals.ts";
 import {
+  archiveKanbanCard as archiveKanbanCardInternal,
+  closeKanbanCard as closeKanbanCardInternal,
+  commentKanbanCard as commentKanbanCardInternal,
   loadKanban as loadKanbanInternal,
   loadKanbanImportFile as loadKanbanImportFileInternal,
+  moveKanbanCard as moveKanbanCardInternal,
   previewKanbanImport as previewKanbanImportInternal,
   runKanbanImport as runKanbanImportInternal,
+  saveKanbanCard as saveKanbanCardInternal,
+  selectKanbanCard as selectKanbanCardInternal,
   setKanbanImportContent as setKanbanImportContentInternal,
   setKanbanImportFormat as setKanbanImportFormatInternal,
+  updateKanbanCardCommentDraft as updateKanbanCardCommentDraftInternal,
+  updateKanbanCardDraft as updateKanbanCardDraftInternal,
+  type KanbanCardDraft,
   type KanbanImportFormat,
 } from "./controllers/kanban.ts";
 import type { SkillMessage } from "./controllers/skills.ts";
@@ -278,6 +287,12 @@ export class OpenClawApp extends LitElement {
   @state() kanbanImportResult: KanbanImportTrelloRunResult | null = null;
   @state() kanbanImportBusy = false;
   @state() kanbanImportError: string | null = null;
+  @state() kanbanSelectedCardId: string | null = null;
+  @state() kanbanSelectedCard: KanbanCard | null = null;
+  @state() kanbanCardDraft: KanbanCardDraft | null = null;
+  @state() kanbanCardCommentDraft = "";
+  @state() kanbanCardBusy = false;
+  @state() kanbanCardError: string | null = null;
 
   @state() sessionsLoading = false;
   @state() sessionsResult: SessionsListResult | null = null;
@@ -553,6 +568,55 @@ export class OpenClawApp extends LitElement {
 
   async runKanbanImport() {
     await runKanbanImportInternal(this as unknown as Parameters<typeof runKanbanImportInternal>[0]);
+  }
+
+  async selectKanbanCard(cardId: string) {
+    await selectKanbanCardInternal(
+      this as unknown as Parameters<typeof selectKanbanCardInternal>[0],
+      cardId,
+    );
+  }
+
+  closeKanbanCard() {
+    closeKanbanCardInternal(this as unknown as Parameters<typeof closeKanbanCardInternal>[0]);
+  }
+
+  updateKanbanCardDraft<K extends keyof KanbanCardDraft>(field: K, value: KanbanCardDraft[K]) {
+    updateKanbanCardDraftInternal(
+      this as unknown as Parameters<typeof updateKanbanCardDraftInternal>[0],
+      field,
+      value,
+    );
+  }
+
+  updateKanbanCardCommentDraft(value: string) {
+    updateKanbanCardCommentDraftInternal(
+      this as unknown as Parameters<typeof updateKanbanCardCommentDraftInternal>[0],
+      value,
+    );
+  }
+
+  async saveKanbanCard() {
+    await saveKanbanCardInternal(this as unknown as Parameters<typeof saveKanbanCardInternal>[0]);
+  }
+
+  async commentKanbanCard() {
+    await commentKanbanCardInternal(
+      this as unknown as Parameters<typeof commentKanbanCardInternal>[0],
+    );
+  }
+
+  async moveKanbanCard(lane: KanbanCard["lane"]) {
+    await moveKanbanCardInternal(
+      this as unknown as Parameters<typeof moveKanbanCardInternal>[0],
+      lane,
+    );
+  }
+
+  async archiveKanbanCard() {
+    await archiveKanbanCardInternal(
+      this as unknown as Parameters<typeof archiveKanbanCardInternal>[0],
+    );
   }
 
   async handleAbortChat() {

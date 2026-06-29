@@ -4,7 +4,7 @@ import type { CronModelSuggestionsState, CronState } from "./controllers/cron.ts
 import type { DevicePairingList } from "./controllers/devices.ts";
 import type { ExecApprovalRequest } from "./controllers/exec-approval.ts";
 import type { ExecApprovalsFile, ExecApprovalsSnapshot } from "./controllers/exec-approvals.ts";
-import type { KanbanImportFormat } from "./controllers/kanban.ts";
+import type { KanbanCardDraft, KanbanImportFormat } from "./controllers/kanban.ts";
 import type { SkillMessage } from "./controllers/skills.ts";
 import type { GatewayBrowserClient, GatewayHelloOk } from "./gateway.ts";
 import type { Tab } from "./navigation.ts";
@@ -178,6 +178,12 @@ export type AppViewState = {
   kanbanImportResult: KanbanImportTrelloRunResult | null;
   kanbanImportBusy: boolean;
   kanbanImportError: string | null;
+  kanbanSelectedCardId: string | null;
+  kanbanSelectedCard: KanbanCard | null;
+  kanbanCardDraft: KanbanCardDraft | null;
+  kanbanCardCommentDraft: string;
+  kanbanCardBusy: boolean;
+  kanbanCardError: string | null;
   sessionsLoading: boolean;
   sessionsResult: SessionsListResult | null;
   sessionsError: string | null;
@@ -302,6 +308,17 @@ export type AppViewState = {
     loadKanbanImportFile: (file: File | null) => Promise<void>;
     previewKanbanImport: () => Promise<void>;
     runKanbanImport: () => Promise<void>;
+    selectKanbanCard: (cardId: string) => Promise<void>;
+    closeKanbanCard: () => void;
+    updateKanbanCardDraft: <K extends keyof KanbanCardDraft>(
+      field: K,
+      value: KanbanCardDraft[K],
+    ) => void;
+    updateKanbanCardCommentDraft: (value: string) => void;
+    saveKanbanCard: () => Promise<void>;
+    commentKanbanCard: () => Promise<void>;
+    moveKanbanCard: (lane: KanbanCard["lane"]) => Promise<void>;
+    archiveKanbanCard: () => Promise<void>;
     handleWhatsAppStart: (force: boolean) => Promise<void>;
     handleWhatsAppWait: () => Promise<void>;
     handleWhatsAppLogout: () => Promise<void>;

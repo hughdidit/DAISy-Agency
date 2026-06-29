@@ -63,12 +63,20 @@ import {
   updateExecApprovalsFormValue,
 } from "./controllers/exec-approvals.ts";
 import {
+  archiveKanbanCard,
+  closeKanbanCard,
+  commentKanbanCard,
   loadKanban,
   loadKanbanImportFile,
+  moveKanbanCard,
   previewKanbanImport,
   runKanbanImport,
+  saveKanbanCard,
+  selectKanbanCard,
   setKanbanImportContent,
   setKanbanImportFormat,
+  updateKanbanCardCommentDraft,
+  updateKanbanCardDraft,
 } from "./controllers/kanban.ts";
 import { loadLogs } from "./controllers/logs.ts";
 import { loadNodes } from "./controllers/nodes.ts";
@@ -1061,12 +1069,26 @@ export function renderApp(state: AppViewState) {
                 importResult: state.kanbanImportResult,
                 importBusy: state.kanbanImportBusy,
                 importError: state.kanbanImportError,
+                selectedCardId: state.kanbanSelectedCardId,
+                selectedCard: state.kanbanSelectedCard,
+                cardDraft: state.kanbanCardDraft,
+                cardCommentDraft: state.kanbanCardCommentDraft,
+                cardBusy: state.kanbanCardBusy,
+                cardError: state.kanbanCardError,
                 onRefresh: () => loadKanban(state),
                 onImportFormatChange: (format) => setKanbanImportFormat(state, format),
                 onImportContentChange: (content) => setKanbanImportContent(state, content),
                 onImportFile: (file) => loadKanbanImportFile(state, file),
                 onImportPreview: () => previewKanbanImport(state),
                 onImportRun: () => runKanbanImport(state),
+                onCardSelect: (cardId) => selectKanbanCard(state, cardId),
+                onCardClose: () => closeKanbanCard(state),
+                onCardDraftChange: (field, value) => updateKanbanCardDraft(state, field, value),
+                onCardCommentChange: (value) => updateKanbanCardCommentDraft(state, value),
+                onCardSave: () => saveKanbanCard(state),
+                onCardComment: () => commentKanbanCard(state),
+                onCardMove: (lane) => moveKanbanCard(state, lane),
+                onCardArchive: () => archiveKanbanCard(state),
               })
             : nothing
         }
