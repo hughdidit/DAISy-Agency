@@ -221,11 +221,7 @@ function readOptionalNullableString(
   return readStringParam(params, key);
 }
 
-function addIfPresent<T extends Record<string, unknown>>(
-  target: T,
-  key: string,
-  value: unknown,
-): void {
+function addIfPresent(target: Record<string, unknown>, key: string, value: unknown): void {
   if (value !== undefined) {
     target[key] = value;
   }
