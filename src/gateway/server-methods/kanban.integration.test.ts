@@ -19,7 +19,12 @@ import type {
   KanbanImportTrelloRunResult,
 } from "../protocol/schema/types.js";
 import { listGatewayMethods } from "../server-methods-list.js";
-import { createKanbanHandlers, KANBAN_METHOD_NAMES } from "./kanban.js";
+import {
+  createKanbanHandlers,
+  KANBAN_METHOD_NAMES,
+  KANBAN_READ_METHOD_NAMES,
+  KANBAN_WRITE_METHOD_NAMES,
+} from "./kanban.js";
 import type { GatewayRequestHandlers, RespondFn } from "./types.js";
 
 type MongoDockerRuntime = {
@@ -282,6 +287,12 @@ describe("Kanban gateway read handlers", () => {
     expect(methods.filter((method) => method.startsWith("kanban.")).toSorted()).toEqual(
       [...KANBAN_METHOD_NAMES].toSorted(),
     );
+  });
+
+  it("classifies persisted Trello import preview and run as write methods", () => {
+    expect(KANBAN_READ_METHOD_NAMES).not.toContain("kanban.import.trello.preview");
+    expect(KANBAN_WRITE_METHOD_NAMES).toContain("kanban.import.trello.preview");
+    expect(KANBAN_WRITE_METHOD_NAMES).toContain("kanban.import.trello.run");
   });
 
   it("rejects blank write text before opening storage", async () => {

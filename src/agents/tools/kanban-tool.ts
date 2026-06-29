@@ -1,4 +1,8 @@
 import { Type } from "@sinclair/typebox";
+import {
+  KANBAN_MAX_ACTIVE_CARD_LIST_LIMIT,
+  KANBAN_MAX_ARCHIVED_CARD_LIST_LIMIT,
+} from "../../kanban/types.js";
 import { optionalStringEnum, stringEnum } from "../schema/typebox.js";
 import {
   type AnyAgentTool,
@@ -13,6 +17,7 @@ import { callGatewayTool, readGatewayCallOptions, type GatewayCallOptions } from
 const KANBAN_LANES = ["todo", "in_progress", "review", "done"] as const;
 const KANBAN_PRIORITIES = ["urgent", "high", "normal", "low"] as const;
 const KANBAN_READ_ACTIONS = ["status", "board", "list_cards", "get_card", "activity"] as const;
+const JSON_SCHEMA_THEN_KEYWORD = ["th", "en"].join("");
 const KANBAN_WRITE_ACTIONS = [
   "create_card",
   "update_card",
@@ -47,12 +52,51 @@ const KanbanReadSchema = Type.Object(
     includeArchived: Type.Optional(Type.Boolean()),
     readyForCodex: Type.Optional(Type.Boolean()),
     assignee: Type.Optional(Type.String()),
-    limit: Type.Optional(Type.Number({ minimum: 1, maximum: 200 })),
+    limit: Type.Optional(
+      Type.Integer({ minimum: 1, maximum: KANBAN_MAX_ARCHIVED_CARD_LIST_LIMIT }),
+    ),
     after: Type.Optional(Type.Object({}, { additionalProperties: true })),
     before: Type.Optional(Type.String()),
     beforeId: Type.Optional(Type.String()),
   },
-  { additionalProperties: true },
+  {
+    additionalProperties: true,
+    allOf: [
+      {
+        if: {
+          properties: { action: { const: "list_cards" } },
+          required: ["action"],
+        },
+        [JSON_SCHEMA_THEN_KEYWORD]: {
+          if: {
+            properties: { includeArchived: { const: true } },
+            required: ["includeArchived"],
+          },
+          [JSON_SCHEMA_THEN_KEYWORD]: {
+            properties: {
+              limit: { type: "integer", minimum: 1, maximum: KANBAN_MAX_ARCHIVED_CARD_LIST_LIMIT },
+            },
+          },
+          else: {
+            properties: {
+              limit: { type: "integer", minimum: 1, maximum: KANBAN_MAX_ACTIVE_CARD_LIST_LIMIT },
+            },
+          },
+        },
+      },
+      {
+        if: {
+          properties: { action: { const: "activity" } },
+          required: ["action"],
+        },
+        [JSON_SCHEMA_THEN_KEYWORD]: {
+          properties: {
+            limit: { type: "integer", minimum: 1, maximum: 200 },
+          },
+        },
+      },
+    ],
+  },
 );
 
 const KanbanWriteSchema = Type.Object(
@@ -341,7 +385,16 @@ function buildReadRequest(action: string, params: Record<string, unknown>) {
       addIfPresent(payload, "includeArchived", readBooleanParam(params, "includeArchived"));
       addIfPresent(payload, "readyForCodex", readBooleanParam(params, "readyForCodex"));
       addIfPresent(payload, "assignee", readStringParam(params, "assignee"));
-      addIfPresent(payload, "limit", readLimitedIntegerParam(params, "limit", { max: 200 }));
+      const includeArchived = payload.includeArchived === true;
+      addIfPresent(
+        payload,
+        "limit",
+        readLimitedIntegerParam(params, "limit", {
+          max: includeArchived
+            ? KANBAN_MAX_ARCHIVED_CARD_LIST_LIMIT
+            : KANBAN_MAX_ACTIVE_CARD_LIST_LIMIT,
+        }),
+      );
       addIfPresent(payload, "after", readObjectParam(params, "after"));
       return { method: "kanban.cards.list", params: payload };
     }

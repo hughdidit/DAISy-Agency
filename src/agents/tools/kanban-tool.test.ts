@@ -9,6 +9,7 @@ import {
 } from "../tool-catalog.js";
 import type { AnyAgentTool } from "./common.js";
 import { ToolInputError } from "./common.js";
+import type { GatewayCallOptions } from "./gateway.js";
 import { createKanbanTools } from "./kanban-tool.js";
 
 installGatewayTestHooks();
@@ -108,5 +109,54 @@ describe("kanban agent tools", () => {
       await started.server.close();
       started.envSnapshot.restore();
     }
+  });
+
+  it("allows archived card reconciliation pages up to the Kanban read ceiling", async () => {
+    const calls: Array<{ method: string; params?: unknown }> = [];
+    const readTool = requireTool(
+      createKanbanTools(
+        {},
+        {
+          callGatewayTool: async <T = Record<string, unknown>>(
+            method: string,
+            _opts: GatewayCallOptions,
+            params?: unknown,
+          ): Promise<T> => {
+            calls.push({ method, params });
+            return { cards: [] } as T;
+          },
+        },
+      ),
+      "kanban_read",
+    );
+
+    const result = await readTool.execute("call", {
+      action: "list_cards",
+      includeArchived: true,
+      limit: 2_000,
+    });
+
+    expect(result.details).toEqual({ cards: [] });
+    expect(calls).toEqual([
+      {
+        method: "kanban.cards.list",
+        params: {
+          boardId: undefined,
+          includeArchived: true,
+          limit: 2_000,
+        },
+      },
+    ]);
+  });
+
+  it("rejects active card pages above the active-card read ceiling", async () => {
+    const readTool = requireTool(createKanbanTools(), "kanban_read");
+
+    await expect(
+      readTool.execute("call", {
+        action: "list_cards",
+        limit: 501,
+      }),
+    ).rejects.toThrow(/limit must be at most 500/);
   });
 });

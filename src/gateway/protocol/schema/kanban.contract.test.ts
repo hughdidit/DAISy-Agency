@@ -53,7 +53,8 @@ describe("Kanban gateway protocol schemas", () => {
       validate({
         boardId: "team-agents",
         lane: "todo",
-        limit: 200,
+        includeArchived: true,
+        limit: 2_000,
         after: {
           lane: "todo",
           position: 10,
@@ -62,7 +63,9 @@ describe("Kanban gateway protocol schemas", () => {
         },
       }),
     ).toBe(true);
-    expect(validate({ limit: 201 })).toBe(false);
+    expect(validate({ limit: 500 })).toBe(true);
+    expect(validate({ limit: 501 })).toBe(false);
+    expect(validate({ limit: 2_001 })).toBe(false);
     expect(validate({ lane: "blocked" })).toBe(false);
     expect(
       validate({
