@@ -130,6 +130,8 @@ The public API is gateway RPC. Methods:
 - `kanban.cards.update`
 - `kanban.cards.move`
 - `kanban.cards.comment`
+- `kanban.cards.attachments.add`
+- `kanban.cards.attachments.archive`
 - `kanban.cards.archive`
 - `kanban.activity.list`
 - `kanban.import.trello.preview`

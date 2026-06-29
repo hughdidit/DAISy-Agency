@@ -1,5 +1,9 @@
 import AjvPkg from "ajv";
 import { describe, expect, it } from "vitest";
+import {
+  KANBAN_MAX_ATTACHMENT_BASE64_LENGTH,
+  KANBAN_MAX_ATTACHMENT_FILENAME_LENGTH,
+} from "../../../kanban/types.js";
 import { ProtocolSchemas } from "./protocol-schemas.js";
 
 function createAjv() {
@@ -25,6 +29,8 @@ describe("Kanban gateway protocol schemas", () => {
         KanbanCardsUpdateParams: expect.any(Object),
         KanbanCardsMoveParams: expect.any(Object),
         KanbanCardsCommentParams: expect.any(Object),
+        KanbanCardsAttachmentAddParams: expect.any(Object),
+        KanbanCardsAttachmentArchiveParams: expect.any(Object),
         KanbanCardsArchiveParams: expect.any(Object),
         KanbanActivityListParams: expect.any(Object),
         KanbanActivityListResult: expect.any(Object),
@@ -108,6 +114,10 @@ describe("Kanban gateway protocol schemas", () => {
   it("requires optimistic versions for conflicting card mutations", () => {
     const update = createAjv().compile(ProtocolSchemas.KanbanCardsUpdateParams);
     const move = createAjv().compile(ProtocolSchemas.KanbanCardsMoveParams);
+    const addAttachment = createAjv().compile(ProtocolSchemas.KanbanCardsAttachmentAddParams);
+    const archiveAttachment = createAjv().compile(
+      ProtocolSchemas.KanbanCardsAttachmentArchiveParams,
+    );
     const archive = createAjv().compile(ProtocolSchemas.KanbanCardsArchiveParams);
 
     expect(update({ cardId: "card-1", expectedVersion: 2, updates: { title: "Retitle" } })).toBe(
@@ -116,6 +126,46 @@ describe("Kanban gateway protocol schemas", () => {
     expect(update({ cardId: "card-1", updates: { title: "Retitle" } })).toBe(false);
     expect(move({ cardId: "card-1", expectedVersion: 2, lane: "review" })).toBe(true);
     expect(move({ cardId: "card-1", lane: "review" })).toBe(false);
+    expect(
+      addAttachment({
+        cardId: "card-1",
+        expectedVersion: 2,
+        fileName: "notes.txt",
+        contentType: "text/plain",
+        contentBase64: "bm90ZXM=",
+      }),
+    ).toBe(true);
+    expect(
+      addAttachment({
+        cardId: "card-1",
+        fileName: "notes.txt",
+        contentBase64: "bm90ZXM=",
+      }),
+    ).toBe(false);
+    expect(
+      addAttachment({
+        cardId: "card-1",
+        expectedVersion: 2,
+        fileName: "x".repeat(KANBAN_MAX_ATTACHMENT_FILENAME_LENGTH + 1),
+        contentBase64: "bm90ZXM=",
+      }),
+    ).toBe(false);
+    expect(
+      addAttachment({
+        cardId: "card-1",
+        expectedVersion: 2,
+        fileName: "notes.txt",
+        contentBase64: "A".repeat(KANBAN_MAX_ATTACHMENT_BASE64_LENGTH + 1),
+      }),
+    ).toBe(false);
+    expect(
+      archiveAttachment({
+        cardId: "card-1",
+        expectedVersion: 3,
+        attachmentId: "attachment-1",
+      }),
+    ).toBe(true);
+    expect(archiveAttachment({ cardId: "card-1", attachmentId: "attachment-1" })).toBe(false);
     expect(archive({ cardId: "card-1", expectedVersion: 2 })).toBe(true);
     expect(archive({ cardId: "card-1" })).toBe(false);
   });

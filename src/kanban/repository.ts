@@ -7,6 +7,7 @@ import {
   type Db,
   type Filter,
   type IndexDescription,
+  ObjectId,
   type UpdateFilter,
 } from "mongodb";
 import { redactMongoUri, type ResolvedKanbanConfig } from "./config.js";
@@ -19,10 +20,14 @@ import type {
 } from "./trello-import.js";
 import {
   KANBAN_LANES,
+  KANBAN_MAX_ATTACHMENT_BYTES,
+  KANBAN_MAX_ATTACHMENT_FILENAME_LENGTH,
+  KANBAN_MAX_ATTACHMENTS_PER_CARD,
   type KanbanActivity,
   type KanbanActivityAction,
   type KanbanActorEnvelope,
   type KanbanAuditEnvelope,
+  type KanbanAttachmentMetadata,
   type KanbanBoard,
   type KanbanCard,
   type KanbanLaneId,
@@ -46,6 +51,13 @@ export type KanbanImportRunDocument = Omit<KanbanImportRun, "id"> & {
   warnings: string[];
 };
 
+export type KanbanAttachmentDocument = Omit<KanbanAttachmentMetadata, "id"> & {
+  _id: string;
+  boardId: string;
+  cardId: string;
+  createdBy: KanbanActorEnvelope;
+};
+
 export type KanbanCardDocument = Omit<KanbanCard, "id"> & {
   _id: string;
 };
@@ -55,7 +67,7 @@ type CollectionSet = {
   cards: Collection<KanbanCardDocument>;
   activity: Collection<KanbanActivityDocument>;
   imports: Collection<KanbanImportRunDocument>;
-  attachments: Collection;
+  attachments: Collection<KanbanAttachmentDocument>;
 };
 
 const KANBAN_PRIORITY_RANK: Record<KanbanPriority, number> = {
@@ -178,6 +190,22 @@ export type KanbanCommentCardInput = {
   body: string;
 };
 
+export type KanbanAddAttachmentInput = {
+  boardId: string;
+  cardId: string;
+  expectedVersion: number;
+  filename: string;
+  contentType?: string;
+  content: Uint8Array;
+};
+
+export type KanbanArchiveAttachmentInput = {
+  boardId: string;
+  cardId: string;
+  expectedVersion: number;
+  attachmentId: string;
+};
+
 export type KanbanPickNextCodexCardInput = {
   boardId: string;
 };
@@ -216,6 +244,13 @@ export type KanbanCardMutationResult = {
   card: KanbanCard;
   activity: KanbanActivity;
 };
+
+export type KanbanAttachmentLimitResult = {
+  error: "attachment-limit";
+  maxAttachments: number;
+};
+
+export type KanbanAddAttachmentResult = KanbanCardMutationResult | KanbanAttachmentLimitResult;
 
 export type KanbanRunTrelloImportResult = {
   importRunId: string;
@@ -1138,6 +1173,243 @@ export class KanbanMongoRepository {
       archivedAt: { $exists: false },
     });
     return card ? mapCard(card) : null;
+  }
+
+  private async writeAttachmentFile(input: {
+    fileId: ObjectId;
+    filename: string;
+    contentType?: string;
+    content: Uint8Array;
+    metadata: Record<string, unknown>;
+  }): Promise<void> {
+    const metadata = {
+      ...input.metadata,
+      ...(input.contentType ? { contentType: input.contentType } : {}),
+    };
+    const stream = this.attachmentBucket().openUploadStreamWithId(input.fileId, input.filename, {
+      metadata,
+    });
+    await new Promise<void>((resolve, reject) => {
+      stream.once("error", reject);
+      stream.once("finish", resolve);
+      stream.end(input.content);
+    });
+  }
+
+  private async deleteAttachmentFile(fileId: ObjectId): Promise<void> {
+    await this.attachmentBucket()
+      .delete(fileId)
+      .catch(() => undefined);
+  }
+
+  async addAttachment(
+    input: KanbanAddAttachmentInput,
+    audit: KanbanAuditEnvelope,
+  ): Promise<KanbanAddAttachmentResult | null> {
+    const unifiedAudit = auditWithTimestamp(audit);
+    const filename = requireNonEmptyText(input.filename, "Kanban attachment filename is required");
+    const contentType = input.contentType?.trim() || undefined;
+    if (filename.length > KANBAN_MAX_ATTACHMENT_FILENAME_LENGTH) {
+      throw new Error(
+        `Kanban attachment filename must be ${String(KANBAN_MAX_ATTACHMENT_FILENAME_LENGTH)} characters or fewer`,
+      );
+    }
+    const byteSize = input.content.byteLength;
+    if (byteSize <= 0 || byteSize > KANBAN_MAX_ATTACHMENT_BYTES) {
+      throw new Error(
+        `Kanban attachment content must be between 1 and ${String(KANBAN_MAX_ATTACHMENT_BYTES)} bytes`,
+      );
+    }
+
+    const existing = await this.collections.cards.findOne({
+      _id: input.cardId,
+      boardId: input.boardId,
+      archivedAt: { $exists: false },
+      version: input.expectedVersion,
+    });
+    if (!existing) {
+      return null;
+    }
+    if ((existing.attachments?.length ?? 0) >= KANBAN_MAX_ATTACHMENTS_PER_CARD) {
+      return {
+        error: "attachment-limit",
+        maxAttachments: KANBAN_MAX_ATTACHMENTS_PER_CARD,
+      };
+    }
+
+    const attachmentId = randomUUID();
+    const fileObjectId = new ObjectId();
+    const fileId = fileObjectId.toHexString();
+    const attachment: KanbanAttachmentMetadata = {
+      id: attachmentId,
+      fileId,
+      filename,
+      byteSize,
+      createdAt: unifiedAudit.occurredAt,
+      ...(contentType ? { contentType } : {}),
+    };
+    let uploaded = false;
+    try {
+      uploaded = true;
+      await this.writeAttachmentFile({
+        fileId: fileObjectId,
+        filename,
+        contentType,
+        content: input.content,
+        metadata: {
+          boardId: input.boardId,
+          cardId: input.cardId,
+          attachmentId,
+          actorId: unifiedAudit.actor.id,
+          correlationId: unifiedAudit.correlationId,
+        },
+      });
+
+      const result = await this.withTransaction(async (session) => {
+        const card = await this.collections.cards.findOneAndUpdate(
+          {
+            _id: input.cardId,
+            boardId: input.boardId,
+            archivedAt: { $exists: false },
+            version: input.expectedVersion,
+          },
+          {
+            $push: { attachments: attachment },
+            $inc: { version: 1 },
+            $set: { updatedAt: unifiedAudit.occurredAt },
+          },
+          { returnDocument: "after", session },
+        );
+        if (!card) {
+          return null;
+        }
+        await this.collections.attachments.insertOne(
+          {
+            _id: attachment.id,
+            boardId: input.boardId,
+            cardId: input.cardId,
+            fileId,
+            filename,
+            byteSize,
+            createdBy: unifiedAudit.actor,
+            createdAt: unifiedAudit.occurredAt,
+            ...(contentType ? { contentType } : {}),
+          },
+          { session },
+        );
+        const activity = await this.appendActivity(
+          {
+            boardId: input.boardId,
+            cardId: input.cardId,
+            action: "attachment_add",
+            summary: `Added attachment ${filename} to ${card.title}`,
+            metadata: {
+              attachmentId,
+              fileId,
+              filename,
+              byteSize,
+              ...(contentType ? { contentType } : {}),
+            },
+          },
+          unifiedAudit,
+          session,
+        );
+        return {
+          card: mapCard(card),
+          activity,
+        };
+      });
+
+      if (!result) {
+        await this.deleteAttachmentFile(fileObjectId);
+      }
+      return result;
+    } catch (error) {
+      if (uploaded) {
+        await this.deleteAttachmentFile(fileObjectId);
+      }
+      throw error;
+    }
+  }
+
+  async archiveAttachment(
+    input: KanbanArchiveAttachmentInput,
+    audit: KanbanAuditEnvelope,
+  ): Promise<KanbanCardMutationResult | null> {
+    const unifiedAudit = auditWithTimestamp(audit);
+    return this.withTransaction(async (session) => {
+      const existing = await this.collections.cards.findOne(
+        {
+          _id: input.cardId,
+          boardId: input.boardId,
+          archivedAt: { $exists: false },
+          version: input.expectedVersion,
+        },
+        { session },
+      );
+      const attachment = existing?.attachments?.find(
+        (item) => item.id === input.attachmentId && !item.archivedAt,
+      );
+      if (!existing || !attachment) {
+        return null;
+      }
+      if (attachment.fileId) {
+        const attachmentArchive = await this.collections.attachments.updateOne(
+          {
+            _id: input.attachmentId,
+            boardId: input.boardId,
+            cardId: input.cardId,
+            archivedAt: { $exists: false },
+          },
+          { $set: { archivedAt: unifiedAudit.occurredAt } },
+          { session },
+        );
+        if (attachmentArchive.matchedCount !== 1) {
+          return null;
+        }
+      }
+      const attachments = existing.attachments.map((item) =>
+        item.id === input.attachmentId ? { ...item, archivedAt: unifiedAudit.occurredAt } : item,
+      );
+      const card = await this.collections.cards.findOneAndUpdate(
+        {
+          _id: input.cardId,
+          boardId: input.boardId,
+          archivedAt: { $exists: false },
+          version: input.expectedVersion,
+        },
+        {
+          $set: {
+            attachments,
+            updatedAt: unifiedAudit.occurredAt,
+          },
+          $inc: { version: 1 },
+        },
+        { returnDocument: "after", session },
+      );
+      if (!card) {
+        return null;
+      }
+      const activity = await this.appendActivity(
+        {
+          boardId: input.boardId,
+          cardId: input.cardId,
+          action: "attachment_archive",
+          summary: `Archived attachment ${attachment.filename} from ${card.title}`,
+          metadata: {
+            attachmentId: input.attachmentId,
+            fileId: attachment.fileId,
+            filename: attachment.filename,
+          },
+        },
+        unifiedAudit,
+        session,
+      );
+      return {
+        card: mapCard(card),
+        activity,
+      };
+    });
   }
 
   async updateCard(

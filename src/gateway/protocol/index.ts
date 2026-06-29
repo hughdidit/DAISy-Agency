@@ -164,6 +164,10 @@ import {
   KanbanActivityListParamsSchema,
   type KanbanBoardGetParams,
   KanbanBoardGetParamsSchema,
+  type KanbanCardsAttachmentAddParams,
+  KanbanCardsAttachmentAddParamsSchema,
+  type KanbanCardsAttachmentArchiveParams,
+  KanbanCardsAttachmentArchiveParamsSchema,
   type KanbanCardsArchiveParams,
   KanbanCardsArchiveParamsSchema,
   type KanbanCardsCommentParams,
@@ -541,6 +545,11 @@ export const validateKanbanCardsMoveParams = ajv.compile<KanbanCardsMoveParams>(
 export const validateKanbanCardsCommentParams = ajv.compile<KanbanCardsCommentParams>(
   KanbanCardsCommentParamsSchema,
 );
+export const validateKanbanCardsAttachmentAddParams = ajv.compile<KanbanCardsAttachmentAddParams>(
+  KanbanCardsAttachmentAddParamsSchema,
+);
+export const validateKanbanCardsAttachmentArchiveParams =
+  ajv.compile<KanbanCardsAttachmentArchiveParams>(KanbanCardsAttachmentArchiveParamsSchema);
 export const validateKanbanCardsArchiveParams = ajv.compile<KanbanCardsArchiveParams>(
   KanbanCardsArchiveParamsSchema,
 );
