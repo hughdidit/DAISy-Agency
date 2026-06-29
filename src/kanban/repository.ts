@@ -1182,9 +1182,12 @@ export class KanbanMongoRepository {
     content: Uint8Array;
     metadata: Record<string, unknown>;
   }): Promise<void> {
+    const metadata = {
+      ...input.metadata,
+      ...(input.contentType ? { contentType: input.contentType } : {}),
+    };
     const stream = this.attachmentBucket().openUploadStreamWithId(input.fileId, input.filename, {
-      contentType: input.contentType,
-      metadata: input.metadata,
+      metadata,
     });
     await new Promise<void>((resolve, reject) => {
       stream.once("error", reject);
