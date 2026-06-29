@@ -334,7 +334,7 @@ function renderImportPanel(props: KanbanProps) {
           .value=${props.importContent}
           placeholder=${t("kanban.import.contentPlaceholder")}
           ?disabled=${disabled}
-          @input=${(event: Event) =>
+          @change=${(event: Event) =>
             props.onImportContentChange((event.currentTarget as HTMLTextAreaElement).value)}
         ></textarea>
       </label>
@@ -348,7 +348,7 @@ function renderImportPanel(props: KanbanProps) {
         </button>
         <button
           class="btn btn--sm primary"
-          ?disabled=${disabled || !props.importPreview}
+          ?disabled=${disabled || !props.importPreview || Boolean(props.importResult)}
           @click=${() => props.onImportRun()}
         >
           ${props.importBusy ? t("kanban.import.working") : t("kanban.import.run")}

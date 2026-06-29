@@ -73,7 +73,15 @@ export async function loadKanbanImportFile(state: KanbanState, file: File | null
   if (inferred) {
     state.kanbanImportFormat = inferred;
   }
-  setKanbanImportContent(state, await file.text(), file.name);
+  try {
+    setKanbanImportContent(state, await file.text(), file.name);
+  } catch (err) {
+    state.kanbanImportContent = "";
+    state.kanbanImportFileName = file.name;
+    state.kanbanImportPreview = null;
+    state.kanbanImportResult = null;
+    state.kanbanImportError = `Failed to read file: ${String(err)}`;
+  }
 }
 
 export async function previewKanbanImport(state: KanbanState) {

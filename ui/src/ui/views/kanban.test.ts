@@ -217,7 +217,7 @@ describe("kanban view", () => {
 
     const textarea = container.querySelector(".kanban-import__textarea") as HTMLTextAreaElement;
     textarea.value = '{"cards":[]}';
-    textarea.dispatchEvent(new Event("input", { bubbles: true }));
+    textarea.dispatchEvent(new Event("change", { bubbles: true }));
 
     const select = container.querySelector(".kanban-import select") as HTMLSelectElement;
     select.value = "csv";
@@ -264,5 +264,10 @@ describe("kanban view", () => {
     expect(container.textContent).toContain("2 updated");
     expect(container.textContent).toContain("3 skipped");
     expect(container.textContent).toContain("Imported Trello board");
+    expect(
+      [...container.querySelectorAll("button")].find(
+        (button) => button.textContent?.trim() === "Run import",
+      )?.disabled,
+    ).toBe(true);
   });
 });
