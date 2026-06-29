@@ -217,7 +217,7 @@ describe("kanban view", () => {
 
     const textarea = container.querySelector(".kanban-import__textarea") as HTMLTextAreaElement;
     textarea.value = '{"cards":[]}';
-    textarea.dispatchEvent(new Event("change", { bubbles: true }));
+    textarea.dispatchEvent(new Event("input", { bubbles: true }));
 
     const select = container.querySelector(".kanban-import select") as HTMLSelectElement;
     select.value = "csv";

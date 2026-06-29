@@ -69,6 +69,7 @@ export async function loadKanbanImportFile(state: KanbanState, file: File | null
   if (!file) {
     return;
   }
+  setKanbanImportContent(state, "", file.name);
   const inferred = inferImportFormat(file.name);
   if (inferred) {
     state.kanbanImportFormat = inferred;

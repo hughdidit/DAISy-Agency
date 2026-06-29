@@ -1,5 +1,6 @@
 import { html, nothing } from "lit";
 import { t } from "../../i18n/index.ts";
+import type { KanbanImportFormat } from "../controllers/kanban.ts";
 import type {
   KanbanActivity,
   KanbanBoard,
@@ -11,7 +12,6 @@ import type {
 
 type KanbanLane = KanbanBoard["lanes"][number];
 type KanbanLaneId = KanbanLane["id"];
-type KanbanImportFormat = "json" | "csv";
 
 export type KanbanProps = {
   loading: boolean;
@@ -86,6 +86,10 @@ function countChecklist(card: KanbanCard): { done: number; total: number } {
   const total = checklist.length;
   const done = checklist.filter((item) => item.checked).length;
   return { done, total };
+}
+
+function isKanbanImportFormat(value: string): value is KanbanImportFormat {
+  return value === "json" || value === "csv";
 }
 
 function renderCardBadges(card: KanbanCard) {
@@ -305,10 +309,12 @@ function renderImportPanel(props: KanbanProps) {
           <select
             .value=${props.importFormat}
             ?disabled=${disabled}
-            @change=${(event: Event) =>
-              props.onImportFormatChange(
-                (event.currentTarget as HTMLSelectElement).value as KanbanImportFormat,
-              )}
+            @change=${(event: Event) => {
+              const format = (event.currentTarget as HTMLSelectElement).value;
+              if (isKanbanImportFormat(format)) {
+                props.onImportFormatChange(format);
+              }
+            }}
           >
             <option value="json">${t("kanban.import.json")}</option>
             <option value="csv">${t("kanban.import.csv")}</option>
@@ -334,7 +340,7 @@ function renderImportPanel(props: KanbanProps) {
           .value=${props.importContent}
           placeholder=${t("kanban.import.contentPlaceholder")}
           ?disabled=${disabled}
-          @change=${(event: Event) =>
+          @input=${(event: Event) =>
             props.onImportContentChange((event.currentTarget as HTMLTextAreaElement).value)}
         ></textarea>
       </label>
@@ -342,14 +348,14 @@ function renderImportPanel(props: KanbanProps) {
         <button
           class="btn btn--sm"
           ?disabled=${disabled || !hasContent}
-          @click=${() => props.onImportPreview()}
+          @click=${() => void props.onImportPreview()}
         >
           ${props.importBusy ? t("kanban.import.working") : t("kanban.import.preview")}
         </button>
         <button
           class="btn btn--sm primary"
           ?disabled=${disabled || !props.importPreview || Boolean(props.importResult)}
-          @click=${() => props.onImportRun()}
+          @click=${() => void props.onImportRun()}
         >
           ${props.importBusy ? t("kanban.import.working") : t("kanban.import.run")}
         </button>
