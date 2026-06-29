@@ -23,10 +23,11 @@ Use DAISy Kanban tools to coordinate card work. Never read or write Kanban Mongo
 3. If no card is returned, report that there is no Codex-ready work and stop.
 4. Call `kanban_read` with `action:"get_card"` for the claimed card when more context is needed.
 5. Work the card using the repository and user instructions.
-6. Leave concise evidence on the board through the final Kanban action:
-   - `kanban_complete` with a summary when the card is finished.
-   - `kanban_handoff` with a summary plus `reviewer` or `inputOwner` when review or input is needed.
-7. Include the card id and final card version in the chat closeout.
+6. Before the final Kanban action, use the card's current `version` as `expectedVersion`. Re-read the card first if any Kanban write may have changed it.
+7. Leave concise evidence on the board through the final Kanban action:
+   - `kanban_complete` with `cardId`, `expectedVersion`, and a summary when the card is finished.
+   - `kanban_handoff` with `cardId`, `expectedVersion`, a summary, and `reviewer` or `inputOwner` when review or input is needed.
+8. Include the card id and final card version in the chat closeout.
 
 ## Scheduled Pickup Workflow
 

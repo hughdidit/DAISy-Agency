@@ -113,6 +113,12 @@ export function createOpenClawTools(options?: {
         fsPolicy: options?.fsPolicy,
       })
     : null;
+  const requesterAgentId =
+    options?.requesterAgentIdOverride ??
+    resolveSessionAgentId({
+      sessionKey: options?.agentSessionKey,
+      config: options?.config,
+    });
   const webSearchTool = createWebSearchTool({
     config: options?.config,
     sandboxed: options?.sandboxed,
@@ -163,7 +169,9 @@ export function createOpenClawTools(options?: {
       agentSessionKey: options?.agentSessionKey,
       config: options?.config,
     }),
-    ...createKanbanTools(),
+    ...createKanbanTools({
+      agentId: requesterAgentId,
+    }),
     createOpenClawDoctorRepairTool({
       agentSessionKey: options?.agentSessionKey,
       agentChannel: options?.agentChannel,
@@ -221,10 +229,7 @@ export function createOpenClawTools(options?: {
       config: options?.config,
       workspaceDir,
       agentDir: options?.agentDir,
-      agentId: resolveSessionAgentId({
-        sessionKey: options?.agentSessionKey,
-        config: options?.config,
-      }),
+      agentId: requesterAgentId,
       sessionKey: options?.agentSessionKey,
       sessionId: options?.sessionId,
       messageChannel: options?.agentChannel,

@@ -45,6 +45,7 @@ describe("kanban agent tools", () => {
   it("validates required write and completion parameters before gateway calls", async () => {
     const tools = createKanbanTools();
     const writeTool = requireTool(tools, "kanban_write");
+    const handoffTool = requireTool(tools, "kanban_handoff");
     const completeTool = requireTool(tools, "kanban_complete");
 
     await expect(
@@ -54,6 +55,21 @@ describe("kanban agent tools", () => {
         lane: "review",
       }),
     ).rejects.toThrow(ToolInputError);
+
+    await expect(
+      handoffTool.execute("call", {
+        cardId: "card-1",
+        summary: "Needs review",
+      }),
+    ).rejects.toThrow(/expectedVersion required/);
+
+    await expect(
+      completeTool.execute("call", {
+        cardId: "card-1",
+        expectedVersion: 1.5,
+        summary: "Finished",
+      }),
+    ).rejects.toThrow(/expectedVersion must be an integer/);
 
     await expect(
       completeTool.execute("call", {

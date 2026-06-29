@@ -31,6 +31,12 @@ const BoardField = {
   boardId: Type.Optional(Type.String()),
 };
 
+const NullableStringField = Type.Optional(
+  Type.Unsafe<string | null>({
+    type: ["string", "null"],
+  }),
+);
+
 const KanbanReadSchema = Type.Object(
   {
     action: stringEnum(KANBAN_READ_ACTIONS),
@@ -57,15 +63,15 @@ const KanbanWriteSchema = Type.Object(
     cardId: Type.Optional(Type.String()),
     expectedVersion: Type.Optional(Type.Number({ minimum: 1 })),
     title: Type.Optional(Type.String()),
-    description: Type.Optional(Type.String()),
+    description: NullableStringField,
     lane: optionalStringEnum(KANBAN_LANES),
     position: Type.Optional(Type.Number()),
     priority: optionalStringEnum(KANBAN_PRIORITIES),
-    assignee: Type.Optional(Type.String()),
-    reviewer: Type.Optional(Type.String()),
-    inputOwner: Type.Optional(Type.String()),
+    assignee: NullableStringField,
+    reviewer: NullableStringField,
+    inputOwner: NullableStringField,
     labels: Type.Optional(Type.Array(Type.String())),
-    dueDate: Type.Optional(Type.String()),
+    dueDate: NullableStringField,
     readyForCodex: Type.Optional(Type.Boolean()),
     links: Type.Optional(Type.Array(Type.String())),
     watchers: Type.Optional(Type.Array(Type.String())),
@@ -81,8 +87,6 @@ const KanbanPickTaskSchema = Type.Object(
   {
     ...GatewayFields,
     ...BoardField,
-    agentId: Type.Optional(Type.String()),
-    agentName: Type.Optional(Type.String()),
   },
   { additionalProperties: true },
 );
@@ -94,8 +98,8 @@ const KanbanHandoffSchema = Type.Object(
     cardId: Type.String(),
     expectedVersion: Type.Number({ minimum: 1 }),
     summary: Type.String(),
-    reviewer: Type.Optional(Type.String()),
-    inputOwner: Type.Optional(Type.String()),
+    reviewer: NullableStringField,
+    inputOwner: NullableStringField,
   },
   { additionalProperties: true },
 );
@@ -115,6 +119,11 @@ type GatewayToolCaller = typeof callGatewayTool;
 
 type KanbanToolDeps = {
   callGatewayTool?: GatewayToolCaller;
+};
+
+type KanbanToolOptions = {
+  agentId?: string;
+  agentName?: string;
 };
 
 type NullableStringKeys = "description" | "assignee" | "reviewer" | "inputOwner" | "dueDate";
@@ -187,13 +196,31 @@ function readPositiveIntegerParam(
   key: string,
   options: { required?: boolean; label?: string } = {},
 ): number | undefined {
-  const value = readNumberParam(params, key, {
-    required: options.required,
-    label: options.label ?? key,
-    integer: true,
-  });
+  const label = options.label ?? key;
+  const raw = readRawParam(params, key);
+  let value: number | undefined;
+  if (typeof raw === "number" && Number.isFinite(raw)) {
+    value = raw;
+  } else if (typeof raw === "string") {
+    const trimmed = raw.trim();
+    if (trimmed) {
+      const parsed = Number(trimmed);
+      if (Number.isFinite(parsed)) {
+        value = parsed;
+      }
+    }
+  }
+  if (value === undefined) {
+    if (options.required) {
+      throw new ToolInputError(`${label} required`);
+    }
+    return undefined;
+  }
+  if (!Number.isInteger(value)) {
+    throw new ToolInputError(`${label} must be an integer`);
+  }
   if (value !== undefined && value < 1) {
-    throw new ToolInputError(`${options.label ?? key} must be at least 1`);
+    throw new ToolInputError(`${label} must be at least 1`);
   }
   return value;
 }
@@ -218,7 +245,14 @@ function readOptionalNullableString(
   if (raw === null) {
     return null;
   }
-  return readStringParam(params, key);
+  if (raw === undefined) {
+    return undefined;
+  }
+  if (typeof raw !== "string") {
+    throw new ToolInputError(`${key} must be a string or null`);
+  }
+  const value = raw.trim();
+  return value ? value : undefined;
 }
 
 function addIfPresent(target: Record<string, unknown>, key: string, value: unknown): void {
@@ -262,34 +296,37 @@ function buildCardCreateParams(params: Record<string, unknown>) {
   return payload;
 }
 
-function buildCardUpdates(params: Record<string, unknown>) {
-  const explicitUpdates = readObjectParam(params, "updates");
-  if (explicitUpdates && Object.keys(explicitUpdates).length > 0) {
-    return explicitUpdates;
-  }
-
+function buildNormalizedUpdates(source: Record<string, unknown>) {
   const updates: Record<string, unknown> = {};
   const stringFields = ["title", "priority"] as const;
   for (const key of stringFields) {
-    addIfPresent(updates, key, readStringParam(params, key));
+    addIfPresent(updates, key, readStringParam(source, key));
   }
   const nullableFields = ["description", "assignee", "reviewer", "inputOwner", "dueDate"] as const;
   for (const key of nullableFields) {
-    if (hasParam(params, key)) {
-      addIfPresent(updates, key, readOptionalNullableString(params, key));
+    if (hasParam(source, key)) {
+      addIfPresent(updates, key, readOptionalNullableString(source, key));
     }
   }
-  addIfPresent(updates, "labels", readStringArrayParam(params, "labels"));
-  addIfPresent(updates, "checklist", readObjectArrayParam(params, "checklist"));
-  addIfPresent(updates, "links", readStringArrayParam(params, "links"));
-  addIfPresent(updates, "watchers", readStringArrayParam(params, "watchers"));
-  addIfPresent(updates, "customFields", readObjectParam(params, "customFields"));
-  addIfPresent(updates, "readyForCodex", readBooleanParam(params, "readyForCodex"));
+  addIfPresent(updates, "labels", readStringArrayParam(source, "labels"));
+  addIfPresent(updates, "checklist", readObjectArrayParam(source, "checklist"));
+  addIfPresent(updates, "links", readStringArrayParam(source, "links"));
+  addIfPresent(updates, "watchers", readStringArrayParam(source, "watchers"));
+  addIfPresent(updates, "customFields", readObjectParam(source, "customFields"));
+  addIfPresent(updates, "readyForCodex", readBooleanParam(source, "readyForCodex"));
 
   if (Object.keys(updates).length === 0) {
     throw new ToolInputError("updates required");
   }
   return updates;
+}
+
+function buildCardUpdates(params: Record<string, unknown>) {
+  const explicitUpdates = readObjectParam(params, "updates");
+  if (explicitUpdates) {
+    return buildNormalizedUpdates(explicitUpdates);
+  }
+  return buildNormalizedUpdates(params);
 }
 
 function buildReadRequest(action: string, params: Record<string, unknown>) {
@@ -389,7 +426,10 @@ function buildWriteRequest(action: string, params: Record<string, unknown>) {
   }
 }
 
-export function createKanbanTools(deps?: KanbanToolDeps): AnyAgentTool[] {
+export function createKanbanTools(
+  options: KanbanToolOptions = {},
+  deps?: KanbanToolDeps,
+): AnyAgentTool[] {
   const callGateway = deps?.callGatewayTool ?? callGatewayTool;
   return [
     {
@@ -433,8 +473,8 @@ export function createKanbanTools(deps?: KanbanToolDeps): AnyAgentTool[] {
         return jsonResult(
           await callGateway("kanban.codex.pickNext", readGatewayOpts(params), {
             ...boardParams(params),
-            agentId: readStringParam(params, "agentId"),
-            agentName: readStringParam(params, "agentName"),
+            agentId: options.agentId,
+            agentName: options.agentName,
           }),
         );
       },
