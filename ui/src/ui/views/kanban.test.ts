@@ -1,5 +1,6 @@
 import { render } from "lit";
 import { describe, expect, it, vi } from "vitest";
+import type { KanbanCardDraft } from "../controllers/kanban.ts";
 import type {
   KanbanBoard,
   KanbanCard,
@@ -96,6 +97,26 @@ function createCard(overrides: Partial<KanbanCard>): KanbanCard {
   };
 }
 
+function createDraft(overrides: Partial<KanbanCardDraft> = {}): KanbanCardDraft {
+  return {
+    title: "Implement board shell",
+    description: "Create the visible board.",
+    lane: "todo",
+    priority: "high",
+    assignee: "codex",
+    reviewer: "",
+    inputOwner: "",
+    labelsText: "PRD-003",
+    dueDate: "2026-06-30",
+    readyForCodex: true,
+    linksText: "https://example.invalid",
+    watchersText: "hugh",
+    checklistText: "[x] Add view",
+    customFieldsText: '{\n  "slice": "ui"\n}',
+    ...overrides,
+  };
+}
+
 function createProps(overrides: Partial<KanbanProps> = {}): KanbanProps {
   return {
     loading: false,
@@ -129,12 +150,26 @@ function createProps(overrides: Partial<KanbanProps> = {}): KanbanProps {
     importResult: null,
     importBusy: false,
     importError: null,
+    selectedCardId: null,
+    selectedCard: null,
+    cardDraft: null,
+    cardCommentDraft: "",
+    cardBusy: false,
+    cardError: null,
     onRefresh: () => undefined,
     onImportFormatChange: () => undefined,
     onImportContentChange: () => undefined,
     onImportFile: () => undefined,
     onImportPreview: () => undefined,
     onImportRun: () => undefined,
+    onCardSelect: () => undefined,
+    onCardClose: () => undefined,
+    onCardDraftChange: () => undefined,
+    onCardCommentChange: () => undefined,
+    onCardSave: () => undefined,
+    onCardComment: () => undefined,
+    onCardMove: () => undefined,
+    onCardArchive: () => undefined,
     ...overrides,
   };
 }
@@ -269,5 +304,93 @@ describe("kanban view", () => {
         (button) => button.textContent?.trim() === "Run import",
       )?.disabled,
     ).toBe(true);
+  });
+
+  it("selects a card from the board", () => {
+    const container = document.createElement("div");
+    const onCardSelect = vi.fn();
+    render(renderKanban(createProps({ onCardSelect })), container);
+
+    (container.querySelector('.kanban-card[data-card-id="card-1"]') as HTMLButtonElement).click();
+
+    expect(onCardSelect).toHaveBeenCalledWith("card-1");
+  });
+
+  it("renders selected card detail fields and wires edit actions", () => {
+    const container = document.createElement("div");
+    const selectedCard = createCard({
+      id: "card-1",
+      comments: [
+        {
+          id: "comment-1",
+          body: "Needs release evidence",
+          actor: { type: "human", id: "hugh", name: "Hugh" },
+          createdAt: "2026-06-28T02:00:00Z",
+        },
+      ],
+      attachments: [
+        {
+          id: "attachment-1",
+          fileName: "brief.pdf",
+          sizeBytes: 1200,
+          createdAt: "2026-06-28T02:05:00Z",
+        },
+      ],
+      watchers: ["hugh"],
+      customFields: { slice: "ui" },
+    });
+    const onCardDraftChange = vi.fn();
+    const onCardCommentChange = vi.fn();
+    const onCardSave = vi.fn();
+    const onCardComment = vi.fn();
+    const onCardMove = vi.fn();
+    const onCardArchive = vi.fn();
+    const onCardClose = vi.fn();
+    render(
+      renderKanban(
+        createProps({
+          selectedCardId: "card-1",
+          selectedCard,
+          cardDraft: createDraft({ lane: "review" }),
+          cardCommentDraft: "Ready for review",
+          onCardDraftChange,
+          onCardCommentChange,
+          onCardSave,
+          onCardComment,
+          onCardMove,
+          onCardArchive,
+          onCardClose,
+        }),
+      ),
+      container,
+    );
+
+    const titleInput = container.querySelector(".kanban-detail input") as HTMLInputElement;
+    titleInput.value = "Updated title";
+    titleInput.dispatchEvent(new Event("input", { bubbles: true }));
+
+    const commentTextarea = [
+      ...container.querySelectorAll<HTMLTextAreaElement>(".kanban-detail textarea"),
+    ].at(-1);
+    commentTextarea!.value = "New comment";
+    commentTextarea!.dispatchEvent(new Event("input", { bubbles: true }));
+
+    const buttons = [...container.querySelectorAll<HTMLButtonElement>(".kanban-detail button")];
+    buttons.find((button) => button.textContent?.trim() === "Save changes")?.click();
+    buttons.find((button) => button.textContent?.trim() === "Move")?.click();
+    buttons.find((button) => button.textContent?.trim() === "Archive")?.click();
+    buttons.find((button) => button.textContent?.trim() === "Add comment")?.click();
+    buttons.find((button) => button.textContent?.trim() === "Close")?.click();
+
+    expect(container.textContent).toContain("Card Detail");
+    expect(container.textContent).toContain("Needs release evidence");
+    expect(container.textContent).toContain("brief.pdf");
+    expect(onCardDraftChange).toHaveBeenCalledWith("title", "Updated title");
+    expect(onCardCommentChange).toHaveBeenCalledWith("New comment");
+    expect(onCardSave).toHaveBeenCalledTimes(1);
+    expect(onCardMove).toHaveBeenCalledWith("review");
+    expect(onCardArchive).toHaveBeenCalledTimes(1);
+    expect(onCardComment).toHaveBeenCalledTimes(1);
+    expect(onCardClose).toHaveBeenCalledTimes(1);
   });
 });

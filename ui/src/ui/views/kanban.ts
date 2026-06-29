@@ -1,6 +1,6 @@
 import { html, nothing } from "lit";
 import { t } from "../../i18n/index.ts";
-import type { KanbanImportFormat } from "../controllers/kanban.ts";
+import type { KanbanCardDraft, KanbanImportFormat } from "../controllers/kanban.ts";
 import type {
   KanbanActivity,
   KanbanBoard,
@@ -27,13 +27,29 @@ export type KanbanProps = {
   importResult: KanbanImportTrelloRunResult | null;
   importBusy: boolean;
   importError: string | null;
+  selectedCardId: string | null;
+  selectedCard: KanbanCard | null;
+  cardDraft: KanbanCardDraft | null;
+  cardCommentDraft: string;
+  cardBusy: boolean;
+  cardError: string | null;
   onRefresh: () => void | Promise<void>;
   onImportFormatChange: (format: KanbanImportFormat) => void;
   onImportContentChange: (content: string) => void;
   onImportFile: (file: File | null) => void | Promise<void>;
   onImportPreview: () => void | Promise<void>;
   onImportRun: () => void | Promise<void>;
+  onCardSelect: (cardId: string) => void | Promise<void>;
+  onCardClose: () => void;
+  onCardDraftChange: <K extends keyof KanbanCardDraft>(field: K, value: KanbanCardDraft[K]) => void;
+  onCardCommentChange: (value: string) => void;
+  onCardSave: () => void | Promise<void>;
+  onCardComment: () => void | Promise<void>;
+  onCardMove: (lane: KanbanCard["lane"]) => void | Promise<void>;
+  onCardArchive: () => void | Promise<void>;
 };
+
+const KANBAN_PRIORITIES: Array<KanbanCard["priority"]> = ["urgent", "high", "normal", "low"];
 
 function fallbackLanes(): KanbanLane[] {
   return [
@@ -92,6 +108,14 @@ function isKanbanImportFormat(value: string): value is KanbanImportFormat {
   return value === "json" || value === "csv";
 }
 
+function isKanbanLaneId(value: string, lanes: KanbanLane[]): value is KanbanCard["lane"] {
+  return lanes.some((lane) => lane.id === value);
+}
+
+function isKanbanPriority(value: string): value is KanbanCard["priority"] {
+  return KANBAN_PRIORITIES.includes(value as KanbanCard["priority"]);
+}
+
 function renderCardBadges(card: KanbanCard) {
   const checklist = countChecklist(card);
   const due = formatShortDate(card.dueDate);
@@ -136,11 +160,18 @@ function renderCardBadges(card: KanbanCard) {
   `;
 }
 
-function renderCard(card: KanbanCard) {
+function renderCard(card: KanbanCard, props: KanbanProps) {
   const owner = card.assignee ?? card.inputOwner ?? null;
   const labels = card.labels ?? [];
+  const selected = card.id === props.selectedCardId;
   return html`
-    <article class="kanban-card" data-card-id=${card.id}>
+    <button
+      type="button"
+      class="kanban-card ${selected ? "active" : ""}"
+      data-card-id=${card.id}
+      aria-pressed=${selected ? "true" : "false"}
+      @click=${() => void props.onCardSelect(card.id)}
+    >
       <div class="kanban-card__title">${card.title}</div>
       ${
         card.description
@@ -166,11 +197,11 @@ function renderCard(card: KanbanCard) {
         ${card.reviewer ? html`<span>${t("kanban.card.reviewer", { reviewer: card.reviewer })}</span>` : nothing}
         <span>v${card.version}</span>
       </div>
-    </article>
+    </button>
   `;
 }
 
-function renderLane(lane: KanbanLane, cards: KanbanCard[]) {
+function renderLane(lane: KanbanLane, cards: KanbanCard[], props: KanbanProps) {
   return html`
     <section class="kanban-lane" data-lane=${lane.id}>
       <div class="kanban-lane__header">
@@ -180,12 +211,330 @@ function renderLane(lane: KanbanLane, cards: KanbanCard[]) {
       <div class="kanban-lane__cards">
         ${
           cards.length
-            ? cards.map((card) => renderCard(card))
+            ? cards.map((card) => renderCard(card, props))
             : html`
                 <div class="kanban-empty">${t("kanban.empty.noCards")}</div>
               `
         }
       </div>
+    </section>
+  `;
+}
+
+function renderDetailTextList(title: string, values: string[]) {
+  if (!values.length) {
+    return nothing;
+  }
+  return html`
+    <section class="kanban-detail__section">
+      <div class="kanban-detail__section-title">${title}</div>
+      <div class="kanban-detail__list">
+        ${values.map((value) => html`<div class="kanban-detail__list-item">${value}</div>`)}
+      </div>
+    </section>
+  `;
+}
+
+function renderDetailReadonly(card: KanbanCard) {
+  const comments = card.comments ?? [];
+  const attachments = card.attachments ?? [];
+  return html`
+    <div class="kanban-detail__readonly">
+      ${renderDetailTextList(t("kanban.detail.links"), card.links ?? [])}
+      ${
+        attachments.length
+          ? html`
+              <section class="kanban-detail__section">
+                <div class="kanban-detail__section-title">${t("kanban.detail.attachments")}</div>
+                <div class="kanban-detail__list">
+                  ${attachments.map(
+                    (attachment) => html`
+                      <div class="kanban-detail__list-item">
+                        <span>${attachment.fileName}</span>
+                        <span class="muted">${attachment.sizeBytes} bytes</span>
+                      </div>
+                    `,
+                  )}
+                </div>
+              </section>
+            `
+          : nothing
+      }
+      ${
+        comments.length
+          ? html`
+              <section class="kanban-detail__section">
+                <div class="kanban-detail__section-title">${t("kanban.detail.comments")}</div>
+                <div class="kanban-detail__list">
+                  ${comments.map(
+                    (comment) => html`
+                      <div class="kanban-comment">
+                        <div class="kanban-comment__body">${comment.body}</div>
+                        <div class="kanban-comment__meta">
+                          <span>${comment.actor.name ?? comment.actor.id}</span>
+                          <time datetime=${comment.createdAt}>${formatIso(comment.createdAt)}</time>
+                        </div>
+                      </div>
+                    `,
+                  )}
+                </div>
+              </section>
+            `
+          : nothing
+      }
+    </div>
+  `;
+}
+
+function renderCardDetail(props: KanbanProps, lanes: KanbanLane[]) {
+  const card = props.selectedCard;
+  const draft = props.cardDraft;
+  if (!card || !draft) {
+    return html`
+      <section class="kanban-detail" aria-label=${t("kanban.detail.title")}>
+        <div class="kanban-detail__header">
+          <div>
+            <div class="card-title">${t("kanban.detail.title")}</div>
+            <div class="card-sub">${t("kanban.detail.noSelection")}</div>
+          </div>
+        </div>
+      </section>
+    `;
+  }
+  const disabled = props.cardBusy;
+  const moveDisabled = disabled || draft.lane === card.lane;
+  return html`
+    <section class="kanban-detail" aria-label=${t("kanban.detail.title")}>
+      <div class="kanban-detail__header">
+        <div>
+          <div class="card-title">${t("kanban.detail.title")}</div>
+          <div class="card-sub">${card.id} - v${card.version}</div>
+        </div>
+        <button class="btn btn--sm" ?disabled=${disabled} @click=${() => props.onCardClose()}>
+          ${t("kanban.detail.close")}
+        </button>
+      </div>
+
+      ${props.cardError ? html`<div class="callout danger">${props.cardError}</div>` : nothing}
+
+      <div class="kanban-detail__form">
+        <label class="field full">
+          <span>${t("kanban.detail.fields.title")}</span>
+          <input
+            .value=${draft.title}
+            ?disabled=${disabled}
+            @input=${(event: Event) =>
+              props.onCardDraftChange("title", (event.currentTarget as HTMLInputElement).value)}
+          />
+        </label>
+        <label class="field full">
+          <span>${t("kanban.detail.fields.description")}</span>
+          <textarea
+            class="kanban-detail__textarea"
+            .value=${draft.description}
+            ?disabled=${disabled}
+            @input=${(event: Event) =>
+              props.onCardDraftChange(
+                "description",
+                (event.currentTarget as HTMLTextAreaElement).value,
+              )}
+          ></textarea>
+        </label>
+        <label class="field">
+          <span>${t("kanban.detail.fields.lane")}</span>
+          <select
+            .value=${draft.lane}
+            ?disabled=${disabled}
+            @change=${(event: Event) => {
+              const lane = (event.currentTarget as HTMLSelectElement).value;
+              if (isKanbanLaneId(lane, lanes)) {
+                props.onCardDraftChange("lane", lane);
+              }
+            }}
+          >
+            ${lanes.map((lane) => html`<option value=${lane.id}>${lane.title}</option>`)}
+          </select>
+        </label>
+        <label class="field">
+          <span>${t("kanban.detail.fields.priority")}</span>
+          <select
+            .value=${draft.priority}
+            ?disabled=${disabled}
+            @change=${(event: Event) => {
+              const priority = (event.currentTarget as HTMLSelectElement).value;
+              if (isKanbanPriority(priority)) {
+                props.onCardDraftChange("priority", priority);
+              }
+            }}
+          >
+            ${KANBAN_PRIORITIES.map(
+              (priority) => html`<option value=${priority}>${priority}</option>`,
+            )}
+          </select>
+        </label>
+        <label class="field">
+          <span>${t("kanban.detail.fields.assignee")}</span>
+          <input
+            .value=${draft.assignee}
+            ?disabled=${disabled}
+            @input=${(event: Event) =>
+              props.onCardDraftChange("assignee", (event.currentTarget as HTMLInputElement).value)}
+          />
+        </label>
+        <label class="field">
+          <span>${t("kanban.detail.fields.reviewer")}</span>
+          <input
+            .value=${draft.reviewer}
+            ?disabled=${disabled}
+            @input=${(event: Event) =>
+              props.onCardDraftChange("reviewer", (event.currentTarget as HTMLInputElement).value)}
+          />
+        </label>
+        <label class="field">
+          <span>${t("kanban.detail.fields.inputOwner")}</span>
+          <input
+            .value=${draft.inputOwner}
+            ?disabled=${disabled}
+            @input=${(event: Event) =>
+              props.onCardDraftChange(
+                "inputOwner",
+                (event.currentTarget as HTMLInputElement).value,
+              )}
+          />
+        </label>
+        <label class="field">
+          <span>${t("kanban.detail.fields.dueDate")}</span>
+          <input
+            type="date"
+            .value=${draft.dueDate}
+            ?disabled=${disabled}
+            @input=${(event: Event) =>
+              props.onCardDraftChange("dueDate", (event.currentTarget as HTMLInputElement).value)}
+          />
+        </label>
+        <label class="field checkbox kanban-detail__checkbox">
+          <input
+            type="checkbox"
+            .checked=${draft.readyForCodex}
+            ?disabled=${disabled}
+            @change=${(event: Event) =>
+              props.onCardDraftChange(
+                "readyForCodex",
+                (event.currentTarget as HTMLInputElement).checked,
+              )}
+          />
+          <span>${t("kanban.detail.fields.readyForCodex")}</span>
+        </label>
+        <label class="field full">
+          <span>${t("kanban.detail.fields.labels")}</span>
+          <textarea
+            class="kanban-detail__textarea kanban-detail__textarea--short"
+            .value=${draft.labelsText}
+            ?disabled=${disabled}
+            @input=${(event: Event) =>
+              props.onCardDraftChange(
+                "labelsText",
+                (event.currentTarget as HTMLTextAreaElement).value,
+              )}
+          ></textarea>
+        </label>
+        <label class="field full">
+          <span>${t("kanban.detail.fields.checklist")}</span>
+          <textarea
+            class="kanban-detail__textarea"
+            .value=${draft.checklistText}
+            ?disabled=${disabled}
+            @input=${(event: Event) =>
+              props.onCardDraftChange(
+                "checklistText",
+                (event.currentTarget as HTMLTextAreaElement).value,
+              )}
+          ></textarea>
+        </label>
+        <label class="field full">
+          <span>${t("kanban.detail.fields.links")}</span>
+          <textarea
+            class="kanban-detail__textarea kanban-detail__textarea--short"
+            .value=${draft.linksText}
+            ?disabled=${disabled}
+            @input=${(event: Event) =>
+              props.onCardDraftChange(
+                "linksText",
+                (event.currentTarget as HTMLTextAreaElement).value,
+              )}
+          ></textarea>
+        </label>
+        <label class="field full">
+          <span>${t("kanban.detail.fields.watchers")}</span>
+          <textarea
+            class="kanban-detail__textarea kanban-detail__textarea--short"
+            .value=${draft.watchersText}
+            ?disabled=${disabled}
+            @input=${(event: Event) =>
+              props.onCardDraftChange(
+                "watchersText",
+                (event.currentTarget as HTMLTextAreaElement).value,
+              )}
+          ></textarea>
+        </label>
+        <label class="field full">
+          <span>${t("kanban.detail.fields.customFields")}</span>
+          <textarea
+            class="kanban-detail__textarea"
+            .value=${draft.customFieldsText}
+            ?disabled=${disabled}
+            @input=${(event: Event) =>
+              props.onCardDraftChange(
+                "customFieldsText",
+                (event.currentTarget as HTMLTextAreaElement).value,
+              )}
+          ></textarea>
+        </label>
+      </div>
+
+      <div class="kanban-detail__actions">
+        <button
+          class="btn btn--sm primary"
+          ?disabled=${disabled}
+          @click=${() => void props.onCardSave()}
+        >
+          ${disabled ? t("kanban.detail.saving") : t("kanban.detail.save")}
+        </button>
+        <button
+          class="btn btn--sm"
+          ?disabled=${moveDisabled}
+          @click=${() => void props.onCardMove(draft.lane)}
+        >
+          ${t("kanban.detail.move")}
+        </button>
+        <button
+          class="btn btn--sm danger"
+          ?disabled=${disabled}
+          @click=${() => void props.onCardArchive()}
+        >
+          ${t("kanban.detail.archive")}
+        </button>
+      </div>
+
+      <label class="field full">
+        <span>${t("kanban.detail.comment")}</span>
+        <textarea
+          class="kanban-detail__textarea kanban-detail__textarea--short"
+          .value=${props.cardCommentDraft}
+          ?disabled=${disabled}
+          @input=${(event: Event) =>
+            props.onCardCommentChange((event.currentTarget as HTMLTextAreaElement).value)}
+        ></textarea>
+      </label>
+      <button
+        class="btn btn--sm"
+        ?disabled=${disabled || !props.cardCommentDraft.trim()}
+        @click=${() => void props.onCardComment()}
+      >
+        ${t("kanban.detail.addComment")}
+      </button>
+
+      ${renderDetailReadonly(card)}
     </section>
   `;
 }
@@ -429,20 +778,23 @@ export function renderKanban(props: KanbanProps) {
 
       <section class="kanban-workspace">
         <div class="kanban-board" aria-label=${t("kanban.board.ariaLabel")}>
-          ${lanes.map((lane) => renderLane(lane, cardsByLane.get(lane.id) ?? []))}
+          ${lanes.map((lane) => renderLane(lane, cardsByLane.get(lane.id) ?? [], props))}
         </div>
-        <aside class="kanban-activity-rail">
-          <div class="card-title">${t("kanban.activity.title")}</div>
-          <div class="card-sub">${t("kanban.activity.recentEvents", { count: String(props.activity.length) })}</div>
-          <div class="kanban-activity-list">
-            ${
-              props.activity.length
-                ? props.activity.map((entry) => renderActivity(entry))
-                : html`
-                    <div class="kanban-empty">${t("kanban.empty.noRecentActivity")}</div>
-                  `
-            }
-          </div>
+        <aside class="kanban-side">
+          ${renderCardDetail(props, lanes)}
+          <section class="kanban-activity-rail">
+            <div class="card-title">${t("kanban.activity.title")}</div>
+            <div class="card-sub">${t("kanban.activity.recentEvents", { count: String(props.activity.length) })}</div>
+            <div class="kanban-activity-list">
+              ${
+                props.activity.length
+                  ? props.activity.map((entry) => renderActivity(entry))
+                  : html`
+                      <div class="kanban-empty">${t("kanban.empty.noRecentActivity")}</div>
+                    `
+              }
+            </div>
+          </section>
         </aside>
       </section>
     </div>

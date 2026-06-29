@@ -10,6 +10,8 @@ import type {
   KanbanBoard as GatewayKanbanBoard,
   KanbanBoardGetResult as GatewayKanbanBoardGetResult,
   KanbanCard as GatewayKanbanCard,
+  KanbanCardMutationResult as GatewayKanbanCardMutationResult,
+  KanbanCardsGetResult as GatewayKanbanCardsGetResult,
   KanbanCardsListResult as GatewayKanbanCardsListResult,
   KanbanImportTrelloPreviewResult as GatewayKanbanImportTrelloPreviewResult,
   KanbanImportTrelloRunResult as GatewayKanbanImportTrelloRunResult,
@@ -372,6 +374,10 @@ export type KanbanBoard = GatewayKanbanBoard;
 export type KanbanBoardGetResult = GatewayKanbanBoardGetResult;
 
 export type KanbanCard = GatewayKanbanCard;
+
+export type KanbanCardMutationResult = GatewayKanbanCardMutationResult;
+
+export type KanbanCardsGetResult = GatewayKanbanCardsGetResult;
 
 export type KanbanCardsListResult = GatewayKanbanCardsListResult;
 

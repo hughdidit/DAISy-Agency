@@ -5,6 +5,8 @@ import type {
   KanbanBoard,
   KanbanBoardGetResult,
   KanbanCard,
+  KanbanCardMutationResult,
+  KanbanCardsGetResult,
   KanbanCardsListResult,
   KanbanImportTrelloPreviewResult,
   KanbanImportTrelloRunResult,
@@ -12,6 +14,22 @@ import type {
 } from "../types.ts";
 
 export type KanbanImportFormat = "json" | "csv";
+export type KanbanCardDraft = {
+  title: string;
+  description: string;
+  lane: KanbanCard["lane"];
+  priority: KanbanCard["priority"];
+  assignee: string;
+  reviewer: string;
+  inputOwner: string;
+  labelsText: string;
+  dueDate: string;
+  readyForCodex: boolean;
+  linksText: string;
+  watchersText: string;
+  checklistText: string;
+  customFieldsText: string;
+};
 
 export type KanbanState = {
   client: GatewayBrowserClient | null;
@@ -29,10 +47,93 @@ export type KanbanState = {
   kanbanImportResult: KanbanImportTrelloRunResult | null;
   kanbanImportBusy: boolean;
   kanbanImportError: string | null;
+  kanbanSelectedCardId: string | null;
+  kanbanSelectedCard: KanbanCard | null;
+  kanbanCardDraft: KanbanCardDraft | null;
+  kanbanCardCommentDraft: string;
+  kanbanCardBusy: boolean;
+  kanbanCardError: string | null;
 };
 
 function kanbanBoardParams(state: KanbanState): { boardId?: string } {
   return state.kanbanStatus?.boardId ? { boardId: state.kanbanStatus.boardId } : {};
+}
+
+function nowIso(): string {
+  return new Date().toISOString();
+}
+
+function generatedId(prefix: string): string {
+  return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function compactList(value: string): string[] {
+  return value
+    .split(/[\n,]/)
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+}
+
+function dateInputValue(value: string | undefined): string {
+  if (!value) {
+    return "";
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+  return date.toISOString().slice(0, 10);
+}
+
+function dueDateValue(value: string): string | null {
+  const trimmed = value.trim();
+  return trimmed ? `${trimmed}T00:00:00Z` : null;
+}
+
+function checklistText(card: KanbanCard): string {
+  return (card.checklist ?? [])
+    .map((item) => `${item.checked ? "[x]" : "[ ]"} ${item.text}`)
+    .join("\n");
+}
+
+function parseChecklistDraft(card: KanbanCard, value: string) {
+  const existing = card.checklist ?? [];
+  return value
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line, index) => {
+      const checked = /^\[(x|X)\]\s*/.test(line);
+      const text = line.replace(/^\[(x|X| )\]\s*/, "").trim();
+      const fallback = existing[index];
+      const timestamp = nowIso();
+      return {
+        id: fallback?.id ?? generatedId("item"),
+        text: text || fallback?.text || "Checklist item",
+        checked,
+        createdAt: fallback?.createdAt ?? timestamp,
+        updatedAt: timestamp,
+      };
+    });
+}
+
+export function createKanbanCardDraft(card: KanbanCard): KanbanCardDraft {
+  return {
+    title: card.title,
+    description: card.description ?? "",
+    lane: card.lane,
+    priority: card.priority,
+    assignee: card.assignee ?? "",
+    reviewer: card.reviewer ?? "",
+    inputOwner: card.inputOwner ?? "",
+    labelsText: (card.labels ?? []).join("\n"),
+    dueDate: dateInputValue(card.dueDate),
+    readyForCodex: card.readyForCodex,
+    linksText: (card.links ?? []).join("\n"),
+    watchersText: (card.watchers ?? []).join("\n"),
+    checklistText: checklistText(card),
+    customFieldsText: JSON.stringify(card.customFields ?? {}, null, 2),
+  };
 }
 
 function inferImportFormat(fileName: string): KanbanImportFormat | null {
@@ -44,6 +145,197 @@ function inferImportFormat(fileName: string): KanbanImportFormat | null {
     return "json";
   }
   return null;
+}
+
+function applyCardMutation(state: KanbanState, result: KanbanCardMutationResult) {
+  state.kanbanSelectedCard = result.card;
+  state.kanbanSelectedCardId = result.card.id;
+  state.kanbanCardDraft = createKanbanCardDraft(result.card);
+  state.kanbanCards = state.kanbanCards.map((card) =>
+    card.id === result.card.id ? result.card : card,
+  );
+  state.kanbanActivity = [result.activity, ...state.kanbanActivity].slice(0, 50);
+}
+
+export function updateKanbanCardDraft<K extends keyof KanbanCardDraft>(
+  state: KanbanState,
+  field: K,
+  value: KanbanCardDraft[K],
+) {
+  if (!state.kanbanCardDraft) {
+    return;
+  }
+  state.kanbanCardDraft = { ...state.kanbanCardDraft, [field]: value };
+  state.kanbanCardError = null;
+}
+
+export function updateKanbanCardCommentDraft(state: KanbanState, value: string) {
+  state.kanbanCardCommentDraft = value;
+  state.kanbanCardError = null;
+}
+
+export function closeKanbanCard(state: KanbanState) {
+  state.kanbanSelectedCardId = null;
+  state.kanbanSelectedCard = null;
+  state.kanbanCardDraft = null;
+  state.kanbanCardCommentDraft = "";
+  state.kanbanCardBusy = false;
+  state.kanbanCardError = null;
+}
+
+export async function selectKanbanCard(state: KanbanState, cardId: string) {
+  const fallback = state.kanbanCards.find((card) => card.id === cardId) ?? null;
+  state.kanbanSelectedCardId = cardId;
+  state.kanbanSelectedCard = fallback;
+  state.kanbanCardDraft = fallback ? createKanbanCardDraft(fallback) : null;
+  state.kanbanCardCommentDraft = "";
+  state.kanbanCardError = null;
+  if (!state.client || !state.connected) {
+    return;
+  }
+  state.kanbanCardBusy = true;
+  try {
+    const result = await state.client.request<KanbanCardsGetResult>("kanban.cards.get", {
+      ...kanbanBoardParams(state),
+      cardId,
+    });
+    state.kanbanSelectedCard = result.card;
+    state.kanbanCardDraft = createKanbanCardDraft(result.card);
+    state.kanbanCards = state.kanbanCards.map((card) =>
+      card.id === result.card.id ? result.card : card,
+    );
+  } catch (err) {
+    state.kanbanCardError = String(err);
+  } finally {
+    state.kanbanCardBusy = false;
+  }
+}
+
+export async function saveKanbanCard(state: KanbanState) {
+  if (!state.client || !state.connected || state.kanbanCardBusy) {
+    return;
+  }
+  const card = state.kanbanSelectedCard;
+  const draft = state.kanbanCardDraft;
+  if (!card || !draft) {
+    return;
+  }
+  const title = draft.title.trim();
+  if (!title) {
+    state.kanbanCardError = "Kanban card title is required.";
+    return;
+  }
+  let customFields: Record<string, unknown>;
+  try {
+    const parsed = JSON.parse(draft.customFieldsText.trim() || "{}") as unknown;
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      throw new Error("Custom fields must be a JSON object.");
+    }
+    customFields = parsed as Record<string, unknown>;
+  } catch (err) {
+    state.kanbanCardError = String(err);
+    return;
+  }
+  state.kanbanCardBusy = true;
+  state.kanbanCardError = null;
+  try {
+    const result = await state.client.request<KanbanCardMutationResult>("kanban.cards.update", {
+      ...kanbanBoardParams(state),
+      cardId: card.id,
+      expectedVersion: card.version,
+      updates: {
+        title,
+        description: draft.description.trim() ? draft.description : null,
+        priority: draft.priority,
+        assignee: draft.assignee.trim() || null,
+        reviewer: draft.reviewer.trim() || null,
+        inputOwner: draft.inputOwner.trim() || null,
+        labels: compactList(draft.labelsText),
+        dueDate: dueDateValue(draft.dueDate),
+        checklist: parseChecklistDraft(card, draft.checklistText),
+        links: compactList(draft.linksText),
+        watchers: compactList(draft.watchersText),
+        customFields,
+        readyForCodex: draft.readyForCodex,
+      },
+    });
+    applyCardMutation(state, result);
+    await loadKanban(state);
+  } catch (err) {
+    state.kanbanCardError = String(err);
+  } finally {
+    state.kanbanCardBusy = false;
+  }
+}
+
+export async function commentKanbanCard(state: KanbanState) {
+  if (!state.client || !state.connected || state.kanbanCardBusy || !state.kanbanSelectedCard) {
+    return;
+  }
+  const body = state.kanbanCardCommentDraft.trim();
+  if (!body) {
+    state.kanbanCardError = "Kanban comment body is required.";
+    return;
+  }
+  state.kanbanCardBusy = true;
+  state.kanbanCardError = null;
+  try {
+    const result = await state.client.request<KanbanCardMutationResult>("kanban.cards.comment", {
+      ...kanbanBoardParams(state),
+      cardId: state.kanbanSelectedCard.id,
+      body,
+    });
+    state.kanbanCardCommentDraft = "";
+    applyCardMutation(state, result);
+    await loadKanban(state);
+  } catch (err) {
+    state.kanbanCardError = String(err);
+  } finally {
+    state.kanbanCardBusy = false;
+  }
+}
+
+export async function moveKanbanCard(state: KanbanState, lane: KanbanCard["lane"]) {
+  if (!state.client || !state.connected || state.kanbanCardBusy || !state.kanbanSelectedCard) {
+    return;
+  }
+  state.kanbanCardBusy = true;
+  state.kanbanCardError = null;
+  try {
+    const result = await state.client.request<KanbanCardMutationResult>("kanban.cards.move", {
+      ...kanbanBoardParams(state),
+      cardId: state.kanbanSelectedCard.id,
+      expectedVersion: state.kanbanSelectedCard.version,
+      lane,
+    });
+    applyCardMutation(state, result);
+    await loadKanban(state);
+  } catch (err) {
+    state.kanbanCardError = String(err);
+  } finally {
+    state.kanbanCardBusy = false;
+  }
+}
+
+export async function archiveKanbanCard(state: KanbanState) {
+  if (!state.client || !state.connected || state.kanbanCardBusy || !state.kanbanSelectedCard) {
+    return;
+  }
+  state.kanbanCardBusy = true;
+  state.kanbanCardError = null;
+  try {
+    await state.client.request<KanbanCardMutationResult>("kanban.cards.archive", {
+      ...kanbanBoardParams(state),
+      cardId: state.kanbanSelectedCard.id,
+      expectedVersion: state.kanbanSelectedCard.version,
+    });
+    closeKanbanCard(state);
+    await loadKanban(state);
+  } catch (err) {
+    state.kanbanCardError = String(err);
+  } finally {
+    state.kanbanCardBusy = false;
+  }
 }
 
 export function setKanbanImportFormat(state: KanbanState, format: KanbanImportFormat) {
