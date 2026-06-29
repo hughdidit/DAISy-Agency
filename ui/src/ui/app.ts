@@ -55,7 +55,10 @@ import { normalizeAssistantIdentity } from "./assistant-identity.ts";
 import { loadAssistantIdentity as loadAssistantIdentityInternal } from "./controllers/assistant-identity.ts";
 import type { CronFieldErrors } from "./controllers/cron.ts";
 import type { DevicePairingList } from "./controllers/devices.ts";
-import type { ExecApprovalRequest } from "./controllers/exec-approval.ts";
+import {
+  isSensitiveExecApprovalRequest,
+  type ExecApprovalRequest,
+} from "./controllers/exec-approval.ts";
 import type { ExecApprovalsFile, ExecApprovalsSnapshot } from "./controllers/exec-approvals.ts";
 import {
   archiveKanbanCard as archiveKanbanCardInternal,
@@ -693,10 +696,21 @@ export class OpenClawApp extends LitElement {
     this.execApprovalBusy = true;
     this.execApprovalError = null;
     try {
-      await this.client.request("exec.approval.resolve", {
+      const sensitive = isSensitiveExecApprovalRequest(active);
+      if (sensitive && decision === "allow-always") {
+        throw new Error("Always allow is not permitted for sensitive exec approvals");
+      }
+      const params: { id: string; decision: string; operationHash?: string } = {
         id: active.id,
         decision,
-      });
+      };
+      if (sensitive) {
+        if (!active.request.operationHash) {
+          throw new Error("Sensitive exec approval is missing operationHash");
+        }
+        params.operationHash = active.request.operationHash;
+      }
+      await this.client.request("exec.approval.resolve", params);
       this.execApprovalQueue = this.execApprovalQueue.filter((entry) => entry.id !== active.id);
     } catch (err) {
       this.execApprovalError = `Exec approval failed: ${String(err)}`;
