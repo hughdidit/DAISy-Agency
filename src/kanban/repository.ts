@@ -20,6 +20,8 @@ import type {
 } from "./trello-import.js";
 import {
   KANBAN_LANES,
+  KANBAN_MAX_ACTIVE_CARD_LIST_LIMIT,
+  KANBAN_MAX_ARCHIVED_CARD_LIST_LIMIT,
   KANBAN_MAX_ATTACHMENT_BYTES,
   KANBAN_MAX_ATTACHMENT_FILENAME_LENGTH,
   KANBAN_MAX_ATTACHMENTS_PER_CARD,
@@ -409,12 +411,12 @@ function auditWithTimestamp(audit: KanbanAuditEnvelope): TimestampedKanbanAuditE
     : { ...audit, occurredAt: new Date() };
 }
 
-function clampLimit(limit: number | undefined, max: number): number {
+function clampLimit(limit: number | undefined, max: number, defaultLimit = max): number {
   if (limit === undefined) {
-    return max;
+    return Math.min(defaultLimit, max);
   }
   if (!Number.isFinite(limit) || limit <= 0) {
-    return max;
+    return Math.min(defaultLimit, max);
   }
   return Math.min(Math.floor(limit), max);
 }
@@ -1116,7 +1118,13 @@ export class KanbanMongoRepository {
   }
 
   async listCards(params: KanbanListCardsParams): Promise<KanbanCard[]> {
-    const limit = clampLimit(params.limit, 500);
+    const limit = clampLimit(
+      params.limit,
+      params.includeArchived
+        ? KANBAN_MAX_ARCHIVED_CARD_LIST_LIMIT
+        : KANBAN_MAX_ACTIVE_CARD_LIST_LIMIT,
+      KANBAN_MAX_ACTIVE_CARD_LIST_LIMIT,
+    );
     const filter: Filter<KanbanCardDocument> = {
       boardId: params.boardId,
     };

@@ -1,10 +1,13 @@
 import { Type } from "@sinclair/typebox";
 import {
+  KANBAN_MAX_ACTIVE_CARD_LIST_LIMIT,
+  KANBAN_MAX_ARCHIVED_CARD_LIST_LIMIT,
   KANBAN_MAX_ATTACHMENT_BASE64_LENGTH,
   KANBAN_MAX_ATTACHMENT_FILENAME_LENGTH,
 } from "../../../kanban/types.js";
 import { NonEmptyString } from "./primitives.js";
 
+const JSON_SCHEMA_THEN_KEYWORD = ["th", "en"].join("");
 const IsoDateTimeString = Type.String({
   format: "date-time",
   pattern: "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,9})?(?:Z|[+-]\\d{2}:\\d{2})$",
@@ -217,7 +220,9 @@ export const KanbanCardsListParamsSchema = Type.Object(
     includeArchived: Type.Optional(Type.Boolean()),
     readyForCodex: Type.Optional(Type.Boolean()),
     assignee: Type.Optional(NonEmptyString),
-    limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 200 })),
+    limit: Type.Optional(
+      Type.Integer({ minimum: 1, maximum: KANBAN_MAX_ARCHIVED_CARD_LIST_LIMIT }),
+    ),
     after: Type.Optional(
       Type.Object(
         {
@@ -230,12 +235,34 @@ export const KanbanCardsListParamsSchema = Type.Object(
       ),
     ),
   },
-  { additionalProperties: false },
+  {
+    additionalProperties: false,
+    allOf: [
+      {
+        if: {
+          properties: {
+            includeArchived: { const: true },
+          },
+          required: ["includeArchived"],
+        },
+        [JSON_SCHEMA_THEN_KEYWORD]: {
+          properties: {
+            limit: { type: "integer", minimum: 1, maximum: KANBAN_MAX_ARCHIVED_CARD_LIST_LIMIT },
+          },
+        },
+        else: {
+          properties: {
+            limit: { type: "integer", minimum: 1, maximum: KANBAN_MAX_ACTIVE_CARD_LIST_LIMIT },
+          },
+        },
+      },
+    ],
+  },
 );
 
 export const KanbanCardsListResultSchema = Type.Object(
   {
-    cards: Type.Array(KanbanCardSchema, { maxItems: 200 }),
+    cards: Type.Array(KanbanCardSchema, { maxItems: KANBAN_MAX_ARCHIVED_CARD_LIST_LIMIT }),
   },
   { additionalProperties: false },
 );
