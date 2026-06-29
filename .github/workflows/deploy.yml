@@ -73,6 +73,9 @@ on:
       MONGODB_URI:
         description: MongoDB connection URI (optional, memory plugin only)
         required: false
+      KANBAN_MONGODB_URI:
+        description: MongoDB connection URI for the dedicated Kanban store
+        required: false
       GEMINI_API_KEY:
         description: Gemini API key for embeddings (optional, memory plugin only)
         required: false
@@ -161,6 +164,9 @@ jobs:
           OPENCLAW_BRIDGE_PORT: ${{ vars.OPENCLAW_BRIDGE_PORT }}
           OPENCLAW_GATEWAY_BIND: ${{ vars.OPENCLAW_GATEWAY_BIND || 'loopback' }}
           OPENCLAW_CONFIG_FILE: ${{ vars.OPENCLAW_CONFIG_FILE || 'openclaw.json' }}
+          KANBAN_MONGODB_DATABASE: ${{ vars.KANBAN_MONGODB_DATABASE || 'daisy_kanban' }}
+          KANBAN_BOARD_SLUG: ${{ vars.KANBAN_BOARD_SLUG || 'team-agents' }}
+          KANBAN_BOARD_TITLE: ${{ vars.KANBAN_BOARD_TITLE || 'Team Agents' }}
           # Secrets (credentials)
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
@@ -169,6 +175,7 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          KANBAN_MONGODB_URI: ${{ secrets.KANBAN_MONGODB_URI }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
           FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
@@ -330,6 +337,9 @@ jobs:
           OPENCLAW_BRIDGE_PORT: ${{ vars.OPENCLAW_BRIDGE_PORT }}
           OPENCLAW_GATEWAY_BIND: ${{ vars.OPENCLAW_GATEWAY_BIND || 'loopback' }}
           OPENCLAW_CONFIG_FILE: ${{ vars.OPENCLAW_CONFIG_FILE || 'openclaw.json' }}
+          KANBAN_MONGODB_DATABASE: ${{ vars.KANBAN_MONGODB_DATABASE || 'daisy_kanban' }}
+          KANBAN_BOARD_SLUG: ${{ vars.KANBAN_BOARD_SLUG || 'team-agents' }}
+          KANBAN_BOARD_TITLE: ${{ vars.KANBAN_BOARD_TITLE || 'Team Agents' }}
           # Secrets (credentials)
           GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
@@ -338,6 +348,7 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          KANBAN_MONGODB_URI: ${{ secrets.KANBAN_MONGODB_URI }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           BRAVE_API_KEY: ${{ secrets.BRAVE_API_KEY }}
           FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
