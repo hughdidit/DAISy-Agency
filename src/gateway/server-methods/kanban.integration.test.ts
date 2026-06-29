@@ -1,7 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import net from "node:net";
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { OpenClawConfig } from "../../config/config.js";
 import { KANBAN_DEFAULT_COLLECTIONS, type ResolvedKanbanConfig } from "../../kanban/config.js";
@@ -128,6 +128,16 @@ async function waitForPrimary(uri: string): Promise<void> {
     await wait(1_000);
   }
   throw new Error(`Timed out waiting for MongoDB replica-set primary: ${String(lastHello)}`);
+}
+
+async function readGridFsFile(repository: KanbanMongoRepository, fileId: string): Promise<Buffer> {
+  const chunks: Buffer[] = [];
+  for await (const chunk of repository
+    .attachmentBucket()
+    .openDownloadStream(new ObjectId(fileId))) {
+    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  }
+  return Buffer.concat(chunks);
 }
 
 async function startMongoReplicaSet(): Promise<MongoDockerRuntime> {
@@ -295,6 +305,28 @@ describe("Kanban gateway read handlers", () => {
     ).resolves.toMatchObject({
       ok: false,
       error: { code: "INVALID_REQUEST", message: "Kanban comment body must not be blank" },
+    });
+    await expect(
+      invoke(handlers, "kanban.cards.attachments.add", {
+        cardId: "card-1",
+        expectedVersion: 1,
+        fileName: "   ",
+        contentBase64: "bm90ZXM=",
+      }),
+    ).resolves.toMatchObject({
+      ok: false,
+      error: { code: "INVALID_REQUEST", message: "Kanban attachment file name must not be blank" },
+    });
+    await expect(
+      invoke(handlers, "kanban.cards.attachments.add", {
+        cardId: "card-1",
+        expectedVersion: 1,
+        fileName: "notes.txt",
+        contentBase64: "not-base64",
+      }),
+    ).resolves.toMatchObject({
+      ok: false,
+      error: { code: "INVALID_REQUEST", message: "Kanban attachment content must be valid base64" },
     });
     await expect(
       invoke(handlers, "kanban.codex.handoff", {
@@ -651,6 +683,82 @@ describeWithDocker("Kanban gateway read handlers with MongoDB", () => {
       readyForCodex: false,
       version: 4,
     });
+  }, 240_000);
+
+  it("uploads and archives card attachments through durable gateway handlers", async () => {
+    const testRepository = requireValue(
+      repository,
+      "Kanban gateway repository was not initialized",
+    );
+    const testHandlers = requireValue(handlers, "Kanban gateway handlers were not initialized");
+
+    await testRepository.bootstrapDefaultBoard({
+      actor: { type: "system" as const, id: "kanban-gateway-attachment-test" },
+      correlationId: "kanban-gateway-attachment-bootstrap",
+    });
+
+    const createResponse = await invoke(testHandlers, "kanban.cards.create", {
+      title: "Attachment handler card",
+    });
+    expect(createResponse.ok).toBe(true);
+    const created = createResponse.payload as KanbanCardMutationResult;
+
+    const addResponse = await invoke(testHandlers, "kanban.cards.attachments.add", {
+      cardId: created.card.id,
+      expectedVersion: created.card.version,
+      fileName: "handler-notes.txt",
+      contentType: "text/plain",
+      contentBase64: Buffer.from("gateway attachment bytes", "utf8").toString("base64"),
+    });
+    expect(addResponse.ok).toBe(true);
+    const added = addResponse.payload as KanbanCardMutationResult;
+    expect(added.activity).toMatchObject({
+      action: "attachment_add",
+      summary: "Added attachment handler-notes.txt to Attachment handler card",
+      correlationId: "kanban.cards.attachments.add-test",
+      data: expect.objectContaining({
+        filename: "handler-notes.txt",
+        contentType: "text/plain",
+        byteSize: 24,
+      }),
+    });
+    expect(added.card).toMatchObject({
+      version: 2,
+      attachments: [
+        expect.objectContaining({
+          fileName: "handler-notes.txt",
+          contentType: "text/plain",
+          sizeBytes: 24,
+          gridFsId: expect.any(String),
+        }),
+      ],
+    });
+
+    const attachment = requireValue(added.card.attachments.at(0), "Expected gateway attachment");
+    const gridFsId = requireValue(attachment.gridFsId, "Expected GridFS id in gateway response");
+    await expect(readGridFsFile(testRepository, gridFsId)).resolves.toEqual(
+      Buffer.from("gateway attachment bytes", "utf8"),
+    );
+
+    const archiveResponse = await invoke(testHandlers, "kanban.cards.attachments.archive", {
+      cardId: added.card.id,
+      expectedVersion: added.card.version,
+      attachmentId: attachment.id,
+    });
+    expect(archiveResponse.ok).toBe(true);
+    const archived = archiveResponse.payload as KanbanCardMutationResult;
+    expect(archived.activity).toMatchObject({
+      action: "attachment_archive",
+      summary: "Archived attachment handler-notes.txt from Attachment handler card",
+      correlationId: "kanban.cards.attachments.archive-test",
+    });
+    expect(archived.card.attachments[0]).toMatchObject({
+      id: attachment.id,
+      archivedAt: expect.any(String),
+    });
+    await expect(readGridFsFile(testRepository, gridFsId)).resolves.toEqual(
+      Buffer.from("gateway attachment bytes", "utf8"),
+    );
   }, 240_000);
 
   it("previews and runs Trello imports through durable gateway handlers", async () => {

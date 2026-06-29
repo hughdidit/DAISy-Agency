@@ -118,6 +118,8 @@ const METHOD_SCOPE_GROUPS: Record<OperatorScope, readonly string[]> = {
     "kanban.cards.update",
     "kanban.cards.move",
     "kanban.cards.comment",
+    "kanban.cards.attachments.add",
+    "kanban.cards.attachments.archive",
     "kanban.cards.archive",
     "kanban.import.trello.preview",
     "kanban.import.trello.run",

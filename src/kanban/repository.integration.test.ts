@@ -1,7 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import net from "node:net";
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { KANBAN_DEFAULT_COLLECTIONS } from "./config.js";
 import type { ResolvedKanbanConfig } from "./config.js";
@@ -109,6 +109,16 @@ async function waitForPrimary(uri: string): Promise<void> {
     await wait(1_000);
   }
   throw new Error(`Timed out waiting for MongoDB replica-set primary: ${String(lastHello)}`);
+}
+
+async function readGridFsFile(repository: KanbanMongoRepository, fileId: string): Promise<Buffer> {
+  const chunks: Buffer[] = [];
+  for await (const chunk of repository
+    .attachmentBucket()
+    .openDownloadStream(new ObjectId(fileId))) {
+    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  }
+  return Buffer.concat(chunks);
 }
 
 async function startMongoReplicaSet(): Promise<MongoDockerRuntime> {
@@ -390,5 +400,116 @@ describeWithDocker("KanbanMongoRepository MongoDB integration", () => {
         "card_archive",
       ]),
     );
+  }, 240_000);
+
+  it("stores uploaded card attachments in GridFS and archives metadata without deleting content", async () => {
+    const testConfig = requireValue(config, "Kanban integration config was not initialized");
+    if (!client || !repository) {
+      throw new Error("Kanban integration repository was not initialized");
+    }
+
+    await repository.ensureIndexes();
+    const audit = {
+      actor: { type: "system" as const, id: "kanban-attachment-integration" },
+      correlationId: "kanban-attachment-integration",
+      occurredAt: new Date("2026-01-03T04:05:06.000Z"),
+    };
+
+    const board = await repository.bootstrapDefaultBoard(audit);
+    const created = await repository.createCard(
+      {
+        id: "attachment-card-1",
+        boardId: board.id,
+        title: "Attachment card",
+      },
+      audit,
+    );
+
+    const added = await repository.addAttachment(
+      {
+        boardId: board.id,
+        cardId: created.card.id,
+        expectedVersion: created.card.version,
+        filename: "notes.txt",
+        contentType: "text/plain",
+        content: Buffer.from("GridFS attachment bytes", "utf8"),
+      },
+      audit,
+    );
+    expect(added?.activity).toMatchObject({
+      action: "attachment_add",
+      cardId: "attachment-card-1",
+      metadata: expect.objectContaining({
+        filename: "notes.txt",
+        contentType: "text/plain",
+        byteSize: 23,
+      }),
+    });
+    expect(added?.card).toMatchObject({
+      id: "attachment-card-1",
+      version: 2,
+      attachments: [
+        expect.objectContaining({
+          fileId: expect.any(String),
+          filename: "notes.txt",
+          contentType: "text/plain",
+          byteSize: 23,
+        }),
+      ],
+    });
+
+    const attachment = requireValue(added?.card.attachments.at(0), "Expected uploaded attachment");
+    const stored = await readGridFsFile(
+      repository,
+      requireValue(attachment.fileId, "Expected GridFS file id"),
+    );
+    expect(stored.toString("utf8")).toBe("GridFS attachment bytes");
+
+    const attachmentRows = await client
+      .db(testConfig.database)
+      .collection(testConfig.collections.attachments)
+      .find({ cardId: "attachment-card-1" })
+      .toArray();
+    expect(attachmentRows).toHaveLength(1);
+    expect(attachmentRows[0]).toMatchObject({
+      _id: attachment.id,
+      boardId: board.id,
+      filename: "notes.txt",
+      createdBy: { type: "system", id: "kanban-attachment-integration" },
+    });
+
+    await expect(
+      repository.addAttachment(
+        {
+          boardId: board.id,
+          cardId: created.card.id,
+          expectedVersion: created.card.version,
+          filename: "stale.txt",
+          content: Buffer.from("stale", "utf8"),
+        },
+        audit,
+      ),
+    ).resolves.toBeNull();
+
+    const archived = await repository.archiveAttachment(
+      {
+        boardId: board.id,
+        cardId: created.card.id,
+        expectedVersion: requireValue(added, "Expected attachment add result").card.version,
+        attachmentId: attachment.id,
+      },
+      audit,
+    );
+    expect(archived?.activity).toMatchObject({
+      action: "attachment_archive",
+      metadata: expect.objectContaining({ attachmentId: attachment.id }),
+    });
+    expect(archived?.card.attachments[0]).toMatchObject({
+      id: attachment.id,
+      archivedAt: expect.any(Date),
+    });
+    await expect(
+      readGridFsFile(repository, requireValue(attachment.fileId, "file id")),
+    ).resolves.toBeInstanceOf(Buffer);
   }, 240_000);
 });

@@ -20,11 +20,15 @@ import type {
   KanbanAuditEnvelope,
   KanbanChecklistItem as RepositoryKanbanChecklistItem,
 } from "../../kanban/types.js";
+import { KANBAN_MAX_ATTACHMENT_BYTES } from "../../kanban/types.js";
+import { canonicalizeBase64, estimateBase64DecodedBytes } from "../../media/base64.js";
 import {
   ErrorCodes,
   errorShape,
   validateKanbanActivityListParams,
   validateKanbanBoardGetParams,
+  validateKanbanCardsAttachmentAddParams,
+  validateKanbanCardsAttachmentArchiveParams,
   validateKanbanCardsArchiveParams,
   validateKanbanCardsCommentParams,
   validateKanbanCardsCreateParams,
@@ -74,6 +78,8 @@ const KANBAN_WRITE_METHODS = [
   "kanban.cards.update",
   "kanban.cards.move",
   "kanban.cards.comment",
+  "kanban.cards.attachments.add",
+  "kanban.cards.attachments.archive",
   "kanban.cards.archive",
   "kanban.import.trello.run",
   "kanban.codex.pickNext",
@@ -428,6 +434,32 @@ function invalidRequest(message: string, respond: RespondFn): void {
   respond(false, undefined, errorShape(ErrorCodes.INVALID_REQUEST, message));
 }
 
+function decodeAttachmentContentBase64(contentBase64: string, respond: RespondFn): Buffer | null {
+  const canonical = canonicalizeBase64(contentBase64);
+  if (!canonical) {
+    invalidRequest("Kanban attachment content must be valid base64", respond);
+    return null;
+  }
+  const estimatedBytes = estimateBase64DecodedBytes(canonical);
+  if (estimatedBytes <= 0) {
+    invalidRequest("Kanban attachment content must not be empty", respond);
+    return null;
+  }
+  if (estimatedBytes > KANBAN_MAX_ATTACHMENT_BYTES) {
+    invalidRequest(
+      `Kanban attachment content exceeds ${String(KANBAN_MAX_ATTACHMENT_BYTES)} bytes`,
+      respond,
+    );
+    return null;
+  }
+  const content = Buffer.from(canonical, "base64");
+  if (content.byteLength !== estimatedBytes || content.byteLength > KANBAN_MAX_ATTACHMENT_BYTES) {
+    invalidRequest("Kanban attachment content must be valid base64", respond);
+    return null;
+  }
+  return content;
+}
+
 export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequestHandlers {
   const loadConfigFn = deps.loadConfig ?? loadConfig;
   const createRepository = deps.createRepository ?? createKanbanRepository;
@@ -767,6 +799,84 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
         );
         if (!result) {
           cardNotFound(respond);
+          return;
+        }
+        respond(true, mapMutationResult(result), undefined);
+      });
+    },
+
+    "kanban.cards.attachments.add": async ({ params, req, client, respond }) => {
+      if (
+        !assertValidParams(
+          params,
+          validateKanbanCardsAttachmentAddParams,
+          "kanban.cards.attachments.add",
+          respond,
+        )
+      ) {
+        return;
+      }
+      const fileName = requireNonBlankParam(
+        params.fileName,
+        "Kanban attachment file name",
+        respond,
+      );
+      if (!fileName) {
+        return;
+      }
+      const content = decodeAttachmentContentBase64(params.contentBase64, respond);
+      if (!content) {
+        return;
+      }
+      await withRepository(respond, async (repo, config) => {
+        if (rejectNonDefaultBoard(params.boardId, config, respond)) {
+          return;
+        }
+        const result = await repo.addAttachment(
+          {
+            boardId: config.board.slug,
+            cardId: params.cardId,
+            expectedVersion: params.expectedVersion,
+            filename: fileName,
+            contentType: params.contentType,
+            content,
+          },
+          auditFromRequest(client, req.id),
+        );
+        if (!result) {
+          notFoundOrConflict(respond);
+          return;
+        }
+        respond(true, mapMutationResult(result), undefined);
+      });
+    },
+
+    "kanban.cards.attachments.archive": async ({ params, req, client, respond }) => {
+      if (
+        !assertValidParams(
+          params,
+          validateKanbanCardsAttachmentArchiveParams,
+          "kanban.cards.attachments.archive",
+          respond,
+        )
+      ) {
+        return;
+      }
+      await withRepository(respond, async (repo, config) => {
+        if (rejectNonDefaultBoard(params.boardId, config, respond)) {
+          return;
+        }
+        const result = await repo.archiveAttachment(
+          {
+            boardId: config.board.slug,
+            cardId: params.cardId,
+            expectedVersion: params.expectedVersion,
+            attachmentId: params.attachmentId,
+          },
+          auditFromRequest(client, req.id),
+        );
+        if (!result) {
+          notFoundOrConflict(respond);
           return;
         }
         respond(true, mapMutationResult(result), undefined);

@@ -29,6 +29,8 @@ describe("method scope resolution", () => {
       "kanban.cards.update",
       "kanban.cards.move",
       "kanban.cards.comment",
+      "kanban.cards.attachments.add",
+      "kanban.cards.attachments.archive",
       "kanban.cards.archive",
       "kanban.import.trello.run",
       "kanban.codex.pickNext",

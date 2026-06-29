@@ -1,4 +1,5 @@
 import { Type } from "@sinclair/typebox";
+import { KANBAN_MAX_ATTACHMENT_BASE64_LENGTH } from "../../../kanban/types.js";
 import { NonEmptyString } from "./primitives.js";
 
 const IsoDateTimeString = Type.String({
@@ -315,6 +316,28 @@ export const KanbanCardsCommentParamsSchema = Type.Object(
     boardId: Type.Optional(NonEmptyString),
     cardId: NonEmptyString,
     body: NonEmptyString,
+  },
+  { additionalProperties: false },
+);
+
+export const KanbanCardsAttachmentAddParamsSchema = Type.Object(
+  {
+    boardId: Type.Optional(NonEmptyString),
+    cardId: NonEmptyString,
+    expectedVersion: Type.Integer({ minimum: 1 }),
+    fileName: NonEmptyString,
+    contentType: Type.Optional(Type.String({ maxLength: 255 })),
+    contentBase64: Type.String({ minLength: 4, maxLength: KANBAN_MAX_ATTACHMENT_BASE64_LENGTH }),
+  },
+  { additionalProperties: false },
+);
+
+export const KanbanCardsAttachmentArchiveParamsSchema = Type.Object(
+  {
+    boardId: Type.Optional(NonEmptyString),
+    cardId: NonEmptyString,
+    expectedVersion: Type.Integer({ minimum: 1 }),
+    attachmentId: NonEmptyString,
   },
   { additionalProperties: false },
 );

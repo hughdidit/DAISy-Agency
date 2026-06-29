@@ -5371,6 +5371,66 @@ public struct KanbanCardsCommentParams: Codable, Sendable {
     }
 }
 
+public struct KanbanCardsAttachmentAddParams: Codable, Sendable {
+    public let boardid: String?
+    public let cardid: String
+    public let expectedversion: Int
+    public let filename: String
+    public let contenttype: String?
+    public let contentbase64: String
+
+    public init(
+        boardid: String?,
+        cardid: String,
+        expectedversion: Int,
+        filename: String,
+        contenttype: String?,
+        contentbase64: String)
+    {
+        self.boardid = boardid
+        self.cardid = cardid
+        self.expectedversion = expectedversion
+        self.filename = filename
+        self.contenttype = contenttype
+        self.contentbase64 = contentbase64
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case boardid = "boardId"
+        case cardid = "cardId"
+        case expectedversion = "expectedVersion"
+        case filename = "fileName"
+        case contenttype = "contentType"
+        case contentbase64 = "contentBase64"
+    }
+}
+
+public struct KanbanCardsAttachmentArchiveParams: Codable, Sendable {
+    public let boardid: String?
+    public let cardid: String
+    public let expectedversion: Int
+    public let attachmentid: String
+
+    public init(
+        boardid: String?,
+        cardid: String,
+        expectedversion: Int,
+        attachmentid: String)
+    {
+        self.boardid = boardid
+        self.cardid = cardid
+        self.expectedversion = expectedversion
+        self.attachmentid = attachmentid
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case boardid = "boardId"
+        case cardid = "cardId"
+        case expectedversion = "expectedVersion"
+        case attachmentid = "attachmentId"
+    }
+}
+
 public struct KanbanCardsArchiveParams: Codable, Sendable {
     public let boardid: String?
     public let cardid: String
