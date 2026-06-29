@@ -1,5 +1,9 @@
 import AjvPkg from "ajv";
 import { describe, expect, it } from "vitest";
+import {
+  KANBAN_MAX_ATTACHMENT_BASE64_LENGTH,
+  KANBAN_MAX_ATTACHMENT_FILENAME_LENGTH,
+} from "../../../kanban/types.js";
 import { ProtocolSchemas } from "./protocol-schemas.js";
 
 function createAjv() {
@@ -136,6 +140,22 @@ describe("Kanban gateway protocol schemas", () => {
         cardId: "card-1",
         fileName: "notes.txt",
         contentBase64: "bm90ZXM=",
+      }),
+    ).toBe(false);
+    expect(
+      addAttachment({
+        cardId: "card-1",
+        expectedVersion: 2,
+        fileName: "x".repeat(KANBAN_MAX_ATTACHMENT_FILENAME_LENGTH + 1),
+        contentBase64: "bm90ZXM=",
+      }),
+    ).toBe(false);
+    expect(
+      addAttachment({
+        cardId: "card-1",
+        expectedVersion: 2,
+        fileName: "notes.txt",
+        contentBase64: "A".repeat(KANBAN_MAX_ATTACHMENT_BASE64_LENGTH + 1),
       }),
     ).toBe(false);
     expect(

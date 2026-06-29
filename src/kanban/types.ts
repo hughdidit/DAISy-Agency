@@ -4,6 +4,7 @@ export const KANBAN_DEFAULT_DATABASE = "daisy_kanban";
 export const KANBAN_MAX_ATTACHMENT_BYTES = 5_000_000;
 export const KANBAN_MAX_ATTACHMENT_BASE64_LENGTH = Math.ceil(KANBAN_MAX_ATTACHMENT_BYTES / 3) * 4;
 export const KANBAN_MAX_ATTACHMENTS_PER_CARD = 100;
+export const KANBAN_MAX_ATTACHMENT_FILENAME_LENGTH = 255;
 
 export const KANBAN_LANES = [
   { id: "todo", title: "To Do", order: 0 },

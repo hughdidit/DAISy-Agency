@@ -20,7 +20,10 @@ import type {
   KanbanAuditEnvelope,
   KanbanChecklistItem as RepositoryKanbanChecklistItem,
 } from "../../kanban/types.js";
-import { KANBAN_MAX_ATTACHMENT_BYTES } from "../../kanban/types.js";
+import {
+  KANBAN_MAX_ATTACHMENT_BYTES,
+  KANBAN_MAX_ATTACHMENT_FILENAME_LENGTH,
+} from "../../kanban/types.js";
 import { canonicalizeBase64, estimateBase64DecodedBytes } from "../../media/base64.js";
 import {
   ErrorCodes,
@@ -410,6 +413,17 @@ function notFoundOrConflict(respond: RespondFn): void {
     false,
     undefined,
     errorShape(ErrorCodes.INVALID_REQUEST, "Kanban card not found or version conflict"),
+  );
+}
+
+function attachmentNotFoundOrConflict(respond: RespondFn): void {
+  respond(
+    false,
+    undefined,
+    errorShape(
+      ErrorCodes.INVALID_REQUEST,
+      "Kanban card or attachment not found, attachment already archived, or version conflict",
+    ),
   );
 }
 
@@ -824,6 +838,13 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
       if (!fileName) {
         return;
       }
+      if (fileName.length > KANBAN_MAX_ATTACHMENT_FILENAME_LENGTH) {
+        invalidRequest(
+          `Kanban attachment file name must be ${String(KANBAN_MAX_ATTACHMENT_FILENAME_LENGTH)} characters or fewer`,
+          respond,
+        );
+        return;
+      }
       const content = decodeAttachmentContentBase64(params.contentBase64, respond);
       if (!content) {
         return;
@@ -845,6 +866,13 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
         );
         if (!result) {
           notFoundOrConflict(respond);
+          return;
+        }
+        if ("error" in result) {
+          invalidRequest(
+            `Kanban card attachment limit is ${String(result.maxAttachments)} files`,
+            respond,
+          );
           return;
         }
         respond(true, mapMutationResult(result), undefined);
@@ -876,7 +904,7 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
           auditFromRequest(client, req.id),
         );
         if (!result) {
-          notFoundOrConflict(respond);
+          attachmentNotFoundOrConflict(respond);
           return;
         }
         respond(true, mapMutationResult(result), undefined);

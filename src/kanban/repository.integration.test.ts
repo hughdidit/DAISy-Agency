@@ -436,7 +436,10 @@ describeWithDocker("KanbanMongoRepository MongoDB integration", () => {
       },
       audit,
     );
-    expect(added?.activity).toMatchObject({
+    if (!added || "error" in added) {
+      throw new Error("Expected attachment add to return a card mutation");
+    }
+    expect(added.activity).toMatchObject({
       action: "attachment_add",
       cardId: "attachment-card-1",
       metadata: expect.objectContaining({
@@ -445,7 +448,7 @@ describeWithDocker("KanbanMongoRepository MongoDB integration", () => {
         byteSize: 23,
       }),
     });
-    expect(added?.card).toMatchObject({
+    expect(added.card).toMatchObject({
       id: "attachment-card-1",
       version: 2,
       attachments: [
@@ -458,7 +461,7 @@ describeWithDocker("KanbanMongoRepository MongoDB integration", () => {
       ],
     });
 
-    const attachment = requireValue(added?.card.attachments.at(0), "Expected uploaded attachment");
+    const attachment = requireValue(added.card.attachments.at(0), "Expected uploaded attachment");
     const stored = await readGridFsFile(
       repository,
       requireValue(attachment.fileId, "Expected GridFS file id"),
@@ -495,7 +498,7 @@ describeWithDocker("KanbanMongoRepository MongoDB integration", () => {
       {
         boardId: board.id,
         cardId: created.card.id,
-        expectedVersion: requireValue(added, "Expected attachment add result").card.version,
+        expectedVersion: added.card.version,
         attachmentId: attachment.id,
       },
       audit,
@@ -510,6 +513,6 @@ describeWithDocker("KanbanMongoRepository MongoDB integration", () => {
     });
     await expect(
       readGridFsFile(repository, requireValue(attachment.fileId, "file id")),
-    ).resolves.toBeInstanceOf(Buffer);
+    ).resolves.toEqual(Buffer.from("GridFS attachment bytes", "utf8"));
   }, 240_000);
 });

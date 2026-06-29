@@ -21,6 +21,7 @@ import type {
 import {
   KANBAN_LANES,
   KANBAN_MAX_ATTACHMENT_BYTES,
+  KANBAN_MAX_ATTACHMENT_FILENAME_LENGTH,
   KANBAN_MAX_ATTACHMENTS_PER_CARD,
   type KanbanActivity,
   type KanbanActivityAction,
@@ -243,6 +244,13 @@ export type KanbanCardMutationResult = {
   card: KanbanCard;
   activity: KanbanActivity;
 };
+
+export type KanbanAttachmentLimitResult = {
+  error: "attachment-limit";
+  maxAttachments: number;
+};
+
+export type KanbanAddAttachmentResult = KanbanCardMutationResult | KanbanAttachmentLimitResult;
 
 export type KanbanRunTrelloImportResult = {
   importRunId: string;
@@ -1194,10 +1202,15 @@ export class KanbanMongoRepository {
   async addAttachment(
     input: KanbanAddAttachmentInput,
     audit: KanbanAuditEnvelope,
-  ): Promise<KanbanCardMutationResult | null> {
+  ): Promise<KanbanAddAttachmentResult | null> {
     const unifiedAudit = auditWithTimestamp(audit);
     const filename = requireNonEmptyText(input.filename, "Kanban attachment filename is required");
     const contentType = input.contentType?.trim() || undefined;
+    if (filename.length > KANBAN_MAX_ATTACHMENT_FILENAME_LENGTH) {
+      throw new Error(
+        `Kanban attachment filename must be ${String(KANBAN_MAX_ATTACHMENT_FILENAME_LENGTH)} characters or fewer`,
+      );
+    }
     const byteSize = input.content.byteLength;
     if (byteSize <= 0 || byteSize > KANBAN_MAX_ATTACHMENT_BYTES) {
       throw new Error(
@@ -1211,8 +1224,14 @@ export class KanbanMongoRepository {
       archivedAt: { $exists: false },
       version: input.expectedVersion,
     });
-    if (!existing || (existing.attachments?.length ?? 0) >= KANBAN_MAX_ATTACHMENTS_PER_CARD) {
+    if (!existing) {
       return null;
+    }
+    if ((existing.attachments?.length ?? 0) >= KANBAN_MAX_ATTACHMENTS_PER_CARD) {
+      return {
+        error: "attachment-limit",
+        maxAttachments: KANBAN_MAX_ATTACHMENTS_PER_CARD,
+      };
     }
 
     const attachmentId = randomUUID();
@@ -1228,6 +1247,7 @@ export class KanbanMongoRepository {
     };
     let uploaded = false;
     try {
+      uploaded = true;
       await this.writeAttachmentFile({
         fileId: fileObjectId,
         filename,
@@ -1241,7 +1261,6 @@ export class KanbanMongoRepository {
           correlationId: unifiedAudit.correlationId,
         },
       });
-      uploaded = true;
 
       const result = await this.withTransaction(async (session) => {
         const card = await this.collections.cards.findOneAndUpdate(
@@ -1331,6 +1350,21 @@ export class KanbanMongoRepository {
       if (!existing || !attachment) {
         return null;
       }
+      if (attachment.fileId) {
+        const attachmentArchive = await this.collections.attachments.updateOne(
+          {
+            _id: input.attachmentId,
+            boardId: input.boardId,
+            cardId: input.cardId,
+            archivedAt: { $exists: false },
+          },
+          { $set: { archivedAt: unifiedAudit.occurredAt } },
+          { session },
+        );
+        if (attachmentArchive.matchedCount !== 1) {
+          return null;
+        }
+      }
       const attachments = existing.attachments.map((item) =>
         item.id === input.attachmentId ? { ...item, archivedAt: unifiedAudit.occurredAt } : item,
       );
@@ -1353,16 +1387,6 @@ export class KanbanMongoRepository {
       if (!card) {
         return null;
       }
-      await this.collections.attachments.updateOne(
-        {
-          _id: input.attachmentId,
-          boardId: input.boardId,
-          cardId: input.cardId,
-          archivedAt: { $exists: false },
-        },
-        { $set: { archivedAt: unifiedAudit.occurredAt } },
-        { session },
-      );
       const activity = await this.appendActivity(
         {
           boardId: input.boardId,

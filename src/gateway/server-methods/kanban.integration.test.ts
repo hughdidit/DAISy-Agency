@@ -6,6 +6,10 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { OpenClawConfig } from "../../config/config.js";
 import { KANBAN_DEFAULT_COLLECTIONS, type ResolvedKanbanConfig } from "../../kanban/config.js";
 import { createKanbanMongoClient, KanbanMongoRepository } from "../../kanban/repository.js";
+import {
+  KANBAN_MAX_ATTACHMENT_FILENAME_LENGTH,
+  KANBAN_MAX_ATTACHMENTS_PER_CARD,
+} from "../../kanban/types.js";
 import type {
   KanbanCardMutationResult,
   KanbanCardsGetResult,
@@ -327,6 +331,20 @@ describe("Kanban gateway read handlers", () => {
     ).resolves.toMatchObject({
       ok: false,
       error: { code: "INVALID_REQUEST", message: "Kanban attachment content must be valid base64" },
+    });
+    await expect(
+      invoke(handlers, "kanban.cards.attachments.add", {
+        cardId: "card-1",
+        expectedVersion: 1,
+        fileName: "x".repeat(KANBAN_MAX_ATTACHMENT_FILENAME_LENGTH + 1),
+        contentBase64: "bm90ZXM=",
+      }),
+    ).resolves.toMatchObject({
+      ok: false,
+      error: {
+        code: "INVALID_REQUEST",
+        message: `Kanban attachment file name must be ${String(KANBAN_MAX_ATTACHMENT_FILENAME_LENGTH)} characters or fewer`,
+      },
     });
     await expect(
       invoke(handlers, "kanban.codex.handoff", {
@@ -759,6 +777,38 @@ describeWithDocker("Kanban gateway read handlers with MongoDB", () => {
     await expect(readGridFsFile(testRepository, gridFsId)).resolves.toEqual(
       Buffer.from("gateway attachment bytes", "utf8"),
     );
+
+    const limitCreated = await testRepository.createCard(
+      {
+        id: "attachment-limit-card",
+        boardId: "team-agents",
+        title: "Attachment limit card",
+        attachments: Array.from({ length: KANBAN_MAX_ATTACHMENTS_PER_CARD }, (_, index) => ({
+          id: `existing-attachment-${String(index)}`,
+          filename: `existing-${String(index)}.txt`,
+          byteSize: 1,
+          createdAt: new Date("2026-02-03T04:05:06.000Z"),
+        })),
+      },
+      {
+        actor: { type: "system" as const, id: "kanban-gateway-attachment-test" },
+        correlationId: "kanban-gateway-attachment-limit",
+      },
+    );
+    await expect(
+      invoke(testHandlers, "kanban.cards.attachments.add", {
+        cardId: limitCreated.card.id,
+        expectedVersion: limitCreated.card.version,
+        fileName: "overflow.txt",
+        contentBase64: Buffer.from("overflow", "utf8").toString("base64"),
+      }),
+    ).resolves.toMatchObject({
+      ok: false,
+      error: {
+        code: "INVALID_REQUEST",
+        message: `Kanban card attachment limit is ${String(KANBAN_MAX_ATTACHMENTS_PER_CARD)} files`,
+      },
+    });
   }, 240_000);
 
   it("previews and runs Trello imports through durable gateway handlers", async () => {
