@@ -12,7 +12,6 @@ export type ConfigProps = {
   loading: boolean;
   saving: boolean;
   applying: boolean;
-  updating: boolean;
   connected: boolean;
   schema: unknown;
   schemaLoading: boolean;
@@ -32,7 +31,6 @@ export type ConfigProps = {
   onReload: () => void;
   onSave: () => void;
   onApply: () => void;
-  onUpdate: () => void;
 };
 
 const TAG_SEARCH_PRESETS = [
@@ -458,10 +456,8 @@ export function renderConfig(props: ConfigProps) {
   const canApply =
     props.connected &&
     !props.applying &&
-    !props.updating &&
     hasChanges &&
     (props.formMode === "raw" ? true : canSaveForm);
-  const canUpdate = props.connected && !props.applying && !props.updating;
   const selectedTags = new Set(getTagFilters(props.searchQuery));
 
   return html`
@@ -653,13 +649,6 @@ export function renderConfig(props: ConfigProps) {
               @click=${props.onApply}
             >
               ${props.applying ? "Applying…" : "Apply"}
-            </button>
-            <button
-              class="btn btn--sm"
-              ?disabled=${!canUpdate}
-              @click=${props.onUpdate}
-            >
-              ${props.updating ? "Updating…" : "Update"}
             </button>
           </div>
         </div>
