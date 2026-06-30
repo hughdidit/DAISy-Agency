@@ -1,4 +1,5 @@
 import { html, nothing } from "lit";
+import { ref } from "lit/directives/ref.js";
 import { t } from "../../i18n/index.ts";
 import type { KanbanCardDraft, KanbanImportFormat } from "../controllers/kanban.ts";
 import type {
@@ -33,6 +34,7 @@ export type KanbanProps = {
   cardCommentDraft: string;
   cardBusy: boolean;
   cardError: string | null;
+  showRefresh?: boolean;
   onRefresh: () => void | Promise<void>;
   onImportFormatChange: (format: KanbanImportFormat) => void;
   onImportContentChange: (content: string) => void;
@@ -50,6 +52,77 @@ export type KanbanProps = {
 };
 
 const KANBAN_PRIORITIES: Array<KanbanCard["priority"]> = ["urgent", "high", "normal", "low"];
+
+const DETAIL_FOCUSABLE_SELECTOR = [
+  "button:not([disabled])",
+  "[href]",
+  "input:not([disabled])",
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  '[tabindex]:not([tabindex="-1"])',
+].join(",");
+
+let detailPreviousFocus: HTMLElement | null = null;
+let detailFocusedCardId: string | null = null;
+
+function focusDetailModal(element: Element | undefined, cardId: string) {
+  if (!(element instanceof HTMLElement) || detailFocusedCardId === cardId) {
+    return;
+  }
+  const active = typeof document === "undefined" ? null : document.activeElement;
+  detailPreviousFocus = active instanceof HTMLElement && !element.contains(active) ? active : null;
+  detailFocusedCardId = cardId;
+  queueMicrotask(() => {
+    if (!element.isConnected) {
+      return;
+    }
+    (element.querySelector<HTMLElement>("[data-kanban-detail-close]") ?? element).focus();
+  });
+}
+
+function closeDetailModal(onClose: () => void) {
+  const restoreFocus = detailPreviousFocus;
+  detailPreviousFocus = null;
+  detailFocusedCardId = null;
+  onClose();
+  queueMicrotask(() => {
+    if (restoreFocus?.isConnected) {
+      restoreFocus.focus();
+    }
+  });
+}
+
+function handleDetailModalKeydown(event: KeyboardEvent, closeDetail: () => void) {
+  if (event.key === "Escape") {
+    event.preventDefault();
+    closeDetail();
+    return;
+  }
+  if (event.key !== "Tab") {
+    return;
+  }
+  const modal = event.currentTarget as HTMLElement;
+  const focusable = [...modal.querySelectorAll<HTMLElement>(DETAIL_FOCUSABLE_SELECTOR)].filter(
+    (element) => element.getAttribute("aria-hidden") !== "true",
+  );
+  if (focusable.length === 0) {
+    event.preventDefault();
+    modal.focus();
+    return;
+  }
+  const first = focusable[0];
+  const last = focusable.at(-1);
+  const active = typeof document === "undefined" ? null : document.activeElement;
+  if (event.shiftKey && (active === first || !modal.contains(active))) {
+    event.preventDefault();
+    last?.focus();
+    return;
+  }
+  if (!event.shiftKey && active === last) {
+    event.preventDefault();
+    first.focus();
+  }
+}
 
 function fallbackLanes(): KanbanLane[] {
   return [
@@ -294,20 +367,19 @@ function renderCardDetail(props: KanbanProps, lanes: KanbanLane[]) {
   }
   const disabled = props.cardBusy;
   const moveDisabled = disabled || draft.lane === card.lane;
+  const closeDetail = () => closeDetailModal(props.onCardClose);
   return html`
     <div
       class="kanban-detail-modal"
       role="dialog"
       aria-modal="true"
       aria-labelledby="kanban-detail-title"
-      @keydown=${(event: KeyboardEvent) => {
-        if (event.key === "Escape" && !disabled) {
-          props.onCardClose();
-        }
-      }}
+      tabindex="-1"
+      ${ref((element) => focusDetailModal(element, card.id))}
+      @keydown=${(event: KeyboardEvent) => handleDetailModalKeydown(event, closeDetail)}
       @click=${(event: Event) => {
-        if (event.target === event.currentTarget && !disabled) {
-          props.onCardClose();
+        if (event.target === event.currentTarget) {
+          closeDetail();
         }
       }}
     >
@@ -317,7 +389,7 @@ function renderCardDetail(props: KanbanProps, lanes: KanbanLane[]) {
             <div id="kanban-detail-title" class="card-title">${t("kanban.detail.title")}</div>
             <div class="card-sub">${card.id} - v${card.version}</div>
           </div>
-          <button class="btn btn--sm" ?disabled=${disabled} @click=${() => props.onCardClose()}>
+          <button class="btn btn--sm" data-kanban-detail-close @click=${closeDetail}>
             ${t("kanban.detail.close")}
           </button>
         </div>
@@ -655,7 +727,7 @@ function renderImportPanel(props: KanbanProps) {
   const hasContent = props.importContent.trim().length > 0;
   return html`
     <details class="kanban-import">
-      <summary class="kanban-import__header" aria-label=${t("kanban.import.title")}>
+      <summary class="kanban-import__header">
         <div>
           <div class="card-title">${t("kanban.import.title")}</div>
           <div class="card-sub">${t("kanban.import.subtitle")}</div>
@@ -748,9 +820,7 @@ function gatewayStatus(status: KanbanStatusResult | null): { className: string; 
 
 export function renderKanban(props: KanbanProps) {
   const lanes = (props.board?.lanes ?? fallbackLanes()).toSorted((a, b) => {
-    const aOrder = a.position ?? (a as { order?: number }).order ?? Number.MAX_SAFE_INTEGER;
-    const bOrder = b.position ?? (b as { order?: number }).order ?? Number.MAX_SAFE_INTEGER;
-    return aOrder - bOrder;
+    return (a.position ?? Number.MAX_SAFE_INTEGER) - (b.position ?? Number.MAX_SAFE_INTEGER);
   });
   const sortedCards = sortCards(props.cards);
   const cardsByLane = new Map<KanbanLaneId, KanbanCard[]>(
@@ -762,11 +832,21 @@ export function renderKanban(props: KanbanProps) {
 
   return html`
     <div class="kanban-view">
-      <div class="kanban-topbar">
-        <button class="btn btn--sm" ?disabled=${props.loading} @click=${() => props.onRefresh()}>
-          ${props.loading ? t("kanban.actions.refreshing") : t("kanban.actions.refresh")}
-        </button>
-      </div>
+      ${
+        props.showRefresh === false
+          ? nothing
+          : html`
+              <div class="kanban-topbar">
+                <button
+                  class="btn btn--sm"
+                  ?disabled=${props.loading}
+                  @click=${() => props.onRefresh()}
+                >
+                  ${props.loading ? t("kanban.actions.refreshing") : t("kanban.actions.refresh")}
+                </button>
+              </div>
+            `
+      }
       <section class="kanban-summary">
         <div class="stat">
           <div class="stat-label">${t("kanban.summary.board")}</div>

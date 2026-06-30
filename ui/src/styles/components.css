@@ -2187,13 +2187,9 @@
 .kanban-view {
   display: grid;
   gap: 16px;
-  position: relative;
 }
 
 .kanban-topbar {
-  position: absolute;
-  top: -42px;
-  right: 0;
   display: flex;
   justify-content: flex-end;
 }
@@ -2234,6 +2230,10 @@
 
 .kanban-import__header::-webkit-details-marker {
   display: none;
+}
+
+.kanban-import__header::marker {
+  content: "";
 }
 
 .kanban-import__header:focus-visible {
@@ -2753,10 +2753,6 @@
 }
 
 @media (max-width: 640px) {
-  .kanban-topbar {
-    position: static;
-  }
-
   .kanban-workspace {
     grid-template-columns: 1fr;
   }
