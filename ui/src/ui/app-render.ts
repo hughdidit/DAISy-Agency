@@ -354,6 +354,23 @@ export function renderApp(state: AppViewState) {
           <div class="page-meta">
             ${state.lastError ? html`<div class="pill danger">${state.lastError}</div>` : nothing}
             ${isChat ? renderChatControls(state) : nothing}
+            ${
+              state.tab === "kanban"
+                ? html`
+                    <button
+                      class="btn btn--sm"
+                      ?disabled=${state.kanbanLoading}
+                      @click=${() => loadKanban(state)}
+                    >
+                      ${
+                        state.kanbanLoading
+                          ? t("kanban.actions.refreshing")
+                          : t("kanban.actions.refresh")
+                      }
+                    </button>
+                  `
+                : nothing
+            }
           </div>
         </section>
 
@@ -1055,6 +1072,7 @@ export function renderApp(state: AppViewState) {
                 cardCommentDraft: state.kanbanCardCommentDraft,
                 cardBusy: state.kanbanCardBusy,
                 cardError: state.kanbanCardError,
+                showRefresh: false,
                 onRefresh: () => loadKanban(state),
                 onImportFormatChange: (format) => setKanbanImportFormat(state, format),
                 onImportContentChange: (content) => setKanbanImportContent(state, content),
