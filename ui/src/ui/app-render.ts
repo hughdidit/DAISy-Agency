@@ -24,7 +24,6 @@ import { loadChatHistory } from "./controllers/chat.ts";
 import {
   applyConfig,
   loadConfig,
-  runUpdate,
   saveConfig,
   updateConfigFormValue,
   removeConfigFormValue,
@@ -170,12 +169,6 @@ export function renderApp(state: AppViewState) {
     (typeof state.hello?.server?.version === "string" && state.hello.server.version.trim()) ||
     state.updateAvailable?.currentVersion ||
     t("common.na");
-  const availableUpdate =
-    state.updateAvailable &&
-    state.updateAvailable.latestVersion !== state.updateAvailable.currentVersion
-      ? state.updateAvailable
-      : null;
-  const versionStatusClass = availableUpdate ? "warn" : "ok";
   const presenceCount = state.presenceEntries.length;
   const sessionsCount = state.sessionsResult?.count ?? null;
   const cronNext = state.cronStatus?.nextWakeAtMs ?? null;
@@ -285,7 +278,7 @@ export function renderApp(state: AppViewState) {
         </div>
         <div class="topbar-status">
           <div class="pill">
-            <span class="statusDot ${versionStatusClass}"></span>
+            <span class="statusDot ok"></span>
             <span>${t("common.version")}</span>
             <span class="mono">${openClawVersion}</span>
           </div>
@@ -345,19 +338,6 @@ export function renderApp(state: AppViewState) {
         </div>
       </aside>
       <main class="content ${isChat ? "content--chat" : ""}">
-        ${
-          availableUpdate
-            ? html`<div class="update-banner callout danger" role="alert">
-              <strong>Update available:</strong> v${availableUpdate.latestVersion}
-              (running v${availableUpdate.currentVersion}).
-              <button
-                class="btn btn--sm update-banner__btn"
-                ?disabled=${state.updateRunning || !state.connected}
-                @click=${() => runUpdate(state)}
-              >${state.updateRunning ? "Updating…" : "Update now"}</button>
-            </div>`
-            : nothing
-        }
         <section class="content-header">
           <div>
             ${
@@ -1283,7 +1263,6 @@ export function renderApp(state: AppViewState) {
                 loading: state.configLoading,
                 saving: state.configSaving,
                 applying: state.configApplying,
-                updating: state.updateRunning,
                 connected: state.connected,
                 schema: state.configSchema,
                 schemaLoading: state.configSchemaLoading,
@@ -1308,7 +1287,6 @@ export function renderApp(state: AppViewState) {
                 onReload: () => loadConfig(state),
                 onSave: () => saveConfig(state),
                 onApply: () => applyConfig(state),
-                onUpdate: () => runUpdate(state),
               })
             : nothing
         }
