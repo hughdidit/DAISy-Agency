@@ -3,4 +3,6 @@
 export const DEFAULT_PROVIDER = "anthropic";
 export const DEFAULT_MODEL = "claude-opus-4-6";
 // Conservative fallback used when model metadata is unavailable.
-export const DEFAULT_CONTEXT_TOKENS = 200_000;
+export const DEFAULT_CONTEXT_TOKENS = 250_000;
+// Conservative output-token fallback used when model metadata is unavailable.
+export const DEFAULT_MAX_TOKENS = 8_192;

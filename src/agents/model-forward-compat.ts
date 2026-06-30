@@ -1,6 +1,6 @@
 import type { Api, Model } from "@mariozechner/pi-ai";
 import type { ModelRegistry } from "@mariozechner/pi-coding-agent";
-import { DEFAULT_CONTEXT_TOKENS } from "./defaults.js";
+import { DEFAULT_CONTEXT_TOKENS, DEFAULT_MAX_TOKENS } from "./defaults.js";
 import { normalizeModelCompat } from "./model-compat.js";
 import { normalizeProviderId } from "./model-selection.js";
 
@@ -86,7 +86,7 @@ function resolveOpenAICodexGpt53FallbackModel(
     input: ["text", "image"],
     cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
     contextWindow: DEFAULT_CONTEXT_TOKENS,
-    maxTokens: DEFAULT_CONTEXT_TOKENS,
+    maxTokens: DEFAULT_MAX_TOKENS,
   } as Model<Api>);
 }
 
@@ -238,7 +238,7 @@ function resolveZaiGlm5ForwardCompatModel(
     input: ["text"],
     cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
     contextWindow: DEFAULT_CONTEXT_TOKENS,
-    maxTokens: DEFAULT_CONTEXT_TOKENS,
+    maxTokens: DEFAULT_MAX_TOKENS,
   } as Model<Api>);
 }
 
