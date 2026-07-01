@@ -976,15 +976,12 @@ describe("runSandboxFirstAcceptance", () => {
       expect(commands.some((command) => command.includes("--delete-after-run"))).toBe(false);
       expect(commands.some((command) => command.includes("cron rm "))).toBe(true);
       expect(commands.some((command) => command.includes("sessions.delete"))).toBe(true);
-      expect(
-        commands
-          .filter(
-            (command) =>
-              command.includes("node dist/index.js cron rm") ||
-              command.includes("node dist/index.js gateway call sessions.delete"),
-          )
-          .every((command) => command.includes("--timeout 60000")),
-      ).toBe(true);
+      const cleanupCommands = commands.filter(
+        (command) =>
+          command.includes("node dist/index.js cron rm") ||
+          command.includes("node dist/index.js gateway call sessions.delete"),
+      );
+      expect(cleanupCommands.every((command) => command.includes("--timeout 60000"))).toBe(true);
       const cronAddCommands = commands.filter((command) =>
         command.includes("node dist/index.js cron add"),
       );
@@ -1120,15 +1117,12 @@ describe("runSandboxFirstAcceptance", () => {
       expect(commands.some((command) => command.includes("--delete-after-run"))).toBe(false);
       expect(commands.some((command) => command.includes("cron rm "))).toBe(true);
       expect(commands.some((command) => command.includes("sessions.delete"))).toBe(true);
-      expect(
-        commands
-          .filter(
-            (command) =>
-              command.includes("node dist/index.js cron rm") ||
-              command.includes("node dist/index.js gateway call sessions.delete"),
-          )
-          .every((command) => command.includes("--timeout 60000")),
-      ).toBe(true);
+      const cleanupCommands = commands.filter(
+        (command) =>
+          command.includes("node dist/index.js cron rm") ||
+          command.includes("node dist/index.js gateway call sessions.delete"),
+      );
+      expect(cleanupCommands.every((command) => command.includes("--timeout 60000"))).toBe(true);
       const cronAddCommands = commands.filter((command) =>
         command.includes("node dist/index.js cron add"),
       );
