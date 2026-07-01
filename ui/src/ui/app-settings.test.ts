@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { refreshActiveTab, setTabFromRoute } from "./app-settings.ts";
+import { loadAgents } from "./controllers/agents.ts";
 import type { Tab } from "./navigation.ts";
 
 type SettingsHost = Parameters<typeof setTabFromRoute>[0] & {
@@ -71,12 +72,16 @@ describe("setTabFromRoute", () => {
 
 describe("refreshActiveTab", () => {
   it("loads agent core files and workspace files when the Files panel is active", async () => {
-    const request = vi.fn(async (method: string, params?: unknown) => {
+    const agentsListPayload = {
+      defaultId: "daisy",
+      agents: [{ id: "daisy", name: "DAISy", default: true }],
+    };
+    let resolveAgentsList: (value: typeof agentsListPayload) => void = () => undefined;
+    const request = vi.fn((method: string, params?: unknown) => {
       if (method === "agents.list") {
-        return {
-          defaultId: "daisy",
-          agents: [{ id: "daisy", name: "DAISy", default: true }],
-        };
+        return new Promise<typeof agentsListPayload>((resolve) => {
+          resolveAgentsList = resolve;
+        });
       }
       if (method === "tools.catalog") {
         return { agentId: "daisy", profiles: [], groups: [] };
@@ -111,6 +116,7 @@ describe("refreshActiveTab", () => {
       client: { request },
       agentsPanel: "files",
       agentsLoading: false,
+      agentsLoadPromise: null,
       agentsError: null,
       agentsList: null,
       agentsSelectedId: null,
@@ -156,8 +162,17 @@ describe("refreshActiveTab", () => {
       agentWorkspaceFileSaving: false,
     };
 
-    await refreshActiveTab(host as unknown as Parameters<typeof refreshActiveTab>[0]);
+    const initialAgentsLoad = loadAgents(host as unknown as Parameters<typeof loadAgents>[0]);
+    const refreshPromise = refreshActiveTab(
+      host as unknown as Parameters<typeof refreshActiveTab>[0],
+    );
 
+    await Promise.resolve();
+    resolveAgentsList(agentsListPayload);
+    await Promise.all([initialAgentsLoad, refreshPromise]);
+
+    const agentsListRequests = request.mock.calls.filter(([method]) => method === "agents.list");
+    expect(agentsListRequests).toHaveLength(1);
     expect(request).toHaveBeenCalledWith("agents.files.list", { agentId: "daisy" });
     expect(request).toHaveBeenCalledWith("agents.files.workspace.list", {
       agentId: "daisy",

@@ -5,6 +5,7 @@ export type AgentsState = {
   client: GatewayBrowserClient | null;
   connected: boolean;
   agentsLoading: boolean;
+  agentsLoadPromise?: Promise<void> | null;
   agentsError: string | null;
   agentsList: AgentsListResult | null;
   agentsSelectedId: string | null;
@@ -17,26 +18,34 @@ export async function loadAgents(state: AgentsState) {
   if (!state.client || !state.connected) {
     return;
   }
+  const client = state.client;
   if (state.agentsLoading) {
+    await state.agentsLoadPromise;
     return;
   }
   state.agentsLoading = true;
   state.agentsError = null;
-  try {
-    const res = await state.client.request<AgentsListResult>("agents.list", {});
-    if (res) {
-      state.agentsList = res;
-      const selected = state.agentsSelectedId;
-      const known = res.agents.some((entry) => entry.id === selected);
-      if (!selected || !known) {
-        state.agentsSelectedId = res.defaultId ?? res.agents[0]?.id ?? null;
+  const loadPromise = Promise.resolve()
+    .then(() => client.request<AgentsListResult>("agents.list", {}))
+    .then((res) => {
+      if (res) {
+        state.agentsList = res;
+        const selected = state.agentsSelectedId;
+        const known = res.agents.some((entry) => entry.id === selected);
+        if (!selected || !known) {
+          state.agentsSelectedId = res.defaultId ?? res.agents[0]?.id ?? null;
+        }
       }
-    }
-  } catch (err) {
-    state.agentsError = String(err);
-  } finally {
-    state.agentsLoading = false;
-  }
+    })
+    .catch((err) => {
+      state.agentsError = String(err);
+    })
+    .finally(() => {
+      state.agentsLoading = false;
+      state.agentsLoadPromise = null;
+    });
+  state.agentsLoadPromise = loadPromise;
+  await loadPromise;
 }
 
 export async function loadToolsCatalog(state: AgentsState, agentId?: string | null) {
