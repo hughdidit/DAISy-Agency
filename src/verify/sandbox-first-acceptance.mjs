@@ -105,6 +105,8 @@ const DEFAULT_ACCEPTANCE_CRON_TIMEOUT_SECONDS = "60";
 const DEFAULT_ACCEPTANCE_CRON_POLL_TIMEOUT_SECONDS = 180;
 const ACCEPTANCE_CRON_POLL_INTERVAL_MS = 1_000;
 const ACCEPTANCE_CRON_RETRY_POLL_MAX_INTERVAL_MS = 5_000;
+const ACCEPTANCE_CRON_CLEANUP_TIMEOUT_MS = 60_000;
+const ACCEPTANCE_CRON_CLEANUP_RETRY_DELAYS_MS = Object.freeze([5_000, 15_000]);
 const ACCEPTANCE_CRON_TRANSIENT_ERROR_PATTERN =
   /(rate[_ ]limit|too many requests|429|resource has been exhausted|cloudflare|network|econnreset|econnrefused|fetch failed|socket|timeout|etimedout|\b5\d{2}\b)/i;
 const ACCEPTANCE_CRON_PROVIDER_UNAVAILABLE_PATTERN =
@@ -543,17 +545,12 @@ function cleanupErrorFromCommand(params) {
   };
 }
 
-function runAcceptanceCleanupCommand(ctx, params) {
-  const output = {
-    action: params.action,
-    key: params.key,
-    command: params.command,
-    ...(params.options ? { options: params.options } : {}),
-  };
-
+function evaluateAcceptanceCleanupAttempt(ctx, params) {
   const result = captureDockerExecBash(ctx, params.command);
-  output.status = result.status;
-  output.signal = result.signal;
+  const output = {
+    status: result.status,
+    signal: result.signal,
+  };
 
   if (!result.ok) {
     output.ok = false;
@@ -625,6 +622,71 @@ function runAcceptanceCleanupCommand(ctx, params) {
   return { output, error: null };
 }
 
+function isRetryableAcceptanceCleanupError(error) {
+  const combined = [error?.message, error?.stdout, error?.stderr]
+    .filter((value) => typeof value === "string" && value.trim())
+    .join("\n");
+  return ACCEPTANCE_CRON_TRANSIENT_ERROR_PATTERN.test(combined);
+}
+
+async function runAcceptanceCleanupCommand(ctx, params) {
+  const output = {
+    action: params.action,
+    key: params.key,
+    command: params.command,
+    timeoutMs: ACCEPTANCE_CRON_CLEANUP_TIMEOUT_MS,
+    ...(params.options ? { options: params.options } : {}),
+  };
+  const attempts = [];
+  let lastError = null;
+
+  for (
+    let attemptIndex = 0;
+    attemptIndex <= ACCEPTANCE_CRON_CLEANUP_RETRY_DELAYS_MS.length;
+    attemptIndex += 1
+  ) {
+    const attemptNumber = attemptIndex + 1;
+    const { output: attemptOutput, error } = evaluateAcceptanceCleanupAttempt(ctx, params);
+    const attempt = {
+      attempt: attemptNumber,
+      ok: attemptOutput.ok === true,
+      status: attemptOutput.status,
+      signal: attemptOutput.signal,
+      ...(attemptOutput.error ? { error: attemptOutput.error } : {}),
+    };
+    attempts.push(attempt);
+
+    Object.assign(output, attemptOutput, {
+      attemptCount: attemptNumber,
+    });
+
+    if (!error) {
+      delete output.error;
+      if (attempts.length > 1) {
+        output.attempts = attempts;
+      }
+      return { output, error: null };
+    }
+
+    lastError = error;
+    const retryable = isRetryableAcceptanceCleanupError(error);
+    attempt.retryable = retryable;
+    const retryDelayMs = ACCEPTANCE_CRON_CLEANUP_RETRY_DELAYS_MS[attemptIndex];
+    if (!retryable || typeof retryDelayMs !== "number") {
+      break;
+    }
+    attempt.nextRetryDelayMs = retryDelayMs;
+    await acceptanceCronPollWait(ctx, retryDelayMs);
+  }
+
+  output.ok = false;
+  output.attempts = attempts;
+  if (lastError) {
+    output.error = lastError.message;
+  }
+  return { output, error: lastError };
+}
+
 function buildGatewaySessionDeleteCommand(sessionKey) {
   const params = {
     key: sessionKey,
@@ -634,7 +696,7 @@ function buildGatewaySessionDeleteCommand(sessionKey) {
   return {
     command: `cd /app && node dist/index.js gateway call sessions.delete --params ${shellQuote(
       JSON.stringify(params),
-    )} --json`,
+    )} --timeout ${shellQuote(ACCEPTANCE_CRON_CLEANUP_TIMEOUT_MS)} --json`,
     options: {
       deleteTranscript: true,
       emitLifecycleHooks: false,
@@ -657,10 +719,12 @@ async function cleanupAcceptanceCronArtifacts(ctx, params = {}) {
   const baseSessionKey = resolveCronBaseSessionKey(runSessionKey);
 
   if (jobId) {
-    const { output, error } = runAcceptanceCleanupCommand(ctx, {
+    const { output, error } = await runAcceptanceCleanupCommand(ctx, {
       action: "cron.rm",
       key: jobId,
-      command: `cd /app && node dist/index.js cron rm ${shellQuote(jobId)} --json`,
+      command: `cd /app && node dist/index.js cron rm ${shellQuote(
+        jobId,
+      )} --timeout ${shellQuote(ACCEPTANCE_CRON_CLEANUP_TIMEOUT_MS)} --json`,
       resultFlag: "removed",
     });
     outputs.push(output);
@@ -671,7 +735,7 @@ async function cleanupAcceptanceCronArtifacts(ctx, params = {}) {
 
   if (runSessionKey) {
     const { command, options } = buildGatewaySessionDeleteCommand(runSessionKey);
-    const { output, error } = runAcceptanceCleanupCommand(ctx, {
+    const { output, error } = await runAcceptanceCleanupCommand(ctx, {
       action: "sessions.delete.run",
       key: runSessionKey,
       command,
@@ -686,7 +750,7 @@ async function cleanupAcceptanceCronArtifacts(ctx, params = {}) {
 
   if (baseSessionKey) {
     const { command, options } = buildGatewaySessionDeleteCommand(baseSessionKey);
-    const { output, error } = runAcceptanceCleanupCommand(ctx, {
+    const { output, error } = await runAcceptanceCleanupCommand(ctx, {
       action: "sessions.delete.base",
       key: baseSessionKey,
       command,
