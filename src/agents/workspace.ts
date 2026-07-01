@@ -498,25 +498,8 @@ async function resolveMemoryBootstrapEntries(
   return deduped;
 }
 
-async function resolveOptionalBootstrapEntry(
-  resolvedDir: string,
-  name: WorkspaceBootstrapFileName,
-): Promise<{ name: WorkspaceBootstrapFileName; filePath: string } | null> {
-  const filePath = path.join(resolvedDir, name);
-  try {
-    await fs.access(filePath);
-    return { name, filePath };
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException)?.code === "ENOENT") {
-      return null;
-    }
-    throw error;
-  }
-}
-
 export async function loadWorkspaceBootstrapFiles(dir: string): Promise<WorkspaceBootstrapFile[]> {
   const resolvedDir = resolveUserPath(dir);
-  const researchEntry = await resolveOptionalBootstrapEntry(resolvedDir, DEFAULT_RESEARCH_FILENAME);
 
   const entries: Array<{
     name: WorkspaceBootstrapFileName;
@@ -534,7 +517,10 @@ export async function loadWorkspaceBootstrapFiles(dir: string): Promise<Workspac
       name: DEFAULT_TOOLS_FILENAME,
       filePath: path.join(resolvedDir, DEFAULT_TOOLS_FILENAME),
     },
-    ...(researchEntry ? [researchEntry] : []),
+    {
+      name: DEFAULT_RESEARCH_FILENAME,
+      filePath: path.join(resolvedDir, DEFAULT_RESEARCH_FILENAME),
+    },
     {
       name: DEFAULT_IDENTITY_FILENAME,
       filePath: path.join(resolvedDir, DEFAULT_IDENTITY_FILENAME),
@@ -568,7 +554,7 @@ export async function loadWorkspaceBootstrapFiles(dir: string): Promise<Workspac
         content: loaded.content,
         missing: false,
       });
-    } else {
+    } else if (entry.name !== DEFAULT_RESEARCH_FILENAME || loaded.reason !== "path") {
       result.push({ name: entry.name, path: entry.filePath, missing: true });
     }
   }
