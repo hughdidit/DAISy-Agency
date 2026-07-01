@@ -54,6 +54,7 @@ export type KanbanProps = {
 
 const KANBAN_PRIORITIES: Array<KanbanCard["priority"]> = ["urgent", "high", "normal", "low"];
 const KANBAN_CARD_DRAG_MIME = "application/x-daisy-kanban-card";
+let draggedKanbanCardId: string | null = null;
 
 const DETAIL_FOCUSABLE_SELECTOR = [
   "button:not([disabled])",
@@ -236,6 +237,7 @@ function renderCardBadges(card: KanbanCard) {
 }
 
 function setKanbanCardDragData(event: DragEvent, card: KanbanCard) {
+  draggedKanbanCardId = card.id;
   if (!event.dataTransfer) {
     return;
   }
@@ -244,13 +246,15 @@ function setKanbanCardDragData(event: DragEvent, card: KanbanCard) {
   event.dataTransfer.setData("text/plain", card.id);
 }
 
+function clearKanbanCardDragData() {
+  draggedKanbanCardId = null;
+}
+
 function getKanbanCardDragId(event: DragEvent): string {
   if (!event.dataTransfer) {
     return "";
   }
-  return (
-    event.dataTransfer.getData(KANBAN_CARD_DRAG_MIME) || event.dataTransfer.getData("text/plain")
-  ).trim();
+  return event.dataTransfer.getData(KANBAN_CARD_DRAG_MIME).trim();
 }
 
 function hasKanbanCardDragData(event: DragEvent): boolean {
@@ -259,11 +263,11 @@ function hasKanbanCardDragData(event: DragEvent): boolean {
     return false;
   }
   const dragTypes = new Set(Array.from(types));
-  return dragTypes.has(KANBAN_CARD_DRAG_MIME) || dragTypes.has("text/plain");
+  return dragTypes.has(KANBAN_CARD_DRAG_MIME);
 }
 
 function handleLaneDragOver(event: DragEvent, props: KanbanProps) {
-  if (!props.onCardDropMove || !hasKanbanCardDragData(event)) {
+  if (!props.onCardDropMove || !findDraggedKanbanCard(event, props)) {
     return;
   }
   event.preventDefault();
@@ -276,13 +280,24 @@ function handleLaneDrop(event: DragEvent, lane: KanbanLane, props: KanbanProps) 
   if (!props.onCardDropMove) {
     return;
   }
-  const cardId = getKanbanCardDragId(event);
-  const card = props.cards.find((candidate) => candidate.id === cardId);
-  if (!card || card.lane === lane.id) {
+  const card = findDraggedKanbanCard(event, props);
+  if (!card) {
     return;
   }
   event.preventDefault();
+  clearKanbanCardDragData();
+  if (card.lane === lane.id) {
+    return;
+  }
   void props.onCardDropMove(card.id, lane.id);
+}
+
+function findDraggedKanbanCard(event: DragEvent, props: KanbanProps): KanbanCard | null {
+  if (!hasKanbanCardDragData(event) && !draggedKanbanCardId) {
+    return null;
+  }
+  const cardId = draggedKanbanCardId ?? getKanbanCardDragId(event);
+  return props.cards.find((candidate) => candidate.id === cardId) ?? null;
 }
 
 function renderCard(card: KanbanCard, props: KanbanProps) {
@@ -298,6 +313,7 @@ function renderCard(card: KanbanCard, props: KanbanProps) {
       draggable=${props.onCardDropMove ? "true" : "false"}
       @click=${() => void props.onCardSelect(card.id)}
       @dragstart=${(event: DragEvent) => setKanbanCardDragData(event, card)}
+      @dragend=${clearKanbanCardDragData}
     >
       <div class="kanban-card__title">${card.title}</div>
       ${

@@ -363,33 +363,10 @@ export async function commentKanbanCard(state: KanbanState) {
 
 export async function moveKanbanCard(state: KanbanState, lane: KanbanCard["lane"]) {
   const card = state.kanbanSelectedCard;
-  const draft = state.kanbanCardDraft;
-  if (!state.client || !state.connected || state.kanbanCardBusy || !card) {
+  if (!card) {
     return;
   }
-  if (lane === card.lane) {
-    return;
-  }
-  if (draft && isKanbanCardDraftDirty(card, draft, { ignoreLane: true })) {
-    state.kanbanCardError = "Save or close card edits before moving.";
-    return;
-  }
-  state.kanbanCardBusy = true;
-  state.kanbanCardError = null;
-  try {
-    const result = await state.client.request<KanbanCardMutationResult>("kanban.cards.move", {
-      ...kanbanBoardParams(state),
-      cardId: card.id,
-      expectedVersion: card.version,
-      lane,
-    });
-    applyCardMutation(state, result);
-    await loadKanban(state);
-  } catch (err) {
-    state.kanbanCardError = String(err);
-  } finally {
-    state.kanbanCardBusy = false;
-  }
+  await moveKanbanCardById(state, card.id, lane);
 }
 
 export async function moveKanbanCardById(
@@ -397,7 +374,9 @@ export async function moveKanbanCardById(
   cardId: string,
   lane: KanbanCard["lane"],
 ) {
-  const card = state.kanbanCards.find((candidate) => candidate.id === cardId);
+  const card =
+    state.kanbanCards.find((candidate) => candidate.id === cardId) ??
+    (state.kanbanSelectedCard?.id === cardId ? state.kanbanSelectedCard : null);
   const movingSelectedCard = state.kanbanSelectedCardId === cardId;
   const draft = movingSelectedCard ? state.kanbanCardDraft : null;
   if (!state.client || !state.connected || state.kanbanCardBusy || !card) {
@@ -411,7 +390,11 @@ export async function moveKanbanCardById(
     return;
   }
   state.kanbanCardBusy = true;
-  state.kanbanCardError = null;
+  if (movingSelectedCard) {
+    state.kanbanCardError = null;
+  } else {
+    state.kanbanError = null;
+  }
   try {
     const result = await state.client.request<KanbanCardMutationResult>("kanban.cards.move", {
       ...kanbanBoardParams(state),
@@ -422,7 +405,11 @@ export async function moveKanbanCardById(
     applyCardListMutation(state, result);
     await loadKanban(state);
   } catch (err) {
-    state.kanbanCardError = String(err);
+    if (movingSelectedCard) {
+      state.kanbanCardError = String(err);
+    } else {
+      state.kanbanError = String(err);
+    }
   } finally {
     state.kanbanCardBusy = false;
   }

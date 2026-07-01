@@ -2445,7 +2445,7 @@
   box-shadow: inset 0 1px 0 var(--card-highlight);
   width: 100%;
   color: inherit;
-  cursor: grab;
+  cursor: pointer;
   font: inherit;
   text-align: left;
   transition:
@@ -2459,7 +2459,11 @@
   transform: translateY(-1px);
 }
 
-.kanban-card:active {
+.kanban-card[draggable="true"] {
+  cursor: grab;
+}
+
+.kanban-card[draggable="true"]:active {
   cursor: grabbing;
 }
 
