@@ -25,6 +25,7 @@ export const DEFAULT_AGENT_WORKSPACE_DIR = resolveDefaultAgentWorkspaceDir();
 export const DEFAULT_AGENTS_FILENAME = "AGENTS.md";
 export const DEFAULT_SOUL_FILENAME = "SOUL.md";
 export const DEFAULT_TOOLS_FILENAME = "TOOLS.md";
+export const DEFAULT_RESEARCH_FILENAME = "RESEARCH.md";
 export const DEFAULT_IDENTITY_FILENAME = "IDENTITY.md";
 export const DEFAULT_USER_FILENAME = "USER.md";
 export const DEFAULT_HEARTBEAT_FILENAME = "HEARTBEAT.md";
@@ -133,6 +134,7 @@ export type WorkspaceBootstrapFileName =
   | typeof DEFAULT_AGENTS_FILENAME
   | typeof DEFAULT_SOUL_FILENAME
   | typeof DEFAULT_TOOLS_FILENAME
+  | typeof DEFAULT_RESEARCH_FILENAME
   | typeof DEFAULT_IDENTITY_FILENAME
   | typeof DEFAULT_USER_FILENAME
   | typeof DEFAULT_HEARTBEAT_FILENAME
@@ -170,6 +172,7 @@ const VALID_BOOTSTRAP_NAMES: ReadonlySet<string> = new Set([
   DEFAULT_AGENTS_FILENAME,
   DEFAULT_SOUL_FILENAME,
   DEFAULT_TOOLS_FILENAME,
+  DEFAULT_RESEARCH_FILENAME,
   DEFAULT_IDENTITY_FILENAME,
   DEFAULT_USER_FILENAME,
   DEFAULT_HEARTBEAT_FILENAME,
@@ -495,8 +498,22 @@ async function resolveMemoryBootstrapEntries(
   return deduped;
 }
 
+async function resolveOptionalBootstrapEntry(
+  resolvedDir: string,
+  name: WorkspaceBootstrapFileName,
+): Promise<{ name: WorkspaceBootstrapFileName; filePath: string } | null> {
+  const filePath = path.join(resolvedDir, name);
+  try {
+    await fs.access(filePath);
+    return { name, filePath };
+  } catch {
+    return null;
+  }
+}
+
 export async function loadWorkspaceBootstrapFiles(dir: string): Promise<WorkspaceBootstrapFile[]> {
   const resolvedDir = resolveUserPath(dir);
+  const researchEntry = await resolveOptionalBootstrapEntry(resolvedDir, DEFAULT_RESEARCH_FILENAME);
 
   const entries: Array<{
     name: WorkspaceBootstrapFileName;
@@ -514,6 +531,7 @@ export async function loadWorkspaceBootstrapFiles(dir: string): Promise<Workspac
       name: DEFAULT_TOOLS_FILENAME,
       filePath: path.join(resolvedDir, DEFAULT_TOOLS_FILENAME),
     },
+    ...(researchEntry ? [researchEntry] : []),
     {
       name: DEFAULT_IDENTITY_FILENAME,
       filePath: path.join(resolvedDir, DEFAULT_IDENTITY_FILENAME),
