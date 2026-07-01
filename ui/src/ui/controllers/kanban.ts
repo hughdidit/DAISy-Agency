@@ -276,8 +276,13 @@ export async function saveKanbanCard(state: KanbanState) {
   if (!card || !draft) {
     return;
   }
-  const laneChanged = draft.lane !== card.lane;
+  const requestedLane = draft.lane;
+  const laneChanged = requestedLane !== card.lane;
   const cardFieldsChanged = isKanbanCardDraftDirty(card, draft, { ignoreLane: true });
+  if (!laneChanged && !cardFieldsChanged) {
+    state.kanbanCardError = null;
+    return;
+  }
   const title = draft.title.trim();
   if (!title) {
     state.kanbanCardError = "Kanban card title is required.";
@@ -321,13 +326,16 @@ export async function saveKanbanCard(state: KanbanState) {
       });
       applyCardMutation(state, result);
       currentCard = result.card;
+      if (laneChanged && state.kanbanCardDraft) {
+        state.kanbanCardDraft = { ...state.kanbanCardDraft, lane: requestedLane };
+      }
     }
     if (laneChanged) {
       const result = await state.client.request<KanbanCardMutationResult>("kanban.cards.move", {
         ...kanbanBoardParams(state),
         cardId: card.id,
         expectedVersion: currentCard.version,
-        lane: draft.lane,
+        lane: requestedLane,
       });
       applyCardMutation(state, result);
     }
