@@ -840,6 +840,12 @@ describe("runSandboxFirstAcceptance", () => {
             2,
           );
         }
+        if (command.includes("node dist/index.js cron rm")) {
+          return JSON.stringify({ ok: true, removed: true }, null, 2);
+        }
+        if (command.includes("node dist/index.js gateway call sessions.delete")) {
+          return JSON.stringify({ ok: true, deleted: true, archived: [] }, null, 2);
+        }
         if (command.includes("spawnAcpDirect")) {
           return JSON.stringify(
             {
@@ -1122,8 +1128,7 @@ describe("runSandboxFirstAcceptance", () => {
           return JSON.stringify({ ok: true, ran: true }, null, 2);
         }
         if (
-          command ===
-          "cd /app && node dist/index.js cron runs --id 'job-cleanup-fail' --limit 20"
+          command === "cd /app && node dist/index.js cron runs --id 'job-cleanup-fail' --limit 20"
         ) {
           return JSON.stringify(
             {
@@ -1239,6 +1244,12 @@ describe("runSandboxFirstAcceptance", () => {
             2,
           );
         }
+        if (command.includes("node dist/index.js cron rm")) {
+          return JSON.stringify({ ok: true, removed: true }, null, 2);
+        }
+        if (command.includes("node dist/index.js gateway call sessions.delete")) {
+          return JSON.stringify({ ok: true, deleted: true, archived: [] }, null, 2);
+        }
         throw new Error(`Unhandled docker command: ${command}`);
       });
 
@@ -1300,6 +1311,12 @@ describe("runSandboxFirstAcceptance", () => {
             null,
             2,
           );
+        }
+        if (command.includes("node dist/index.js cron rm")) {
+          return JSON.stringify({ ok: true, removed: true }, null, 2);
+        }
+        if (command.includes("node dist/index.js gateway call sessions.delete")) {
+          return JSON.stringify({ ok: true, deleted: true, archived: [] }, null, 2);
         }
         throw new Error(`Unhandled docker command: ${command}`);
       });
