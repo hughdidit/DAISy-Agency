@@ -425,9 +425,7 @@ describe("runSandboxFirstAcceptance", () => {
             2,
           );
         }
-        if (
-          command === "cd /app && node dist/index.js cron rm 'job-2' --timeout 60000 --json"
-        ) {
+        if (command === "cd /app && node dist/index.js cron rm 'job-2' --timeout 60000 --json") {
           return JSON.stringify({ ok: true, removed: false }, null, 2);
         }
         if (command.includes("node dist/index.js gateway call sessions.delete")) {
@@ -1150,8 +1148,7 @@ describe("runSandboxFirstAcceptance", () => {
           return JSON.stringify({ ok: true, ran: true }, null, 2);
         }
         if (
-          command ===
-          "cd /app && node dist/index.js cron runs --id 'job-cleanup-retry' --limit 20"
+          command === "cd /app && node dist/index.js cron runs --id 'job-cleanup-retry' --limit 20"
         ) {
           return JSON.stringify(
             {
