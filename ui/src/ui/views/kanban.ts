@@ -716,6 +716,24 @@ function renderActivity(entry: KanbanActivity) {
   `;
 }
 
+function renderActivityRail(props: KanbanProps) {
+  return html`
+    <section class="kanban-activity-rail" aria-label=${t("kanban.activity.title")}>
+      <div class="card-title">${t("kanban.activity.title")}</div>
+      <div class="card-sub">${t("kanban.activity.recentEvents", { count: String(props.activity.length) })}</div>
+      <div class="kanban-activity-list">
+        ${
+          props.activity.length
+            ? props.activity.map((entry) => renderActivity(entry))
+            : html`
+                <div class="kanban-empty">${t("kanban.empty.noRecentActivity")}</div>
+              `
+        }
+      </div>
+    </section>
+  `;
+}
+
 function renderImportPreview(props: KanbanProps) {
   const preview = props.importPreview;
   if (!preview) {
@@ -952,22 +970,8 @@ export function renderKanban(props: KanbanProps) {
       <section class="kanban-workspace">
         <div class="kanban-board" aria-label=${t("kanban.board.ariaLabel")}>
           ${lanes.map((lane) => renderLane(lane, cardsByLane.get(lane.id) ?? [], props))}
+          ${renderActivityRail(props)}
         </div>
-        <aside class="kanban-side">
-          <section class="kanban-activity-rail">
-            <div class="card-title">${t("kanban.activity.title")}</div>
-            <div class="card-sub">${t("kanban.activity.recentEvents", { count: String(props.activity.length) })}</div>
-            <div class="kanban-activity-list">
-              ${
-                props.activity.length
-                  ? props.activity.map((entry) => renderActivity(entry))
-                  : html`
-                      <div class="kanban-empty">${t("kanban.empty.noRecentActivity")}</div>
-                    `
-              }
-            </div>
-          </section>
-        </aside>
       </section>
       ${renderCardDetail(props, lanes)}
     </div>
