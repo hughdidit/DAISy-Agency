@@ -530,9 +530,122 @@ function parseJsonOrThrow(raw, failureClass, message) {
   return parsed;
 }
 
+function cleanupErrorFromCommand(params) {
+  return {
+    action: params.action,
+    key: params.key,
+    command: params.command,
+    message: params.message,
+    status: typeof params.status === "number" ? params.status : null,
+    signal: typeof params.signal === "string" ? params.signal : null,
+    stdout: typeof params.stdout === "string" ? params.stdout : "",
+    stderr: typeof params.stderr === "string" ? params.stderr : "",
+  };
+}
+
+function runAcceptanceCleanupCommand(ctx, params) {
+  const output = {
+    action: params.action,
+    key: params.key,
+    command: params.command,
+    ...(params.options ? { options: params.options } : {}),
+  };
+
+  const result = captureDockerExecBash(ctx, params.command);
+  output.status = result.status;
+  output.signal = result.signal;
+
+  if (!result.ok) {
+    output.ok = false;
+    output.error = result.errorMessage;
+    return {
+      output,
+      error: cleanupErrorFromCommand({
+        action: params.action,
+        key: params.key,
+        command: params.command,
+        message: result.errorMessage ?? `${params.action} failed`,
+        status: result.status,
+        signal: result.signal,
+        stdout: result.stdout,
+        stderr: result.stderr,
+      }),
+    };
+  }
+
+  const parsed = extractLastJsonValue(result.stdout);
+  if (parsed === null) {
+    output.ok = false;
+    output.error = "cleanup command did not return parseable JSON";
+    return {
+      output,
+      error: cleanupErrorFromCommand({
+        action: params.action,
+        key: params.key,
+        command: params.command,
+        message: output.error,
+        status: result.status,
+        signal: result.signal,
+        stdout: result.stdout,
+        stderr: result.stderr,
+      }),
+    };
+  }
+
+  output.ok = parsed.ok === true;
+  if (params.resultFlag && typeof parsed[params.resultFlag] === "boolean") {
+    output[params.resultFlag] = parsed[params.resultFlag];
+  }
+  if (Array.isArray(parsed.archived)) {
+    output.archived = parsed.archived;
+  }
+
+  if (parsed.ok !== true) {
+    output.error =
+      typeof parsed?.error?.message === "string"
+        ? parsed.error.message
+        : typeof parsed?.message === "string"
+          ? parsed.message
+          : `${params.action} returned ok=false`;
+    return {
+      output,
+      error: cleanupErrorFromCommand({
+        action: params.action,
+        key: params.key,
+        command: params.command,
+        message: output.error,
+        status: result.status,
+        signal: result.signal,
+        stdout: result.stdout,
+        stderr: result.stderr,
+      }),
+    };
+  }
+
+  return { output, error: null };
+}
+
+function buildGatewaySessionDeleteCommand(sessionKey) {
+  const params = {
+    key: sessionKey,
+    deleteTranscript: true,
+    emitLifecycleHooks: false,
+  };
+  return {
+    command: `cd /app && node dist/index.js gateway call sessions.delete --params ${shellQuote(
+      JSON.stringify(params),
+    )} --json`,
+    options: {
+      deleteTranscript: true,
+      emitLifecycleHooks: false,
+    },
+  };
+}
+
 async function cleanupAcceptanceCronArtifacts(ctx, params = {}) {
   const cleanupParams = params && typeof params === "object" ? params : {};
   const outputs = [];
+  const errors = [];
   const jobId =
     typeof cleanupParams.jobId === "string" && cleanupParams.jobId.trim()
       ? cleanupParams.jobId.trim()
@@ -543,41 +656,47 @@ async function cleanupAcceptanceCronArtifacts(ctx, params = {}) {
       : "";
   const baseSessionKey = resolveCronBaseSessionKey(runSessionKey);
 
-  // Staging verify runs without an interactive approver. Record the cleanup intent
-  // without issuing gateway deletion methods that require sensitive-action approval.
   if (jobId) {
-    outputs.push({
+    const { output, error } = runAcceptanceCleanupCommand(ctx, {
       action: "cron.rm",
       key: jobId,
-      skipped: true,
-      reason: "sensitive-delete-approval-required",
+      command: `cd /app && node dist/index.js cron rm ${shellQuote(jobId)} --json`,
+      resultFlag: "removed",
     });
+    outputs.push(output);
+    if (error) {
+      errors.push(error);
+    }
   }
 
   if (runSessionKey) {
-    outputs.push({
+    const { command, options } = buildGatewaySessionDeleteCommand(runSessionKey);
+    const { output, error } = runAcceptanceCleanupCommand(ctx, {
       action: "sessions.delete.run",
       key: runSessionKey,
-      skipped: true,
-      reason: "sensitive-delete-approval-required",
-      options: {
-        deleteTranscript: true,
-        emitLifecycleHooks: false,
-      },
+      command,
+      options,
+      resultFlag: "deleted",
     });
+    outputs.push(output);
+    if (error) {
+      errors.push(error);
+    }
   }
 
   if (baseSessionKey) {
-    outputs.push({
+    const { command, options } = buildGatewaySessionDeleteCommand(baseSessionKey);
+    const { output, error } = runAcceptanceCleanupCommand(ctx, {
       action: "sessions.delete.base",
       key: baseSessionKey,
-      skipped: true,
-      reason: "sensitive-delete-approval-required",
-      options: {
-        deleteTranscript: true,
-        emitLifecycleHooks: false,
-      },
+      command,
+      options,
+      resultFlag: "deleted",
     });
+    outputs.push(output);
+    if (error) {
+      errors.push(error);
+    }
   }
 
   await ctx.writeArtifactJson("cron-cleanup.json", {
@@ -585,10 +704,28 @@ async function cleanupAcceptanceCronArtifacts(ctx, params = {}) {
     runSessionKey: runSessionKey || null,
     baseSessionKey: baseSessionKey || null,
     outputs,
-    errors: [],
+    errors,
   });
 
-  return { errors: [] };
+  return { errors };
+}
+
+async function cleanupAcceptanceCronArtifactsAfterScenario(ctx, params = {}) {
+  if (!params.jobId && !params.runSessionKey) {
+    return;
+  }
+  const cleanup = await cleanupAcceptanceCronArtifacts(ctx, {
+    jobId: params.jobId,
+    runSessionKey: params.runSessionKey,
+  });
+  if (!params.scenarioFailed && cleanup.errors.length > 0) {
+    throw new ScenarioError(
+      "scheduler-gap",
+      `${params.scenarioLabel} cleanup failed for ${cleanup.errors
+        .map((error) => `${error.action}:${error.key}`)
+        .join(", ")}`,
+    );
+  }
 }
 
 function assertCronAddSelfDeletes(addPayload, message) {
@@ -1375,6 +1512,8 @@ export async function runIsolatedCronScenario(ctx) {
   const jobName = `SBX-401 sandbox-first acceptance ${ctx.now().toISOString()}`;
   let jobId = "";
   let runSessionKey = "";
+  let scenarioFailed = false;
+  let skippedOutcome = null;
 
   try {
     const addRaw = ctx.dockerExecBash(
@@ -1423,36 +1562,49 @@ export async function runIsolatedCronScenario(ctx) {
         scenarioName: "isolated cron acceptance job",
       });
       runSessionKey = skipped.runSessionKey;
-      return skipped.outcome;
-    }
-    if (last?.action !== "finished") {
+      skippedOutcome = skipped.outcome;
+    } else if (last?.action !== "finished") {
       throw new ScenarioError("scheduler-gap", "cron run history did not record a finished event");
-    }
-    if (last?.status !== "ok") {
+    } else if (last?.status !== "ok") {
       throw new ScenarioError(
         "sandbox-runtime-gap",
         `isolated cron acceptance job finished with status ${String(last?.status ?? "<empty>")}`,
       );
-    }
-    if (last?.deliveryStatus !== "not-requested") {
+    } else if (last?.deliveryStatus !== "not-requested") {
       throw new ScenarioError(
         "delivery-gap",
         `isolated cron acceptance job unexpectedly attempted delivery (${String(
           last?.deliveryStatus ?? "<empty>",
         )})`,
       );
+    } else {
+      runSessionKey = typeof last?.sessionKey === "string" ? last.sessionKey.trim() : "";
     }
-    runSessionKey = typeof last?.sessionKey === "string" ? last.sessionKey.trim() : "";
-    if (!isAgentCronRunSessionKeyForJob(runSessionKey, jobId)) {
+    if (!skippedOutcome && !isAgentCronRunSessionKeyForJob(runSessionKey, jobId)) {
       throw new ScenarioError(
         "scheduler-gap",
         `isolated cron run did not expose the expected agent-scoped per-run session key for ${jobId}, got ${runSessionKey || "<empty>"}`,
       );
     }
-  } finally {
-    if (jobId || runSessionKey) {
-      await cleanupAcceptanceCronArtifacts(ctx, { jobId, runSessionKey });
-    }
+  } catch (error) {
+    scenarioFailed = true;
+    await cleanupAcceptanceCronArtifactsAfterScenario(ctx, {
+      jobId,
+      runSessionKey,
+      scenarioFailed,
+      scenarioLabel: "isolated cron acceptance",
+    });
+    throw error;
+  }
+
+  await cleanupAcceptanceCronArtifactsAfterScenario(ctx, {
+    jobId,
+    runSessionKey,
+    scenarioFailed,
+    scenarioLabel: "isolated cron acceptance",
+  });
+  if (skippedOutcome) {
+    return skippedOutcome;
   }
 }
 
@@ -1543,6 +1695,8 @@ export async function runCronIsolationAndSubagentModelScenario(ctx) {
   const jobName = `SBX-404 cron isolation ${now.toISOString()}`;
   let jobId = "";
   let runSessionKey = "";
+  let scenarioFailed = false;
+  let skippedOutcome = null;
 
   try {
     const addRaw = ctx.dockerExecBash(
@@ -1597,47 +1751,62 @@ export async function runCronIsolationAndSubagentModelScenario(ctx) {
         scenarioName: "SBX-404 isolated cron job",
       });
       runSessionKey = skipped.runSessionKey;
-      return skipped.outcome;
-    }
-    if (last?.action !== "finished") {
+      skippedOutcome = skipped.outcome;
+    } else if (last?.action !== "finished") {
       throw new ScenarioError(
         "scheduler-gap",
         "SBX-404 cron run history did not record a finished event",
       );
-    }
-    if (last?.status !== "ok") {
+    } else if (last?.status !== "ok") {
       throw new ScenarioError(
         "sandbox-runtime-gap",
         `SBX-404 isolated cron job finished with status ${String(last?.status ?? "<empty>")}`,
       );
-    }
-    if (last?.deliveryStatus !== "not-requested") {
+    } else if (last?.deliveryStatus !== "not-requested") {
       throw new ScenarioError(
         "delivery-gap",
         `SBX-404 isolated cron job unexpectedly attempted delivery (${String(
           last?.deliveryStatus ?? "<empty>",
         )})`,
       );
+    } else {
+      runSessionKey = typeof last?.sessionKey === "string" ? last.sessionKey.trim() : "";
     }
-    runSessionKey = typeof last?.sessionKey === "string" ? last.sessionKey.trim() : "";
-    if (!isAgentCronRunSessionKeyForJob(runSessionKey, jobId)) {
+    if (!skippedOutcome && !isAgentCronRunSessionKeyForJob(runSessionKey, jobId)) {
       throw new ScenarioError(
         "scheduler-gap",
         `SBX-404 isolated cron run did not expose the expected agent-scoped per-run session key for ${jobId}, got ${runSessionKey || "<empty>"}`,
       );
     }
-    await ctx.writeArtifactJson("cron-isolation-metadata.json", {
-      operationalContext: "cron-isolated-session",
-      jobId,
-      sessionKey: runSessionKey,
-      model: typeof last?.model === "string" ? last.model : null,
-      provider: typeof last?.provider === "string" ? last.provider : null,
-      expectedOutcome: "pass",
-    });
-  } finally {
-    if (jobId || runSessionKey) {
-      await cleanupAcceptanceCronArtifacts(ctx, { jobId, runSessionKey });
+    if (!skippedOutcome) {
+      await ctx.writeArtifactJson("cron-isolation-metadata.json", {
+        operationalContext: "cron-isolated-session",
+        jobId,
+        sessionKey: runSessionKey,
+        model: typeof last?.model === "string" ? last.model : null,
+        provider: typeof last?.provider === "string" ? last.provider : null,
+        expectedOutcome: "pass",
+      });
     }
+  } catch (error) {
+    scenarioFailed = true;
+    await cleanupAcceptanceCronArtifactsAfterScenario(ctx, {
+      jobId,
+      runSessionKey,
+      scenarioFailed,
+      scenarioLabel: "SBX-404 cron",
+    });
+    throw error;
+  }
+
+  await cleanupAcceptanceCronArtifactsAfterScenario(ctx, {
+    jobId,
+    runSessionKey,
+    scenarioFailed,
+    scenarioLabel: "SBX-404 cron",
+  });
+  if (skippedOutcome) {
+    return skippedOutcome;
   }
 }
 

@@ -431,6 +431,9 @@ describe("runSandboxFirstAcceptance", () => {
         if (command.includes("node dist/index.js gateway call sessions.delete")) {
           return JSON.stringify({ ok: true, deleted: true, archived: [] }, null, 2);
         }
+        if (command.includes("node dist/index.js cron rm")) {
+          return JSON.stringify({ ok: true, removed: true }, null, 2);
+        }
         if (command.includes("spawnAcpDirect")) {
           return JSON.stringify(
             {
@@ -837,6 +840,12 @@ describe("runSandboxFirstAcceptance", () => {
             2,
           );
         }
+        if (command.includes("node dist/index.js cron rm")) {
+          return JSON.stringify({ ok: true, removed: true }, null, 2);
+        }
+        if (command.includes("node dist/index.js gateway call sessions.delete")) {
+          return JSON.stringify({ ok: true, deleted: true, archived: [] }, null, 2);
+        }
         if (command.includes("spawnAcpDirect")) {
           return JSON.stringify(
             {
@@ -941,30 +950,30 @@ describe("runSandboxFirstAcceptance", () => {
         }),
       );
       expect(cleanup.outputs).toEqual([
-        {
+        expect.objectContaining({
           action: "cron.rm",
           key: "job-1",
-          skipped: true,
-          reason: "sensitive-delete-approval-required",
-        },
-        {
+          ok: true,
+          removed: true,
+        }),
+        expect.objectContaining({
           action: "sessions.delete.run",
           key: "agent:main:cron:job-1:run:run-1",
-          skipped: true,
-          reason: "sensitive-delete-approval-required",
+          ok: true,
+          deleted: true,
           options: { deleteTranscript: true, emitLifecycleHooks: false },
-        },
-        {
+        }),
+        expect.objectContaining({
           action: "sessions.delete.base",
           key: "agent:main:cron:job-1",
-          skipped: true,
-          reason: "sensitive-delete-approval-required",
+          ok: true,
+          deleted: true,
           options: { deleteTranscript: true, emitLifecycleHooks: false },
-        },
+        }),
       ]);
       expect(commands.some((command) => command.includes("--delete-after-run"))).toBe(false);
-      expect(commands.some((command) => command.includes("cron rm "))).toBe(false);
-      expect(commands.some((command) => command.includes("sessions.delete"))).toBe(false);
+      expect(commands.some((command) => command.includes("cron rm "))).toBe(true);
+      expect(commands.some((command) => command.includes("sessions.delete"))).toBe(true);
       const cronAddCommands = commands.filter((command) =>
         command.includes("node dist/index.js cron add"),
       );
@@ -986,7 +995,7 @@ describe("runSandboxFirstAcceptance", () => {
     });
   });
 
-  it("records sensitive cleanup skips without failing a verified isolated cron scenario", async () => {
+  it("runs targeted cleanup without failing a verified isolated cron scenario", async () => {
     await withTempDir(async (artifactRoot) => {
       const commands: string[] = [];
       const dockerExecBash = vi.fn((command: string) => {
@@ -1015,6 +1024,12 @@ describe("runSandboxFirstAcceptance", () => {
             null,
             2,
           );
+        }
+        if (command === "cd /app && node dist/index.js cron rm 'job-sensitive-cleanup' --json") {
+          return JSON.stringify({ ok: true, removed: true }, null, 2);
+        }
+        if (command.includes("node dist/index.js gateway call sessions.delete")) {
+          return JSON.stringify({ ok: true, deleted: true, archived: [] }, null, 2);
         }
         throw new Error(`Unhandled docker command: ${command}`);
       });
@@ -1066,31 +1081,31 @@ describe("runSandboxFirstAcceptance", () => {
         errors: [],
       });
       expect(cleanup.outputs).toEqual([
-        {
+        expect.objectContaining({
           action: "cron.rm",
           key: "job-sensitive-cleanup",
-          skipped: true,
-          reason: "sensitive-delete-approval-required",
-        },
-        {
+          ok: true,
+          removed: true,
+        }),
+        expect.objectContaining({
           action: "sessions.delete.run",
           key: "agent:main:cron:job-sensitive-cleanup:run:run-sensitive-cleanup",
-          skipped: true,
-          reason: "sensitive-delete-approval-required",
+          ok: true,
+          deleted: true,
           options: { deleteTranscript: true, emitLifecycleHooks: false },
-        },
-        {
+        }),
+        expect.objectContaining({
           action: "sessions.delete.base",
           key: "agent:main:cron:job-sensitive-cleanup",
-          skipped: true,
-          reason: "sensitive-delete-approval-required",
+          ok: true,
+          deleted: true,
           options: { deleteTranscript: true, emitLifecycleHooks: false },
-        },
+        }),
       ]);
       await expect(fs.access(path.join(artifactRoot, "cron-cleanup-error.txt"))).rejects.toThrow();
       expect(commands.some((command) => command.includes("--delete-after-run"))).toBe(false);
-      expect(commands.some((command) => command.includes("cron rm "))).toBe(false);
-      expect(commands.some((command) => command.includes("sessions.delete"))).toBe(false);
+      expect(commands.some((command) => command.includes("cron rm "))).toBe(true);
+      expect(commands.some((command) => command.includes("sessions.delete"))).toBe(true);
       const cronAddCommands = commands.filter((command) =>
         command.includes("node dist/index.js cron add"),
       );
@@ -1100,6 +1115,80 @@ describe("runSandboxFirstAcceptance", () => {
       expect(cronAddCommands[0]).toContain("--thinking 'low'");
       expect(cronAddCommands[0]).toContain("--timeout-seconds '42'");
       expect(cronAddCommands[0]).toContain("--light-context");
+    });
+  });
+
+  it("fails a verified isolated cron scenario when targeted cleanup fails", async () => {
+    await withTempDir(async (artifactRoot) => {
+      const dockerExecBash = vi.fn((command: string) => {
+        if (command.includes("node dist/index.js cron add")) {
+          return JSON.stringify({ id: "job-cleanup-fail" }, null, 2);
+        }
+        if (command === "cd /app && node dist/index.js cron run 'job-cleanup-fail'") {
+          return JSON.stringify({ ok: true, ran: true }, null, 2);
+        }
+        if (
+          command === "cd /app && node dist/index.js cron runs --id 'job-cleanup-fail' --limit 20"
+        ) {
+          return JSON.stringify(
+            {
+              entries: [
+                {
+                  action: "finished",
+                  status: "ok",
+                  deliveryStatus: "not-requested",
+                  sessionKey: "agent:main:cron:job-cleanup-fail:run:run-cleanup-fail",
+                },
+              ],
+            },
+            null,
+            2,
+          );
+        }
+        if (command === "cd /app && node dist/index.js cron rm 'job-cleanup-fail' --json") {
+          throw new Error("gateway cleanup unavailable");
+        }
+        if (command.includes("node dist/index.js gateway call sessions.delete")) {
+          return JSON.stringify({ ok: true, deleted: true, archived: [] }, null, 2);
+        }
+        throw new Error(`Unhandled docker command: ${command}`);
+      });
+
+      const ctx = {
+        now: () => new Date("2026-04-25T20:00:00.000Z"),
+        dockerExecBash,
+        writeArtifactText: async (name: string, content: string) => {
+          await fs.writeFile(path.join(artifactRoot, name), content, "utf8");
+        },
+        writeArtifactJson: async (name: string, payload: unknown) => {
+          await fs.writeFile(
+            path.join(artifactRoot, name),
+            `${JSON.stringify(payload, null, 2)}\n`,
+            "utf8",
+          );
+        },
+      };
+      const acceptanceModule = (await import("./sandbox-first-acceptance.mjs")) as unknown as {
+        runIsolatedCronScenario: (scenarioContext: typeof ctx) => Promise<void>;
+      };
+
+      await expect(acceptanceModule.runIsolatedCronScenario(ctx)).rejects.toMatchObject({
+        failureClass: "scheduler-gap",
+        message: "isolated cron acceptance cleanup failed for cron.rm:job-cleanup-fail",
+      });
+
+      const cleanup = JSON.parse(
+        await fs.readFile(path.join(artifactRoot, "cron-cleanup.json"), "utf8"),
+      ) as {
+        errors: Array<{ action: string; key: string; message: string }>;
+      };
+      expect(cleanup.errors).toEqual([
+        expect.objectContaining({
+          action: "cron.rm",
+          key: "job-cleanup-fail",
+          message: "gateway cleanup unavailable",
+        }),
+      ]);
     });
   });
 
@@ -1154,6 +1243,12 @@ describe("runSandboxFirstAcceptance", () => {
             null,
             2,
           );
+        }
+        if (command.includes("node dist/index.js cron rm")) {
+          return JSON.stringify({ ok: true, removed: true }, null, 2);
+        }
+        if (command.includes("node dist/index.js gateway call sessions.delete")) {
+          return JSON.stringify({ ok: true, deleted: true, archived: [] }, null, 2);
         }
         throw new Error(`Unhandled docker command: ${command}`);
       });
@@ -1217,6 +1312,12 @@ describe("runSandboxFirstAcceptance", () => {
             2,
           );
         }
+        if (command.includes("node dist/index.js cron rm")) {
+          return JSON.stringify({ ok: true, removed: true }, null, 2);
+        }
+        if (command.includes("node dist/index.js gateway call sessions.delete")) {
+          return JSON.stringify({ ok: true, deleted: true, archived: [] }, null, 2);
+        }
         throw new Error(`Unhandled docker command: ${command}`);
       });
 
@@ -1271,6 +1372,9 @@ describe("runSandboxFirstAcceptance", () => {
           expect(command).toContain("--model 'openai/gpt-5.4-nano'");
           return JSON.stringify({ id: "job-persistent", deleteAfterRun: false }, null, 2);
         }
+        if (command === "cd /app && node dist/index.js cron rm 'job-persistent' --json") {
+          return JSON.stringify({ ok: true, removed: true }, null, 2);
+        }
         throw new Error(`Unhandled docker command: ${command}`);
       });
 
@@ -1302,12 +1406,12 @@ describe("runSandboxFirstAcceptance", () => {
         await fs.readFile(path.join(artifactRoot, "cron-cleanup.json"), "utf8"),
       ) as { outputs: Array<{ action: string; key: string }> };
       expect(cleanup.outputs).toEqual([
-        {
+        expect.objectContaining({
           action: "cron.rm",
           key: "job-persistent",
-          skipped: true,
-          reason: "sensitive-delete-approval-required",
-        },
+          ok: true,
+          removed: true,
+        }),
       ]);
     });
   });
