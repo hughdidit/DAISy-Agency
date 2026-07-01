@@ -530,9 +530,122 @@ function parseJsonOrThrow(raw, failureClass, message) {
   return parsed;
 }
 
+function cleanupErrorFromCommand(params) {
+  return {
+    action: params.action,
+    key: params.key,
+    command: params.command,
+    message: params.message,
+    status: typeof params.status === "number" ? params.status : null,
+    signal: typeof params.signal === "string" ? params.signal : null,
+    stdout: typeof params.stdout === "string" ? params.stdout : "",
+    stderr: typeof params.stderr === "string" ? params.stderr : "",
+  };
+}
+
+function runAcceptanceCleanupCommand(ctx, params) {
+  const output = {
+    action: params.action,
+    key: params.key,
+    command: params.command,
+    ...(params.options ? { options: params.options } : {}),
+  };
+
+  const result = captureDockerExecBash(ctx, params.command);
+  output.status = result.status;
+  output.signal = result.signal;
+
+  if (!result.ok) {
+    output.ok = false;
+    output.error = result.errorMessage;
+    return {
+      output,
+      error: cleanupErrorFromCommand({
+        action: params.action,
+        key: params.key,
+        command: params.command,
+        message: result.errorMessage ?? `${params.action} failed`,
+        status: result.status,
+        signal: result.signal,
+        stdout: result.stdout,
+        stderr: result.stderr,
+      }),
+    };
+  }
+
+  const parsed = extractLastJsonValue(result.stdout);
+  output.ok = parsed?.ok === true;
+  if (params.resultFlag && typeof parsed?.[params.resultFlag] === "boolean") {
+    output[params.resultFlag] = parsed[params.resultFlag];
+  }
+  if (Array.isArray(parsed?.archived)) {
+    output.archived = parsed.archived;
+  }
+
+  if (parsed === null) {
+    output.ok = false;
+    output.error = "cleanup command did not return parseable JSON";
+    return {
+      output,
+      error: cleanupErrorFromCommand({
+        action: params.action,
+        key: params.key,
+        command: params.command,
+        message: output.error,
+        status: result.status,
+        signal: result.signal,
+        stdout: result.stdout,
+        stderr: result.stderr,
+      }),
+    };
+  }
+
+  if (parsed.ok !== true) {
+    output.error =
+      typeof parsed?.error?.message === "string"
+        ? parsed.error.message
+        : typeof parsed?.message === "string"
+          ? parsed.message
+          : `${params.action} returned ok=false`;
+    return {
+      output,
+      error: cleanupErrorFromCommand({
+        action: params.action,
+        key: params.key,
+        command: params.command,
+        message: output.error,
+        status: result.status,
+        signal: result.signal,
+        stdout: result.stdout,
+        stderr: result.stderr,
+      }),
+    };
+  }
+
+  return { output, error: null };
+}
+
+function buildGatewaySessionDeleteCommand(sessionKey) {
+  const params = {
+    key: sessionKey,
+    deleteTranscript: true,
+    emitLifecycleHooks: false,
+  };
+  return {
+    command: `cd /app && node dist/index.js gateway call sessions.delete --params ${shellQuote(
+      JSON.stringify(params),
+    )} --json`,
+    options: {
+      deleteTranscript: true,
+      emitLifecycleHooks: false,
+    },
+  };
+}
+
 async function cleanupAcceptanceCronArtifacts(ctx, params = {}) {
   const cleanupParams = params && typeof params === "object" ? params : {};
   const outputs = [];
+  const errors = [];
   const jobId =
     typeof cleanupParams.jobId === "string" && cleanupParams.jobId.trim()
       ? cleanupParams.jobId.trim()
@@ -543,41 +656,47 @@ async function cleanupAcceptanceCronArtifacts(ctx, params = {}) {
       : "";
   const baseSessionKey = resolveCronBaseSessionKey(runSessionKey);
 
-  // Staging verify runs without an interactive approver. Record the cleanup intent
-  // without issuing gateway deletion methods that require sensitive-action approval.
   if (jobId) {
-    outputs.push({
+    const { output, error } = runAcceptanceCleanupCommand(ctx, {
       action: "cron.rm",
       key: jobId,
-      skipped: true,
-      reason: "sensitive-delete-approval-required",
+      command: `cd /app && node dist/index.js cron rm ${shellQuote(jobId)} --json`,
+      resultFlag: "removed",
     });
+    outputs.push(output);
+    if (error) {
+      errors.push(error);
+    }
   }
 
   if (runSessionKey) {
-    outputs.push({
+    const { command, options } = buildGatewaySessionDeleteCommand(runSessionKey);
+    const { output, error } = runAcceptanceCleanupCommand(ctx, {
       action: "sessions.delete.run",
       key: runSessionKey,
-      skipped: true,
-      reason: "sensitive-delete-approval-required",
-      options: {
-        deleteTranscript: true,
-        emitLifecycleHooks: false,
-      },
+      command,
+      options,
+      resultFlag: "deleted",
     });
+    outputs.push(output);
+    if (error) {
+      errors.push(error);
+    }
   }
 
   if (baseSessionKey) {
-    outputs.push({
+    const { command, options } = buildGatewaySessionDeleteCommand(baseSessionKey);
+    const { output, error } = runAcceptanceCleanupCommand(ctx, {
       action: "sessions.delete.base",
       key: baseSessionKey,
-      skipped: true,
-      reason: "sensitive-delete-approval-required",
-      options: {
-        deleteTranscript: true,
-        emitLifecycleHooks: false,
-      },
+      command,
+      options,
+      resultFlag: "deleted",
     });
+    outputs.push(output);
+    if (error) {
+      errors.push(error);
+    }
   }
 
   await ctx.writeArtifactJson("cron-cleanup.json", {
@@ -585,10 +704,10 @@ async function cleanupAcceptanceCronArtifacts(ctx, params = {}) {
     runSessionKey: runSessionKey || null,
     baseSessionKey: baseSessionKey || null,
     outputs,
-    errors: [],
+    errors,
   });
 
-  return { errors: [] };
+  return { errors };
 }
 
 function assertCronAddSelfDeletes(addPayload, message) {
@@ -1375,6 +1494,7 @@ export async function runIsolatedCronScenario(ctx) {
   const jobName = `SBX-401 sandbox-first acceptance ${ctx.now().toISOString()}`;
   let jobId = "";
   let runSessionKey = "";
+  let scenarioFailed = false;
 
   try {
     const addRaw = ctx.dockerExecBash(
@@ -1449,9 +1569,20 @@ export async function runIsolatedCronScenario(ctx) {
         `isolated cron run did not expose the expected agent-scoped per-run session key for ${jobId}, got ${runSessionKey || "<empty>"}`,
       );
     }
+  } catch (error) {
+    scenarioFailed = true;
+    throw error;
   } finally {
     if (jobId || runSessionKey) {
-      await cleanupAcceptanceCronArtifacts(ctx, { jobId, runSessionKey });
+      const cleanup = await cleanupAcceptanceCronArtifacts(ctx, { jobId, runSessionKey });
+      if (!scenarioFailed && cleanup.errors.length > 0) {
+        throw new ScenarioError(
+          "scheduler-gap",
+          `isolated cron acceptance cleanup failed for ${cleanup.errors
+            .map((error) => `${error.action}:${error.key}`)
+            .join(", ")}`,
+        );
+      }
     }
   }
 }
@@ -1543,6 +1674,7 @@ export async function runCronIsolationAndSubagentModelScenario(ctx) {
   const jobName = `SBX-404 cron isolation ${now.toISOString()}`;
   let jobId = "";
   let runSessionKey = "";
+  let scenarioFailed = false;
 
   try {
     const addRaw = ctx.dockerExecBash(
@@ -1634,9 +1766,20 @@ export async function runCronIsolationAndSubagentModelScenario(ctx) {
       provider: typeof last?.provider === "string" ? last.provider : null,
       expectedOutcome: "pass",
     });
+  } catch (error) {
+    scenarioFailed = true;
+    throw error;
   } finally {
     if (jobId || runSessionKey) {
-      await cleanupAcceptanceCronArtifacts(ctx, { jobId, runSessionKey });
+      const cleanup = await cleanupAcceptanceCronArtifacts(ctx, { jobId, runSessionKey });
+      if (!scenarioFailed && cleanup.errors.length > 0) {
+        throw new ScenarioError(
+          "scheduler-gap",
+          `SBX-404 cron cleanup failed for ${cleanup.errors
+            .map((error) => `${error.action}:${error.key}`)
+            .join(", ")}`,
+        );
+      }
     }
   }
 }
