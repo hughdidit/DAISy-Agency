@@ -574,14 +574,6 @@ function runAcceptanceCleanupCommand(ctx, params) {
   }
 
   const parsed = extractLastJsonValue(result.stdout);
-  output.ok = parsed?.ok === true;
-  if (params.resultFlag && typeof parsed?.[params.resultFlag] === "boolean") {
-    output[params.resultFlag] = parsed[params.resultFlag];
-  }
-  if (Array.isArray(parsed?.archived)) {
-    output.archived = parsed.archived;
-  }
-
   if (parsed === null) {
     output.ok = false;
     output.error = "cleanup command did not return parseable JSON";
@@ -598,6 +590,14 @@ function runAcceptanceCleanupCommand(ctx, params) {
         stderr: result.stderr,
       }),
     };
+  }
+
+  output.ok = parsed.ok === true;
+  if (params.resultFlag && typeof parsed[params.resultFlag] === "boolean") {
+    output[params.resultFlag] = parsed[params.resultFlag];
+  }
+  if (Array.isArray(parsed.archived)) {
+    output.archived = parsed.archived;
   }
 
   if (parsed.ok !== true) {
