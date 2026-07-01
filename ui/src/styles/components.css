@@ -2459,6 +2459,14 @@
   transform: translateY(-1px);
 }
 
+.kanban-card[draggable="true"] {
+  cursor: grab;
+}
+
+.kanban-card[draggable="true"]:active {
+  cursor: grabbing;
+}
+
 .kanban-card.active {
   border-color: var(--accent);
   box-shadow: var(--focus-ring);

@@ -68,6 +68,7 @@ import {
   loadKanban,
   loadKanbanImportFile,
   moveKanbanCard,
+  moveKanbanCardById,
   previewKanbanImport,
   runKanbanImport,
   saveKanbanCard,
@@ -268,11 +269,14 @@ export function renderApp(state: AppViewState) {
           </button>
           <div class="brand">
             <div class="brand-logo">
-              <img src=${basePath ? `${basePath}/favicon.svg` : "/favicon.svg"} alt="OpenClaw" />
+              <img
+                src=${basePath ? `${basePath}/daisy-avatar-64.png` : "/daisy-avatar-64.png"}
+                alt="DAISy AI"
+              />
             </div>
             <div class="brand-text">
-              <div class="brand-title">OPENCLAW</div>
-              <div class="brand-sub">Gateway Dashboard</div>
+              <div class="brand-title">DAISy AI</div>
+              <div class="brand-sub">System Dashboard</div>
             </div>
           </div>
         </div>
@@ -1086,6 +1090,7 @@ export function renderApp(state: AppViewState) {
                 onCardSave: () => saveKanbanCard(state),
                 onCardComment: () => commentKanbanCard(state),
                 onCardMove: (lane) => moveKanbanCard(state, lane),
+                onCardDropMove: (cardId, lane) => moveKanbanCardById(state, cardId, lane),
                 onCardArchive: () => archiveKanbanCard(state),
               })
             : nothing
