@@ -362,7 +362,7 @@ export function renderAgentFiles(params: {
   const hideWorkspaceManager = shouldHideWorkspaceManager(params.configForm);
 
   return html`
-    <section class="grid grid-cols-2">
+    <section class="agent-files-sections">
       <section class="card">
         <div class="row" style="justify-content: space-between;">
           <div>
