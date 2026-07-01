@@ -425,7 +425,9 @@ describe("runSandboxFirstAcceptance", () => {
             2,
           );
         }
-        if (command === "cd /app && node dist/index.js cron rm 'job-2' --timeout '60000' --json") {
+        if (
+          command === "cd /app && node dist/index.js cron rm 'job-2' --timeout 60000 --json"
+        ) {
           return JSON.stringify({ ok: true, removed: false }, null, 2);
         }
         if (command.includes("node dist/index.js gateway call sessions.delete")) {
@@ -981,7 +983,7 @@ describe("runSandboxFirstAcceptance", () => {
               command.includes("node dist/index.js cron rm") ||
               command.includes("node dist/index.js gateway call sessions.delete"),
           )
-          .every((command) => command.includes("--timeout '60000'")),
+          .every((command) => command.includes("--timeout 60000")),
       ).toBe(true);
       const cronAddCommands = commands.filter((command) =>
         command.includes("node dist/index.js cron add"),
@@ -1036,7 +1038,7 @@ describe("runSandboxFirstAcceptance", () => {
         }
         if (
           command ===
-          "cd /app && node dist/index.js cron rm 'job-sensitive-cleanup' --timeout '60000' --json"
+          "cd /app && node dist/index.js cron rm 'job-sensitive-cleanup' --timeout 60000 --json"
         ) {
           return JSON.stringify({ ok: true, removed: true }, null, 2);
         }
@@ -1125,7 +1127,7 @@ describe("runSandboxFirstAcceptance", () => {
               command.includes("node dist/index.js cron rm") ||
               command.includes("node dist/index.js gateway call sessions.delete"),
           )
-          .every((command) => command.includes("--timeout '60000'")),
+          .every((command) => command.includes("--timeout 60000")),
       ).toBe(true);
       const cronAddCommands = commands.filter((command) =>
         command.includes("node dist/index.js cron add"),
@@ -1174,7 +1176,7 @@ describe("runSandboxFirstAcceptance", () => {
         }
         if (
           command ===
-          "cd /app && node dist/index.js cron rm 'job-cleanup-retry' --timeout '60000' --json"
+          "cd /app && node dist/index.js cron rm 'job-cleanup-retry' --timeout 60000 --json"
         ) {
           cleanupCalls.cronRm += 1;
           if (cleanupCalls.cronRm === 1) {
@@ -1308,7 +1310,7 @@ describe("runSandboxFirstAcceptance", () => {
         }
         if (
           command ===
-          "cd /app && node dist/index.js cron rm 'job-cleanup-fail' --timeout '60000' --json"
+          "cd /app && node dist/index.js cron rm 'job-cleanup-fail' --timeout 60000 --json"
         ) {
           throw new Error("gateway cleanup unavailable");
         }
@@ -1538,7 +1540,7 @@ describe("runSandboxFirstAcceptance", () => {
         }
         if (
           command ===
-          "cd /app && node dist/index.js cron rm 'job-persistent' --timeout '60000' --json"
+          "cd /app && node dist/index.js cron rm 'job-persistent' --timeout 60000 --json"
         ) {
           return JSON.stringify({ ok: true, removed: true }, null, 2);
         }

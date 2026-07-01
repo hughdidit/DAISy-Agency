@@ -696,7 +696,7 @@ function buildGatewaySessionDeleteCommand(sessionKey) {
   return {
     command: `cd /app && node dist/index.js gateway call sessions.delete --params ${shellQuote(
       JSON.stringify(params),
-    )} --timeout ${shellQuote(ACCEPTANCE_CRON_CLEANUP_TIMEOUT_MS)} --json`,
+    )} --timeout ${ACCEPTANCE_CRON_CLEANUP_TIMEOUT_MS} --json`,
     options: {
       deleteTranscript: true,
       emitLifecycleHooks: false,
@@ -724,7 +724,7 @@ async function cleanupAcceptanceCronArtifacts(ctx, params = {}) {
       key: jobId,
       command: `cd /app && node dist/index.js cron rm ${shellQuote(
         jobId,
-      )} --timeout ${shellQuote(ACCEPTANCE_CRON_CLEANUP_TIMEOUT_MS)} --json`,
+      )} --timeout ${ACCEPTANCE_CRON_CLEANUP_TIMEOUT_MS} --json`,
       resultFlag: "removed",
     });
     outputs.push(output);
