@@ -276,8 +276,11 @@ export async function saveKanbanCard(state: KanbanState) {
   if (!card || !draft) {
     return;
   }
-  if (draft.lane !== card.lane) {
-    state.kanbanCardError = "Use Move to change lanes before saving other card edits.";
+  const requestedLane = draft.lane;
+  const laneChanged = requestedLane !== card.lane;
+  const cardFieldsChanged = isKanbanCardDraftDirty(card, draft, { ignoreLane: true });
+  if (!laneChanged && !cardFieldsChanged) {
+    state.kanbanCardError = null;
     return;
   }
   const title = draft.title.trim();
@@ -299,27 +302,43 @@ export async function saveKanbanCard(state: KanbanState) {
   state.kanbanCardBusy = true;
   state.kanbanCardError = null;
   try {
-    const result = await state.client.request<KanbanCardMutationResult>("kanban.cards.update", {
-      ...kanbanBoardParams(state),
-      cardId: card.id,
-      expectedVersion: card.version,
-      updates: {
-        title,
-        description: draft.description.trim() ? draft.description : null,
-        priority: draft.priority,
-        assignee: draft.assignee.trim() || null,
-        reviewer: draft.reviewer.trim() || null,
-        inputOwner: draft.inputOwner.trim() || null,
-        labels: compactList(draft.labelsText),
-        dueDate: resolvedDueDateValue(card, draft),
-        checklist: parseChecklistDraft(card, draft.checklistText),
-        links: compactList(draft.linksText),
-        watchers: compactList(draft.watchersText),
-        customFields,
-        readyForCodex: draft.readyForCodex,
-      },
-    });
-    applyCardMutation(state, result);
+    let currentCard = card;
+    if (cardFieldsChanged || !laneChanged) {
+      const result = await state.client.request<KanbanCardMutationResult>("kanban.cards.update", {
+        ...kanbanBoardParams(state),
+        cardId: card.id,
+        expectedVersion: card.version,
+        updates: {
+          title,
+          description: draft.description.trim() ? draft.description : null,
+          priority: draft.priority,
+          assignee: draft.assignee.trim() || null,
+          reviewer: draft.reviewer.trim() || null,
+          inputOwner: draft.inputOwner.trim() || null,
+          labels: compactList(draft.labelsText),
+          dueDate: resolvedDueDateValue(card, draft),
+          checklist: parseChecklistDraft(card, draft.checklistText),
+          links: compactList(draft.linksText),
+          watchers: compactList(draft.watchersText),
+          customFields,
+          readyForCodex: draft.readyForCodex,
+        },
+      });
+      applyCardMutation(state, result);
+      currentCard = result.card;
+      if (laneChanged && state.kanbanCardDraft) {
+        state.kanbanCardDraft = { ...state.kanbanCardDraft, lane: requestedLane };
+      }
+    }
+    if (laneChanged) {
+      const result = await state.client.request<KanbanCardMutationResult>("kanban.cards.move", {
+        ...kanbanBoardParams(state),
+        cardId: card.id,
+        expectedVersion: currentCard.version,
+        lane: requestedLane,
+      });
+      applyCardMutation(state, result);
+    }
     await loadKanban(state);
   } catch (err) {
     state.kanbanCardError = String(err);
