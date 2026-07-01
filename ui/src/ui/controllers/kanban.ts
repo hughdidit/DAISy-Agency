@@ -165,6 +165,17 @@ function applyCardMutation(state: KanbanState, result: KanbanCardMutationResult)
   state.kanbanActivity = [result.activity, ...state.kanbanActivity].slice(0, 50);
 }
 
+function applyCardListMutation(state: KanbanState, result: KanbanCardMutationResult) {
+  state.kanbanCards = state.kanbanCards.map((card) =>
+    card.id === result.card.id ? result.card : card,
+  );
+  if (state.kanbanSelectedCardId === result.card.id) {
+    state.kanbanSelectedCard = result.card;
+    state.kanbanCardDraft = createKanbanCardDraft(result.card);
+  }
+  state.kanbanActivity = [result.activity, ...state.kanbanActivity].slice(0, 50);
+}
+
 function isKanbanCardDraftDirty(
   card: KanbanCard,
   draft: KanbanCardDraft,
@@ -373,6 +384,42 @@ export async function moveKanbanCard(state: KanbanState, lane: KanbanCard["lane"
       lane,
     });
     applyCardMutation(state, result);
+    await loadKanban(state);
+  } catch (err) {
+    state.kanbanCardError = String(err);
+  } finally {
+    state.kanbanCardBusy = false;
+  }
+}
+
+export async function moveKanbanCardById(
+  state: KanbanState,
+  cardId: string,
+  lane: KanbanCard["lane"],
+) {
+  const card = state.kanbanCards.find((candidate) => candidate.id === cardId);
+  const movingSelectedCard = state.kanbanSelectedCardId === cardId;
+  const draft = movingSelectedCard ? state.kanbanCardDraft : null;
+  if (!state.client || !state.connected || state.kanbanCardBusy || !card) {
+    return;
+  }
+  if (lane === card.lane) {
+    return;
+  }
+  if (draft && isKanbanCardDraftDirty(card, draft, { ignoreLane: true })) {
+    state.kanbanCardError = "Save or close card edits before moving.";
+    return;
+  }
+  state.kanbanCardBusy = true;
+  state.kanbanCardError = null;
+  try {
+    const result = await state.client.request<KanbanCardMutationResult>("kanban.cards.move", {
+      ...kanbanBoardParams(state),
+      cardId: card.id,
+      expectedVersion: card.version,
+      lane,
+    });
+    applyCardListMutation(state, result);
     await loadKanban(state);
   } catch (err) {
     state.kanbanCardError = String(err);
