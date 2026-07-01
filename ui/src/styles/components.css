@@ -2929,6 +2929,12 @@
   min-width: 200px;
 }
 
+.agent-files-sections {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
 .agent-files-grid {
   display: grid;
   grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);

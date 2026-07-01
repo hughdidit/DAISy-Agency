@@ -57,6 +57,11 @@ describe("agents files panel (browser)", () => {
 
     expect(container.textContent ?? "").toContain("File Manager");
     expect(container.textContent ?? "").toContain("/workspace/main/media/inbound");
+
+    const cards = Array.from(container.querySelectorAll(".agent-files-sections > .card"));
+    expect(cards).toHaveLength(2);
+    expect(cards[0]?.textContent ?? "").toContain("Core Files");
+    expect(cards[1]?.textContent ?? "").toContain("File Manager");
   });
 
   it("hides the File Manager card when the control-ui toggle is enabled and Drive is active", async () => {

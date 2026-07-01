@@ -163,7 +163,9 @@ describe("refreshActiveTab", () => {
       agentId: "daisy",
       dir: "",
     });
-    expect(host.agentFilesList?.agentId).toBe("daisy");
-    expect(host.agentWorkspaceFilesList?.root).toBe("/workspace/daisy/media/inbound");
+    const agentFilesList = host.agentFilesList as { agentId: string } | null;
+    const agentWorkspaceFilesList = host.agentWorkspaceFilesList as { root: string } | null;
+    expect(agentFilesList?.agentId).toBe("daisy");
+    expect(agentWorkspaceFilesList?.root).toBe("/workspace/daisy/media/inbound");
   });
 });
