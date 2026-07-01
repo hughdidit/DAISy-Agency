@@ -506,8 +506,11 @@ async function resolveOptionalBootstrapEntry(
   try {
     await fs.access(filePath);
     return { name, filePath };
-  } catch {
-    return null;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException)?.code === "ENOENT") {
+      return null;
+    }
+    throw error;
   }
 }
 
