@@ -710,6 +710,24 @@ async function cleanupAcceptanceCronArtifacts(ctx, params = {}) {
   return { errors };
 }
 
+async function cleanupAcceptanceCronArtifactsAfterScenario(ctx, params = {}) {
+  if (!params.jobId && !params.runSessionKey) {
+    return;
+  }
+  const cleanup = await cleanupAcceptanceCronArtifacts(ctx, {
+    jobId: params.jobId,
+    runSessionKey: params.runSessionKey,
+  });
+  if (!params.scenarioFailed && cleanup.errors.length > 0) {
+    throw new ScenarioError(
+      "scheduler-gap",
+      `${params.scenarioLabel} cleanup failed for ${cleanup.errors
+        .map((error) => `${error.action}:${error.key}`)
+        .join(", ")}`,
+    );
+  }
+}
+
 function assertCronAddSelfDeletes(addPayload, message) {
   if (addPayload?.deleteAfterRun === false) {
     throw new ScenarioError("scheduler-gap", message);
@@ -1495,6 +1513,7 @@ export async function runIsolatedCronScenario(ctx) {
   let jobId = "";
   let runSessionKey = "";
   let scenarioFailed = false;
+  let skippedOutcome = null;
 
   try {
     const addRaw = ctx.dockerExecBash(
@@ -1543,27 +1562,25 @@ export async function runIsolatedCronScenario(ctx) {
         scenarioName: "isolated cron acceptance job",
       });
       runSessionKey = skipped.runSessionKey;
-      return skipped.outcome;
-    }
-    if (last?.action !== "finished") {
+      skippedOutcome = skipped.outcome;
+    } else if (last?.action !== "finished") {
       throw new ScenarioError("scheduler-gap", "cron run history did not record a finished event");
-    }
-    if (last?.status !== "ok") {
+    } else if (last?.status !== "ok") {
       throw new ScenarioError(
         "sandbox-runtime-gap",
         `isolated cron acceptance job finished with status ${String(last?.status ?? "<empty>")}`,
       );
-    }
-    if (last?.deliveryStatus !== "not-requested") {
+    } else if (last?.deliveryStatus !== "not-requested") {
       throw new ScenarioError(
         "delivery-gap",
         `isolated cron acceptance job unexpectedly attempted delivery (${String(
           last?.deliveryStatus ?? "<empty>",
         )})`,
       );
+    } else {
+      runSessionKey = typeof last?.sessionKey === "string" ? last.sessionKey.trim() : "";
     }
-    runSessionKey = typeof last?.sessionKey === "string" ? last.sessionKey.trim() : "";
-    if (!isAgentCronRunSessionKeyForJob(runSessionKey, jobId)) {
+    if (!skippedOutcome && !isAgentCronRunSessionKeyForJob(runSessionKey, jobId)) {
       throw new ScenarioError(
         "scheduler-gap",
         `isolated cron run did not expose the expected agent-scoped per-run session key for ${jobId}, got ${runSessionKey || "<empty>"}`,
@@ -1571,19 +1588,23 @@ export async function runIsolatedCronScenario(ctx) {
     }
   } catch (error) {
     scenarioFailed = true;
+    await cleanupAcceptanceCronArtifactsAfterScenario(ctx, {
+      jobId,
+      runSessionKey,
+      scenarioFailed,
+      scenarioLabel: "isolated cron acceptance",
+    });
     throw error;
-  } finally {
-    if (jobId || runSessionKey) {
-      const cleanup = await cleanupAcceptanceCronArtifacts(ctx, { jobId, runSessionKey });
-      if (!scenarioFailed && cleanup.errors.length > 0) {
-        throw new ScenarioError(
-          "scheduler-gap",
-          `isolated cron acceptance cleanup failed for ${cleanup.errors
-            .map((error) => `${error.action}:${error.key}`)
-            .join(", ")}`,
-        );
-      }
-    }
+  }
+
+  await cleanupAcceptanceCronArtifactsAfterScenario(ctx, {
+    jobId,
+    runSessionKey,
+    scenarioFailed,
+    scenarioLabel: "isolated cron acceptance",
+  });
+  if (skippedOutcome) {
+    return skippedOutcome;
   }
 }
 
@@ -1675,6 +1696,7 @@ export async function runCronIsolationAndSubagentModelScenario(ctx) {
   let jobId = "";
   let runSessionKey = "";
   let scenarioFailed = false;
+  let skippedOutcome = null;
 
   try {
     const addRaw = ctx.dockerExecBash(
@@ -1729,58 +1751,62 @@ export async function runCronIsolationAndSubagentModelScenario(ctx) {
         scenarioName: "SBX-404 isolated cron job",
       });
       runSessionKey = skipped.runSessionKey;
-      return skipped.outcome;
-    }
-    if (last?.action !== "finished") {
+      skippedOutcome = skipped.outcome;
+    } else if (last?.action !== "finished") {
       throw new ScenarioError(
         "scheduler-gap",
         "SBX-404 cron run history did not record a finished event",
       );
-    }
-    if (last?.status !== "ok") {
+    } else if (last?.status !== "ok") {
       throw new ScenarioError(
         "sandbox-runtime-gap",
         `SBX-404 isolated cron job finished with status ${String(last?.status ?? "<empty>")}`,
       );
-    }
-    if (last?.deliveryStatus !== "not-requested") {
+    } else if (last?.deliveryStatus !== "not-requested") {
       throw new ScenarioError(
         "delivery-gap",
         `SBX-404 isolated cron job unexpectedly attempted delivery (${String(
           last?.deliveryStatus ?? "<empty>",
         )})`,
       );
+    } else {
+      runSessionKey = typeof last?.sessionKey === "string" ? last.sessionKey.trim() : "";
     }
-    runSessionKey = typeof last?.sessionKey === "string" ? last.sessionKey.trim() : "";
-    if (!isAgentCronRunSessionKeyForJob(runSessionKey, jobId)) {
+    if (!skippedOutcome && !isAgentCronRunSessionKeyForJob(runSessionKey, jobId)) {
       throw new ScenarioError(
         "scheduler-gap",
         `SBX-404 isolated cron run did not expose the expected agent-scoped per-run session key for ${jobId}, got ${runSessionKey || "<empty>"}`,
       );
     }
-    await ctx.writeArtifactJson("cron-isolation-metadata.json", {
-      operationalContext: "cron-isolated-session",
-      jobId,
-      sessionKey: runSessionKey,
-      model: typeof last?.model === "string" ? last.model : null,
-      provider: typeof last?.provider === "string" ? last.provider : null,
-      expectedOutcome: "pass",
-    });
+    if (!skippedOutcome) {
+      await ctx.writeArtifactJson("cron-isolation-metadata.json", {
+        operationalContext: "cron-isolated-session",
+        jobId,
+        sessionKey: runSessionKey,
+        model: typeof last?.model === "string" ? last.model : null,
+        provider: typeof last?.provider === "string" ? last.provider : null,
+        expectedOutcome: "pass",
+      });
+    }
   } catch (error) {
     scenarioFailed = true;
+    await cleanupAcceptanceCronArtifactsAfterScenario(ctx, {
+      jobId,
+      runSessionKey,
+      scenarioFailed,
+      scenarioLabel: "SBX-404 cron",
+    });
     throw error;
-  } finally {
-    if (jobId || runSessionKey) {
-      const cleanup = await cleanupAcceptanceCronArtifacts(ctx, { jobId, runSessionKey });
-      if (!scenarioFailed && cleanup.errors.length > 0) {
-        throw new ScenarioError(
-          "scheduler-gap",
-          `SBX-404 cron cleanup failed for ${cleanup.errors
-            .map((error) => `${error.action}:${error.key}`)
-            .join(", ")}`,
-        );
-      }
-    }
+  }
+
+  await cleanupAcceptanceCronArtifactsAfterScenario(ctx, {
+    jobId,
+    runSessionKey,
+    scenarioFailed,
+    scenarioLabel: "SBX-404 cron",
+  });
+  if (skippedOutcome) {
+    return skippedOutcome;
   }
 }
 
