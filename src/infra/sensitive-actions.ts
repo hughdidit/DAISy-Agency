@@ -160,10 +160,7 @@ function termsMatch(haystack: string, terms: readonly string[]): string | null {
 }
 
 function isActionLikePayloadKey(key: string): boolean {
-  const normalized = key
-    .replace(CAMEL_CASE_BOUNDARY, "$1 $2")
-    .replace(/[-_.]/g, " ")
-    .toLowerCase();
+  const normalized = key.replace(CAMEL_CASE_BOUNDARY, "$1 $2").replace(/[-_.]/g, " ").toLowerCase();
   return /\b(action|operation|command|method|intent|verb)\b/.test(normalized);
 }
 
