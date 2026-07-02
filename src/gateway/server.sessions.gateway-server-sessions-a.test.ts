@@ -11,6 +11,7 @@ import {
   connectOk,
   embeddedRunMock,
   installGatewayTestHooks,
+  onceMessage,
   piSdkMock,
   rpcReq,
   testState,
@@ -127,7 +128,26 @@ afterAll(async () => {
   await fs.rm(sharedSessionStoreDir, { recursive: true, force: true });
 });
 
-const openClient = async (opts?: Parameters<typeof connectOk>[1]) => await harness.openClient(opts);
+const controlUiAdminClient = {
+  id: GATEWAY_CLIENT_IDS.CONTROL_UI,
+  version: "1.0.0",
+  platform: "test",
+  mode: GATEWAY_CLIENT_MODES.UI,
+} as const;
+
+const cliAdminClient = {
+  id: GATEWAY_CLIENT_IDS.CLI,
+  version: "1.0.0",
+  platform: "test",
+  mode: GATEWAY_CLIENT_MODES.CLI,
+} as const;
+
+const openClient = async (opts?: Parameters<typeof connectOk>[1]) =>
+  await harness.openClient({
+    client: controlUiAdminClient,
+    scopes: ["operator.admin"],
+    ...opts,
+  });
 
 async function createSessionStoreDir() {
   const dir = path.join(sharedSessionStoreDir, `case-${sessionStoreCaseSeq++}`);
@@ -1301,5 +1321,76 @@ describe("gateway server sessions", () => {
     expect(store["agent:main:discord:group:dev"]).toBeUndefined();
 
     ws.close();
+  });
+
+  test("CLI admin session deletion still requires sensitive approval", async () => {
+    const { storePath } = await createSessionStoreDir();
+
+    await writeSessionStore({
+      entries: {
+        main: {
+          sessionId: "sess-main",
+          updatedAt: Date.now(),
+        },
+        "discord:group:dev": {
+          sessionId: "sess-group",
+          updatedAt: Date.now(),
+        },
+      },
+    });
+
+    const { ws: approverWs } = await openClient({ scopes: ["operator.approvals"] });
+    const { ws } = await openClient({
+      client: cliAdminClient,
+      scopes: ["operator.admin"],
+    });
+
+    try {
+      const deleteResultPromise = rpcReq(ws, "sessions.delete", {
+        key: "agent:main:discord:group:dev",
+      });
+      const requested = await onceMessage<{
+        type?: string;
+        event?: string;
+        payload?: {
+          id?: string;
+          request?: {
+            category?: string;
+            operationHash?: string;
+          };
+        };
+      }>(
+        approverWs,
+        (message) => message.type === "event" && message.event === "exec.approval.requested",
+      );
+
+      expect(requested.payload?.request?.category).toBe("deletion");
+      const id = requested.payload?.id ?? "";
+      const operationHash = requested.payload?.request?.operationHash ?? "";
+      expect(id.length).toBeGreaterThan(0);
+      expect(operationHash.length).toBe(64);
+
+      const resolved = await rpcReq(approverWs, "exec.approval.resolve", {
+        id,
+        decision: "deny",
+        operationHash,
+      });
+      expect(resolved.ok).toBe(true);
+
+      const deleted = await deleteResultPromise;
+      expect(deleted.ok).toBe(false);
+      expect(deleted.error?.message ?? "").toMatch(
+        /Sensitive deletion action blocked: Hugh approval was not granted/i,
+      );
+
+      const store = JSON.parse(await fs.readFile(storePath, "utf-8")) as Record<
+        string,
+        { sessionId?: string }
+      >;
+      expect(store["agent:main:discord:group:dev"]?.sessionId).toBe("sess-group");
+    } finally {
+      ws.close();
+      approverWs.close();
+    }
   });
 });
