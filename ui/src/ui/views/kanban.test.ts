@@ -350,7 +350,7 @@ describe("kanban view", () => {
         createProps({
           selectedCardId: "card-1",
           selectedCard,
-          cardDraft: createDraft({ lane: selectedCard.lane }),
+          cardDraft: createDraft({ lane: "stale_lane" as KanbanCardDraft["lane"] }),
           cardCommentDraft: "Ready for review",
           onCardDraftChange,
           onCardCommentChange,
@@ -387,8 +387,14 @@ describe("kanban view", () => {
     expect(container.textContent).toContain("Needs release evidence");
     expect(container.textContent).toContain("brief.pdf");
     expect(onCardDraftChange).toHaveBeenCalledWith("title", "Updated title");
+    expect(onCardDraftChange).toHaveBeenCalledWith("lane", "review");
     expect(onCardCommentChange).toHaveBeenCalledWith("New comment");
     expect(onCardSave).toHaveBeenCalledTimes(1);
+    const laneChangeCallOrder = onCardDraftChange.mock.invocationCallOrder.find(
+      (_, index) => onCardDraftChange.mock.calls[index]?.[0] === "lane",
+    );
+    expect(laneChangeCallOrder).toBeDefined();
+    expect(laneChangeCallOrder!).toBeLessThan(onCardSave.mock.invocationCallOrder[0]);
     expect(onCardArchive).toHaveBeenCalledTimes(1);
     expect(onCardComment).toHaveBeenCalledTimes(1);
     expect(onCardClose).toHaveBeenCalledTimes(1);

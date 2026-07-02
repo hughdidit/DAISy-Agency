@@ -441,6 +441,17 @@ function renderCardDetail(props: KanbanProps, lanes: KanbanLane[]) {
   const disabled = props.cardBusy;
   const selectedLane = isKanbanLaneId(draft.lane, lanes) ? draft.lane : card.lane;
   const closeDetail = () => closeDetailModal(props.onCardClose);
+  const saveCard = (event: Event) => {
+    const laneSelect = (event.currentTarget as HTMLElement)
+      .closest(".kanban-detail")
+      ?.querySelector<HTMLSelectElement>("[data-kanban-lane-select]");
+    const lane =
+      laneSelect && isKanbanLaneId(laneSelect.value, lanes) ? laneSelect.value : selectedLane;
+    if (draft.lane !== lane) {
+      props.onCardDraftChange("lane", lane);
+    }
+    void props.onCardSave();
+  };
   return html`
     <div
       class="kanban-detail-modal"
@@ -495,6 +506,7 @@ function renderCardDetail(props: KanbanProps, lanes: KanbanLane[]) {
           <label class="field">
             <span>${t("kanban.detail.fields.lane")}</span>
             <select
+              data-kanban-lane-select
               .value=${selectedLane}
               ?disabled=${disabled}
               @change=${(event: Event) => {
@@ -660,7 +672,7 @@ function renderCardDetail(props: KanbanProps, lanes: KanbanLane[]) {
           <button
             class="btn btn--sm primary"
             ?disabled=${disabled}
-            @click=${() => void props.onCardSave()}
+            @click=${saveCard}
           >
             ${disabled ? t("kanban.detail.saving") : t("kanban.detail.save")}
           </button>
