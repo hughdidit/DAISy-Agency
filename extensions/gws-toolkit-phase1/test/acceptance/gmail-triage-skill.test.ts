@@ -10,7 +10,8 @@ describe("gmail-triage skill", () => {
 
     expect(skill).toContain("name: gmail-triage");
     expect(skill).toContain("Run `gws_status` first");
-    expect(skill).toContain("Ignore messages in spam");
+    expect(skill).toContain("Ignore messages in spam and Trash");
+    expect(skill).toContain("do not add Trash-specific query text yourself");
     expect(skill).toContain("Use `gws_gmail_write` with `draft_message`");
     expect(skill).toContain("Use `gws_gmail_write` with `send_message` only for whitelisted");
     expect(skill).toContain("Use `gws_gmail_write` with `mark_message_read`");

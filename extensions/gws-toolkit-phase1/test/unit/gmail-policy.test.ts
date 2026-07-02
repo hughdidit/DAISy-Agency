@@ -243,7 +243,7 @@ describe("gmail contact policy", () => {
     ).toMatchObject({ allowed: false });
   });
 
-  it("adds spam and blacklist exclusions to list read queries", () => {
+  it("adds spam, trash, and blacklist exclusions to list read queries", () => {
     const policy: GmailContactPolicy = {
       whitelist: { emails: [], domains: [] },
       blacklist: {
@@ -260,19 +260,19 @@ describe("gmail contact policy", () => {
       policy,
     );
 
-    expect(payload.query).toBe("is:unread -in:spam");
+    expect(payload.query).toBe("is:unread -in:spam -in:trash");
     expect(
       buildGmailReadPolicyPayload(
         {
           action: "list_messages",
-          query: "is:unread -in:spam",
+          query: "is:unread -in:spam -in:trash",
         },
         policy,
         { includeBlacklistQueryFilters: true },
       ).query,
-    ).toBe("is:unread -in:spam -from:blocked@example.com -from:bad.example");
+    ).toBe("is:unread -in:spam -in:trash -from:blocked@example.com -from:bad.example");
     expect(buildGmailReadPolicyPayload({ action: "list_messages" }, undefined).query).toBe(
-      "-in:spam",
+      "-in:spam -in:trash",
     );
   });
 

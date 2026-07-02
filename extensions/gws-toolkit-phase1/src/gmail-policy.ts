@@ -304,6 +304,7 @@ export function buildGmailReadPolicyPayload(
   const queryParts = [
     existingQuery,
     hasQueryToken("-in:spam") ? "" : "-in:spam",
+    hasQueryToken("-in:trash") ? "" : "-in:trash",
     ...(options?.includeBlacklistQueryFilters ? blacklistFilters : []),
   ].filter(Boolean);
   return {
