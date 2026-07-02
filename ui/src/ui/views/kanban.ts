@@ -47,7 +47,6 @@ export type KanbanProps = {
   onCardCommentChange: (value: string) => void;
   onCardSave: () => void | Promise<void>;
   onCardComment: () => void | Promise<void>;
-  onCardMove: (lane: KanbanCard["lane"]) => void | Promise<void>;
   onCardDropMove?: (cardId: string, lane: KanbanCard["lane"]) => void | Promise<void>;
   onCardArchive: () => void | Promise<void>;
 };
@@ -440,7 +439,7 @@ function renderCardDetail(props: KanbanProps, lanes: KanbanLane[]) {
     return nothing;
   }
   const disabled = props.cardBusy;
-  const moveDisabled = disabled || draft.lane === card.lane;
+  const selectedLane = isKanbanLaneId(draft.lane, lanes) ? draft.lane : card.lane;
   const closeDetail = () => closeDetailModal(props.onCardClose);
   return html`
     <div
@@ -496,7 +495,7 @@ function renderCardDetail(props: KanbanProps, lanes: KanbanLane[]) {
           <label class="field">
             <span>${t("kanban.detail.fields.lane")}</span>
             <select
-              .value=${draft.lane}
+              .value=${selectedLane}
               ?disabled=${disabled}
               @change=${(event: Event) => {
                 const lane = (event.currentTarget as HTMLSelectElement).value;
@@ -505,7 +504,13 @@ function renderCardDetail(props: KanbanProps, lanes: KanbanLane[]) {
                 }
               }}
             >
-              ${lanes.map((lane) => html`<option value=${lane.id}>${lane.title}</option>`)}
+              ${lanes.map(
+                (lane) => html`
+                  <option value=${lane.id} ?selected=${lane.id === selectedLane}>
+                    ${lane.title}
+                  </option>
+                `,
+              )}
             </select>
           </label>
           <label class="field">
@@ -658,13 +663,6 @@ function renderCardDetail(props: KanbanProps, lanes: KanbanLane[]) {
             @click=${() => void props.onCardSave()}
           >
             ${disabled ? t("kanban.detail.saving") : t("kanban.detail.save")}
-          </button>
-          <button
-            class="btn btn--sm"
-            ?disabled=${moveDisabled}
-            @click=${() => void props.onCardMove(draft.lane)}
-          >
-            ${t("kanban.detail.move")}
           </button>
           <button
             class="btn btn--sm danger"

@@ -168,7 +168,6 @@ function createProps(overrides: Partial<KanbanProps> = {}): KanbanProps {
     onCardCommentChange: () => undefined,
     onCardSave: () => undefined,
     onCardComment: () => undefined,
-    onCardMove: () => undefined,
     onCardArchive: () => undefined,
     ...overrides,
   };
@@ -336,6 +335,7 @@ describe("kanban view", () => {
           createdAt: "2026-06-28T02:05:00Z",
         },
       ],
+      lane: "review",
       watchers: ["hugh"],
       customFields: { slice: "ui" },
     });
@@ -343,7 +343,6 @@ describe("kanban view", () => {
     const onCardCommentChange = vi.fn();
     const onCardSave = vi.fn();
     const onCardComment = vi.fn();
-    const onCardMove = vi.fn();
     const onCardArchive = vi.fn();
     const onCardClose = vi.fn();
     render(
@@ -351,13 +350,12 @@ describe("kanban view", () => {
         createProps({
           selectedCardId: "card-1",
           selectedCard,
-          cardDraft: createDraft({ lane: "review" }),
+          cardDraft: createDraft({ lane: selectedCard.lane }),
           cardCommentDraft: "Ready for review",
           onCardDraftChange,
           onCardCommentChange,
           onCardSave,
           onCardComment,
-          onCardMove,
           onCardArchive,
           onCardClose,
         }),
@@ -369,6 +367,9 @@ describe("kanban view", () => {
     titleInput.value = "Updated title";
     titleInput.dispatchEvent(new Event("input", { bubbles: true }));
 
+    const laneSelect = container.querySelector(".kanban-detail select") as HTMLSelectElement;
+    expect(laneSelect.value).toBe("review");
+
     const commentTextarea = [
       ...container.querySelectorAll<HTMLTextAreaElement>(".kanban-detail textarea"),
     ].at(-1);
@@ -376,8 +377,8 @@ describe("kanban view", () => {
     commentTextarea!.dispatchEvent(new Event("input", { bubbles: true }));
 
     const buttons = [...container.querySelectorAll<HTMLButtonElement>(".kanban-detail button")];
+    expect(buttons.map((button) => button.textContent?.trim())).not.toContain("Move");
     buttons.find((button) => button.textContent?.trim() === "Save changes")?.click();
-    buttons.find((button) => button.textContent?.trim() === "Move")?.click();
     buttons.find((button) => button.textContent?.trim() === "Archive")?.click();
     buttons.find((button) => button.textContent?.trim() === "Add comment")?.click();
     buttons.find((button) => button.textContent?.trim() === "Close")?.click();
@@ -388,7 +389,6 @@ describe("kanban view", () => {
     expect(onCardDraftChange).toHaveBeenCalledWith("title", "Updated title");
     expect(onCardCommentChange).toHaveBeenCalledWith("New comment");
     expect(onCardSave).toHaveBeenCalledTimes(1);
-    expect(onCardMove).toHaveBeenCalledWith("review");
     expect(onCardArchive).toHaveBeenCalledTimes(1);
     expect(onCardComment).toHaveBeenCalledTimes(1);
     expect(onCardClose).toHaveBeenCalledTimes(1);
