@@ -688,60 +688,12 @@ async function runAcceptanceCleanupCommand(ctx, params) {
 }
 
 function buildAcceptanceCronJobCleanupCommand(jobId) {
-  const script = `
-    import { loadConfig } from "./dist/config/config.js";
-    import { resolveCronStorePath, loadCronStore, saveCronStore } from "./dist/cron/store.js";
-
-    const jobId = ${JSON.stringify(jobId)};
-    const cfg = loadConfig();
-    const storePath = resolveCronStorePath(cfg.cron?.store);
-    const store = await loadCronStore(storePath);
-    const before = store.jobs.length;
-    store.jobs = store.jobs.filter((job) => job?.id !== jobId);
-    const removed = store.jobs.length !== before;
-    if (removed) {
-      await saveCronStore(storePath, store);
-    }
-    console.log(JSON.stringify({ ok: true, removed, path: storePath }, null, 2));
-  `.trim();
-  return `cd /app && node --input-type=module -e ${shellQuote(script)}`;
+  return `cd /app && node dist/verify/acceptance-cleanup.js cron-job ${shellQuote(jobId)}`;
 }
 
 function buildAcceptanceSessionDeleteCommand(sessionKey) {
-  const script = `
-    import { loadConfig } from "./dist/config/config.js";
-    import { resolveStorePath, updateSessionStore } from "./dist/config/sessions.js";
-    import { archiveSessionTranscripts } from "./dist/gateway/session-utils.js";
-
-    const key = ${JSON.stringify(sessionKey)};
-    const agentId = /^agent:([^:]+):/.exec(key)?.[1]?.toLowerCase() ?? "main";
-    const cfg = loadConfig();
-    const storePath = resolveStorePath(cfg.session?.store, { agentId });
-    let sessionId;
-    let sessionFile;
-    const deleted = await updateSessionStore(storePath, (store) => {
-      const entry = store[key];
-      sessionId = entry?.sessionId;
-      sessionFile = entry?.sessionFile;
-      if (entry) {
-        delete store[key];
-      }
-      return Boolean(entry);
-    });
-    const archived =
-      deleted && sessionId
-        ? archiveSessionTranscripts({
-            sessionId,
-            storePath,
-            sessionFile,
-            agentId,
-            reason: "deleted",
-          })
-        : [];
-    console.log(JSON.stringify({ ok: true, deleted, archived, path: storePath }, null, 2));
-  `.trim();
   return {
-    command: `cd /app && node --input-type=module -e ${shellQuote(script)}`,
+    command: `cd /app && node dist/verify/acceptance-cleanup.js session ${shellQuote(sessionKey)}`,
     options: {
       deleteTranscript: true,
       emitLifecycleHooks: false,

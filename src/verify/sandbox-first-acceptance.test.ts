@@ -23,13 +23,11 @@ async function withTempDir(run: (dir: string) => Promise<void>) {
 }
 
 function isAcceptanceCronCleanupCommand(command: string): boolean {
-  return (
-    command.includes("node --input-type=module -e") && command.includes("resolveCronStorePath")
-  );
+  return command.includes("node dist/verify/acceptance-cleanup.js cron-job");
 }
 
 function isAcceptanceSessionCleanupCommand(command: string): boolean {
-  return command.includes("node --input-type=module -e") && command.includes("updateSessionStore");
+  return command.includes("node dist/verify/acceptance-cleanup.js session");
 }
 
 afterEach(() => {
@@ -989,7 +987,9 @@ describe("runSandboxFirstAcceptance", () => {
           isAcceptanceCronCleanupCommand(command) || isAcceptanceSessionCleanupCommand(command),
       );
       expect(
-        cleanupCommands.every((command) => command.includes("node --input-type=module -e")),
+        cleanupCommands.every((command) =>
+          command.includes("node dist/verify/acceptance-cleanup.js"),
+        ),
       ).toBe(true);
       const cronAddCommands = commands.filter((command) =>
         command.includes("node dist/index.js cron add"),
@@ -1128,7 +1128,9 @@ describe("runSandboxFirstAcceptance", () => {
           isAcceptanceCronCleanupCommand(command) || isAcceptanceSessionCleanupCommand(command),
       );
       expect(
-        cleanupCommands.every((command) => command.includes("node --input-type=module -e")),
+        cleanupCommands.every((command) =>
+          command.includes("node dist/verify/acceptance-cleanup.js"),
+        ),
       ).toBe(true);
       const cronAddCommands = commands.filter((command) =>
         command.includes("node dist/index.js cron add"),
