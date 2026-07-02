@@ -72,6 +72,8 @@ type CollectionSet = {
   attachments: Collection<KanbanAttachmentDocument>;
 };
 
+const trelloLinkCleanupKeys = new Set<string>();
+
 const KANBAN_PRIORITY_RANK: Record<KanbanPriority, number> = {
   urgent: 0,
   high: 1,
@@ -93,6 +95,13 @@ export type KanbanRepositoryStatus =
       redactedUri: string;
       message: string;
     };
+
+export type KanbanTrelloLinkCleanupResult = {
+  cardsMatched: number;
+  cardsModified: number;
+  importsMatched: number;
+  importsModified: number;
+};
 
 export type KanbanAppendActivityInput = {
   boardId: string;
@@ -338,7 +347,9 @@ export async function createKanbanRepository(
   config: ResolvedKanbanConfig,
 ): Promise<KanbanMongoRepository> {
   const client = await createKanbanMongoClient(config);
-  return new KanbanMongoRepository(client, config);
+  const repository = new KanbanMongoRepository(client, config);
+  await removeTrelloLinksFromDataOnce(repository, config);
+  return repository;
 }
 
 export function buildDefaultBoardDocument(
@@ -769,6 +780,34 @@ function redactRepositoryError(error: unknown, config: ResolvedKanbanConfig): st
   return raw.split(config.uri).join(redactedUri);
 }
 
+function trelloLinkCleanupKey(config: ResolvedKanbanConfig): string {
+  return [
+    config.redactedUri,
+    config.database,
+    config.collections.cards,
+    config.collections.imports,
+    config.board.slug,
+  ].join("\0");
+}
+
+async function removeTrelloLinksFromDataOnce(
+  repository: KanbanMongoRepository,
+  config: ResolvedKanbanConfig,
+): Promise<void> {
+  const cleanupKey = trelloLinkCleanupKey(config);
+  if (trelloLinkCleanupKeys.has(cleanupKey)) {
+    return;
+  }
+  trelloLinkCleanupKeys.add(cleanupKey);
+  try {
+    await repository.removeTrelloLinksFromData();
+  } catch (error) {
+    console.warn(
+      `[kanban] legacy Trello link cleanup failed: ${redactRepositoryError(error, config)}`,
+    );
+  }
+}
+
 export class KanbanMongoRepository {
   private readonly db: Db;
   private readonly collections: CollectionSet;
@@ -819,6 +858,40 @@ export class KanbanMongoRepository {
       this.collections.imports.createIndexes(KANBAN_INDEX_DEFINITIONS.imports),
       this.collections.attachments.createIndexes(KANBAN_INDEX_DEFINITIONS.attachments),
     ]);
+  }
+
+  async removeTrelloLinksFromData(): Promise<KanbanTrelloLinkCleanupResult> {
+    const now = new Date();
+    const [cards, imports] = await Promise.all([
+      this.collections.cards.updateMany(
+        {
+          boardId: this.config.board.slug,
+          "import.source": "trello",
+          "import.sourceCardId": { $exists: true },
+          "links.0": { $exists: true },
+        } as Filter<KanbanCardDocument>,
+        {
+          $inc: { version: 1 },
+          $set: { links: [], updatedAt: now },
+        },
+      ),
+      this.collections.imports.updateMany(
+        {
+          boardId: this.config.board.slug,
+          source: "trello",
+          "cards.links.0": { $exists: true },
+        } as Filter<KanbanImportRunDocument>,
+        {
+          $set: { "cards.$[].links": [], updatedAt: now },
+        } as UpdateFilter<KanbanImportRunDocument>,
+      ),
+    ]);
+    return {
+      cardsMatched: cards.matchedCount,
+      cardsModified: cards.modifiedCount,
+      importsMatched: imports.matchedCount,
+      importsModified: imports.modifiedCount,
+    };
   }
 
   private async withTransaction<T>(operation: (session: ClientSession) => Promise<T>): Promise<T> {

@@ -5,7 +5,12 @@ import { MongoClient, ObjectId } from "mongodb";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { KANBAN_DEFAULT_COLLECTIONS } from "./config.js";
 import type { ResolvedKanbanConfig } from "./config.js";
-import { createKanbanMongoClient, KanbanMongoRepository } from "./repository.js";
+import {
+  createKanbanMongoClient,
+  KanbanMongoRepository,
+  type KanbanCardDocument,
+  type KanbanImportRunDocument,
+} from "./repository.js";
 
 type MongoDockerRuntime = {
   containerName: string;
@@ -400,6 +405,110 @@ describeWithDocker("KanbanMongoRepository MongoDB integration", () => {
         "card_archive",
       ]),
     );
+  }, 240_000);
+
+  it("removes legacy Trello links from imported cards and saved import previews", async () => {
+    const testConfig = requireValue(config, "Kanban integration config was not initialized");
+    if (!client || !repository) {
+      throw new Error("Kanban integration repository was not initialized");
+    }
+
+    const now = new Date("2026-01-04T05:06:07.000Z");
+    const cards = client
+      .db(testConfig.database)
+      .collection<KanbanCardDocument>(testConfig.collections.cards);
+    const imports = client
+      .db(testConfig.database)
+      .collection<KanbanImportRunDocument>(testConfig.collections.imports);
+    await cards.insertMany([
+      {
+        _id: "trello-linked-card",
+        boardId: "team-agents",
+        title: "Legacy Trello linked card",
+        lane: "todo",
+        position: 1,
+        priority: "normal",
+        priorityRank: 2,
+        version: 1,
+        labels: [],
+        checklist: [],
+        comments: [],
+        links: ["https://trello.example/c/card-1", "https://trello.example/attachments/1"],
+        attachments: [],
+        watchers: [],
+        customFields: {},
+        readyForCodex: false,
+        import: { source: "trello", sourceCardId: "trello-linked-card" },
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        _id: "manual-linked-card",
+        boardId: "team-agents",
+        title: "Manual linked card",
+        lane: "todo",
+        position: 2,
+        priority: "normal",
+        priorityRank: 2,
+        version: 1,
+        labels: [],
+        checklist: [],
+        comments: [],
+        links: ["https://example.invalid/manual"],
+        attachments: [],
+        watchers: [],
+        customFields: {},
+        readyForCodex: false,
+        createdAt: now,
+        updatedAt: now,
+      },
+    ]);
+    await imports.insertOne({
+      _id: "trello-import-with-links",
+      boardId: "team-agents",
+      source: "trello",
+      sourceHash: "trello-import-with-links",
+      format: "json",
+      status: "previewed",
+      cards: [
+        {
+          sourceCardId: "trello-linked-card",
+          title: "Legacy Trello linked card",
+          lane: "todo",
+          priority: "normal",
+          labels: [],
+          checklist: [],
+          comments: [],
+          links: ["https://trello.example/c/card-1"],
+          attachments: [],
+          watchers: [],
+          customFields: {},
+          warnings: [],
+        },
+      ],
+      warnings: [],
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    await expect(repository.removeTrelloLinksFromData()).resolves.toMatchObject({
+      cardsMatched: 1,
+      cardsModified: 1,
+      importsMatched: 1,
+      importsModified: 1,
+    });
+
+    await expect(cards.findOne({ _id: "trello-linked-card" })).resolves.toMatchObject({
+      links: [],
+      version: 2,
+    });
+    await expect(cards.findOne({ _id: "manual-linked-card" })).resolves.toMatchObject({
+      links: ["https://example.invalid/manual"],
+      version: 1,
+    });
+    await expect(imports.findOne({ _id: "trello-import-with-links" })).resolves.toMatchObject({
+      cards: [expect.objectContaining({ links: [] })],
+    });
   }, 240_000);
 
   it("stores uploaded card attachments in GridFS and archives metadata without deleting content", async () => {
