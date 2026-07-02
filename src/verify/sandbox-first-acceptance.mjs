@@ -687,19 +687,65 @@ async function runAcceptanceCleanupCommand(ctx, params) {
   return { output, error: lastError };
 }
 
-function buildGatewaySessionDeleteCommand(sessionKey) {
-  const params = {
-    key: sessionKey,
-    deleteTranscript: true,
-    emitLifecycleHooks: false,
-  };
+function buildAcceptanceCronJobCleanupCommand(jobId) {
+  const script = `
+    import { loadConfig } from "./dist/config/config.js";
+    import { resolveCronStorePath, loadCronStore, saveCronStore } from "./dist/cron/store.js";
+
+    const jobId = ${JSON.stringify(jobId)};
+    const cfg = loadConfig();
+    const storePath = resolveCronStorePath(cfg.cron?.store);
+    const store = await loadCronStore(storePath);
+    const before = store.jobs.length;
+    store.jobs = store.jobs.filter((job) => job?.id !== jobId);
+    const removed = store.jobs.length !== before;
+    if (removed) {
+      await saveCronStore(storePath, store);
+    }
+    console.log(JSON.stringify({ ok: true, removed, path: storePath }, null, 2));
+  `.trim();
+  return `cd /app && node --input-type=module -e ${shellQuote(script)}`;
+}
+
+function buildAcceptanceSessionDeleteCommand(sessionKey) {
+  const script = `
+    import { loadConfig } from "./dist/config/config.js";
+    import { resolveStorePath, updateSessionStore } from "./dist/config/sessions.js";
+    import { archiveSessionTranscripts } from "./dist/gateway/session-utils.js";
+
+    const key = ${JSON.stringify(sessionKey)};
+    const agentId = /^agent:([^:]+):/.exec(key)?.[1]?.toLowerCase() ?? "main";
+    const cfg = loadConfig();
+    const storePath = resolveStorePath(cfg.session?.store, { agentId });
+    let sessionId;
+    let sessionFile;
+    const deleted = await updateSessionStore(storePath, (store) => {
+      const entry = store[key];
+      sessionId = entry?.sessionId;
+      sessionFile = entry?.sessionFile;
+      if (entry) {
+        delete store[key];
+      }
+      return Boolean(entry);
+    });
+    const archived =
+      deleted && sessionId
+        ? archiveSessionTranscripts({
+            sessionId,
+            storePath,
+            sessionFile,
+            agentId,
+            reason: "deleted",
+          })
+        : [];
+    console.log(JSON.stringify({ ok: true, deleted, archived, path: storePath }, null, 2));
+  `.trim();
   return {
-    command: `cd /app && node dist/index.js gateway call sessions.delete --params ${shellQuote(
-      JSON.stringify(params),
-    )} --timeout ${ACCEPTANCE_CRON_CLEANUP_TIMEOUT_MS} --json`,
+    command: `cd /app && node --input-type=module -e ${shellQuote(script)}`,
     options: {
       deleteTranscript: true,
       emitLifecycleHooks: false,
+      cleanupScope: "verify-owned-cron-session",
     },
   };
 }
@@ -722,9 +768,7 @@ async function cleanupAcceptanceCronArtifacts(ctx, params = {}) {
     const { output, error } = await runAcceptanceCleanupCommand(ctx, {
       action: "cron.rm",
       key: jobId,
-      command: `cd /app && node dist/index.js cron rm ${shellQuote(
-        jobId,
-      )} --timeout ${ACCEPTANCE_CRON_CLEANUP_TIMEOUT_MS} --json`,
+      command: buildAcceptanceCronJobCleanupCommand(jobId),
       resultFlag: "removed",
     });
     outputs.push(output);
@@ -734,7 +778,7 @@ async function cleanupAcceptanceCronArtifacts(ctx, params = {}) {
   }
 
   if (runSessionKey) {
-    const { command, options } = buildGatewaySessionDeleteCommand(runSessionKey);
+    const { command, options } = buildAcceptanceSessionDeleteCommand(runSessionKey);
     const { output, error } = await runAcceptanceCleanupCommand(ctx, {
       action: "sessions.delete.run",
       key: runSessionKey,
@@ -749,7 +793,7 @@ async function cleanupAcceptanceCronArtifacts(ctx, params = {}) {
   }
 
   if (baseSessionKey) {
-    const { command, options } = buildGatewaySessionDeleteCommand(baseSessionKey);
+    const { command, options } = buildAcceptanceSessionDeleteCommand(baseSessionKey);
     const { output, error } = await runAcceptanceCleanupCommand(ctx, {
       action: "sessions.delete.base",
       key: baseSessionKey,

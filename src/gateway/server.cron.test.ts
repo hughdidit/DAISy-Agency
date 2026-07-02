@@ -5,6 +5,7 @@ import { setImmediate as setImmediatePromise } from "node:timers/promises";
 import { afterAll, beforeEach, describe, expect, test, vi } from "vitest";
 import type WebSocket from "ws";
 import type { GuardedFetchOptions } from "../infra/net/fetch-guard.js";
+import { GATEWAY_CLIENT_IDS, GATEWAY_CLIENT_MODES } from "./protocol/client-info.js";
 import {
   connectOk,
   cronIsolatedRun,
@@ -38,6 +39,12 @@ installGatewayTestHooks({ scope: "suite" });
 const CRON_WAIT_INTERVAL_MS = 5;
 const CRON_WAIT_TIMEOUT_MS = 3_000;
 const EMPTY_CRON_STORE_CONTENT = JSON.stringify({ version: 1, jobs: [] });
+const CONTROL_UI_ADMIN_CLIENT = {
+  id: GATEWAY_CLIENT_IDS.CONTROL_UI,
+  version: "1.0.0",
+  platform: "test",
+  mode: GATEWAY_CLIENT_MODES.UI,
+} as const;
 let cronSuiteTempRootPromise: Promise<string> | null = null;
 let cronSuiteCaseId = 0;
 
@@ -408,6 +415,33 @@ describe("gateway server cron", () => {
         prevSkipCron,
         clearSessionConfig: true,
       });
+    }
+  });
+
+  test("control-ui admin can remove cron jobs without sensitive approval", async () => {
+    const { prevSkipCron } = await setupCronTestRun({
+      tempPrefix: "openclaw-gw-cron-control-ui-remove-",
+      cronEnabled: false,
+    });
+
+    const { server, ws } = await startServerWithClient();
+    await connectOk(ws, {
+      client: CONTROL_UI_ADMIN_CLIENT,
+      scopes: ["operator.admin"],
+    });
+
+    try {
+      const jobId = await addMainSystemEventCronJob({ ws, name: "remove without approval" });
+      const removed = await rpcReq<{ ok: true; removed: boolean }>(
+        ws,
+        "cron.remove",
+        { id: jobId },
+        2_000,
+      );
+      expect(removed.ok).toBe(true);
+      expect(removed.payload?.removed).toBe(true);
+    } finally {
+      await cleanupCronTestRun({ ws, server, prevSkipCron });
     }
   });
 

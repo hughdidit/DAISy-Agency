@@ -4,6 +4,8 @@ import {
   isSensitiveApprovalCategory,
   type SensitiveActionClassification,
 } from "../infra/sensitive-actions.js";
+import { ADMIN_SCOPE } from "./method-scopes.js";
+import { GATEWAY_CLIENT_IDS } from "./protocol/client-info.js";
 import { ErrorCodes, errorShape } from "./protocol/index.js";
 import type { GatewayClient, GatewayRequestContext, RespondFn } from "./server-methods/types.js";
 
@@ -15,6 +17,13 @@ const SENSITIVE_APPROVAL_SKIP_METHODS = new Set([
 
 function resolveRequesterLabel(client: GatewayClient | null): string | null {
   return client?.connect?.client?.displayName ?? client?.connect?.client?.id ?? null;
+}
+
+function hasControlUiAdminScope(client: GatewayClient | null): boolean {
+  return (
+    client?.connect?.client?.id === GATEWAY_CLIENT_IDS.CONTROL_UI &&
+    (client.connect.scopes ?? []).includes(ADMIN_SCOPE)
+  );
 }
 
 async function awaitSensitiveGatewayApproval(params: {
@@ -88,6 +97,9 @@ export async function requireSensitiveGatewayApprovalIfNeeded(params: {
     payload: params.requestParams,
   });
   if (!classification || !isSensitiveApprovalCategory(classification.category)) {
+    return true;
+  }
+  if (classification.category === "deletion" && hasControlUiAdminScope(params.client)) {
     return true;
   }
 

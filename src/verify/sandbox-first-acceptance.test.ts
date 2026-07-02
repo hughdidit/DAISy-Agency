@@ -22,6 +22,16 @@ async function withTempDir(run: (dir: string) => Promise<void>) {
   }
 }
 
+function isAcceptanceCronCleanupCommand(command: string): boolean {
+  return (
+    command.includes("node --input-type=module -e") && command.includes("resolveCronStorePath")
+  );
+}
+
+function isAcceptanceSessionCleanupCommand(command: string): boolean {
+  return command.includes("node --input-type=module -e") && command.includes("updateSessionStore");
+}
+
 afterEach(() => {
   vi.restoreAllMocks();
 });
@@ -425,13 +435,13 @@ describe("runSandboxFirstAcceptance", () => {
             2,
           );
         }
-        if (command === "cd /app && node dist/index.js cron rm 'job-2' --timeout 60000 --json") {
+        if (isAcceptanceCronCleanupCommand(command) && command.includes("job-2")) {
           return JSON.stringify({ ok: true, removed: false }, null, 2);
         }
-        if (command.includes("node dist/index.js gateway call sessions.delete")) {
+        if (isAcceptanceSessionCleanupCommand(command)) {
           return JSON.stringify({ ok: true, deleted: true, archived: [] }, null, 2);
         }
-        if (command.includes("node dist/index.js cron rm")) {
+        if (isAcceptanceCronCleanupCommand(command)) {
           return JSON.stringify({ ok: true, removed: true }, null, 2);
         }
         if (command.includes("spawnAcpDirect")) {
@@ -840,10 +850,10 @@ describe("runSandboxFirstAcceptance", () => {
             2,
           );
         }
-        if (command.includes("node dist/index.js cron rm")) {
+        if (isAcceptanceCronCleanupCommand(command)) {
           return JSON.stringify({ ok: true, removed: true }, null, 2);
         }
-        if (command.includes("node dist/index.js gateway call sessions.delete")) {
+        if (isAcceptanceSessionCleanupCommand(command)) {
           return JSON.stringify({ ok: true, deleted: true, archived: [] }, null, 2);
         }
         if (command.includes("spawnAcpDirect")) {
@@ -961,25 +971,26 @@ describe("runSandboxFirstAcceptance", () => {
           key: "agent:main:cron:job-1:run:run-1",
           ok: true,
           deleted: true,
-          options: { deleteTranscript: true, emitLifecycleHooks: false },
+          options: expect.objectContaining({ deleteTranscript: true, emitLifecycleHooks: false }),
         }),
         expect.objectContaining({
           action: "sessions.delete.base",
           key: "agent:main:cron:job-1",
           ok: true,
           deleted: true,
-          options: { deleteTranscript: true, emitLifecycleHooks: false },
+          options: expect.objectContaining({ deleteTranscript: true, emitLifecycleHooks: false }),
         }),
       ]);
       expect(commands.some((command) => command.includes("--delete-after-run"))).toBe(false);
-      expect(commands.some((command) => command.includes("cron rm "))).toBe(true);
-      expect(commands.some((command) => command.includes("sessions.delete"))).toBe(true);
+      expect(commands.some((command) => isAcceptanceCronCleanupCommand(command))).toBe(true);
+      expect(commands.some((command) => isAcceptanceSessionCleanupCommand(command))).toBe(true);
       const cleanupCommands = commands.filter(
         (command) =>
-          command.includes("node dist/index.js cron rm") ||
-          command.includes("node dist/index.js gateway call sessions.delete"),
+          isAcceptanceCronCleanupCommand(command) || isAcceptanceSessionCleanupCommand(command),
       );
-      expect(cleanupCommands.every((command) => command.includes("--timeout 60000"))).toBe(true);
+      expect(
+        cleanupCommands.every((command) => command.includes("node --input-type=module -e")),
+      ).toBe(true);
       const cronAddCommands = commands.filter((command) =>
         command.includes("node dist/index.js cron add"),
       );
@@ -1031,13 +1042,10 @@ describe("runSandboxFirstAcceptance", () => {
             2,
           );
         }
-        if (
-          command ===
-          "cd /app && node dist/index.js cron rm 'job-sensitive-cleanup' --timeout 60000 --json"
-        ) {
+        if (isAcceptanceCronCleanupCommand(command) && command.includes("job-sensitive-cleanup")) {
           return JSON.stringify({ ok: true, removed: true }, null, 2);
         }
-        if (command.includes("node dist/index.js gateway call sessions.delete")) {
+        if (isAcceptanceSessionCleanupCommand(command)) {
           return JSON.stringify({ ok: true, deleted: true, archived: [] }, null, 2);
         }
         throw new Error(`Unhandled docker command: ${command}`);
@@ -1101,26 +1109,27 @@ describe("runSandboxFirstAcceptance", () => {
           key: "agent:main:cron:job-sensitive-cleanup:run:run-sensitive-cleanup",
           ok: true,
           deleted: true,
-          options: { deleteTranscript: true, emitLifecycleHooks: false },
+          options: expect.objectContaining({ deleteTranscript: true, emitLifecycleHooks: false }),
         }),
         expect.objectContaining({
           action: "sessions.delete.base",
           key: "agent:main:cron:job-sensitive-cleanup",
           ok: true,
           deleted: true,
-          options: { deleteTranscript: true, emitLifecycleHooks: false },
+          options: expect.objectContaining({ deleteTranscript: true, emitLifecycleHooks: false }),
         }),
       ]);
       await expect(fs.access(path.join(artifactRoot, "cron-cleanup-error.txt"))).rejects.toThrow();
       expect(commands.some((command) => command.includes("--delete-after-run"))).toBe(false);
-      expect(commands.some((command) => command.includes("cron rm "))).toBe(true);
-      expect(commands.some((command) => command.includes("sessions.delete"))).toBe(true);
+      expect(commands.some((command) => isAcceptanceCronCleanupCommand(command))).toBe(true);
+      expect(commands.some((command) => isAcceptanceSessionCleanupCommand(command))).toBe(true);
       const cleanupCommands = commands.filter(
         (command) =>
-          command.includes("node dist/index.js cron rm") ||
-          command.includes("node dist/index.js gateway call sessions.delete"),
+          isAcceptanceCronCleanupCommand(command) || isAcceptanceSessionCleanupCommand(command),
       );
-      expect(cleanupCommands.every((command) => command.includes("--timeout 60000"))).toBe(true);
+      expect(
+        cleanupCommands.every((command) => command.includes("node --input-type=module -e")),
+      ).toBe(true);
       const cronAddCommands = commands.filter((command) =>
         command.includes("node dist/index.js cron add"),
       );
@@ -1165,10 +1174,7 @@ describe("runSandboxFirstAcceptance", () => {
             2,
           );
         }
-        if (
-          command ===
-          "cd /app && node dist/index.js cron rm 'job-cleanup-retry' --timeout 60000 --json"
-        ) {
+        if (isAcceptanceCronCleanupCommand(command) && command.includes("job-cleanup-retry")) {
           cleanupCalls.cronRm += 1;
           if (cleanupCalls.cronRm === 1) {
             throw new Error("gateway timeout after 30000ms");
@@ -1176,7 +1182,7 @@ describe("runSandboxFirstAcceptance", () => {
           return JSON.stringify({ ok: true, removed: true }, null, 2);
         }
         if (
-          command.includes("node dist/index.js gateway call sessions.delete") &&
+          isAcceptanceSessionCleanupCommand(command) &&
           command.includes("agent:main:cron:job-cleanup-retry:run:run-cleanup-retry")
         ) {
           cleanupCalls.runSessionDelete += 1;
@@ -1185,7 +1191,7 @@ describe("runSandboxFirstAcceptance", () => {
           }
           return JSON.stringify({ ok: true, deleted: true, archived: [] }, null, 2);
         }
-        if (command.includes("node dist/index.js gateway call sessions.delete")) {
+        if (isAcceptanceSessionCleanupCommand(command)) {
           return JSON.stringify({ ok: true, deleted: true, archived: [] }, null, 2);
         }
         throw new Error(`Unhandled docker command: ${command}`);
@@ -1299,13 +1305,10 @@ describe("runSandboxFirstAcceptance", () => {
             2,
           );
         }
-        if (
-          command ===
-          "cd /app && node dist/index.js cron rm 'job-cleanup-fail' --timeout 60000 --json"
-        ) {
+        if (isAcceptanceCronCleanupCommand(command) && command.includes("job-cleanup-fail")) {
           throw new Error("gateway cleanup unavailable");
         }
-        if (command.includes("node dist/index.js gateway call sessions.delete")) {
+        if (isAcceptanceSessionCleanupCommand(command)) {
           return JSON.stringify({ ok: true, deleted: true, archived: [] }, null, 2);
         }
         throw new Error(`Unhandled docker command: ${command}`);
@@ -1401,10 +1404,10 @@ describe("runSandboxFirstAcceptance", () => {
             2,
           );
         }
-        if (command.includes("node dist/index.js cron rm")) {
+        if (isAcceptanceCronCleanupCommand(command)) {
           return JSON.stringify({ ok: true, removed: true }, null, 2);
         }
-        if (command.includes("node dist/index.js gateway call sessions.delete")) {
+        if (isAcceptanceSessionCleanupCommand(command)) {
           return JSON.stringify({ ok: true, deleted: true, archived: [] }, null, 2);
         }
         throw new Error(`Unhandled docker command: ${command}`);
@@ -1469,10 +1472,10 @@ describe("runSandboxFirstAcceptance", () => {
             2,
           );
         }
-        if (command.includes("node dist/index.js cron rm")) {
+        if (isAcceptanceCronCleanupCommand(command)) {
           return JSON.stringify({ ok: true, removed: true }, null, 2);
         }
-        if (command.includes("node dist/index.js gateway call sessions.delete")) {
+        if (isAcceptanceSessionCleanupCommand(command)) {
           return JSON.stringify({ ok: true, deleted: true, archived: [] }, null, 2);
         }
         throw new Error(`Unhandled docker command: ${command}`);
@@ -1529,10 +1532,7 @@ describe("runSandboxFirstAcceptance", () => {
           expect(command).toContain("--model 'openai/gpt-5.4-nano'");
           return JSON.stringify({ id: "job-persistent", deleteAfterRun: false }, null, 2);
         }
-        if (
-          command ===
-          "cd /app && node dist/index.js cron rm 'job-persistent' --timeout 60000 --json"
-        ) {
+        if (isAcceptanceCronCleanupCommand(command) && command.includes("job-persistent")) {
           return JSON.stringify({ ok: true, removed: true }, null, 2);
         }
         throw new Error(`Unhandled docker command: ${command}`);
