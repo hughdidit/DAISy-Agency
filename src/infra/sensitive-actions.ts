@@ -22,6 +22,7 @@ type ClassifySensitiveActionParams = {
 const MAX_STRING_CHARS = 240;
 const MAX_ARRAY_ITEMS = 16;
 const MAX_OBJECT_KEYS = 32;
+const MAX_INTENT_DEPTH = 8;
 const MAX_PREVIEW_CHARS = 2_000;
 const CAMEL_CASE_BOUNDARY = /([a-z])([A-Z])/g;
 const PASCAL_CASE_BOUNDARY = /([A-Z])([A-Z][a-z])/g;
@@ -160,31 +161,52 @@ function termsMatch(haystack: string, terms: readonly string[]): string | null {
 }
 
 function isActionLikePayloadKey(key: string): boolean {
-  const normalized = key.replace(CAMEL_CASE_BOUNDARY, "$1 $2").replace(/[-_.]/g, " ").toLowerCase();
-  return /\b(action|operation|command|method|intent|verb)\b/.test(normalized);
+  const normalized = key
+    .replace(CAMEL_CASE_BOUNDARY, "$1 $2")
+    .replace(PASCAL_CASE_BOUNDARY, "$1 $2")
+    .replace(/[-_.]/g, " ")
+    .toLowerCase();
+  return /\b(actions?|operations?|ops?|commands?|cmds?|methods?|intents?|verbs?|tasks?|jobs?|steps?|types?)\b/.test(
+    normalized,
+  );
 }
 
 function payloadFlagIsEnabled(value: unknown): boolean {
-  return value !== false && value !== null && value !== undefined;
+  if (typeof value === "string") {
+    return value.trim().length > 0;
+  }
+  if (Array.isArray(value)) {
+    return value.length > 0;
+  }
+  return Boolean(value);
+}
+
+function boundIntentText(value: string): string {
+  return value.length > MAX_STRING_CHARS ? value.slice(0, MAX_STRING_CHARS) : value;
 }
 
 function collectPayloadIntentText(value: unknown, depth = 0, includeBareStrings = true): string[] {
   if (typeof value === "string") {
-    return includeBareStrings ? [value] : [];
+    return includeBareStrings ? [boundIntentText(value)] : [];
   }
-  if (!value || typeof value !== "object" || depth >= 4) {
+  if (!value || typeof value !== "object" || depth >= MAX_INTENT_DEPTH) {
     return [];
   }
   if (Array.isArray(value)) {
-    return value.flatMap((entry) => collectPayloadIntentText(entry, depth + 1, includeBareStrings));
+    return value
+      .slice(0, MAX_ARRAY_ITEMS)
+      .flatMap((entry) => collectPayloadIntentText(entry, depth + 1, includeBareStrings));
   }
 
   const result: string[] = [];
-  for (const [key, raw] of Object.entries(value as Record<string, unknown>)) {
+  for (const [key, raw] of Object.entries(value as Record<string, unknown>).slice(
+    0,
+    MAX_OBJECT_KEYS,
+  )) {
     if (isActionLikePayloadKey(key)) {
       result.push(key);
       if (typeof raw === "string" || typeof raw === "number" || typeof raw === "boolean") {
-        result.push(String(raw));
+        result.push(boundIntentText(String(raw)));
       } else {
         result.push(...collectPayloadIntentText(raw, depth + 1, true));
       }
@@ -200,6 +222,21 @@ function collectPayloadIntentText(value: unknown, depth = 0, includeBareStrings 
     }
   }
   return result;
+}
+
+function collectToolSpecificIntentText(params: ClassifySensitiveActionParams): string[] {
+  const toolName = params.toolName?.trim().toLowerCase();
+  if (toolName !== "apply_patch" && toolName !== "apply-patch") {
+    return [];
+  }
+  if (!params.payload || typeof params.payload !== "object" || Array.isArray(params.payload)) {
+    return [];
+  }
+  const input = (params.payload as { input?: unknown }).input;
+  if (typeof input === "string" && /(?:^|\r?\n)\*\*\* Delete File:/u.test(input)) {
+    return ["delete"];
+  }
+  return [];
 }
 
 function buildPreview(params: ClassifySensitiveActionParams): string {
@@ -234,6 +271,7 @@ export function classifySensitiveAction(
     params.method,
     params.actionName,
     ...collectPayloadIntentText(params.payload),
+    ...collectToolSpecificIntentText(params),
   ]
     .filter(Boolean)
     .join(" ");

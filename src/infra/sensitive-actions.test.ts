@@ -89,4 +89,43 @@ describe("classifySensitiveAction", () => {
       }),
     ).toBeNull();
   });
+
+  it("classifies apply_patch delete hunks as deletions without scanning arbitrary inputs", () => {
+    const result = classifySensitiveAction({
+      surface: "tool",
+      toolName: "apply_patch",
+      payload: {
+        input: ["*** Begin Patch", "*** Delete File: notes.md", "*** End Patch"].join("\n"),
+      },
+    });
+
+    expect(result?.category).toBe("deletion");
+  });
+
+  it("does not classify disabled sensitive-shaped payload flags", () => {
+    expect(
+      classifySensitiveAction({
+        surface: "tool",
+        toolName: "status",
+        payload: { deleteCount: 0, removeItems: [], chargeNote: "" },
+      }),
+    ).toBeNull();
+  });
+
+  it("classifies common action-like payload aliases", () => {
+    expect(
+      classifySensitiveAction({
+        surface: "tool",
+        toolName: "gateway",
+        payload: { cmd: "delete workspace" },
+      })?.category,
+    ).toBe("deletion");
+    expect(
+      classifySensitiveAction({
+        surface: "tool",
+        toolName: "gateway",
+        payload: { APICommand: "checkout" },
+      })?.category,
+    ).toBe("financial");
+  });
 });
