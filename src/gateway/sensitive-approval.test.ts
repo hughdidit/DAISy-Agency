@@ -28,7 +28,7 @@ function createClient(scopes: string[]): GatewayClient {
 }
 
 describe("requireSensitiveGatewayApprovalIfNeeded", () => {
-  it("allows admin-scoped cleanup deletion methods without a Hugh approval prompt", async () => {
+  it("allows admin-scoped deletion methods without a Hugh approval prompt", async () => {
     const broadcast = vi.fn();
     const respond = vi.fn<RespondFn>();
     const context = createContext({
@@ -57,8 +57,56 @@ describe("requireSensitiveGatewayApprovalIfNeeded", () => {
       }),
     ).resolves.toBe(true);
 
+    await expect(
+      requireSensitiveGatewayApprovalIfNeeded({
+        method: "agents.delete",
+        requestParams: { agentId: "temporary-agent" },
+        client,
+        context,
+        respond,
+      }),
+    ).resolves.toBe(true);
+
     expect(broadcast).not.toHaveBeenCalled();
     expect(respond).not.toHaveBeenCalled();
+  });
+
+  it("keeps admin-scoped financial actions behind Hugh approval", async () => {
+    const broadcast = vi.fn();
+    const respond = vi.fn<RespondFn>();
+    const context = createContext({
+      broadcast: broadcast as GatewayRequestContext["broadcast"],
+      hasExecApprovalClients: () => false,
+    });
+
+    await expect(
+      requireSensitiveGatewayApprovalIfNeeded({
+        method: "billing.charge",
+        requestParams: { amountUsd: 25 },
+        client: createClient(["operator.admin"]),
+        context,
+        respond,
+      }),
+    ).resolves.toBe(false);
+
+    expect(broadcast).toHaveBeenCalledWith(
+      "exec.approval.requested",
+      expect.objectContaining({
+        request: expect.objectContaining({
+          category: "financial",
+          host: "gateway",
+        }),
+      }),
+      { dropIfSlow: true },
+    );
+    expect(respond).toHaveBeenCalledWith(
+      false,
+      undefined,
+      expect.objectContaining({
+        message:
+          "Sensitive financial action blocked: Hugh approval was not granted for this exact operation.",
+      }),
+    );
   });
 
   it("keeps non-admin session deletion behind Hugh approval", async () => {

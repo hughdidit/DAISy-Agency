@@ -14,17 +14,12 @@ const SENSITIVE_APPROVAL_SKIP_METHODS = new Set([
   "exec.approval.resolve",
 ]);
 
-const ADMIN_AUTHORIZED_DELETION_METHODS = new Set(["cron.remove", "sessions.delete"]);
-
 function resolveRequesterLabel(client: GatewayClient | null): string | null {
   return client?.connect?.client?.displayName ?? client?.connect?.client?.id ?? null;
 }
 
-function isAdminAuthorizedDeletion(method: string, client: GatewayClient | null): boolean {
-  return (
-    ADMIN_AUTHORIZED_DELETION_METHODS.has(method) &&
-    (client?.connect?.scopes ?? []).includes(ADMIN_SCOPE)
-  );
+function hasAdminScope(client: GatewayClient | null): boolean {
+  return (client?.connect?.scopes ?? []).includes(ADMIN_SCOPE);
 }
 
 async function awaitSensitiveGatewayApproval(params: {
@@ -100,10 +95,7 @@ export async function requireSensitiveGatewayApprovalIfNeeded(params: {
   if (!classification || !isSensitiveApprovalCategory(classification.category)) {
     return true;
   }
-  if (
-    classification.category === "deletion" &&
-    isAdminAuthorizedDeletion(params.method, params.client)
-  ) {
+  if (classification.category === "deletion" && hasAdminScope(params.client)) {
     return true;
   }
 
