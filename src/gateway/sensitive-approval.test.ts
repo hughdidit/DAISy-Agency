@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { ExecApprovalManager } from "./exec-approval-manager.js";
+import { GATEWAY_CLIENT_IDS, GATEWAY_CLIENT_MODES } from "./protocol/client-info.js";
 import { requireSensitiveGatewayApprovalIfNeeded } from "./sensitive-approval.js";
 import type { GatewayClient, GatewayRequestContext, RespondFn } from "./server-methods/types.js";
 
@@ -14,28 +15,39 @@ function createContext(params: {
   } as unknown as GatewayRequestContext;
 }
 
-function createClient(scopes: string[]): GatewayClient {
+function createClient(
+  scopes: string[],
+  clientId: (typeof GATEWAY_CLIENT_IDS)[keyof typeof GATEWAY_CLIENT_IDS] = GATEWAY_CLIENT_IDS.CLI,
+): GatewayClient {
   return {
     connect: {
       role: "operator",
       scopes,
       client: {
-        id: "test-client",
+        id: clientId,
         displayName: "Test Client",
+        version: "1.0.0",
+        platform: "test",
+        mode:
+          clientId === GATEWAY_CLIENT_IDS.CONTROL_UI
+            ? GATEWAY_CLIENT_MODES.UI
+            : GATEWAY_CLIENT_MODES.CLI,
       },
+      minProtocol: 1,
+      maxProtocol: 1,
     },
-  } as GatewayClient;
+  } as unknown as GatewayClient;
 }
 
 describe("requireSensitiveGatewayApprovalIfNeeded", () => {
-  it("allows admin-scoped deletion methods without a Hugh approval prompt", async () => {
+  it("allows control-ui admin deletion methods without a Hugh approval prompt", async () => {
     const broadcast = vi.fn();
     const respond = vi.fn<RespondFn>();
     const context = createContext({
       broadcast: broadcast as GatewayRequestContext["broadcast"],
       hasExecApprovalClients: () => true,
     });
-    const client = createClient(["operator.admin"]);
+    const client = createClient(["operator.admin"], GATEWAY_CLIENT_IDS.CONTROL_UI);
 
     await expect(
       requireSensitiveGatewayApprovalIfNeeded({
@@ -69,6 +81,36 @@ describe("requireSensitiveGatewayApprovalIfNeeded", () => {
 
     expect(broadcast).not.toHaveBeenCalled();
     expect(respond).not.toHaveBeenCalled();
+  });
+
+  it("keeps CLI admin deletion behind Hugh approval", async () => {
+    const broadcast = vi.fn();
+    const respond = vi.fn<RespondFn>();
+    const context = createContext({
+      broadcast: broadcast as GatewayRequestContext["broadcast"],
+      hasExecApprovalClients: () => false,
+    });
+
+    await expect(
+      requireSensitiveGatewayApprovalIfNeeded({
+        method: "sessions.delete",
+        requestParams: { key: "agent:main:cron:job-1:run:run-1" },
+        client: createClient(["operator.admin"], GATEWAY_CLIENT_IDS.CLI),
+        context,
+        respond,
+      }),
+    ).resolves.toBe(false);
+
+    expect(broadcast).toHaveBeenCalledWith(
+      "exec.approval.requested",
+      expect.objectContaining({
+        request: expect.objectContaining({
+          category: "deletion",
+          host: "gateway",
+        }),
+      }),
+      { dropIfSlow: true },
+    );
   });
 
   it("keeps admin-scoped financial actions behind Hugh approval", async () => {

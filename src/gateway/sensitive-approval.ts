@@ -5,6 +5,7 @@ import {
   type SensitiveActionClassification,
 } from "../infra/sensitive-actions.js";
 import { ADMIN_SCOPE } from "./method-scopes.js";
+import { GATEWAY_CLIENT_IDS } from "./protocol/client-info.js";
 import { ErrorCodes, errorShape } from "./protocol/index.js";
 import type { GatewayClient, GatewayRequestContext, RespondFn } from "./server-methods/types.js";
 
@@ -18,8 +19,11 @@ function resolveRequesterLabel(client: GatewayClient | null): string | null {
   return client?.connect?.client?.displayName ?? client?.connect?.client?.id ?? null;
 }
 
-function hasAdminScope(client: GatewayClient | null): boolean {
-  return (client?.connect?.scopes ?? []).includes(ADMIN_SCOPE);
+function hasControlUiAdminScope(client: GatewayClient | null): boolean {
+  return (
+    client?.connect?.client?.id === GATEWAY_CLIENT_IDS.CONTROL_UI &&
+    (client.connect.scopes ?? []).includes(ADMIN_SCOPE)
+  );
 }
 
 async function awaitSensitiveGatewayApproval(params: {
@@ -95,7 +99,7 @@ export async function requireSensitiveGatewayApprovalIfNeeded(params: {
   if (!classification || !isSensitiveApprovalCategory(classification.category)) {
     return true;
   }
-  if (classification.category === "deletion" && hasAdminScope(params.client)) {
+  if (classification.category === "deletion" && hasControlUiAdminScope(params.client)) {
     return true;
   }
 
