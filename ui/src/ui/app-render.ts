@@ -67,7 +67,6 @@ import {
   commentKanbanCard,
   loadKanban,
   loadKanbanImportFile,
-  moveKanbanCard,
   moveKanbanCardById,
   previewKanbanImport,
   runKanbanImport,
@@ -1089,7 +1088,6 @@ export function renderApp(state: AppViewState) {
                 onCardCommentChange: (value) => updateKanbanCardCommentDraft(state, value),
                 onCardSave: () => saveKanbanCard(state),
                 onCardComment: () => commentKanbanCard(state),
-                onCardMove: (lane) => moveKanbanCard(state, lane),
                 onCardDropMove: (cardId, lane) => moveKanbanCardById(state, cardId, lane),
                 onCardArchive: () => archiveKanbanCard(state),
               })
