@@ -75,4 +75,18 @@ describe("classifySensitiveAction", () => {
       }),
     ).toBeNull();
   });
+
+  it("does not classify Gmail read queries that exclude trash as deletions", () => {
+    expect(
+      classifySensitiveAction({
+        surface: "tool",
+        toolName: "gws_gmail_read",
+        payload: {
+          action: "list_messages",
+          query: "in:inbox is:unread -in:spam -in:trash",
+          maxResults: 10,
+        },
+      }),
+    ).toBeNull();
+  });
 });

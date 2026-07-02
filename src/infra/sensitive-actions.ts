@@ -54,6 +54,7 @@ const FINANCIAL_TERMS = [
   "billing",
   "charge",
 ] as const;
+const SENSITIVE_TERMS: readonly string[] = [...DELETION_TERMS, ...FINANCIAL_TERMS];
 
 function redactOrBound(value: unknown, depth = 0): unknown {
   if (value === null || typeof value === "boolean" || typeof value === "number") {
@@ -158,6 +159,52 @@ function termsMatch(haystack: string, terms: readonly string[]): string | null {
   return null;
 }
 
+function isActionLikePayloadKey(key: string): boolean {
+  const normalized = key
+    .replace(CAMEL_CASE_BOUNDARY, "$1 $2")
+    .replace(/[-_.]/g, " ")
+    .toLowerCase();
+  return /\b(action|operation|command|method|intent|verb)\b/.test(normalized);
+}
+
+function payloadFlagIsEnabled(value: unknown): boolean {
+  return value !== false && value !== null && value !== undefined;
+}
+
+function collectPayloadIntentText(value: unknown, depth = 0, includeBareStrings = true): string[] {
+  if (typeof value === "string") {
+    return includeBareStrings ? [value] : [];
+  }
+  if (!value || typeof value !== "object" || depth >= 4) {
+    return [];
+  }
+  if (Array.isArray(value)) {
+    return value.flatMap((entry) => collectPayloadIntentText(entry, depth + 1, includeBareStrings));
+  }
+
+  const result: string[] = [];
+  for (const [key, raw] of Object.entries(value as Record<string, unknown>)) {
+    if (isActionLikePayloadKey(key)) {
+      result.push(key);
+      if (typeof raw === "string" || typeof raw === "number" || typeof raw === "boolean") {
+        result.push(String(raw));
+      } else {
+        result.push(...collectPayloadIntentText(raw, depth + 1, true));
+      }
+      continue;
+    }
+
+    if (payloadFlagIsEnabled(raw) && termsMatch(key, SENSITIVE_TERMS)) {
+      result.push(key);
+    }
+
+    if (raw && typeof raw === "object") {
+      result.push(...collectPayloadIntentText(raw, depth + 1, false));
+    }
+  }
+  return result;
+}
+
 function buildPreview(params: ClassifySensitiveActionParams): string {
   const boundedPayload = redactOrBound(params.payload);
   const preview = stableStringify({
@@ -189,7 +236,7 @@ export function classifySensitiveAction(
     params.toolName,
     params.method,
     params.actionName,
-    typeof params.payload === "string" ? params.payload : preview,
+    ...collectPayloadIntentText(params.payload),
   ]
     .filter(Boolean)
     .join(" ");
