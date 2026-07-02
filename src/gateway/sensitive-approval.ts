@@ -4,6 +4,7 @@ import {
   isSensitiveApprovalCategory,
   type SensitiveActionClassification,
 } from "../infra/sensitive-actions.js";
+import { ADMIN_SCOPE } from "./method-scopes.js";
 import { ErrorCodes, errorShape } from "./protocol/index.js";
 import type { GatewayClient, GatewayRequestContext, RespondFn } from "./server-methods/types.js";
 
@@ -13,8 +14,17 @@ const SENSITIVE_APPROVAL_SKIP_METHODS = new Set([
   "exec.approval.resolve",
 ]);
 
+const ADMIN_AUTHORIZED_DELETION_METHODS = new Set(["cron.remove", "sessions.delete"]);
+
 function resolveRequesterLabel(client: GatewayClient | null): string | null {
   return client?.connect?.client?.displayName ?? client?.connect?.client?.id ?? null;
+}
+
+function isAdminAuthorizedDeletion(method: string, client: GatewayClient | null): boolean {
+  return (
+    ADMIN_AUTHORIZED_DELETION_METHODS.has(method) &&
+    (client?.connect?.scopes ?? []).includes(ADMIN_SCOPE)
+  );
 }
 
 async function awaitSensitiveGatewayApproval(params: {
@@ -88,6 +98,12 @@ export async function requireSensitiveGatewayApprovalIfNeeded(params: {
     payload: params.requestParams,
   });
   if (!classification || !isSensitiveApprovalCategory(classification.category)) {
+    return true;
+  }
+  if (
+    classification.category === "deletion" &&
+    isAdminAuthorizedDeletion(params.method, params.client)
+  ) {
     return true;
   }
 
