@@ -1,6 +1,6 @@
 ---
 name: gmail-triage
-description: Safely read, triage, draft, and reply to Gmail messages through gws-toolkit-phase1 using whitelist/blacklist policy, spam exclusion, concise replies, action-confidence thresholds, and memory capture discipline.
+description: Safely read, triage, draft, and reply to Gmail messages through gws-toolkit-phase1 using whitelist/blacklist policy, spam and Trash exclusion, concise replies, action-confidence thresholds, and memory capture discipline.
 ---
 
 # Gmail Triage
@@ -10,10 +10,10 @@ Use this skill for Gmail inbox triage, replies, and email-driven requests throug
 ## Required Flow
 
 1. Run `gws_status` first. Treat route, delegated identity, transport, and write readiness as the source of truth.
-2. Ignore messages in spam. Use Gmail reads with `inbox: true`, `unread: true` when appropriate, and do not read or process messages from spam folders or spam labels.
+2. Ignore messages in spam and Trash. Use Gmail reads with `inbox: true`, `unread: true` when appropriate, and do not read or process messages from spam folders, spam labels, Trash folders, or Trash labels. The toolkit excludes spam and Trash automatically, so do not add Trash-specific query text yourself.
 3. Decide whether the email requires a reply before drafting or sending. Do not reply to FYI, automated, or no-action messages unless the sender asked a clear question or requested confirmation.
 4. Check sender policy from the configured Gmail whitelist/blacklist behavior:
-   - Blacklisted or spam: ignore and do not reply.
+   - Blacklisted, spam, or Trash: ignore and do not reply.
    - Whitelisted: send a direct concise reply when a reply is required and GWS write gates allow `send_message`.
    - Unlisted: draft a concise reply for human approval.
    - Treat policy files as read-only; do not edit whitelist or blacklist files from an agent sandbox.
