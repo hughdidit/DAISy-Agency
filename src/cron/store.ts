@@ -2,6 +2,7 @@ import { randomBytes } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import JSON5 from "json5";
+import { acquireSessionWriteLock } from "../agents/session-write-lock.js";
 import { expandHomePrefix } from "../infra/home-dir.js";
 import { CONFIG_DIR } from "../utils.js";
 import type { CronStoreFile } from "./types.js";
@@ -85,6 +86,25 @@ export async function saveCronStore(storePath: string, store: CronStoreFile) {
   }
   await renameWithRetry(tmp, storePath);
   serializedStoreCache.set(storePath, json);
+}
+
+export async function updateCronStore<T>(
+  storePath: string,
+  mutator: (store: CronStoreFile) => Promise<T> | T,
+): Promise<T> {
+  const lock = await acquireSessionWriteLock({
+    sessionFile: storePath,
+    timeoutMs: 10_000,
+    staleMs: 30_000,
+  });
+  try {
+    const store = await loadCronStore(storePath);
+    const result = await mutator(store);
+    await saveCronStore(storePath, store);
+    return result;
+  } finally {
+    await lock.release().catch(() => undefined);
+  }
 }
 
 const RENAME_MAX_RETRIES = 3;

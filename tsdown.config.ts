@@ -33,6 +33,14 @@ export default defineConfig([
     platform: "node",
   },
   {
+    // Ensure staging acceptance can clean up only the cron artifacts it creates.
+    entry: "src/verify/acceptance-cleanup.ts",
+    outDir: "dist/verify",
+    env,
+    fixedExtension: false,
+    platform: "node",
+  },
+  {
     entry: "src/cli/openclaw-readonly.ts",
     env,
     fixedExtension: false,
