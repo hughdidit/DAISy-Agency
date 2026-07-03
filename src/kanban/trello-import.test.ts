@@ -95,7 +95,7 @@ describe("parseTrelloImport", () => {
         priority: "high",
         assignee: "Hugh Chapman",
         labels: ["High", "green"],
-        links: ["https://trello.example/cards/card-1", "https://trello.example/attachments/spec"],
+        links: [],
         checklist: [
           {
             sourceId: "check-1",
@@ -164,7 +164,7 @@ describe("parseTrelloImport", () => {
         assignee: "Codex",
         labels: ["urgent", "backend"],
         description: "Body",
-        links: ["https://trello.example/csv", "https://trello.example/attachment"],
+        links: [],
         checklist: [
           {
             sourceId: "csv-check-1-1",

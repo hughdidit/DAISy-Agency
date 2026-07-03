@@ -143,7 +143,6 @@ const MAX_SOURCE_ID_LENGTH = 256;
 const MAX_TITLE_LENGTH = 500;
 const MAX_DESCRIPTION_LENGTH = 4000;
 const MAX_LABEL_LENGTH = 100;
-const MAX_LINKS = 20;
 const MAX_LINK_LENGTH = 2048;
 const MAX_CHECKLIST_ITEMS = 200;
 const MAX_COMMENTS = 200;
@@ -298,23 +297,6 @@ function uniqueStrings(values: string[], maxItems: number, maxLength: number): s
     }
   }
   return result;
-}
-
-function normalizeLinks(values: Array<string | undefined>, warnings: string[]): string[] {
-  const links: string[] = [];
-  for (const value of values) {
-    if (!value) {
-      continue;
-    }
-    const link = truncateText(value, MAX_LINK_LENGTH, warnings, "link");
-    if (link) {
-      links.push(link);
-    }
-    if (links.length >= MAX_LINKS) {
-      break;
-    }
-  }
-  return links;
 }
 
 function buildMemberLookup(value: unknown): Map<string, string> {
@@ -712,14 +694,6 @@ function parseJsonImport(content: string, hash: string): ParsedTrelloImportCard[
       "source url",
     );
     const attachments = parseJsonAttachments(card.attachments, warnings);
-    const links = normalizeLinks(
-      [
-        normalizeText(card.url),
-        normalizeText(card.shortUrl),
-        ...attachments.map((item) => item.url),
-      ],
-      warnings,
-    );
     const watchers = parseJsonCardWatchers(card.idMembers, members);
     return {
       sourceBoardId: normalizeText(card.idBoard) ?? sourceBoardId,
@@ -746,7 +720,7 @@ function parseJsonImport(content: string, hash: string): ParsedTrelloImportCard[
       dueAt: parseDate(card.due, warnings, "due"),
       checklist: sourceCardId ? (checklists.items.get(sourceCardId) ?? []) : [],
       comments: sourceCardId ? (comments.items.get(sourceCardId) ?? []) : [],
-      links,
+      links: [],
       attachments,
       watchers,
       customFields: (() => {
@@ -913,7 +887,7 @@ function parseCsvImport(content: string, hash: string): ParsedTrelloImportCard[]
       dueAt,
       checklist,
       comments,
-      links: normalizeLinks([firstCsv(row, ["url", "link"]), ...attachmentUrls], warnings),
+      links: [],
       attachments,
       watchers,
       customFields,

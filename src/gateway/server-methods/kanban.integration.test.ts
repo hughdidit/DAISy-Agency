@@ -946,7 +946,7 @@ describeWithDocker("Kanban gateway read handlers with MongoDB", () => {
             actor: { type: "import", id: "member-1", name: "Hugh Chapman" },
           }),
         ],
-        links: ["https://trello.example/c/trello-card-1", "https://trello.example/attachments/1"],
+        links: [],
         attachments: [
           expect.objectContaining({
             id: "attachment-1",

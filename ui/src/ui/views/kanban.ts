@@ -367,26 +367,11 @@ function renderLane(lane: KanbanLane, cards: KanbanCard[], props: KanbanProps) {
   `;
 }
 
-function renderDetailTextList(title: string, values: string[]) {
-  if (!values.length) {
-    return nothing;
-  }
-  return html`
-    <section class="kanban-detail__section">
-      <div class="kanban-detail__section-title">${title}</div>
-      <div class="kanban-detail__list">
-        ${values.map((value) => html`<div class="kanban-detail__list-item">${value}</div>`)}
-      </div>
-    </section>
-  `;
-}
-
 function renderDetailReadonly(card: KanbanCard) {
   const comments = card.comments ?? [];
   const attachments = card.attachments ?? [];
   return html`
     <div class="kanban-detail__readonly">
-      ${renderDetailTextList(t("kanban.detail.links"), card.links ?? [])}
       ${
         attachments.length
           ? html`
