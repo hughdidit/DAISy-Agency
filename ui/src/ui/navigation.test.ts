@@ -190,8 +190,10 @@ describe("TAB_GROUPS", () => {
     expect(uniqueTabs.size).toBe(allTabs.length);
   });
 
-  it("places kanban in the agent group", () => {
+  it("places kanban in the control group", () => {
+    const controlGroup = TAB_GROUPS.find((group) => group.label === "control");
     const agentGroup = TAB_GROUPS.find((group) => group.label === "agent");
-    expect(agentGroup?.tabs).toContain("kanban");
+    expect(controlGroup?.tabs).toContain("kanban");
+    expect(agentGroup?.tabs).not.toContain("kanban");
   });
 });
