@@ -47,12 +47,17 @@ export type KanbanProps = {
   onCardCommentChange: (value: string) => void;
   onCardSave: () => void | Promise<void>;
   onCardComment: () => void | Promise<void>;
-  onCardDropMove?: (cardId: string, lane: KanbanCard["lane"]) => void | Promise<void>;
+  onCardDropMove?: (
+    cardId: string,
+    lane: KanbanCard["lane"],
+    position?: number,
+  ) => void | Promise<void>;
   onCardArchive: () => void | Promise<void>;
 };
 
 const KANBAN_PRIORITIES: Array<KanbanCard["priority"]> = ["urgent", "high", "normal", "low"];
 const KANBAN_CARD_DRAG_MIME = "application/x-daisy-kanban-card";
+const KANBAN_POSITION_STEP = 1;
 let draggedKanbanCardId: string | null = null;
 
 const DETAIL_FOCUSABLE_SELECTOR = [
@@ -285,10 +290,11 @@ function handleLaneDrop(event: DragEvent, lane: KanbanLane, props: KanbanProps) 
   }
   event.preventDefault();
   clearKanbanCardDragData();
-  if (card.lane === lane.id) {
+  const position = getLaneDropPosition(event, lane, card, props);
+  if (position === null) {
     return;
   }
-  void props.onCardDropMove(card.id, lane.id);
+  void props.onCardDropMove(card.id, lane.id, position);
 }
 
 function findDraggedKanbanCard(event: DragEvent, props: KanbanProps): KanbanCard | null {
@@ -297,6 +303,83 @@ function findDraggedKanbanCard(event: DragEvent, props: KanbanProps): KanbanCard
   }
   const cardId = draggedKanbanCardId ?? getKanbanCardDragId(event);
   return props.cards.find((candidate) => candidate.id === cardId) ?? null;
+}
+
+function getDropTargetCardElement(event: DragEvent): HTMLElement | null {
+  const target = event.target;
+  if (!(target instanceof Element)) {
+    return null;
+  }
+  const cardElement = target.closest(".kanban-card[data-card-id]");
+  return cardElement instanceof HTMLElement ? cardElement : null;
+}
+
+function finiteCardPosition(card: KanbanCard | null): number | null {
+  return typeof card?.position === "number" && Number.isFinite(card.position)
+    ? card.position
+    : null;
+}
+
+function calculateDropPosition(
+  before: KanbanCard | null,
+  after: KanbanCard | null,
+  fallbackIndex: number,
+): number {
+  const beforePosition = finiteCardPosition(before);
+  const afterPosition = finiteCardPosition(after);
+
+  if (beforePosition !== null && afterPosition !== null) {
+    if (beforePosition !== afterPosition) {
+      return beforePosition + (afterPosition - beforePosition) / 2;
+    }
+    return beforePosition + KANBAN_POSITION_STEP / 2;
+  }
+  if (beforePosition !== null) {
+    return beforePosition + KANBAN_POSITION_STEP;
+  }
+  if (afterPosition !== null) {
+    return afterPosition - KANBAN_POSITION_STEP;
+  }
+  return fallbackIndex;
+}
+
+function getLaneDropPosition(
+  event: DragEvent,
+  lane: KanbanLane,
+  draggedCard: KanbanCard,
+  props: KanbanProps,
+): number | null {
+  const laneCards = sortCards(props.cards.filter((card) => card.lane === lane.id));
+  const cardsWithoutDragged = laneCards.filter((card) => card.id !== draggedCard.id);
+  const targetCardElement = getDropTargetCardElement(event);
+  const targetCardId = targetCardElement?.dataset.cardId ?? null;
+
+  if (targetCardId === draggedCard.id && draggedCard.lane === lane.id) {
+    return null;
+  }
+
+  let insertIndex = cardsWithoutDragged.length;
+  if (targetCardId) {
+    const targetIndex = cardsWithoutDragged.findIndex((card) => card.id === targetCardId);
+    if (targetIndex >= 0) {
+      const targetRect = targetCardElement?.getBoundingClientRect();
+      const dropAfterTarget = targetRect
+        ? event.clientY >= targetRect.top + targetRect.height / 2
+        : true;
+      insertIndex = targetIndex + (dropAfterTarget ? 1 : 0);
+    }
+  }
+
+  if (draggedCard.lane === lane.id) {
+    const currentIndex = laneCards.findIndex((card) => card.id === draggedCard.id);
+    if (currentIndex === insertIndex) {
+      return null;
+    }
+  }
+
+  const before = insertIndex > 0 ? cardsWithoutDragged[insertIndex - 1] : null;
+  const after = insertIndex < cardsWithoutDragged.length ? cardsWithoutDragged[insertIndex] : null;
+  return calculateDropPosition(before, after, insertIndex);
 }
 
 function renderCard(card: KanbanCard, props: KanbanProps) {

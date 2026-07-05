@@ -1088,7 +1088,8 @@ export function renderApp(state: AppViewState) {
                 onCardCommentChange: (value) => updateKanbanCardCommentDraft(state, value),
                 onCardSave: () => saveKanbanCard(state),
                 onCardComment: () => commentKanbanCard(state),
-                onCardDropMove: (cardId, lane) => moveKanbanCardById(state, cardId, lane),
+                onCardDropMove: (cardId, lane, position) =>
+                  moveKanbanCardById(state, cardId, lane, position),
                 onCardArchive: () => archiveKanbanCard(state),
               })
             : nothing

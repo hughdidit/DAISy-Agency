@@ -392,16 +392,19 @@ export async function moveKanbanCardById(
   state: KanbanState,
   cardId: string,
   lane: KanbanCard["lane"],
+  position?: number,
 ) {
   const card =
     state.kanbanCards.find((candidate) => candidate.id === cardId) ??
     (state.kanbanSelectedCard?.id === cardId ? state.kanbanSelectedCard : null);
   const movingSelectedCard = state.kanbanSelectedCardId === cardId;
   const draft = movingSelectedCard ? state.kanbanCardDraft : null;
+  const requestedPosition =
+    typeof position === "number" && Number.isFinite(position) ? position : undefined;
   if (!state.client || !state.connected || state.kanbanCardBusy || !card) {
     return;
   }
-  if (lane === card.lane) {
+  if (lane === card.lane && requestedPosition === undefined) {
     return;
   }
   if (draft && isKanbanCardDraftDirty(card, draft, { ignoreLane: true })) {
@@ -420,6 +423,7 @@ export async function moveKanbanCardById(
       cardId: card.id,
       expectedVersion: card.version,
       lane,
+      ...(requestedPosition !== undefined ? { position: requestedPosition } : {}),
     });
     applyCardListMutation(state, result);
     await loadKanban(state);
