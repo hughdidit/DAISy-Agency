@@ -356,32 +356,16 @@ if [[ -n "${GCE_INSTANCE_NAME:-}" ]]; then
   printf '%s\n' "${runtime_bins}"
 
   if [[ "${VERIFY_ENV:-}" == "staging" ]]; then
-    # Check 4: Trello skill is eligible inside the deployed container.
+    # Check 4: Kanban is available through the deployed gateway.
     checks_run=$((checks_run + 1))
-    log "Checking Trello skill eligibility in ${container}..."
-    trello_skill_json="$(
-      gce_ssh "sudo docker exec ${container_escaped} bash -lc 'cd /app && node dist/index.js skills info trello --json'"
-    )" || fail "Failed to inspect Trello skill status in ${container}"
-    printf '%s\n' "${trello_skill_json}"
-    gce_ssh "sudo docker exec ${container_escaped} bash -lc 'cd /app && node dist/index.js skills info trello --json | jq -e \".name == \\\"trello\\\" and .eligible == true\" >/dev/null'" \
-      || fail "Trello skill is not eligible in ${container}"
-    log "Trello skill is eligible."
+    log "Checking Kanban gateway status in ${container}..."
+    kanban_status_output="$(
+      gce_ssh_last_json_line "sudo docker exec ${container_escaped} bash -lc 'cd /app && node dist/index.js gateway call kanban.status --url \"ws://127.0.0.1:\${OPENCLAW_GATEWAY_PORT:-18789}\" --token \"\${OPENCLAW_GATEWAY_TOKEN:?OPENCLAW_GATEWAY_TOKEN is required}\" --json | jq -e '\''if (.enabled == true) and (.available == true) and (.boardId | type == \"string\") then {boardId:.boardId} else error(\"unexpected_kanban_status_payload\") end'\'''"
+    )" || fail "Kanban gateway status smoke failed in ${container}"
+    printf '%s\n' "${kanban_status_output}"
+    log "Kanban gateway status smoke passed."
 
-    # Check 5: Trello secrets must be present and the brokered live Trello API smoke must work.
-    checks_run=$((checks_run + 1))
-    log "Checking brokered Trello toolkit live API smoke in ${container}..."
-    trello_verify_agent_id="${TRELLO_VERIFY_AGENT_ID:-daisy}"
-    [[ "${trello_verify_agent_id}" =~ ^[A-Za-z0-9._:-]+$ ]] \
-      || fail "TRELLO_VERIFY_AGENT_ID contains unsupported characters."
-    trello_smoke_output="$(
-      gce_ssh "sudo docker exec ${container_escaped} bash -lc 'cd /app && node dist/index.js trello status --json --include-account --agent ${trello_verify_agent_id} | jq -e '\''if .ok == true and (.data.credentialEnv.present == true) and (.data.account.id | type == \"string\") then {routeName:.data.routeName, account:{id:.data.account.id, username:.data.account.username}} else error(\"unexpected_trello_toolkit_payload\") end'\'''"
-    )" || {
-      fail "Brokered Trello toolkit live API smoke failed in ${container}"
-    }
-    printf '%s\n' "${trello_smoke_output}"
-    log "Brokered Trello toolkit live API smoke passed."
-
-    # Check 6: when monitoring env has been generated, Alertmanager must be
+    # Check 5: when monitoring env has been generated, Alertmanager must be
     # running from the host-rendered runtime config with locked-down permissions.
     checks_run=$((checks_run + 1))
     log "Checking monitoring Alertmanager runtime config delivery on ${GCE_INSTANCE_NAME}..."
