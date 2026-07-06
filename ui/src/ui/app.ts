@@ -73,6 +73,7 @@ import {
   selectKanbanCard as selectKanbanCardInternal,
   setKanbanImportContent as setKanbanImportContentInternal,
   setKanbanImportFormat as setKanbanImportFormatInternal,
+  startKanbanCardCreate as startKanbanCardCreateInternal,
   updateKanbanCardCommentDraft as updateKanbanCardCommentDraftInternal,
   updateKanbanCardDraft as updateKanbanCardDraftInternal,
   type KanbanCardDraft,
@@ -292,6 +293,7 @@ export class OpenClawApp extends LitElement {
   @state() kanbanSelectedCardId: string | null = null;
   @state() kanbanSelectedCard: KanbanCard | null = null;
   @state() kanbanCardDraft: KanbanCardDraft | null = null;
+  @state() kanbanCreatingCard = false;
   @state() kanbanCardCommentDraft = "";
   @state() kanbanCardBusy = false;
   @state() kanbanCardError: string | null = null;
@@ -570,6 +572,12 @@ export class OpenClawApp extends LitElement {
 
   async runKanbanImport() {
     await runKanbanImportInternal(this as unknown as Parameters<typeof runKanbanImportInternal>[0]);
+  }
+
+  startKanbanCardCreate() {
+    startKanbanCardCreateInternal(
+      this as unknown as Parameters<typeof startKanbanCardCreateInternal>[0],
+    );
   }
 
   async selectKanbanCard(cardId: string) {

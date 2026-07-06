@@ -361,6 +361,13 @@ export function renderApp(state: AppViewState) {
               state.tab === "kanban"
                 ? html`
                     <button
+                      class="btn btn--sm primary"
+                      ?disabled=${state.kanbanLoading || !(state.kanbanStatus?.enabled && state.kanbanStatus?.available)}
+                      @click=${() => state.startKanbanCardCreate()}
+                    >
+                      ${t("kanban.actions.newCard")}
+                    </button>
+                    <button
                       class="btn btn--sm"
                       ?disabled=${state.kanbanLoading}
                       @click=${() => loadKanban(state)}
@@ -1072,6 +1079,7 @@ export function renderApp(state: AppViewState) {
                 selectedCardId: state.kanbanSelectedCardId,
                 selectedCard: state.kanbanSelectedCard,
                 cardDraft: state.kanbanCardDraft,
+                creatingCard: state.kanbanCreatingCard,
                 cardCommentDraft: state.kanbanCardCommentDraft,
                 cardBusy: state.kanbanCardBusy,
                 cardError: state.kanbanCardError,
