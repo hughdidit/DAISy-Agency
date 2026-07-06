@@ -50,6 +50,7 @@ export type KanbanState = {
   kanbanSelectedCardId: string | null;
   kanbanSelectedCard: KanbanCard | null;
   kanbanCardDraft: KanbanCardDraft | null;
+  kanbanCreatingCard: boolean;
   kanbanCardCommentDraft: string;
   kanbanCardBusy: boolean;
   kanbanCardError: string | null;
@@ -144,6 +145,25 @@ export function createKanbanCardDraft(card: KanbanCard): KanbanCardDraft {
   };
 }
 
+export function createBlankKanbanCardDraft(lane: KanbanCard["lane"] = "todo"): KanbanCardDraft {
+  return {
+    title: "",
+    description: "",
+    lane,
+    priority: "normal",
+    assignee: "",
+    reviewer: "",
+    inputOwner: "",
+    labelsText: "",
+    dueDate: "",
+    readyForCodex: false,
+    linksText: "",
+    watchersText: "",
+    checklistText: "",
+    customFieldsText: "{}",
+  };
+}
+
 function inferImportFormat(fileName: string): KanbanImportFormat | null {
   const lower = fileName.trim().toLowerCase();
   if (lower.endsWith(".csv")) {
@@ -159,21 +179,26 @@ function applyCardMutation(state: KanbanState, result: KanbanCardMutationResult)
   state.kanbanSelectedCard = result.card;
   state.kanbanSelectedCardId = result.card.id;
   state.kanbanCardDraft = createKanbanCardDraft(result.card);
-  state.kanbanCards = state.kanbanCards.map((card) =>
-    card.id === result.card.id ? result.card : card,
-  );
+  state.kanbanCreatingCard = false;
+  state.kanbanCards = upsertKanbanCard(state.kanbanCards, result.card);
   state.kanbanActivity = [result.activity, ...state.kanbanActivity].slice(0, 50);
 }
 
 function applyCardListMutation(state: KanbanState, result: KanbanCardMutationResult) {
-  state.kanbanCards = state.kanbanCards.map((card) =>
-    card.id === result.card.id ? result.card : card,
-  );
+  state.kanbanCards = upsertKanbanCard(state.kanbanCards, result.card);
   if (state.kanbanSelectedCardId === result.card.id) {
     state.kanbanSelectedCard = result.card;
     state.kanbanCardDraft = createKanbanCardDraft(result.card);
   }
   state.kanbanActivity = [result.activity, ...state.kanbanActivity].slice(0, 50);
+}
+
+function upsertKanbanCard(cards: KanbanCard[], nextCard: KanbanCard): KanbanCard[] {
+  const existingIndex = cards.findIndex((card) => card.id === nextCard.id);
+  if (existingIndex < 0) {
+    return [...cards, nextCard];
+  }
+  return cards.map((card) => (card.id === nextCard.id ? nextCard : card));
 }
 
 function isKanbanCardDraftDirty(
@@ -223,10 +248,23 @@ export function updateKanbanCardCommentDraft(state: KanbanState, value: string) 
   state.kanbanCardError = null;
 }
 
+export function startKanbanCardCreate(state: KanbanState) {
+  const firstLane = (state.kanbanBoard?.lanes ?? []).toSorted((a, b) => a.position - b.position)[0]
+    ?.id;
+  state.kanbanSelectedCardId = null;
+  state.kanbanSelectedCard = null;
+  state.kanbanCardDraft = createBlankKanbanCardDraft(firstLane);
+  state.kanbanCreatingCard = true;
+  state.kanbanCardCommentDraft = "";
+  state.kanbanCardBusy = false;
+  state.kanbanCardError = null;
+}
+
 export function closeKanbanCard(state: KanbanState) {
   state.kanbanSelectedCardId = null;
   state.kanbanSelectedCard = null;
   state.kanbanCardDraft = null;
+  state.kanbanCreatingCard = false;
   state.kanbanCardCommentDraft = "";
   state.kanbanCardBusy = false;
   state.kanbanCardError = null;
@@ -237,6 +275,7 @@ export async function selectKanbanCard(state: KanbanState, cardId: string) {
   state.kanbanSelectedCardId = cardId;
   state.kanbanSelectedCard = fallback;
   state.kanbanCardDraft = fallback ? createKanbanCardDraft(fallback) : null;
+  state.kanbanCreatingCard = false;
   state.kanbanCardCommentDraft = "";
   state.kanbanCardError = null;
   if (!state.client || !state.connected) {
@@ -267,8 +306,92 @@ export async function selectKanbanCard(state: KanbanState, cardId: string) {
   }
 }
 
+function parseCustomFieldsDraft(value: string): Record<string, unknown> {
+  const parsed = JSON.parse(value.trim() || "{}") as unknown;
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new Error("Custom fields must be a JSON object.");
+  }
+  return parsed as Record<string, unknown>;
+}
+
+export async function createKanbanCard(state: KanbanState) {
+  if (!state.client || !state.connected || state.kanbanCardBusy || !state.kanbanCreatingCard) {
+    return;
+  }
+  const draft = state.kanbanCardDraft;
+  if (!draft) {
+    return;
+  }
+  const title = draft.title.trim();
+  if (!title) {
+    state.kanbanCardError = "Kanban card title is required.";
+    return;
+  }
+  let customFields: Record<string, unknown>;
+  try {
+    customFields = parseCustomFieldsDraft(draft.customFieldsText);
+  } catch (err) {
+    state.kanbanCardError = String(err);
+    return;
+  }
+  state.kanbanCardBusy = true;
+  state.kanbanCardError = null;
+  try {
+    const result = await state.client.request<KanbanCardMutationResult>("kanban.cards.create", {
+      ...kanbanBoardParams(state),
+      title,
+      description: draft.description.trim() ? draft.description : undefined,
+      lane: draft.lane,
+      priority: draft.priority,
+      assignee: draft.assignee.trim() || undefined,
+      reviewer: draft.reviewer.trim() || undefined,
+      inputOwner: draft.inputOwner.trim() || undefined,
+      labels: compactList(draft.labelsText),
+      dueDate: dueDateValue(draft.dueDate) ?? undefined,
+      links: compactList(draft.linksText),
+      watchers: compactList(draft.watchersText),
+      customFields,
+      readyForCodex: draft.readyForCodex,
+    });
+    applyCardMutation(state, result);
+    if (draft.checklistText.trim()) {
+      if (state.kanbanCardDraft) {
+        state.kanbanCardDraft = { ...state.kanbanCardDraft, checklistText: draft.checklistText };
+      }
+      try {
+        const checklistResult = await state.client.request<KanbanCardMutationResult>(
+          "kanban.cards.update",
+          {
+            ...kanbanBoardParams(state),
+            cardId: result.card.id,
+            expectedVersion: result.card.version,
+            updates: {
+              checklist: parseChecklistDraft(result.card, draft.checklistText),
+            },
+          },
+        );
+        applyCardMutation(state, checklistResult);
+      } catch (err) {
+        if (state.kanbanCardDraft) {
+          state.kanbanCardDraft = { ...state.kanbanCardDraft, checklistText: draft.checklistText };
+        }
+        throw err;
+      }
+    }
+    await loadKanban(state);
+  } catch (err) {
+    state.kanbanCardError = String(err);
+  } finally {
+    state.kanbanCardBusy = false;
+  }
+}
+
 export async function saveKanbanCard(state: KanbanState) {
   if (!state.client || !state.connected || state.kanbanCardBusy) {
+    return;
+  }
+  if (state.kanbanCreatingCard) {
+    await createKanbanCard(state);
     return;
   }
   const card = state.kanbanSelectedCard;
@@ -290,11 +413,7 @@ export async function saveKanbanCard(state: KanbanState) {
   }
   let customFields: Record<string, unknown>;
   try {
-    const parsed = JSON.parse(draft.customFieldsText.trim() || "{}") as unknown;
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-      throw new Error("Custom fields must be a JSON object.");
-    }
-    customFields = parsed as Record<string, unknown>;
+    customFields = parseCustomFieldsDraft(draft.customFieldsText);
   } catch (err) {
     state.kanbanCardError = String(err);
     return;

@@ -180,6 +180,7 @@ export type AppViewState = {
   kanbanSelectedCardId: string | null;
   kanbanSelectedCard: KanbanCard | null;
   kanbanCardDraft: KanbanCardDraft | null;
+  kanbanCreatingCard: boolean;
   kanbanCardCommentDraft: string;
   kanbanCardBusy: boolean;
   kanbanCardError: string | null;
@@ -307,6 +308,7 @@ export type AppViewState = {
     loadKanbanImportFile: (file: File | null) => Promise<void>;
     previewKanbanImport: () => Promise<void>;
     runKanbanImport: () => Promise<void>;
+    startKanbanCardCreate: () => void;
     selectKanbanCard: (cardId: string) => Promise<void>;
     closeKanbanCard: () => void;
     updateKanbanCardDraft: <K extends keyof KanbanCardDraft>(

@@ -31,6 +31,7 @@ export type KanbanProps = {
   selectedCardId: string | null;
   selectedCard: KanbanCard | null;
   cardDraft: KanbanCardDraft | null;
+  creatingCard?: boolean;
   cardCommentDraft: string;
   cardBusy: boolean;
   cardError: string | null;
@@ -77,7 +78,9 @@ function focusDetailModal(element: Element | undefined, cardId: string) {
     return;
   }
   const active = typeof document === "undefined" ? null : document.activeElement;
-  detailPreviousFocus = active instanceof HTMLElement && !element.contains(active) ? active : null;
+  if (active instanceof HTMLElement && !element.contains(active)) {
+    detailPreviousFocus = active;
+  }
   detailFocusedCardId = cardId;
   queueMicrotask(() => {
     if (!element.isConnected) {
@@ -503,11 +506,16 @@ function renderDetailReadonly(card: KanbanCard) {
 function renderCardDetail(props: KanbanProps, lanes: KanbanLane[]) {
   const card = props.selectedCard;
   const draft = props.cardDraft;
-  if (!card || !draft) {
+  const creatingCard = Boolean(props.creatingCard);
+  if (!draft || (!card && !creatingCard)) {
     return nothing;
   }
   const disabled = props.cardBusy;
-  const selectedLane = isKanbanLaneId(draft.lane, lanes) ? draft.lane : card.lane;
+  const selectedLane = isKanbanLaneId(draft.lane, lanes)
+    ? draft.lane
+    : (card?.lane ?? lanes[0]?.id ?? "todo");
+  const detailTitle = creatingCard ? t("kanban.detail.newTitle") : t("kanban.detail.title");
+  const detailId = creatingCard ? "new-card" : (card?.id ?? "card");
   const closeDetail = () => closeDetailModal(props.onCardClose);
   const saveCard = (event: Event) => {
     const laneSelect = (event.currentTarget as HTMLElement)
@@ -515,7 +523,7 @@ function renderCardDetail(props: KanbanProps, lanes: KanbanLane[]) {
       ?.querySelector<HTMLSelectElement>("[data-kanban-lane-select]");
     const lane =
       laneSelect && isKanbanLaneId(laneSelect.value, lanes) ? laneSelect.value : selectedLane;
-    if (draft.lane !== lane) {
+    if (lane && draft.lane !== lane) {
       props.onCardDraftChange("lane", lane);
     }
     void props.onCardSave();
@@ -527,7 +535,7 @@ function renderCardDetail(props: KanbanProps, lanes: KanbanLane[]) {
       aria-modal="true"
       aria-labelledby="kanban-detail-title"
       tabindex="-1"
-      ${ref((element) => focusDetailModal(element, card.id))}
+      ${ref((element) => focusDetailModal(element, detailId))}
       @keydown=${(event: KeyboardEvent) => handleDetailModalKeydown(event, closeDetail)}
       @click=${(event: Event) => {
         if (event.target === event.currentTarget) {
@@ -535,11 +543,15 @@ function renderCardDetail(props: KanbanProps, lanes: KanbanLane[]) {
         }
       }}
     >
-      <section class="kanban-detail" aria-label=${t("kanban.detail.title")}>
+      <section class="kanban-detail" aria-label=${detailTitle}>
         <div class="kanban-detail__header">
           <div>
-            <div id="kanban-detail-title" class="card-title">${t("kanban.detail.title")}</div>
-            <div class="card-sub">${card.id} - v${card.version}</div>
+            <div id="kanban-detail-title" class="card-title">${detailTitle}</div>
+            ${
+              card && !creatingCard
+                ? html`<div class="card-sub">${card.id} - v${card.version}</div>`
+                : html`<div class="card-sub">${t("kanban.detail.newSubtitle")}</div>`
+            }
           </div>
           <button class="btn btn--sm" data-kanban-detail-close @click=${closeDetail}>
             ${t("kanban.detail.close")}
@@ -742,36 +754,54 @@ function renderCardDetail(props: KanbanProps, lanes: KanbanLane[]) {
             ?disabled=${disabled}
             @click=${saveCard}
           >
-            ${disabled ? t("kanban.detail.saving") : t("kanban.detail.save")}
+            ${
+              disabled
+                ? t("kanban.detail.saving")
+                : creatingCard
+                  ? t("kanban.detail.create")
+                  : t("kanban.detail.save")
+            }
           </button>
-          <button
-            class="btn btn--sm danger"
-            ?disabled=${disabled}
-            @click=${() => void props.onCardArchive()}
-          >
-            ${t("kanban.detail.archive")}
-          </button>
+          ${
+            creatingCard
+              ? nothing
+              : html`
+                  <button
+                    class="btn btn--sm danger"
+                    ?disabled=${disabled}
+                    @click=${() => void props.onCardArchive()}
+                  >
+                    ${t("kanban.detail.archive")}
+                  </button>
+                `
+          }
         </div>
 
-        <label class="field full">
-          <span>${t("kanban.detail.comment")}</span>
-          <textarea
-            class="kanban-detail__textarea kanban-detail__textarea--short"
-            .value=${props.cardCommentDraft}
-            ?disabled=${disabled}
-            @input=${(event: Event) =>
-              props.onCardCommentChange((event.currentTarget as HTMLTextAreaElement).value)}
-          ></textarea>
-        </label>
-        <button
-          class="btn btn--sm"
-          ?disabled=${disabled || !props.cardCommentDraft.trim()}
-          @click=${() => void props.onCardComment()}
-        >
-          ${t("kanban.detail.addComment")}
-        </button>
+        ${
+          creatingCard
+            ? nothing
+            : html`
+                <label class="field full">
+                  <span>${t("kanban.detail.comment")}</span>
+                  <textarea
+                    class="kanban-detail__textarea kanban-detail__textarea--short"
+                    .value=${props.cardCommentDraft}
+                    ?disabled=${disabled}
+                    @input=${(event: Event) =>
+                      props.onCardCommentChange((event.currentTarget as HTMLTextAreaElement).value)}
+                  ></textarea>
+                </label>
+                <button
+                  class="btn btn--sm"
+                  ?disabled=${disabled || !props.cardCommentDraft.trim()}
+                  @click=${() => void props.onCardComment()}
+                >
+                  ${t("kanban.detail.addComment")}
+                </button>
+              `
+        }
 
-        ${renderDetailReadonly(card)}
+        ${card && !creatingCard ? renderDetailReadonly(card) : nothing}
       </section>
     </div>
   `;

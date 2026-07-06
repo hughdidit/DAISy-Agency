@@ -132,6 +132,7 @@ export const en: TranslationMap = {
       unknown: "Unknown",
     },
     actions: {
+      newCard: "NEW",
       refresh: "Refresh",
       refreshing: "Refreshing...",
     },
@@ -177,8 +178,11 @@ export const en: TranslationMap = {
     },
     detail: {
       title: "Card Detail",
+      newTitle: "New Card",
+      newSubtitle: "Create a card on this board.",
       noSelection: "Select a card to inspect and edit it.",
       close: "Close",
+      create: "Create card",
       save: "Save changes",
       saving: "Saving...",
       move: "Move",
