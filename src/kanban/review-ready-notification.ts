@@ -40,9 +40,7 @@ function trim(value: string | undefined): string | undefined {
 function formatReviewReadyMessage(input: KanbanReviewReadyNotificationInput): string {
   const actorName = input.activity.actor.name ?? input.activity.actor.id;
   const reviewer = trim(input.card.reviewer);
-  const configuredUrl = trim(
-    input.cfg.kanban?.notifications?.reviewReady?.discord?.kanbanUrl,
-  );
+  const configuredUrl = trim(input.cfg.kanban?.notifications?.reviewReady?.discord?.kanbanUrl);
   const kanbanUrl = configuredUrl ?? DEFAULT_KANBAN_URL;
   return [
     `DAISy Kanban card ready for review: ${input.card.title}`,

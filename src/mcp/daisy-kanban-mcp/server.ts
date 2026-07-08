@@ -2,8 +2,8 @@
 import { randomUUID } from "node:crypto";
 import readline from "node:readline";
 import { pathToFileURL } from "node:url";
-import { createKanbanTools } from "../../agents/tools/kanban-tool.js";
 import type { GatewayCallOptions } from "../../agents/tools/gateway.js";
+import { createKanbanTools } from "../../agents/tools/kanban-tool.js";
 import { GatewayClient } from "../../gateway/client.js";
 import { resolveLeastPrivilegeOperatorScopesForMethod } from "../../gateway/method-scopes.js";
 import { PROTOCOL_VERSION } from "../../gateway/protocol/index.js";

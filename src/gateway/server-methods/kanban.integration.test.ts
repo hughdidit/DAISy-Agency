@@ -6,11 +6,11 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { OpenClawConfig } from "../../config/config.js";
 import { KANBAN_DEFAULT_COLLECTIONS, type ResolvedKanbanConfig } from "../../kanban/config.js";
 import { createKanbanMongoClient, KanbanMongoRepository } from "../../kanban/repository.js";
+import type { KanbanReviewReadyNotificationInput } from "../../kanban/review-ready-notification.js";
 import {
   KANBAN_MAX_ATTACHMENT_FILENAME_LENGTH,
   KANBAN_MAX_ATTACHMENTS_PER_CARD,
 } from "../../kanban/types.js";
-import type { KanbanReviewReadyNotificationInput } from "../../kanban/review-ready-notification.js";
 import type {
   KanbanCardMutationResult,
   KanbanCardsGetResult,
@@ -723,19 +723,20 @@ describeWithDocker("Kanban gateway read handlers with MongoDB", () => {
     const testConfig = requireValue(config, "Kanban gateway config was not initialized");
     const notifications: KanbanReviewReadyNotificationInput[] = [];
     const testHandlers = createKanbanHandlers({
-      loadConfig: () => ({
-        kanban: {
-          notifications: {
-            reviewReady: {
-              discord: {
-                enabled: true,
-                channelId: "1164617434972553278",
-                accountId: "default",
+      loadConfig: () =>
+        ({
+          kanban: {
+            notifications: {
+              reviewReady: {
+                discord: {
+                  enabled: true,
+                  channelId: "1164617434972553278",
+                  accountId: "default",
+                },
               },
             },
           },
-        },
-      }) as OpenClawConfig,
+        }) as OpenClawConfig,
       env: envForConfig(testConfig),
       createRepository: async () => testRepository,
       notifyReviewReady: async (input) => {

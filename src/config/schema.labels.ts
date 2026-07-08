@@ -416,10 +416,8 @@ export const FIELD_LABELS: Record<string, string> = {
   "kanban.notifications.reviewReady.discord": "Kanban Review Ready Discord Notification",
   "kanban.notifications.reviewReady.discord.enabled":
     "Kanban Review Ready Discord Notification Enabled",
-  "kanban.notifications.reviewReady.discord.channelId":
-    "Kanban Review Ready Discord Channel ID",
-  "kanban.notifications.reviewReady.discord.accountId":
-    "Kanban Review Ready Discord Account ID",
+  "kanban.notifications.reviewReady.discord.channelId": "Kanban Review Ready Discord Channel ID",
+  "kanban.notifications.reviewReady.discord.accountId": "Kanban Review Ready Discord Account ID",
   "kanban.notifications.reviewReady.discord.kanbanUrl": "Kanban Review Ready URL",
   auth: "Auth",
   "auth.profiles": "Auth Profiles",
