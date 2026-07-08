@@ -36,11 +36,12 @@ type JsonRpcResponse =
 
 export type KanbanMcpEnv = Record<string, string | undefined>;
 
-type GatewayCaller = (
+type GatewayCaller = <T = Record<string, unknown>>(
   method: string,
   opts: GatewayCallOptions,
   params?: unknown,
-) => Promise<unknown>;
+  extra?: { expectFinal?: boolean },
+) => Promise<T>;
 
 export type KanbanMcpServerDeps = {
   env?: KanbanMcpEnv;
@@ -101,16 +102,21 @@ function resolveTimeoutMs(opts: GatewayCallOptions): number {
 }
 
 function createDirectGatewayCaller(env: KanbanMcpEnv): GatewayCaller {
-  return async (method, opts, params) => {
+  return async <T = Record<string, unknown>>(
+    method: string,
+    opts: GatewayCallOptions,
+    params?: unknown,
+    extra?: { expectFinal?: boolean },
+  ): Promise<T> => {
     const url = resolveGatewayUrl(env, opts);
     const token =
       opts.gatewayToken ??
       readNonBlank(env, "OPENCLAW_GATEWAY_TOKEN") ??
       readNonBlank(env, "CLAWDBOT_GATEWAY_TOKEN");
     const timeoutMs = resolveTimeoutMs(opts);
-    return await new Promise((resolve, reject) => {
+    return await new Promise<T>((resolve, reject) => {
       let settled = false;
-      const stop = (client: GatewayClient, error?: Error, value?: unknown) => {
+      const stop = (client: GatewayClient, error?: Error, value?: T) => {
         if (settled) {
           return;
         }
@@ -136,7 +142,7 @@ function createDirectGatewayCaller(env: KanbanMcpEnv): GatewayCaller {
         maxProtocol: PROTOCOL_VERSION,
         onHelloOk: async () => {
           try {
-            stop(client, undefined, await client.request(method, params));
+            stop(client, undefined, await client.request<T>(method, params, extra));
           } catch (error) {
             stop(client, error instanceof Error ? error : new Error(String(error)));
           }
