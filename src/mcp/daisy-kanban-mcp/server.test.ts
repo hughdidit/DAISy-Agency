@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { GatewayCallOptions } from "../../agents/tools/gateway.js";
-import { createKanbanMcpRequestHandler } from "./server.js";
+import { createKanbanMcpRequestHandler, sanitizeGatewayUrl } from "./server.js";
 
 type GatewayCall = {
   method: string;
@@ -45,6 +45,21 @@ function createHandler(calls: GatewayCall[]) {
 }
 
 describe("DAISy Kanban MCP server", () => {
+  it("sanitizes gateway URLs without changing the WebSocket protocol", () => {
+    expect(sanitizeGatewayUrl("ws://127.0.0.1:18889")).toBe("ws://127.0.0.1:18889");
+    expect(sanitizeGatewayUrl("wss://gateway.example.com:443")).toBe("wss://gateway.example.com");
+  });
+
+  it("rejects unsafe gateway URL forms", () => {
+    expect(() => sanitizeGatewayUrl("https://127.0.0.1:18889")).toThrow(/ws:\/\/ or wss:\/\//);
+    expect(() => sanitizeGatewayUrl("ws://gateway.example.com:18889")).toThrow(/loopback/);
+    expect(() => sanitizeGatewayUrl("wss://user:token@gateway.example.com")).toThrow(/credentials/);
+    expect(() => sanitizeGatewayUrl("wss://gateway.example.com/kanban")).toThrow(/path/);
+    expect(() => sanitizeGatewayUrl("wss://gateway.example.com?token=secret")).toThrow(
+      /query or hash/,
+    );
+  });
+
   it("lists the Codex Kanban tools", async () => {
     const handler = createHandler([]);
 

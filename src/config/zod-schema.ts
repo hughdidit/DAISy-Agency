@@ -136,7 +136,7 @@ const KanbanReviewReadyDiscordNotificationSchema = z
     enabled: z.boolean().optional(),
     channelId: z.string().min(1).optional(),
     accountId: z.string().min(1).optional(),
-    kanbanUrl: z.string().url().optional(),
+    kanbanUrl: z.url().optional(),
   })
   .strict();
 

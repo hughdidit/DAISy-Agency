@@ -1062,11 +1062,13 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
       if (!summary) {
         return;
       }
-      await withRepository(respond, async (repo, config) => {
+      let handoffAttempted = false;
+      const result = await withRepository(respond, async (repo, config) => {
         if (rejectNonDefaultBoard(params.boardId, config, respond)) {
-          return;
+          return null;
         }
-        const result = await repo.handoffCodexCard(
+        handoffAttempted = true;
+        return await repo.handoffCodexCard(
           {
             boardId: config.board.slug,
             cardId: params.cardId,
@@ -1077,27 +1079,41 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
           },
           auditFromRequest(client, req.id, true),
         );
-        if (!result) {
+      });
+      if (!result) {
+        if (handoffAttempted) {
           notFoundOrConflict(respond);
-          return;
         }
-        const payload = mapMutationResult(result);
-        let notification: KanbanReviewReadyNotificationResult | undefined;
-        if (result.card.lane === "review") {
+        return;
+      }
+      const payload = mapMutationResult(result);
+      let notification: KanbanReviewReadyNotificationResult | undefined;
+      if (result.card.lane === "review") {
+        try {
           notification = await notifyReviewReady({
             cfg: loadConfigFn(),
             card: result.card,
             activity: result.activity,
             summary,
           });
+        } catch (error) {
+          const discord = loadConfigFn().kanban?.notifications?.reviewReady?.discord;
+          notification = {
+            attempted: true,
+            ok: false,
+            channel: "discord",
+            channelId: discord?.channelId ?? "",
+            accountId: discord?.accountId ?? "default",
+            error: error instanceof Error ? error.message : String(error),
+          };
         }
-        respond(
-          true,
-          payload,
-          undefined,
-          notification ? { kanbanReviewReadyNotification: notification } : undefined,
-        );
-      });
+      }
+      respond(
+        true,
+        payload,
+        undefined,
+        notification ? { kanbanReviewReadyNotification: notification } : undefined,
+      );
     },
 
     "kanban.codex.complete": async ({ params, req, client, respond }) => {

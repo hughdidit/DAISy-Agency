@@ -37,7 +37,7 @@ Codex Desktop automation is the intended scheduler. Run every 30 minutes by defa
 Recommended Codex Desktop automation prompt:
 
 ```text
-Use the kanban-codex skill. Read DAISy Kanban status, pick the next ready card, work it, then complete or hand off with evidence.
+Use the kanban-codex skill. Read DAISy Kanban status, then call `kanban_pick_task` to claim the next ready card, work it, then complete or hand off with evidence.
 ```
 
 ## OpenClaw Cron Fallback

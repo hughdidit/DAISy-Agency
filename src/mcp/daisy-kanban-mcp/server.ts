@@ -58,7 +58,18 @@ function readNonBlank(env: KanbanMcpEnv, key: string): string | undefined {
   return value ? value : undefined;
 }
 
-function sanitizeGatewayUrl(raw: string): string {
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function readJsonRpcId(value: unknown): JsonRpcRequest["id"] {
+  if (typeof value === "string" || typeof value === "number" || value === null) {
+    return value;
+  }
+  return null;
+}
+
+export function sanitizeGatewayUrl(raw: string): string {
   let url: URL;
   try {
     url = new URL(raw.trim());
@@ -83,13 +94,12 @@ function sanitizeGatewayUrl(raw: string): string {
   if (url.protocol === "ws:" && !isLoopback) {
     throw new Error("DAISy Kanban plaintext ws:// gateway URL must be loopback");
   }
-  return url.origin;
+  return `${url.protocol}//${url.host}`;
 }
 
-function resolveGatewayUrl(env: KanbanMcpEnv, opts: GatewayCallOptions): string {
+function resolveGatewayUrl(env: KanbanMcpEnv): string {
   return sanitizeGatewayUrl(
-    opts.gatewayUrl ??
-      readNonBlank(env, "DAISY_KANBAN_GATEWAY_URL") ??
+    readNonBlank(env, "DAISY_KANBAN_GATEWAY_URL") ??
       readNonBlank(env, "OPENCLAW_GATEWAY_URL") ??
       DEFAULT_GATEWAY_URL,
   );
@@ -97,7 +107,7 @@ function resolveGatewayUrl(env: KanbanMcpEnv, opts: GatewayCallOptions): string 
 
 function resolveTimeoutMs(opts: GatewayCallOptions): number {
   return typeof opts.timeoutMs === "number" && Number.isFinite(opts.timeoutMs)
-    ? Math.max(1, Math.floor(opts.timeoutMs))
+    ? Math.min(120_000, Math.max(1, Math.floor(opts.timeoutMs)))
     : DEFAULT_TIMEOUT_MS;
 }
 
@@ -108,11 +118,9 @@ function createDirectGatewayCaller(env: KanbanMcpEnv): GatewayCaller {
     params?: unknown,
     extra?: { expectFinal?: boolean },
   ): Promise<T> => {
-    const url = resolveGatewayUrl(env, opts);
+    const url = resolveGatewayUrl(env);
     const token =
-      opts.gatewayToken ??
-      readNonBlank(env, "OPENCLAW_GATEWAY_TOKEN") ??
-      readNonBlank(env, "CLAWDBOT_GATEWAY_TOKEN");
+      readNonBlank(env, "OPENCLAW_GATEWAY_TOKEN") ?? readNonBlank(env, "CLAWDBOT_GATEWAY_TOKEN");
     const timeoutMs = resolveTimeoutMs(opts);
     return await new Promise<T>((resolve, reject) => {
       let settled = false;
@@ -263,16 +271,31 @@ export async function runKanbanMcpServer(deps: KanbanMcpServerDeps = {}): Promis
     }
     let request: JsonRpcRequest;
     try {
-      request = JSON.parse(trimmed) as JsonRpcRequest;
+      const parsed = JSON.parse(trimmed) as unknown;
+      if (!isRecord(parsed)) {
+        throw new Error("request must be an object");
+      }
+      request = {
+        ...parsed,
+        id: readJsonRpcId(parsed.id),
+      };
     } catch {
       process.stdout.write(
         `${JSON.stringify(errorResponse(null, -32700, "invalid JSON-RPC request"))}\n`,
       );
       continue;
     }
-    const response = await handleRequest(request);
-    if (response) {
-      process.stdout.write(`${JSON.stringify(response)}\n`);
+    try {
+      const response = await handleRequest(request);
+      if (response) {
+        process.stdout.write(`${JSON.stringify(response)}\n`);
+      }
+    } catch (error) {
+      process.stdout.write(
+        `${JSON.stringify(
+          errorResponse(request.id, -32603, error instanceof Error ? error.message : String(error)),
+        )}\n`,
+      );
     }
   }
 }

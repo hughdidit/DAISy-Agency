@@ -46,7 +46,7 @@ Create a Codex Desktop recurring automation that runs every 30 minutes. Use 60 m
 Prompt:
 
 ```text
-Use the kanban-codex skill. Read DAISy Kanban status, pick the next ready card, work it, then complete or hand off with evidence.
+Use the kanban-codex skill. Read DAISy Kanban status, then call `kanban_pick_task` to claim the next ready card, work it, then complete or hand off with evidence.
 ```
 
 Expected behavior:
