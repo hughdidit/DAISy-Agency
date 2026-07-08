@@ -63,7 +63,7 @@ function sanitizeGatewayUrl(raw: string): string {
   try {
     url = new URL(raw.trim());
   } catch (error) {
-    throw new Error(`invalid DAISy Kanban gateway URL: ${String(error)}`);
+    throw new Error(`invalid DAISy Kanban gateway URL: ${String(error)}`, { cause: error });
   }
   if (url.protocol !== "ws:" && url.protocol !== "wss:") {
     throw new Error("DAISy Kanban gateway URL must use ws:// or wss://");
@@ -144,7 +144,10 @@ function createDirectGatewayCaller(env: KanbanMcpEnv): GatewayCaller {
           try {
             stop(client, undefined, await client.request<T>(method, params, extra));
           } catch (error) {
-            stop(client, error instanceof Error ? error : new Error(String(error)));
+            stop(
+              client,
+              error instanceof Error ? error : new Error(String(error), { cause: error }),
+            );
           }
         },
         onConnectError: (error) => stop(client, error),
