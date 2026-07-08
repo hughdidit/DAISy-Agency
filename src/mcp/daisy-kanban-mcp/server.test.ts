@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { GatewayCallOptions } from "../../agents/tools/gateway.js";
 import { createKanbanMcpRequestHandler } from "./server.js";
 
 type GatewayCall = {
@@ -12,7 +13,11 @@ function createHandler(calls: GatewayCall[]) {
       DAISY_KANBAN_AGENT_ID: "codex-desktop",
       DAISY_KANBAN_AGENT_NAME: "Codex Desktop",
     },
-    callGateway: async (method, _opts, params) => {
+    callGateway: async <T = Record<string, unknown>>(
+      method: string,
+      _opts: GatewayCallOptions,
+      params?: unknown,
+    ): Promise<T> => {
       calls.push({ method, params });
       if (method === "kanban.codex.pickNext") {
         return {
@@ -22,7 +27,7 @@ function createHandler(calls: GatewayCall[]) {
             lane: "in_progress",
             version: 2,
           },
-        };
+        } as T;
       }
       if (method === "kanban.codex.handoff") {
         return {
@@ -32,9 +37,9 @@ function createHandler(calls: GatewayCall[]) {
             lane: "review",
             version: 3,
           },
-        };
+        } as T;
       }
-      return { ok: true };
+      return { ok: true } as T;
     },
   });
 }

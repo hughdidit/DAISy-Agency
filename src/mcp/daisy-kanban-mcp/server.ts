@@ -126,7 +126,7 @@ function createDirectGatewayCaller(env: KanbanMcpEnv): GatewayCaller {
         if (error) {
           reject(error);
         } else {
-          resolve(value);
+          resolve(value as T);
         }
       };
       const client = new GatewayClient({
