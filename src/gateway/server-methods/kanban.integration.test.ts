@@ -10,6 +10,7 @@ import {
   KANBAN_MAX_ATTACHMENT_FILENAME_LENGTH,
   KANBAN_MAX_ATTACHMENTS_PER_CARD,
 } from "../../kanban/types.js";
+import type { KanbanReviewReadyNotificationInput } from "../../kanban/review-ready-notification.js";
 import type {
   KanbanCardMutationResult,
   KanbanCardsGetResult,
@@ -711,6 +712,177 @@ describeWithDocker("Kanban gateway read handlers with MongoDB", () => {
       lane: "done",
       readyForCodex: false,
       version: 4,
+    });
+  }, 240_000);
+
+  it("sends review-ready notification metadata after Codex handoff succeeds", async () => {
+    const testRepository = requireValue(
+      repository,
+      "Kanban gateway repository was not initialized",
+    );
+    const testConfig = requireValue(config, "Kanban gateway config was not initialized");
+    const notifications: KanbanReviewReadyNotificationInput[] = [];
+    const testHandlers = createKanbanHandlers({
+      loadConfig: () => ({
+        kanban: {
+          notifications: {
+            reviewReady: {
+              discord: {
+                enabled: true,
+                channelId: "1164617434972553278",
+                accountId: "default",
+              },
+            },
+          },
+        },
+      }) as OpenClawConfig,
+      env: envForConfig(testConfig),
+      createRepository: async () => testRepository,
+      notifyReviewReady: async (input) => {
+        notifications.push(input);
+        return {
+          attempted: true,
+          ok: true,
+          channel: "discord",
+          channelId: "1164617434972553278",
+          accountId: "default",
+        };
+      },
+    });
+
+    await testRepository.bootstrapDefaultBoard({
+      actor: { type: "system" as const, id: "kanban-gateway-notification-test" },
+      correlationId: "kanban-gateway-notification-bootstrap",
+    });
+    const createResponse = await invoke(testHandlers, "kanban.cards.create", {
+      title: "Notification handoff card",
+      readyForCodex: true,
+    });
+    const created = createResponse.payload as KanbanCardMutationResult;
+    const pickResponse = await invoke(testHandlers, "kanban.codex.pickNext", {
+      agentId: "codex-desktop",
+      agentName: "Codex Desktop",
+    });
+    const picked = pickResponse.payload as KanbanCodexPickNextResult;
+    expect(picked.card?.id).toBe(created.card.id);
+
+    const handoffResponse = await invoke(testHandlers, "kanban.codex.handoff", {
+      cardId: requireValue(picked.card, "Expected picked notification card").id,
+      expectedVersion: requireValue(picked.card, "Expected picked notification card").version,
+      summary: "Ready for human review",
+      reviewer: "ops-reviewer",
+    });
+
+    expect(handoffResponse.ok).toBe(true);
+    expect(notifications).toHaveLength(1);
+    expect(notifications[0]).toMatchObject({
+      summary: "Ready for human review",
+      card: {
+        id: created.card.id,
+        lane: "review",
+        reviewer: "ops-reviewer",
+      },
+    });
+    expect(handoffResponse.meta).toMatchObject({
+      kanbanReviewReadyNotification: {
+        attempted: true,
+        ok: true,
+        channel: "discord",
+        channelId: "1164617434972553278",
+        accountId: "default",
+      },
+    });
+  }, 240_000);
+
+  it("does not attempt review notification when Codex handoff fails", async () => {
+    const testRepository = requireValue(
+      repository,
+      "Kanban gateway repository was not initialized",
+    );
+    const testConfig = requireValue(config, "Kanban gateway config was not initialized");
+    const notifications: KanbanReviewReadyNotificationInput[] = [];
+    const testHandlers = createKanbanHandlers({
+      loadConfig: () => ({}) as OpenClawConfig,
+      env: envForConfig(testConfig),
+      createRepository: async () => testRepository,
+      notifyReviewReady: async (input) => {
+        notifications.push(input);
+        return { attempted: false, reason: "disabled" };
+      },
+    });
+
+    await testRepository.bootstrapDefaultBoard({
+      actor: { type: "system" as const, id: "kanban-gateway-notification-conflict-test" },
+      correlationId: "kanban-gateway-notification-conflict-bootstrap",
+    });
+    const createResponse = await invoke(testHandlers, "kanban.cards.create", {
+      title: "Notification conflict card",
+      readyForCodex: false,
+    });
+    const created = createResponse.payload as KanbanCardMutationResult;
+    const handoffResponse = await invoke(testHandlers, "kanban.codex.handoff", {
+      cardId: created.card.id,
+      expectedVersion: created.card.version + 1,
+      summary: "Should not notify",
+    });
+
+    expect(handoffResponse.ok).toBe(false);
+    expect(notifications).toHaveLength(0);
+  }, 240_000);
+
+  it("keeps Codex handoff committed when review notification delivery fails", async () => {
+    const testRepository = requireValue(
+      repository,
+      "Kanban gateway repository was not initialized",
+    );
+    const testConfig = requireValue(config, "Kanban gateway config was not initialized");
+    const testHandlers = createKanbanHandlers({
+      loadConfig: () => ({}) as OpenClawConfig,
+      env: envForConfig(testConfig),
+      createRepository: async () => testRepository,
+      notifyReviewReady: async () => ({
+        attempted: true,
+        ok: false,
+        channel: "discord",
+        channelId: "1164617434972553278",
+        accountId: "default",
+        error: "Discord delivery failed",
+      }),
+    });
+
+    await testRepository.bootstrapDefaultBoard({
+      actor: { type: "system" as const, id: "kanban-gateway-notification-failure-test" },
+      correlationId: "kanban-gateway-notification-failure-bootstrap",
+    });
+    const createResponse = await invoke(testHandlers, "kanban.cards.create", {
+      title: "Notification failure card",
+      readyForCodex: true,
+    });
+    const created = createResponse.payload as KanbanCardMutationResult;
+    const pickResponse = await invoke(testHandlers, "kanban.codex.pickNext", {
+      agentId: "codex-desktop",
+      agentName: "Codex Desktop",
+    });
+    const picked = pickResponse.payload as KanbanCodexPickNextResult;
+    expect(picked.card?.id).toBe(created.card.id);
+
+    const handoffResponse = await invoke(testHandlers, "kanban.codex.handoff", {
+      cardId: requireValue(picked.card, "Expected picked failure card").id,
+      expectedVersion: requireValue(picked.card, "Expected picked failure card").version,
+      summary: "Ready despite alert failure",
+    });
+    expect(handoffResponse.ok).toBe(true);
+    const handedOff = handoffResponse.payload as KanbanCardMutationResult;
+    expect(handedOff.card).toMatchObject({
+      id: created.card.id,
+      lane: "review",
+    });
+    expect(handoffResponse.meta).toMatchObject({
+      kanbanReviewReadyNotification: {
+        attempted: true,
+        ok: false,
+        error: "Discord delivery failed",
+      },
     });
   }, 240_000);
 

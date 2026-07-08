@@ -131,6 +131,15 @@ const KanbanMongoCollectionsSchema = z
   })
   .strict();
 
+const KanbanReviewReadyDiscordNotificationSchema = z
+  .object({
+    enabled: z.boolean().optional(),
+    channelId: z.string().min(1).optional(),
+    accountId: z.string().min(1).optional(),
+    kanbanUrl: z.string().url().optional(),
+  })
+  .strict();
+
 const KanbanSchema = z
   .object({
     enabled: z.boolean().optional(),
@@ -146,6 +155,17 @@ const KanbanSchema = z
       .object({
         slug: z.string().min(1).optional(),
         title: z.string().min(1).optional(),
+      })
+      .strict()
+      .optional(),
+    notifications: z
+      .object({
+        reviewReady: z
+          .object({
+            discord: KanbanReviewReadyDiscordNotificationSchema.optional(),
+          })
+          .strict()
+          .optional(),
       })
       .strict()
       .optional(),

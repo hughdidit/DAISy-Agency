@@ -11,6 +11,11 @@ import {
   type KanbanRunTrelloImportResult,
   type KanbanUpdateCardInput,
 } from "../../kanban/repository.js";
+import {
+  sendKanbanReviewReadyNotification,
+  type KanbanReviewReadyNotificationInput,
+  type KanbanReviewReadyNotificationResult,
+} from "../../kanban/review-ready-notification.js";
 import { parseTrelloImport } from "../../kanban/trello-import.js";
 import type {
   KanbanActivity as RepositoryKanbanActivity,
@@ -60,11 +65,15 @@ import { assertValidParams } from "./validation.js";
 
 type KanbanRepositoryFactory = (config: ResolvedKanbanConfig) => Promise<KanbanMongoRepository>;
 type UnavailableKanbanRepositoryStatus = Extract<KanbanRepositoryStatus, { available: false }>;
+type KanbanReviewReadyNotifier = (
+  input: KanbanReviewReadyNotificationInput,
+) => Promise<KanbanReviewReadyNotificationResult>;
 
 type KanbanHandlersDeps = {
   loadConfig?: () => OpenClawConfig;
   env?: Record<string, string | undefined>;
   createRepository?: KanbanRepositoryFactory;
+  notifyReviewReady?: KanbanReviewReadyNotifier;
 };
 
 const KANBAN_READ_METHODS = [
@@ -477,6 +486,7 @@ function decodeAttachmentContentBase64(contentBase64: string, respond: RespondFn
 export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequestHandlers {
   const loadConfigFn = deps.loadConfig ?? loadConfig;
   const createRepository = deps.createRepository ?? createKanbanRepository;
+  const notifyReviewReady = deps.notifyReviewReady ?? sendKanbanReviewReadyNotification;
   const resolveConfig = () => resolveKanbanConfig({ cfg: loadConfigFn(), env: deps.env });
 
   async function withRepository<T>(
@@ -1071,7 +1081,22 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
           notFoundOrConflict(respond);
           return;
         }
-        respond(true, mapMutationResult(result), undefined);
+        const payload = mapMutationResult(result);
+        let notification: KanbanReviewReadyNotificationResult | undefined;
+        if (result.card.lane === "review") {
+          notification = await notifyReviewReady({
+            cfg: loadConfigFn(),
+            card: result.card,
+            activity: result.activity,
+            summary,
+          });
+        }
+        respond(
+          true,
+          payload,
+          undefined,
+          notification ? { kanbanReviewReadyNotification: notification } : undefined,
+        );
       });
     },
 

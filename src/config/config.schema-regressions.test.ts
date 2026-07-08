@@ -104,6 +104,16 @@ describe("config schema regressions", () => {
           slug: "team-agents",
           title: "Team Agents",
         },
+        notifications: {
+          reviewReady: {
+            discord: {
+              enabled: true,
+              channelId: "1164617434972553278",
+              accountId: "default",
+              kanbanUrl: "http://127.0.0.1:18889/kanban",
+            },
+          },
+        },
       },
     });
 

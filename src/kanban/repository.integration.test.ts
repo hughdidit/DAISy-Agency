@@ -407,6 +407,72 @@ describeWithDocker("KanbanMongoRepository MongoDB integration", () => {
     );
   }, 240_000);
 
+  it("picks ready Codex cards by priority and then oldest created time", async () => {
+    if (!repository) {
+      throw new Error("Kanban integration repository was not initialized");
+    }
+    const board = await repository.bootstrapDefaultBoard({
+      actor: { type: "system" as const, id: "kanban-pick-order-test" },
+      correlationId: "kanban-pick-order-bootstrap",
+      occurredAt: new Date("2026-01-03T00:00:00.000Z"),
+    });
+    const cards = [
+      {
+        id: "pick-order-normal-old",
+        title: "Normal old ready card",
+        priority: "normal" as const,
+        occurredAt: new Date("2026-01-03T01:00:00.000Z"),
+      },
+      {
+        id: "pick-order-high-new",
+        title: "High new ready card",
+        priority: "high" as const,
+        occurredAt: new Date("2026-01-03T03:00:00.000Z"),
+      },
+      {
+        id: "pick-order-high-old",
+        title: "High old ready card",
+        priority: "high" as const,
+        occurredAt: new Date("2026-01-03T02:00:00.000Z"),
+      },
+    ];
+    for (const card of cards) {
+      await repository.createCard(
+        {
+          id: card.id,
+          boardId: board.id,
+          title: card.title,
+          priority: card.priority,
+          readyForCodex: true,
+        },
+        {
+          actor: { type: "system" as const, id: "kanban-pick-order-test" },
+          correlationId: `kanban-pick-order-create-${card.id}`,
+          occurredAt: card.occurredAt,
+        },
+      );
+    }
+
+    const pickedIds: string[] = [];
+    for (const index of [1, 2, 3]) {
+      const picked = await repository.pickNextCodexCard(
+        { boardId: board.id },
+        {
+          actor: { type: "agent" as const, id: "codex", name: "Codex" },
+          correlationId: `kanban-pick-order-${String(index)}`,
+          occurredAt: new Date(`2026-01-03T04:0${String(index)}:00.000Z`),
+        },
+      );
+      pickedIds.push(requireValue(picked?.card.id, "Expected ordered Codex pickup card"));
+    }
+
+    expect(pickedIds).toEqual([
+      "pick-order-high-old",
+      "pick-order-high-new",
+      "pick-order-normal-old",
+    ]);
+  }, 240_000);
+
   it("removes legacy Trello links from imported cards and saved import previews", async () => {
     const testConfig = requireValue(config, "Kanban integration config was not initialized");
     if (!client || !repository) {

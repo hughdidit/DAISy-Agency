@@ -898,6 +898,20 @@ export const FIELD_HELP: Record<string, string> = {
   "kanban.board.slug": "Stable slug for the shared DAISy Kanban board. Defaults to team-agents.",
   "kanban.board.title":
     "Human-facing title for the shared DAISy Kanban board. Defaults to Team Agents.",
+  "kanban.notifications":
+    "Optional outbound notifications emitted from Kanban workflow transitions.",
+  "kanban.notifications.reviewReady":
+    "Notifications sent when Codex hands a completed card to Review for human inspection.",
+  "kanban.notifications.reviewReady.discord":
+    "Discord delivery settings for Kanban review-ready alerts. Uses the configured Discord channel provider.",
+  "kanban.notifications.reviewReady.discord.enabled":
+    "Enables Discord alerts after a successful Codex handoff to the Review lane.",
+  "kanban.notifications.reviewReady.discord.channelId":
+    "Discord channel snowflake that receives Kanban review-ready alerts.",
+  "kanban.notifications.reviewReady.discord.accountId":
+    "Discord account id used for review-ready alerts. Defaults to default.",
+  "kanban.notifications.reviewReady.discord.kanbanUrl":
+    "Kanban board URL included in review-ready alerts. Defaults to http://127.0.0.1:18889/kanban.",
   "memory.backend":
     'Selects the global memory engine: "builtin" uses OpenClaw memory internals, while "qmd" uses the QMD sidecar pipeline. Keep "builtin" unless you intentionally operate QMD.',
   "memory.citations":
