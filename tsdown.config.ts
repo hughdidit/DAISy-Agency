@@ -53,6 +53,13 @@ export default defineConfig([
     platform: "node",
   },
   {
+    entry: "src/mcp/daisy-kanban-mcp/server.ts",
+    outDir: "dist/tools/daisy-kanban-mcp",
+    env,
+    fixedExtension: false,
+    platform: "node",
+  },
+  {
     entry: "src/plugin-sdk/index.ts",
     outDir: "dist/plugin-sdk",
     env,

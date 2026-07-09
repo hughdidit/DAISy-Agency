@@ -23,9 +23,29 @@ export type KanbanBoardConfig = {
   title?: string;
 };
 
+export type KanbanReviewReadyDiscordNotificationConfig = {
+  /** Enable Discord review-ready notifications when Codex hands a card to Review. */
+  enabled?: boolean;
+  /** Discord channel snowflake that receives review-ready alerts. */
+  channelId?: string;
+  /** Discord account id to send from. Defaults to default. */
+  accountId?: string;
+  /** Link shown in review-ready alerts. Defaults to local Kanban UI. */
+  kanbanUrl?: string;
+};
+
+export type KanbanReviewReadyNotificationConfig = {
+  discord?: KanbanReviewReadyDiscordNotificationConfig;
+};
+
+export type KanbanNotificationsConfig = {
+  reviewReady?: KanbanReviewReadyNotificationConfig;
+};
+
 export type KanbanConfig = {
   /** Set false to keep Kanban unavailable even when MongoDB config is present. */
   enabled?: boolean;
   mongodb?: KanbanMongoConfig;
   board?: KanbanBoardConfig;
+  notifications?: KanbanNotificationsConfig;
 };

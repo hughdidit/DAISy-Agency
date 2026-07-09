@@ -15,6 +15,7 @@ Use DAISy Kanban tools to coordinate card work. Never read or write Kanban Mongo
 - Use `kanban_complete` when the card is done.
 - Use `kanban_write` only for explicit card create, update, move, comment, or archive actions outside the pickup/handoff/complete flow.
 - Do not use database clients, Mongo shells, direct collection reads, or filesystem copies of Kanban data.
+- In Codex Desktop, these tools come from the `daisy_kanban` MCP server. If the tools are not visible, stop and report that Codex Desktop MCP is not configured.
 
 ## Manual Pickup Workflow
 
@@ -29,9 +30,19 @@ Use DAISy Kanban tools to coordinate card work. Never read or write Kanban Mongo
    - `kanban_handoff` with `cardId`, `expectedVersion`, a summary, and `reviewer` or `inputOwner` when review or input is needed.
 8. Include the card id and final card version in the chat closeout.
 
-## Scheduled Pickup Workflow
+## Codex Desktop Scheduled Pickup Workflow
 
-Scheduled jobs should run an isolated Codex turn that follows the manual workflow above. The job prompt should name this skill and instruct the agent to call `kanban_pick_task`; it should not preselect a card outside the gateway.
+Codex Desktop automation is the intended scheduler. Run every 30 minutes by default, or every 60 minutes for a quieter queue. The automation prompt should name this skill and instruct Codex to call `kanban_pick_task`; it should not preselect a card outside the gateway.
+
+Recommended Codex Desktop automation prompt:
+
+```text
+Use the kanban-codex skill. Read DAISy Kanban status, then call `kanban_pick_task` to claim the next ready card, work it, then complete or hand off with evidence.
+```
+
+## OpenClaw Cron Fallback
+
+Use OpenClaw cron only as a fallback when Codex Desktop automation is unavailable. Cron jobs should run an isolated turn that follows the manual workflow above.
 
 Recommended cron payload shape:
 
