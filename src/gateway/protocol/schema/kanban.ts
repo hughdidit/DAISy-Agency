@@ -464,10 +464,7 @@ export const KanbanImportTrelloRunResultSchema = Type.Object(
   { additionalProperties: false },
 );
 
-export const KanbanWorkerSchema = Type.Union([
-  Type.Literal("codex"),
-  Type.Literal("work"),
-]);
+export const KanbanWorkerSchema = Type.Union([Type.Literal("codex"), Type.Literal("work")]);
 
 export const KanbanAgentPickNextParamsSchema = Type.Object(
   {

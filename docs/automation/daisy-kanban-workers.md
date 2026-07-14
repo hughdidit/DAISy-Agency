@@ -5,10 +5,10 @@ cache is authoritative.
 
 Configure both recurring automations at a 30-minute interval:
 
-| Worker | Agent id | Pickup call |
-| --- | --- | --- |
+| Worker        | Agent id        | Pickup call                                                       |
+| ------------- | --------------- | ----------------------------------------------------------------- |
 | Codex Desktop | `codex-desktop` | `kanban_pick_task({ worker: "codex", agentId: "codex-desktop" })` |
-| ChatGPT Work | `chatgpt-work` | `kanban_pick_task({ worker: "work", agentId: "chatgpt-work" })` |
+| ChatGPT Work  | `chatgpt-work`  | `kanban_pick_task({ worker: "work", agentId: "chatgpt-work" })`   |
 
 Each run follows `status → pick → get card → work → reread version → complete or
 handoff`. A null pickup is a normal no-work result. An unavailable status ends

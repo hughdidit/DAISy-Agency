@@ -554,7 +554,8 @@ export function createKanbanTools(
     {
       label: "Kanban Status",
       name: "kanban_status",
-      description: "Use this when you need to check whether the DAISy Kanban gateway and board are available.",
+      description:
+        "Use this when you need to check whether the DAISy Kanban gateway and board are available.",
       parameters: KanbanStatusToolSchema,
       execute: async (_id, args) => invoke("kanban.status", {}),
     },
@@ -565,7 +566,10 @@ export function createKanbanTools(
       parameters: KanbanListCardsToolSchema,
       execute: async (_id, args) => {
         const params = args as Record<string, unknown>;
-        return invoke("kanban.cards.list", buildReadRequest("list_cards", params).params as Record<string, unknown>);
+        return invoke(
+          "kanban.cards.list",
+          buildReadRequest("list_cards", params).params as Record<string, unknown>,
+        );
       },
     },
     {
@@ -575,17 +579,24 @@ export function createKanbanTools(
       parameters: KanbanGetCardToolSchema,
       execute: async (_id, args) => {
         const params = args as Record<string, unknown>;
-        return invoke("kanban.cards.get", buildReadRequest("get_card", params).params as Record<string, unknown>);
+        return invoke(
+          "kanban.cards.get",
+          buildReadRequest("get_card", params).params as Record<string, unknown>,
+        );
       },
     },
     {
       label: "Kanban Activity",
       name: "kanban_list_activity",
-      description: "Use this when you need append-only activity history for the DAISy Kanban board or a card.",
+      description:
+        "Use this when you need append-only activity history for the DAISy Kanban board or a card.",
       parameters: KanbanActivityToolSchema,
       execute: async (_id, args) => {
         const params = args as Record<string, unknown>;
-        return invoke("kanban.activity.list", buildReadRequest("activity", params).params as Record<string, unknown>);
+        return invoke(
+          "kanban.activity.list",
+          buildReadRequest("activity", params).params as Record<string, unknown>,
+        );
       },
     },
     {
@@ -593,19 +604,24 @@ export function createKanbanTools(
       name: "kanban_create_card",
       description: "Use this when you need to create one DAISy Kanban card.",
       parameters: KanbanCreateCardToolSchema,
-      execute: async (_id, args) => invoke("kanban.cards.create", buildCardCreateParams(args as Record<string, unknown>)),
+      execute: async (_id, args) =>
+        invoke("kanban.cards.create", buildCardCreateParams(args as Record<string, unknown>)),
     },
     {
       label: "Kanban Update Card",
       name: "kanban_update_card",
-      description: "Use this when you need to update one card with an optimistic expectedVersion check.",
+      description:
+        "Use this when you need to update one card with an optimistic expectedVersion check.",
       parameters: KanbanUpdateCardToolSchema,
       execute: async (_id, args) => {
         const params = args as Record<string, unknown>;
         return invoke("kanban.cards.update", {
           ...boardParams(params),
           cardId: readStringParam(params, "cardId", { required: true, label: "cardId" }),
-          expectedVersion: readPositiveIntegerParam(params, "expectedVersion", { required: true, label: "expectedVersion" }),
+          expectedVersion: readPositiveIntegerParam(params, "expectedVersion", {
+            required: true,
+            label: "expectedVersion",
+          }),
           updates: buildCardUpdates(params),
         });
       },
@@ -613,23 +629,45 @@ export function createKanbanTools(
     {
       label: "Kanban Move Card",
       name: "kanban_move_card",
-      description: "Use this when you need to move or reorder one card with an optimistic expectedVersion check.",
+      description:
+        "Use this when you need to move or reorder one card with an optimistic expectedVersion check.",
       parameters: KanbanMoveCardToolSchema,
-      execute: async (_id, args) => invoke("kanban.cards.move", buildWriteRequest("move_card", args as Record<string, unknown>).params as Record<string, unknown>),
+      execute: async (_id, args) =>
+        invoke(
+          "kanban.cards.move",
+          buildWriteRequest("move_card", args as Record<string, unknown>).params as Record<
+            string,
+            unknown
+          >,
+        ),
     },
     {
       label: "Kanban Comment Card",
       name: "kanban_comment_card",
       description: "Use this when you need to append an evidence or progress comment to a card.",
       parameters: KanbanCommentCardToolSchema,
-      execute: async (_id, args) => invoke("kanban.cards.comment", buildWriteRequest("comment_card", args as Record<string, unknown>).params as Record<string, unknown>),
+      execute: async (_id, args) =>
+        invoke(
+          "kanban.cards.comment",
+          buildWriteRequest("comment_card", args as Record<string, unknown>).params as Record<
+            string,
+            unknown
+          >,
+        ),
     },
     {
       label: "Kanban Archive Card",
       name: "kanban_archive_card",
       description: "Use this when you need to archive a card after rereading its current version.",
       parameters: KanbanArchiveCardToolSchema,
-      execute: async (_id, args) => invoke("kanban.cards.archive", buildWriteRequest("archive_card", args as Record<string, unknown>).params as Record<string, unknown>),
+      execute: async (_id, args) =>
+        invoke(
+          "kanban.cards.archive",
+          buildWriteRequest("archive_card", args as Record<string, unknown>).params as Record<
+            string,
+            unknown
+          >,
+        ),
     },
   ];
   return [

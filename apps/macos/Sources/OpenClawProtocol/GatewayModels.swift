@@ -5575,21 +5575,25 @@ public struct KanbanImportTrelloRunResult: Codable, Sendable {
 
 public struct KanbanCodexPickNextParams: Codable, Sendable {
     public let boardid: String?
+    public let worker: AnyCodable?
     public let agentid: String?
     public let agentname: String?
 
     public init(
         boardid: String?,
+        worker: AnyCodable?,
         agentid: String?,
         agentname: String?)
     {
         self.boardid = boardid
+        self.worker = worker
         self.agentid = agentid
         self.agentname = agentname
     }
 
     private enum CodingKeys: String, CodingKey {
         case boardid = "boardId"
+        case worker
         case agentid = "agentId"
         case agentname = "agentName"
     }
@@ -5648,6 +5652,110 @@ public struct KanbanCodexHandoffParams: Codable, Sendable {
 }
 
 public struct KanbanCodexCompleteParams: Codable, Sendable {
+    public let boardid: String?
+    public let cardid: String
+    public let expectedversion: Int
+    public let summary: String
+
+    public init(
+        boardid: String?,
+        cardid: String,
+        expectedversion: Int,
+        summary: String)
+    {
+        self.boardid = boardid
+        self.cardid = cardid
+        self.expectedversion = expectedversion
+        self.summary = summary
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case boardid = "boardId"
+        case cardid = "cardId"
+        case expectedversion = "expectedVersion"
+        case summary
+    }
+}
+
+public struct KanbanAgentPickNextParams: Codable, Sendable {
+    public let boardid: String?
+    public let worker: AnyCodable?
+    public let agentid: String?
+    public let agentname: String?
+
+    public init(
+        boardid: String?,
+        worker: AnyCodable?,
+        agentid: String?,
+        agentname: String?)
+    {
+        self.boardid = boardid
+        self.worker = worker
+        self.agentid = agentid
+        self.agentname = agentname
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case boardid = "boardId"
+        case worker
+        case agentid = "agentId"
+        case agentname = "agentName"
+    }
+}
+
+public struct KanbanAgentPickNextResult: Codable, Sendable {
+    public let card: AnyCodable
+    public let activity: [String: AnyCodable]?
+
+    public init(
+        card: AnyCodable,
+        activity: [String: AnyCodable]?)
+    {
+        self.card = card
+        self.activity = activity
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case card
+        case activity
+    }
+}
+
+public struct KanbanAgentHandoffParams: Codable, Sendable {
+    public let boardid: String?
+    public let cardid: String
+    public let expectedversion: Int
+    public let summary: String
+    public let reviewer: AnyCodable?
+    public let inputowner: AnyCodable?
+
+    public init(
+        boardid: String?,
+        cardid: String,
+        expectedversion: Int,
+        summary: String,
+        reviewer: AnyCodable?,
+        inputowner: AnyCodable?)
+    {
+        self.boardid = boardid
+        self.cardid = cardid
+        self.expectedversion = expectedversion
+        self.summary = summary
+        self.reviewer = reviewer
+        self.inputowner = inputowner
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case boardid = "boardId"
+        case cardid = "cardId"
+        case expectedversion = "expectedVersion"
+        case summary
+        case reviewer
+        case inputowner = "inputOwner"
+    }
+}
+
+public struct KanbanAgentCompleteParams: Codable, Sendable {
     public let boardid: String?
     public let cardid: String
     public let expectedversion: Int

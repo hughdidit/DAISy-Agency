@@ -27,7 +27,9 @@ describe("kanban bridge", () => {
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ available: true, boardSlug: "team-agents" });
     expect(calls).toEqual([{ method: "kanban.status", params: {} }]);
-    await new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())));
+    await new Promise<void>((resolve, reject) =>
+      server.close((error) => (error ? reject(error) : resolve())),
+    );
   });
 
   it("maps task pickup to the agent-neutral RPC and rejects oversized bodies", async () => {
@@ -62,6 +64,8 @@ describe("kanban bridge", () => {
       body: JSON.stringify({ title: "x".repeat(1_048_577) }),
     });
     expect(oversized.status).toBe(413);
-    await new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())));
+    await new Promise<void>((resolve, reject) =>
+      server.close((error) => (error ? reject(error) : resolve())),
+    );
   });
 });

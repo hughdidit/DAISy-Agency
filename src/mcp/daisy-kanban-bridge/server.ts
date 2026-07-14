@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import { pathToFileURL } from "node:url";
+import type { GatewayCallOptions } from "../../agents/tools/gateway.js";
 import { createKanbanMcpRequestHandler } from "../daisy-kanban-mcp/server.js";
 import { createKanbanGatewayCaller, type KanbanMcpEnv } from "../daisy-kanban-mcp/server.js";
-import type { GatewayCallOptions } from "../../agents/tools/gateway.js";
 
 const DEFAULT_HOST = "127.0.0.1";
 const DEFAULT_PORT = 18890;
@@ -105,7 +105,10 @@ function queryParams(url: URL): Record<string, unknown> {
 }
 
 function routeParts(pathname: string): string[] {
-  return pathname.split("/").filter(Boolean).map((part) => decodeURIComponent(part));
+  return pathname
+    .split("/")
+    .filter(Boolean)
+    .map((part) => decodeURIComponent(part));
 }
 
 function isImportPath(parts: string[]): boolean {
@@ -125,9 +128,10 @@ function rateLimit(
 ): boolean {
   const key = req.socket.remoteAddress ?? "unknown";
   const existing = buckets.get(key);
-  const bucket = !existing || now - existing.startedAt >= WINDOW_MS
-    ? { startedAt: now, reads: 0, writes: 0, imports: 0 }
-    : existing;
+  const bucket =
+    !existing || now - existing.startedAt >= WINDOW_MS
+      ? { startedAt: now, reads: 0, writes: 0, imports: 0 }
+      : existing;
   if (mutation) bucket.writes += 1;
   else bucket.reads += 1;
   if (importRequest) bucket.imports += 1;
@@ -138,18 +142,36 @@ function rateLimit(
 function mapUpstreamError(error: unknown): { status: number; body: unknown } {
   const message = error instanceof Error ? error.message : String(error);
   if (/invalid request|required|conflicting worker labels|must not be blank/i.test(message)) {
-    return { status: 422, body: errorBody("validation", "The request failed DAISy Kanban validation.") };
+    return {
+      status: 422,
+      body: errorBody("validation", "The request failed DAISy Kanban validation."),
+    };
   }
   if (/not found/i.test(message)) {
-    return { status: 404, body: errorBody("not-found", "The requested Kanban card was not found.") };
+    return {
+      status: 404,
+      body: errorBody("not-found", "The requested Kanban card was not found."),
+    };
   }
   if (/version conflict/i.test(message)) {
-    return { status: 409, body: errorBody("version-conflict", "The card changed; reread it and retry with its current version.") };
+    return {
+      status: 409,
+      body: errorBody(
+        "version-conflict",
+        "The card changed; reread it and retry with its current version.",
+      ),
+    };
   }
   if (/unavailable|timeout|closed|gateway/i.test(message)) {
-    return { status: 503, body: errorBody("upstream-unavailable", "The DAISy gateway is unavailable.") };
+    return {
+      status: 503,
+      body: errorBody("upstream-unavailable", "The DAISy gateway is unavailable."),
+    };
   }
-  return { status: 500, body: errorBody("internal", "The DAISy bridge could not complete the request.") };
+  return {
+    status: 500,
+    body: errorBody("internal", "The DAISy bridge could not complete the request."),
+  };
 }
 
 export function createKanbanBridgeServer(options: KanbanBridgeOptions = {}): Server {
@@ -177,7 +199,7 @@ export function createKanbanBridgeServer(options: KanbanBridgeOptions = {}): Ser
         const request = await readBody(req, NORMAL_BODY_LIMIT);
         const response = await mcp(request as Parameters<typeof mcp>[0]);
         if (response) json(res, 200, response);
-        else res.statusCode = 202, res.end();
+        else ((res.statusCode = 202), res.end());
       } catch {
         json(res, 400, errorBody("validation", "Invalid MCP request."));
       }
@@ -194,7 +216,10 @@ export function createKanbanBridgeServer(options: KanbanBridgeOptions = {}): Ser
       return;
     }
     try {
-      const body = req.method === "GET" ? {} : await readBody(req, importRequest ? IMPORT_BODY_LIMIT : NORMAL_BODY_LIMIT);
+      const body =
+        req.method === "GET"
+          ? {}
+          : await readBody(req, importRequest ? IMPORT_BODY_LIMIT : NORMAL_BODY_LIMIT);
       if (!isRecord(body)) {
         json(res, 422, errorBody("validation", "Request body must be a JSON object."));
         return;
@@ -204,19 +229,31 @@ export function createKanbanBridgeServer(options: KanbanBridgeOptions = {}): Ser
       let method = "";
       if (req.method === "GET" && parts[1] === "status") method = "kanban.status";
       else if (req.method === "GET" && parts[1] === "board") method = "kanban.board.get";
-      else if (req.method === "GET" && parts[1] === "cards" && !cardId) method = "kanban.cards.list";
-      else if (req.method === "GET" && parts[1] === "cards" && cardId) method = "kanban.cards.get", params.cardId = cardId;
+      else if (req.method === "GET" && parts[1] === "cards" && !cardId)
+        method = "kanban.cards.list";
+      else if (req.method === "GET" && parts[1] === "cards" && cardId)
+        ((method = "kanban.cards.get"), (params.cardId = cardId));
       else if (req.method === "GET" && parts[1] === "activity") method = "kanban.activity.list";
-      else if (req.method === "POST" && parts.length === 2 && parts[1] === "cards") method = "kanban.cards.create";
-      else if (req.method === "PATCH" && parts[1] === "cards" && cardId) method = "kanban.cards.update", params.cardId = cardId;
-      else if (req.method === "POST" && parts[1] === "cards" && parts[3] === "move") method = "kanban.cards.move", params.cardId = cardId;
-      else if (req.method === "POST" && parts[1] === "cards" && parts[3] === "comments") method = "kanban.cards.comment", params.cardId = cardId;
-      else if (req.method === "POST" && parts[1] === "cards" && parts[3] === "archive") method = "kanban.cards.archive", params.cardId = cardId;
-      else if (req.method === "POST" && parts[1] === "imports" && parts[3] === "preview") method = "kanban.import.trello.preview";
-      else if (req.method === "POST" && parts[1] === "imports" && parts[3] === "run") method = "kanban.import.trello.run";
-      else if (req.method === "POST" && parts[1] === "tasks" && parts[2] === "pick-next") method = "kanban.agent.pickNext";
-      else if (req.method === "POST" && parts[1] === "tasks" && parts[3] === "handoff") method = "kanban.agent.handoff", params.cardId = cardId;
-      else if (req.method === "POST" && parts[1] === "tasks" && parts[3] === "complete") method = "kanban.agent.complete", params.cardId = cardId;
+      else if (req.method === "POST" && parts.length === 2 && parts[1] === "cards")
+        method = "kanban.cards.create";
+      else if (req.method === "PATCH" && parts[1] === "cards" && cardId)
+        ((method = "kanban.cards.update"), (params.cardId = cardId));
+      else if (req.method === "POST" && parts[1] === "cards" && parts[3] === "move")
+        ((method = "kanban.cards.move"), (params.cardId = cardId));
+      else if (req.method === "POST" && parts[1] === "cards" && parts[3] === "comments")
+        ((method = "kanban.cards.comment"), (params.cardId = cardId));
+      else if (req.method === "POST" && parts[1] === "cards" && parts[3] === "archive")
+        ((method = "kanban.cards.archive"), (params.cardId = cardId));
+      else if (req.method === "POST" && parts[1] === "imports" && parts[3] === "preview")
+        method = "kanban.import.trello.preview";
+      else if (req.method === "POST" && parts[1] === "imports" && parts[3] === "run")
+        method = "kanban.import.trello.run";
+      else if (req.method === "POST" && parts[1] === "tasks" && parts[2] === "pick-next")
+        method = "kanban.agent.pickNext";
+      else if (req.method === "POST" && parts[1] === "tasks" && parts[3] === "handoff")
+        ((method = "kanban.agent.handoff"), (params.cardId = cardId));
+      else if (req.method === "POST" && parts[1] === "tasks" && parts[3] === "complete")
+        ((method = "kanban.agent.complete"), (params.cardId = cardId));
       else {
         json(res, 404, errorBody("not-found", "Unknown bridge route."));
         return;
@@ -230,7 +267,11 @@ export function createKanbanBridgeServer(options: KanbanBridgeOptions = {}): Ser
     } catch (error) {
       const bridgeError = error as { bridgeCode?: string };
       if (bridgeError.bridgeCode === "validation") {
-        json(res, 422, errorBody("validation", error instanceof Error ? error.message : "Invalid request."));
+        json(
+          res,
+          422,
+          errorBody("validation", error instanceof Error ? error.message : "Invalid request."),
+        );
         return;
       }
       if (bridgeError.bridgeCode === "rate-limit") {
