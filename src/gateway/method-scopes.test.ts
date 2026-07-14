@@ -36,6 +36,9 @@ describe("method scope resolution", () => {
       "kanban.codex.pickNext",
       "kanban.codex.handoff",
       "kanban.codex.complete",
+      "kanban.agent.pickNext",
+      "kanban.agent.handoff",
+      "kanban.agent.complete",
     ];
 
     for (const method of readMethods) {

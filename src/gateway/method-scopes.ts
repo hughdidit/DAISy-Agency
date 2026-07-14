@@ -126,6 +126,9 @@ const METHOD_SCOPE_GROUPS: Record<OperatorScope, readonly string[]> = {
     "kanban.codex.pickNext",
     "kanban.codex.handoff",
     "kanban.codex.complete",
+    "kanban.agent.pickNext",
+    "kanban.agent.handoff",
+    "kanban.agent.complete",
   ],
   [ADMIN_SCOPE]: [
     "doctor.run",

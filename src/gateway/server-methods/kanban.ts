@@ -44,9 +44,9 @@ import {
   validateKanbanCardsListParams,
   validateKanbanCardsMoveParams,
   validateKanbanCardsUpdateParams,
-  validateKanbanCodexCompleteParams,
-  validateKanbanCodexHandoffParams,
-  validateKanbanCodexPickNextParams,
+  validateKanbanAgentCompleteParams,
+  validateKanbanAgentHandoffParams,
+  validateKanbanAgentPickNextParams,
   validateKanbanImportTrelloPreviewParams,
   validateKanbanImportTrelloRunParams,
   validateKanbanStatusParams,
@@ -97,6 +97,9 @@ const KANBAN_WRITE_METHODS = [
   "kanban.codex.pickNext",
   "kanban.codex.handoff",
   "kanban.codex.complete",
+  "kanban.agent.pickNext",
+  "kanban.agent.handoff",
+  "kanban.agent.complete",
 ] as const;
 
 function iso(value: Date): string {
@@ -508,10 +511,16 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
       }
       return await run(repo, resolution.config);
     } catch (error) {
+      const message = sanitizeError(error, resolution.config);
       respond(
         false,
         undefined,
-        errorShape(ErrorCodes.UNAVAILABLE, sanitizeError(error, resolution.config)),
+        errorShape(
+          /required|conflicting worker labels|must not be blank/i.test(message)
+            ? ErrorCodes.INVALID_REQUEST
+            : ErrorCodes.UNAVAILABLE,
+          message,
+        ),
       );
       return null;
     } finally {
@@ -519,7 +528,7 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
     }
   }
 
-  return {
+  const handlers: GatewayRequestHandlers = {
     "kanban.status": async ({ params, respond }) => {
       if (!assertValidParams(params, validateKanbanStatusParams, "kanban.status", respond)) {
         return;
@@ -1024,12 +1033,12 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
       });
     },
 
-    "kanban.codex.pickNext": async ({ params, req, client, respond }) => {
+    "kanban.agent.pickNext": async ({ params, req, client, respond }) => {
       if (
         !assertValidParams(
           params,
-          validateKanbanCodexPickNextParams,
-          "kanban.codex.pickNext",
+          validateKanbanAgentPickNextParams,
+          "kanban.agent.pickNext",
           respond,
         )
       ) {
@@ -1039,20 +1048,20 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
         if (rejectNonDefaultBoard(params.boardId, config, respond)) {
           return;
         }
-        const result = await repo.pickNextCodexCard(
-          { boardId: config.board.slug },
+        const result = await repo.pickNextCard(
+          { boardId: config.board.slug, worker: params.worker ?? "codex" },
           codexAuditFromRequest(client, req.id, params),
         );
         respond(true, result ? mapMutationResult(result) : { card: null }, undefined);
       });
     },
 
-    "kanban.codex.handoff": async ({ params, req, client, respond }) => {
+    "kanban.agent.handoff": async ({ params, req, client, respond }) => {
       if (
         !assertValidParams(
           params,
-          validateKanbanCodexHandoffParams,
-          "kanban.codex.handoff",
+          validateKanbanAgentHandoffParams,
+          "kanban.agent.handoff",
           respond,
         )
       ) {
@@ -1116,12 +1125,12 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
       );
     },
 
-    "kanban.codex.complete": async ({ params, req, client, respond }) => {
+    "kanban.agent.complete": async ({ params, req, client, respond }) => {
       if (
         !assertValidParams(
           params,
-          validateKanbanCodexCompleteParams,
-          "kanban.codex.complete",
+          validateKanbanAgentCompleteParams,
+          "kanban.agent.complete",
           respond,
         )
       ) {
@@ -1152,6 +1161,10 @@ export function createKanbanHandlers(deps: KanbanHandlersDeps = {}): GatewayRequ
       });
     },
   };
+  handlers["kanban.codex.pickNext"] = handlers["kanban.agent.pickNext"];
+  handlers["kanban.codex.handoff"] = handlers["kanban.agent.handoff"];
+  handlers["kanban.codex.complete"] = handlers["kanban.agent.complete"];
+  return handlers;
 }
 
 export const kanbanHandlers = createKanbanHandlers();

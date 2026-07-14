@@ -188,6 +188,12 @@ import {
   KanbanCodexHandoffParamsSchema,
   type KanbanCodexPickNextParams,
   KanbanCodexPickNextParamsSchema,
+  type KanbanAgentPickNextParams,
+  KanbanAgentPickNextParamsSchema,
+  type KanbanAgentHandoffParams,
+  KanbanAgentHandoffParamsSchema,
+  type KanbanAgentCompleteParams,
+  KanbanAgentCompleteParamsSchema,
   type KanbanImportTrelloPreviewParams,
   KanbanImportTrelloPreviewParamsSchema,
   type KanbanImportTrelloRunParams,
@@ -564,6 +570,15 @@ export const validateKanbanImportTrelloRunParams = ajv.compile<KanbanImportTrell
 );
 export const validateKanbanCodexPickNextParams = ajv.compile<KanbanCodexPickNextParams>(
   KanbanCodexPickNextParamsSchema,
+);
+export const validateKanbanAgentPickNextParams = ajv.compile<KanbanAgentPickNextParams>(
+  KanbanAgentPickNextParamsSchema,
+);
+export const validateKanbanAgentHandoffParams = ajv.compile<KanbanAgentHandoffParams>(
+  KanbanAgentHandoffParamsSchema,
+);
+export const validateKanbanAgentCompleteParams = ajv.compile<KanbanAgentCompleteParams>(
+  KanbanAgentCompleteParamsSchema,
 );
 export const validateKanbanCodexHandoffParams = ajv.compile<KanbanCodexHandoffParams>(
   KanbanCodexHandoffParamsSchema,

@@ -464,22 +464,32 @@ export const KanbanImportTrelloRunResultSchema = Type.Object(
   { additionalProperties: false },
 );
 
-export const KanbanCodexPickNextParamsSchema = Type.Object(
+export const KanbanWorkerSchema = Type.Union([
+  Type.Literal("codex"),
+  Type.Literal("work"),
+]);
+
+export const KanbanAgentPickNextParamsSchema = Type.Object(
   {
     boardId: Type.Optional(NonEmptyString),
+    worker: Type.Optional(KanbanWorkerSchema),
     agentId: Type.Optional(NonEmptyString),
     agentName: Type.Optional(Type.String()),
   },
   { additionalProperties: false },
 );
 
-export const KanbanCodexPickNextResultSchema = Type.Object(
+export const KanbanAgentPickNextResultSchema = Type.Object(
   {
     card: Type.Union([KanbanCardSchema, Type.Null()]),
     activity: Type.Optional(KanbanActivitySchema),
   },
   { additionalProperties: false },
 );
+
+export const KanbanCodexPickNextParamsSchema = KanbanAgentPickNextParamsSchema;
+
+export const KanbanCodexPickNextResultSchema = KanbanAgentPickNextResultSchema;
 
 export const KanbanCodexHandoffParamsSchema = Type.Object(
   {
@@ -502,3 +512,6 @@ export const KanbanCodexCompleteParamsSchema = Type.Object(
   },
   { additionalProperties: false },
 );
+
+export const KanbanAgentHandoffParamsSchema = KanbanCodexHandoffParamsSchema;
+export const KanbanAgentCompleteParamsSchema = KanbanCodexCompleteParamsSchema;

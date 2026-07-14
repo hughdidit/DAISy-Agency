@@ -25,6 +25,8 @@ import {
   KANBAN_MAX_ATTACHMENT_BYTES,
   KANBAN_MAX_ATTACHMENT_FILENAME_LENGTH,
   KANBAN_MAX_ATTACHMENTS_PER_CARD,
+  KANBAN_WORKER_LABELS,
+  normalizeKanbanLabels,
   type KanbanActivity,
   type KanbanActivityAction,
   type KanbanActorEnvelope,
@@ -34,6 +36,7 @@ import {
   type KanbanCard,
   type KanbanLaneId,
   type KanbanPriority,
+  type KanbanWorker,
   type KanbanImportRun,
 } from "./types.js";
 
@@ -219,6 +222,11 @@ export type KanbanArchiveAttachmentInput = {
 
 export type KanbanPickNextCodexCardInput = {
   boardId: string;
+};
+
+export type KanbanPickNextCardInput = {
+  boardId: string;
+  worker: KanbanWorker;
 };
 
 export type KanbanCodexHandoffInput = {
@@ -612,7 +620,7 @@ function buildImportedCardSet(
     priority: card.priority,
     priorityRank: priorityRank(card.priority),
     assignee: card.assignee,
-    labels: [...card.labels],
+    labels: normalizeKanbanLabels(card.labels),
     checklist: card.checklist
       .toSorted((left, right) => left.position - right.position)
       .map((item) => mapImportedChecklistItem(item, now)),
@@ -679,7 +687,7 @@ export function buildCardDocument(
     assignee: input.assignee,
     reviewer: input.reviewer,
     inputOwner: input.inputOwner,
-    labels: cloneStrings(input.labels),
+    labels: normalizeKanbanLabels(input.labels),
     dueAt: input.dueAt,
     checklist: cloneCardArray(input.checklist),
     comments: cloneCardArray(input.comments),
@@ -731,7 +739,7 @@ export function buildCardUpdateOperation(
     set.inputOwner = updates.inputOwner;
   }
   if (updates.labels !== undefined) {
-    set.labels = cloneStrings(updates.labels);
+    set.labels = normalizeKanbanLabels(updates.labels);
   }
   if (updates.dueAt === null) {
     unset.dueAt = "";
@@ -1126,7 +1134,7 @@ export class KanbanMongoRepository {
             lane: card.lane,
             position: card.position,
             priority: card.priority,
-            labels: card.labels,
+            labels: normalizeKanbanLabels(card.labels),
             dueAt: card.dueAt,
             assignee: card.assignee,
             checklist: card.checklist
@@ -1669,13 +1677,31 @@ export class KanbanMongoRepository {
     input: KanbanPickNextCodexCardInput,
     audit: KanbanAuditEnvelope,
   ): Promise<KanbanCardMutationResult | null> {
+    return this.pickNextCard({ ...input, worker: "codex" }, audit);
+  }
+
+  async pickNextCard(
+    input: KanbanPickNextCardInput,
+    audit: KanbanAuditEnvelope,
+  ): Promise<KanbanCardMutationResult | null> {
     const unifiedAudit = auditWithTimestamp(audit);
     return this.withTransaction(async (session) => {
+      const workerFilter =
+        input.worker === "work"
+          ? { labels: { $in: ["worker:work", "worker:any"] } }
+          : {
+              $or: [
+                { labels: { $nin: [...KANBAN_WORKER_LABELS] } },
+                { labels: "worker:codex" },
+                { labels: "worker:any" },
+              ],
+            };
       const card = await this.collections.cards.findOneAndUpdate(
         {
           boardId: input.boardId,
           archivedAt: { $exists: false },
           readyForCodex: true,
+          ...workerFilter,
         },
         {
           $set: {

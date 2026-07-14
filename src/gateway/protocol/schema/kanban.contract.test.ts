@@ -190,4 +190,12 @@ describe("Kanban gateway protocol schemas", () => {
     expect(complete({ cardId: "card-1", expectedVersion: 3, summary: "Done" })).toBe(true);
     expect(complete({ cardId: "card-1", summary: "Done" })).toBe(false);
   });
+
+  it("accepts agent-neutral pickup routing while preserving Codex defaults", () => {
+    const pick = createAjv().compile(ProtocolSchemas.KanbanAgentPickNextParams);
+    expect(pick({ worker: "codex", agentId: "codex-desktop" })).toBe(true);
+    expect(pick({ worker: "work", agentId: "chatgpt-work" })).toBe(true);
+    expect(pick({ agentId: "legacy-codex" })).toBe(true);
+    expect(pick({ worker: "unknown" })).toBe(false);
+  });
 });
