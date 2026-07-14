@@ -37,16 +37,25 @@ The MCP server exposes:
 - `kanban_handoff`
 - `kanban_complete`
 
+It also exposes the granular tool surface used by the Site and ChatGPT Work:
+
+- `kanban_status`, `kanban_list_cards`, `kanban_get_card`, `kanban_list_activity`
+- `kanban_create_card`, `kanban_update_card`, `kanban_move_card`, `kanban_comment_card`, `kanban_archive_card`
+
 These tools call OpenClaw Gateway RPC. They do not accept MongoDB credentials and must not be configured with `KANBAN_MONGODB_URI`.
 
 ## Codex Desktop Automation
 
-Create a Codex Desktop recurring automation that runs every 30 minutes. Use 60 minutes only when the queue should be quieter.
+Create a Codex Desktop recurring automation that runs every 30 minutes with
+`worker: "codex"` and agent id `codex-desktop`. ChatGPT Work uses the same
+interval with `worker: "work"` and agent id `chatgpt-work` through the private
+Secure MCP Tunnel. The Site is owner-only and calls the authenticated bridge
+routes server-side; it never receives a gateway token.
 
 Prompt:
 
 ```text
-Use the kanban-codex skill. Read DAISy Kanban status, then call `kanban_pick_task` to claim the next ready card, work it, then complete or hand off with evidence.
+Use the daisy-kanban-operator skill. Read DAISy Kanban status, then call `kanban_pick_task` with `worker: "codex"` and `agentId: "codex-desktop"` to claim the next eligible ready card, work it, then reread its current version and complete or hand off with evidence.
 ```
 
 Expected behavior:

@@ -8,7 +8,12 @@ import {
   KANBAN_INDEX_DEFINITIONS,
   validateKanbanAuditEnvelope,
 } from "./repository.js";
-import { KANBAN_DEFAULT_BOARD_SLUG, KANBAN_DEFAULT_BOARD_TITLE, KANBAN_LANES } from "./types.js";
+import {
+  KANBAN_DEFAULT_BOARD_SLUG,
+  KANBAN_DEFAULT_BOARD_TITLE,
+  KANBAN_LANES,
+  normalizeKanbanLabels,
+} from "./types.js";
 
 const config: ResolvedKanbanConfig = {
   enabled: true,
@@ -139,6 +144,16 @@ describe("buildCardDocument", () => {
         title: " ",
       }),
     ).toThrow("Kanban card title is required");
+  });
+
+  it("normalizes worker routing labels and rejects conflicting routes", () => {
+    expect(normalizeKanbanLabels(["Planning", " WORKER:CODEX "])).toEqual([
+      "Planning",
+      "worker:codex",
+    ]);
+    expect(() => normalizeKanbanLabels(["worker:codex", "worker:work"])).toThrow(
+      "conflicting worker labels",
+    );
   });
 });
 

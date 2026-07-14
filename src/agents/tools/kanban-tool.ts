@@ -131,6 +131,9 @@ const KanbanPickTaskSchema = Type.Object(
   {
     ...GatewayFields,
     ...BoardField,
+    worker: optionalStringEnum(["codex", "work"] as const),
+    agentId: Type.Optional(Type.String()),
+    agentName: Type.Optional(Type.String()),
   },
   { additionalProperties: true },
 );
@@ -158,6 +161,67 @@ const KanbanCompleteSchema = Type.Object(
   },
   { additionalProperties: true },
 );
+
+const KanbanStatusToolSchema = Type.Object({ ...GatewayFields });
+const KanbanListCardsToolSchema = Type.Object({
+  ...GatewayFields,
+  ...BoardField,
+  lane: optionalStringEnum(KANBAN_LANES),
+  includeArchived: Type.Optional(Type.Boolean()),
+  readyForCodex: Type.Optional(Type.Boolean()),
+  assignee: Type.Optional(Type.String()),
+  limit: Type.Optional(Type.Integer({ minimum: 1, maximum: KANBAN_MAX_ARCHIVED_CARD_LIST_LIMIT })),
+});
+const KanbanGetCardToolSchema = Type.Object({
+  ...GatewayFields,
+  ...BoardField,
+  cardId: Type.String(),
+});
+const KanbanActivityToolSchema = Type.Object({
+  ...GatewayFields,
+  ...BoardField,
+  cardId: Type.Optional(Type.String()),
+  limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 200 })),
+  before: Type.Optional(Type.String()),
+  beforeId: Type.Optional(Type.String()),
+});
+const KanbanCreateCardToolSchema = Type.Object({
+  ...GatewayFields,
+  ...BoardField,
+  title: Type.String(),
+  description: Type.Optional(Type.String()),
+  lane: optionalStringEnum(KANBAN_LANES),
+  priority: optionalStringEnum(KANBAN_PRIORITIES),
+  labels: Type.Optional(Type.Array(Type.String())),
+  readyForCodex: Type.Optional(Type.Boolean()),
+});
+const KanbanUpdateCardToolSchema = Type.Object({
+  ...GatewayFields,
+  ...BoardField,
+  cardId: Type.String(),
+  expectedVersion: Type.Integer({ minimum: 1 }),
+  updates: Type.Object({}, { additionalProperties: true }),
+});
+const KanbanMoveCardToolSchema = Type.Object({
+  ...GatewayFields,
+  ...BoardField,
+  cardId: Type.String(),
+  expectedVersion: Type.Integer({ minimum: 1 }),
+  lane: stringEnum(KANBAN_LANES),
+  position: Type.Optional(Type.Number()),
+});
+const KanbanCommentCardToolSchema = Type.Object({
+  ...GatewayFields,
+  ...BoardField,
+  cardId: Type.String(),
+  body: Type.String(),
+});
+const KanbanArchiveCardToolSchema = Type.Object({
+  ...GatewayFields,
+  ...BoardField,
+  cardId: Type.String(),
+  expectedVersion: Type.Integer({ minimum: 1 }),
+});
 
 type GatewayToolCaller = typeof callGatewayTool;
 
@@ -484,6 +548,128 @@ export function createKanbanTools(
   deps?: KanbanToolDeps,
 ): AnyAgentTool[] {
   const callGateway = deps?.callGatewayTool ?? callGatewayTool;
+  const invoke = async (method: string, params: Record<string, unknown>) =>
+    jsonResult(await callGateway(method, readGatewayOpts(params), params));
+  const granularTools: AnyAgentTool[] = [
+    {
+      label: "Kanban Status",
+      name: "kanban_status",
+      description:
+        "Use this when you need to check whether the DAISy Kanban gateway and board are available.",
+      parameters: KanbanStatusToolSchema,
+      execute: async (_id, args) => invoke("kanban.status", {}),
+    },
+    {
+      label: "Kanban List Cards",
+      name: "kanban_list_cards",
+      description: "Use this when you need the current active or archived DAISy Kanban cards.",
+      parameters: KanbanListCardsToolSchema,
+      execute: async (_id, args) => {
+        const params = args as Record<string, unknown>;
+        return invoke(
+          "kanban.cards.list",
+          buildReadRequest("list_cards", params).params as Record<string, unknown>,
+        );
+      },
+    },
+    {
+      label: "Kanban Get Card",
+      name: "kanban_get_card",
+      description: "Use this when you need the full current version of one DAISy Kanban card.",
+      parameters: KanbanGetCardToolSchema,
+      execute: async (_id, args) => {
+        const params = args as Record<string, unknown>;
+        return invoke(
+          "kanban.cards.get",
+          buildReadRequest("get_card", params).params as Record<string, unknown>,
+        );
+      },
+    },
+    {
+      label: "Kanban Activity",
+      name: "kanban_list_activity",
+      description:
+        "Use this when you need append-only activity history for the DAISy Kanban board or a card.",
+      parameters: KanbanActivityToolSchema,
+      execute: async (_id, args) => {
+        const params = args as Record<string, unknown>;
+        return invoke(
+          "kanban.activity.list",
+          buildReadRequest("activity", params).params as Record<string, unknown>,
+        );
+      },
+    },
+    {
+      label: "Kanban Create Card",
+      name: "kanban_create_card",
+      description: "Use this when you need to create one DAISy Kanban card.",
+      parameters: KanbanCreateCardToolSchema,
+      execute: async (_id, args) =>
+        invoke("kanban.cards.create", buildCardCreateParams(args as Record<string, unknown>)),
+    },
+    {
+      label: "Kanban Update Card",
+      name: "kanban_update_card",
+      description:
+        "Use this when you need to update one card with an optimistic expectedVersion check.",
+      parameters: KanbanUpdateCardToolSchema,
+      execute: async (_id, args) => {
+        const params = args as Record<string, unknown>;
+        return invoke("kanban.cards.update", {
+          ...boardParams(params),
+          cardId: readStringParam(params, "cardId", { required: true, label: "cardId" }),
+          expectedVersion: readPositiveIntegerParam(params, "expectedVersion", {
+            required: true,
+            label: "expectedVersion",
+          }),
+          updates: buildCardUpdates(params),
+        });
+      },
+    },
+    {
+      label: "Kanban Move Card",
+      name: "kanban_move_card",
+      description:
+        "Use this when you need to move or reorder one card with an optimistic expectedVersion check.",
+      parameters: KanbanMoveCardToolSchema,
+      execute: async (_id, args) =>
+        invoke(
+          "kanban.cards.move",
+          buildWriteRequest("move_card", args as Record<string, unknown>).params as Record<
+            string,
+            unknown
+          >,
+        ),
+    },
+    {
+      label: "Kanban Comment Card",
+      name: "kanban_comment_card",
+      description: "Use this when you need to append an evidence or progress comment to a card.",
+      parameters: KanbanCommentCardToolSchema,
+      execute: async (_id, args) =>
+        invoke(
+          "kanban.cards.comment",
+          buildWriteRequest("comment_card", args as Record<string, unknown>).params as Record<
+            string,
+            unknown
+          >,
+        ),
+    },
+    {
+      label: "Kanban Archive Card",
+      name: "kanban_archive_card",
+      description: "Use this when you need to archive a card after rereading its current version.",
+      parameters: KanbanArchiveCardToolSchema,
+      execute: async (_id, args) =>
+        invoke(
+          "kanban.cards.archive",
+          buildWriteRequest("archive_card", args as Record<string, unknown>).params as Record<
+            string,
+            unknown
+          >,
+        ),
+    },
+  ];
   return [
     {
       label: "Kanban Read",
@@ -523,12 +709,15 @@ export function createKanbanTools(
       parameters: KanbanPickTaskSchema,
       execute: async (_toolCallId, args) => {
         const params = args as Record<string, unknown>;
+        const worker = readStringParam(params, "worker");
+        const payload: Record<string, unknown> = {
+          ...boardParams(params),
+          agentId: readStringParam(params, "agentId") ?? options.agentId,
+          agentName: readStringParam(params, "agentName") ?? options.agentName,
+        };
+        if (worker) payload.worker = worker;
         return jsonResult(
-          await callGateway("kanban.codex.pickNext", readGatewayOpts(params), {
-            ...boardParams(params),
-            agentId: options.agentId,
-            agentName: options.agentName,
-          }),
+          await callGateway("kanban.codex.pickNext", readGatewayOpts(params), payload),
         );
       },
     },
@@ -581,5 +770,6 @@ export function createKanbanTools(
         );
       },
     },
+    ...granularTools,
   ];
 }

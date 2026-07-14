@@ -111,7 +111,7 @@ function resolveTimeoutMs(opts: GatewayCallOptions): number {
     : DEFAULT_TIMEOUT_MS;
 }
 
-function createDirectGatewayCaller(env: KanbanMcpEnv): GatewayCaller {
+export function createKanbanGatewayCaller(env: KanbanMcpEnv): GatewayCaller {
   return async <T = Record<string, unknown>>(
     method: string,
     opts: GatewayCallOptions,
@@ -191,7 +191,7 @@ function resultResponse(id: JsonRpcRequest["id"], result: unknown): JsonRpcRespo
 
 export function createKanbanMcpRequestHandler(deps: KanbanMcpServerDeps = {}) {
   const env = deps.env ?? process.env;
-  const callGateway = deps.callGateway ?? createDirectGatewayCaller(env);
+  const callGateway = deps.callGateway ?? createKanbanGatewayCaller(env);
   const tools = createKanbanTools(
     {
       agentId: readNonBlank(env, "DAISY_KANBAN_AGENT_ID") ?? DEFAULT_AGENT_ID,
@@ -223,6 +223,7 @@ export function createKanbanMcpRequestHandler(deps: KanbanMcpServerDeps = {}) {
           name: tool.name,
           description: tool.description,
           inputSchema: tool.parameters,
+          annotations: toolAnnotations(tool.name),
         })),
       });
     }
@@ -255,6 +256,22 @@ export function createKanbanMcpRequestHandler(deps: KanbanMcpServerDeps = {}) {
       }
     }
     return errorResponse(request.id, -32601, `unknown MCP method: ${request.method ?? ""}`);
+  };
+}
+
+function toolAnnotations(name: string): Record<string, boolean> {
+  const readOnly = new Set([
+    "kanban_status",
+    "kanban_list_cards",
+    "kanban_get_card",
+    "kanban_list_activity",
+    "kanban_read",
+  ]);
+  return {
+    readOnlyHint: readOnly.has(name),
+    destructiveHint: name === "kanban_archive_card",
+    idempotentHint: readOnly.has(name) || name === "kanban_archive_card",
+    openWorldHint: false,
   };
 }
 

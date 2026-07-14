@@ -7,6 +7,29 @@ export const KANBAN_MAX_ATTACHMENT_BYTES = 5_000_000;
 export const KANBAN_MAX_ATTACHMENT_BASE64_LENGTH = Math.ceil(KANBAN_MAX_ATTACHMENT_BYTES / 3) * 4;
 export const KANBAN_MAX_ATTACHMENTS_PER_CARD = 100;
 export const KANBAN_MAX_ATTACHMENT_FILENAME_LENGTH = 255;
+export const KANBAN_WORKER_LABELS = ["worker:codex", "worker:work", "worker:any"] as const;
+export type KanbanWorker = "codex" | "work";
+
+export function normalizeKanbanLabels(labels: string[] | undefined): string[] {
+  const normalized: string[] = [];
+  const workers = new Set<string>();
+  for (const raw of labels ?? []) {
+    const label = raw.trim();
+    if (!label) {
+      continue;
+    }
+    const lower = label.toLowerCase();
+    if ((KANBAN_WORKER_LABELS as readonly string[]).includes(lower)) {
+      workers.add(lower);
+      continue;
+    }
+    normalized.push(label);
+  }
+  if (workers.size > 1) {
+    throw new Error("Kanban card cannot contain conflicting worker labels");
+  }
+  return [...normalized, ...workers];
+}
 
 export const KANBAN_LANES = [
   { id: "todo", title: "To Do", order: 0 },
